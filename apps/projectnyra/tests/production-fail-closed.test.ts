@@ -9,10 +9,12 @@ jest.mock("next/server", () => ({
 
 const ORIGINAL_ENV = process.env;
 const ORIGINAL_RESPONSE = global.Response;
+const ORIGINAL_FETCH = global.fetch;
 
 describe("production API mutation fallbacks", () => {
   beforeEach(() => {
     jest.resetModules();
+    global.fetch = ORIGINAL_FETCH;
     global.Response = {
       json: (body: unknown, init?: ResponseInit) => ({
         json: async () => body,
@@ -33,6 +35,7 @@ describe("production API mutation fallbacks", () => {
   afterAll(() => {
     process.env = ORIGINAL_ENV;
     global.Response = ORIGINAL_RESPONSE;
+    global.fetch = ORIGINAL_FETCH;
   });
 
   it("fails closed for production lead writes without CRM or ingestion service config", async () => {
@@ -61,6 +64,32 @@ describe("production API mutation fallbacks", () => {
     expect(response.status).toBe(503);
     expect(body.error).toBe("CRM API is unavailable");
     expect(body.mocksEnabled).toBe(false);
+  });
+
+  it("does not post raw lead writes to the CRM API fallback", async () => {
+    const fetchMock = jest.fn();
+    global.fetch = fetchMock;
+    process.env = {
+      ...process.env,
+      CRM_API_URL: "https://crm.example.test",
+    };
+    jest.resetModules();
+    const { POST } = await import("../src/app/api/leads/route");
+
+    const response = await POST(
+      requestJson({
+        email: "lead@example.com",
+        firstName: "Test",
+        lastName: "Lead",
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(body.detail).toContain(
+      "LEAD_INGESTION_API_URL must be configured for production lead writes"
+    );
   });
 
   it("keeps local development lead write mocks available", async () => {

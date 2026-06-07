@@ -8,6 +8,8 @@ export type CrmPlanLeadResult = {
   id: string;
   source: "created" | "updated" | "matched";
   record: unknown;
+  doNotContact: boolean;
+  consentStatus: string;
 };
 
 export type CrmWritePlanResult = {
@@ -46,7 +48,7 @@ export async function executeCrmWritePlan(
   auditSink: AuditSink
 ): Promise<CrmWritePlanResult> {
   const lead = await upsertLeadFromPlan(plan.lead, client);
-  const campaignEnrollment = plan.campaignEnrollment
+  const campaignEnrollment = plan.campaignEnrollment && !isLeadBlocked(lead)
     ? await client.enrollCampaign({
         ...plan.campaignEnrollment,
         leadId: lead.id,
@@ -115,12 +117,22 @@ async function upsertLeadFromPlan(
     const existingId = String(existing.id);
     const mergedPayload = mergeConsentData(payload, existing);
     const record = await client.updateContact(existingId, mergedPayload);
-    return { id: existingId, source: lead.id ? "updated" : "matched", record };
+    const compliance = getComplianceState(mergedPayload);
+    return {
+      id: existingId,
+      source: lead.id ? "updated" : "matched",
+      record,
+      ...compliance,
+    };
   }
 
   const record = await client.createContact(payload);
   const id = getCreatedId(record);
-  return { id, source: "created", record };
+  return { id, source: "created", record, ...getComplianceState(payload) };
+}
+
+function isLeadBlocked(lead: Pick<CrmPlanLeadResult, "doNotContact" | "consentStatus">) {
+  return lead.doNotContact || lead.consentStatus === "DO_NOT_CONTACT";
 }
 
 function mergeConsentData(
@@ -180,6 +192,20 @@ async function findExistingLead(
   });
 
   return matches[0];
+}
+
+function getComplianceState(record: Record<string, unknown>): {
+  doNotContact: boolean;
+  consentStatus: string;
+} {
+  const customFields = (record.customFields as Record<string, unknown>) ?? {};
+  const doNotContact =
+    record.doNotContact === true || customFields.doNotContact === true;
+  const consentStatus = String(
+    record.consentStatus ?? customFields.consentStatus ?? "UNKNOWN"
+  );
+
+  return { doNotContact, consentStatus };
 }
 
 function toTwentyLeadPayload(

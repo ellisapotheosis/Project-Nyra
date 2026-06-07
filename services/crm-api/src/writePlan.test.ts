@@ -131,6 +131,32 @@ describe("executeCrmWritePlan", () => {
     expect(client.calls).not.toContain("createContact");
   });
 
+  it("does not enroll a campaign when a CRM dedupe match is do-not-contact", async () => {
+    const client = new FakeClient([
+      {
+        id: "lead-stopped",
+        customFields: {
+          dedupeKey: "email:morgan@example.com",
+          doNotContact: true,
+          consentStatus: "DO_NOT_CONTACT",
+        },
+      },
+    ]);
+    const audit = new FakeAuditSink();
+
+    const result = await executeCrmWritePlan(plan, client, audit);
+
+    expect(result.lead).toMatchObject({
+      id: "lead-stopped",
+      source: "matched",
+      doNotContact: true,
+      consentStatus: "DO_NOT_CONTACT",
+    });
+    expect(result.campaignEnrollment).toBeUndefined();
+    expect(client.calls).toContain("updateContact:lead-stopped");
+    expect(client.calls).not.toContain("enrollCampaign");
+  });
+
   it("rekeys explicit planned audit ids to the CRM lead id", async () => {
     const client = new FakeClient();
     const audit = new FakeAuditSink();

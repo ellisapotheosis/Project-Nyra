@@ -7,6 +7,7 @@ import type { CrmWritePlan } from "@nyra/crm-types";
 import { z } from "zod";
 
 export const serviceName = "lead-ingestion";
+const PENDING_CRM_LEAD_ID = "pending";
 
 export type RawLeadPayload = {
   id?: string;
@@ -175,6 +176,7 @@ export class LeadIngestionService {
     const lead = LeadSchema.parse({
       ...existingLead,
       ...normalized,
+      ...preserveComplianceBlock(existingLead),
       id: existingLead?.id ?? normalized.id,
       createdAt: existingLead?.createdAt ?? now,
       updatedAt: now,
@@ -325,6 +327,23 @@ export function determineCampaignEligibility(
   };
 }
 
+function preserveComplianceBlock(
+  existingLead: Lead | undefined
+): Partial<Pick<Lead, "consentStatus" | "doNotContact">> {
+  if (
+    !existingLead ||
+    (!existingLead.doNotContact &&
+      existingLead.consentStatus !== "DO_NOT_CONTACT")
+  ) {
+    return {};
+  }
+
+  return {
+    consentStatus: "DO_NOT_CONTACT",
+    doNotContact: true,
+  };
+}
+
 type BuildLeadEventsInput = {
   lead: Lead;
   dedupeKey: string;
@@ -413,12 +432,15 @@ type BuildCrmWritePlanInput = BuildLeadAuditEventsInput & {
 };
 
 export function buildCrmWritePlan(input: BuildCrmWritePlanInput): CrmWritePlan {
-  const leadId = input.lead.id ?? input.dedupeKey;
+  const isCreate = input.dedupeOutcome === "CREATED";
+  const leadId = isCreate
+    ? PENDING_CRM_LEAD_ID
+    : (input.lead.id ?? input.dedupeKey);
   const campaignId = cleanString(input.rawPayload.campaignId);
 
   return {
     lead: {
-      id: input.lead.id,
+      id: isCreate ? undefined : input.lead.id,
       externalId: input.lead.externalId,
       firstName: input.lead.firstName,
       lastName: input.lead.lastName,
@@ -448,19 +470,29 @@ export function buildCrmWritePlan(input: BuildCrmWritePlanInput): CrmWritePlan {
         : undefined,
     communicationLogs: [],
     quotes: [],
-    auditEvents: input.auditEvents.map((event) => ({
-      id: event.id,
-      entityType:
-        event.entityType === "CAMPAIGN_ENROLLMENT"
-          ? "CAMPAIGN_ENROLLMENT"
-          : "LEAD",
-      entityId: event.entityId,
-      action: event.action,
-      performer: event.performer,
-      riskLevel: event.riskLevel,
-      occurredAt: event.timestamp.toISOString(),
-      details: event.details,
-    })),
+    auditEvents: input.auditEvents.map((event) => {
+      const shouldRekeyCreateEvent =
+        isCreate &&
+        (event.entityType === "LEAD" ||
+          event.entityType === "CAMPAIGN_ENROLLMENT");
+      const entityId = shouldRekeyCreateEvent
+        ? PENDING_CRM_LEAD_ID
+        : event.entityId;
+
+      return {
+        id: event.id,
+        entityType:
+          event.entityType === "CAMPAIGN_ENROLLMENT"
+            ? "CAMPAIGN_ENROLLMENT"
+            : "LEAD",
+        entityId,
+        action: event.action,
+        performer: event.performer,
+        riskLevel: event.riskLevel,
+        occurredAt: event.timestamp.toISOString(),
+        details: event.details,
+      };
+    }),
   };
 }
 
