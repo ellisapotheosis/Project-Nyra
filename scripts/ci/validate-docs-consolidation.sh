@@ -56,9 +56,9 @@ fi
 
 name_status="$tmp_dir/name-status.txt"
 {
-  git diff --name-status --diff-filter=AMR "$BASE_COMMIT" "$TARGET_REF"
-  git diff --cached --name-status --diff-filter=AMR
-  git diff --name-status --diff-filter=AMR
+  git diff --name-status --diff-filter=AR "$BASE_COMMIT" "$TARGET_REF"
+  git diff --cached --name-status --diff-filter=AR
+  git diff --name-status --diff-filter=AR
 } >"$name_status"
 
 awk -F '\t' '
