@@ -1,18 +1,42 @@
-import pino from 'pino';
+import pino from "pino";
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
+const isDevelopment = process.env.NODE_ENV !== "production";
+const REDACTED_KEYS = [
+  "authorization",
+  "cookie",
+  "password",
+  "apiKey",
+  "api_key",
+  "token",
+  "accessToken",
+  "refreshToken",
+  "secret",
+  "*.authorization",
+  "*.cookie",
+  "*.password",
+  "*.apiKey",
+  "*.api_key",
+  "*.token",
+  "*.accessToken",
+  "*.refreshToken",
+  "*.secret",
+];
 
 export function createLogger(name: string) {
   return pino({
     name,
-    level: process.env.LOG_LEVEL || (isDevelopment ? 'debug' : 'info'),
+    level: process.env.LOG_LEVEL || (isDevelopment ? "debug" : "info"),
+    redact: {
+      paths: REDACTED_KEYS,
+      censor: "[REDACTED]",
+    },
     transport: isDevelopment
       ? {
-          target: 'pino-pretty',
+          target: "pino-pretty",
           options: {
             colorize: true,
-            translateTime: 'HH:MM:ss Z',
-            ignore: 'pid,hostname',
+            translateTime: "HH:MM:ss Z",
+            ignore: "pid,hostname",
             singleLine: false,
           },
         }
@@ -24,7 +48,7 @@ export function createLogger(name: string) {
     },
     timestamp: pino.stdTimeFunctions.isoTime,
     base: {
-      service: 'nexus-router',
+      service: "nexus-router",
     },
   });
 }

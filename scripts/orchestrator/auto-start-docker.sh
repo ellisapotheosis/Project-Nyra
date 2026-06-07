@@ -64,7 +64,7 @@ RUNNING_COUNT=$(docker ps --format '{{.Names}}' | wc -l)
 log "📊 Total running containers: $RUNNING_COUNT"
 
 # Check critical services
-CRITICAL_SERVICES=("postgres" "redis" "mongo" "infisical" "archon-os" "nexus")
+CRITICAL_SERVICES=("postgres" "redis" "mongo" "infisical" "nexus")
 log "🔍 Checking critical services..."
 
 for service in "${CRITICAL_SERVICES[@]}"; do

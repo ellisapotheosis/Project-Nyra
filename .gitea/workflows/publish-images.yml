@@ -8,7 +8,7 @@ on:
 
 jobs:
   publish:
-    runs-on: self-hosted-large
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,8 +33,14 @@ jobs:
           REG="${{ secrets.GITEA_REGISTRY }}"
           OWNER_LOWER="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
 
-          docker build -t "$REG/$OWNER_LOWER/nyra-archon-os:$TAG" -f services/archon-os/Dockerfile .
-          docker push "$REG/$OWNER_LOWER/nyra-archon-os:$TAG"
+          docker build -t "$REG/$OWNER_LOWER/nyra-nexus-router:$TAG" -f infra/images/nexus-router/Dockerfile .
+          docker push "$REG/$OWNER_LOWER/nyra-nexus-router:$TAG"
 
-          docker build -t "$REG/$OWNER_LOWER/nyra-archon-os-event-server:$TAG" -f services/archon-os-event-server/Dockerfile services/archon-os-event-server
-          docker push "$REG/$OWNER_LOWER/nyra-archon-os-event-server:$TAG"
+          docker build -t "$REG/$OWNER_LOWER/nyra-crm-api:$TAG" -f services/crm-api/Dockerfile .
+          docker push "$REG/$OWNER_LOWER/nyra-crm-api:$TAG"
+
+          docker build -t "$REG/$OWNER_LOWER/nyra-quote-api:$TAG" services/quote-api
+          docker push "$REG/$OWNER_LOWER/nyra-quote-api:$TAG"
+
+          docker build -t "$REG/$OWNER_LOWER/nyra-campaign-engine:$TAG" services/campaign-engine
+          docker push "$REG/$OWNER_LOWER/nyra-campaign-engine:$TAG"

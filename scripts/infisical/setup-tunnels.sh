@@ -25,10 +25,10 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # Tunnel definitions
 declare -A TUNNELS=(
-    ["orchestrator"]="nyra-orchestrator.ratehunter.net,nyra.ratehunter.net,mcp.ratehunter.net,secrets.ratehunter.net"
-    ["worker-1"]="worker-1.ratehunter.net,gpu-1.ratehunter.net"
-    ["worker-2"]="worker-2.ratehunter.net,gpu-2.ratehunter.net"
-    ["worker-3"]="worker-3.ratehunter.net,gpu-3.ratehunter.net"
+    ["orchestrator"]="nyra-orchestrator.projectnyra.com,app.projectnyra.com,mcp.projectnyra.com,secrets.projectnyra.com"
+    ["worker-1"]="worker-1.projectnyra.com,gpu-1.projectnyra.com"
+    ["worker-2"]="worker-2.projectnyra.com,gpu-2.projectnyra.com"
+    ["worker-3"]="worker-3.projectnyra.com,gpu-3.projectnyra.com"
 )
 
 # Check prerequisites

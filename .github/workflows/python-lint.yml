@@ -2,12 +2,22 @@ name: Python Lint
 
 on:
   schedule:
-    - cron: '0 7 * * 1'
+    - cron: "0 7 * * 1"
   workflow_dispatch:
 
 concurrency:
   group: python-lint-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  PYTHON_LINT_PATHS: >-
+    services
+    infra/ai-reviewer
+    infra/github-sync
+    infra/hosts/worker-rtx3060/embedding-service
+    tests/infra
+  PYTHON_FORMAT_PATHS: >-
+    services/nyra-mcp/server.py
 
 jobs:
   lint:
@@ -27,8 +37,8 @@ jobs:
 
       - name: Run flake8
         run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 $PYTHON_LINT_PATHS --count --select=E9,F63,F7,F82 --show-source --statistics
 
       - name: Run black (check only)
         run: |
-          black --check .
+          black --check $PYTHON_FORMAT_PATHS

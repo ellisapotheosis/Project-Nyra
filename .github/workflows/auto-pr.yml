@@ -3,18 +3,18 @@ name: Auto PR Creation
 on:
   push:
     branches:
-      - 'feature/**'
-      - 'fix/**'
-      - 'chore/**'
-      - 'refactor/**'
-      - 'consolidation/**'
-      - 'codex/**'
+      - "feature/**"
+      - "fix/**"
+      - "chore/**"
+      - "refactor/**"
+      - "consolidation/**"
+      - "codex/**"
   workflow_dispatch:
     inputs:
       base_branch:
-        description: 'Base branch for PR'
+        description: "Base branch for PR"
         required: false
-        default: 'main'
+        default: "main"
 
 permissions:
   contents: write
@@ -128,7 +128,7 @@ jobs:
       - name: Check if PR exists
         id: check-pr
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           BRANCH="${{ steps.branch-info.outputs.branch-name }}"
           BASE="${{ steps.branch-info.outputs.base-branch }}"
@@ -140,7 +140,7 @@ jobs:
         if: steps.check-pr.outputs.exists == '0'
         id: create-pr
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           TITLE="${{ steps.pr-title.outputs.title }}"
           BASE="${{ steps.branch-info.outputs.base-branch }}"
@@ -177,10 +177,23 @@ jobs:
           **Base Branch:** `${{ steps.branch-info.outputs.base-branch }}`
           EOF
 
-          EXTRA_LABELS=()
+          AVAILABLE_LABELS=$(gh label list --limit 200 --json name --jq '.[].name')
+          LABEL_ARGS=()
+          add_label_if_present() {
+            local label="$1"
+            if printf '%s\n' "$AVAILABLE_LABELS" | grep -Fxq "$label"; then
+              LABEL_ARGS+=(--label "$label")
+            else
+              echo "::warning::Label '$label' not found; skipping."
+            fi
+          }
+
+          add_label_if_present "auto-pr"
+          add_label_if_present "$TYPE"
+
           if [[ "$TYPE" == "codex" ]]; then
-            EXTRA_LABELS+=(--label "auto-merge")
-            EXTRA_LABELS+=(--label "codex")
+            add_label_if_present "auto-merge"
+            add_label_if_present "codex"
           fi
 
           PR_URL=$(gh pr create \
@@ -188,9 +201,7 @@ jobs:
             --body-file pr-body.md \
             --base "$BASE" \
             --head "$BRANCH" \
-            --label "auto-pr" \
-            --label "$TYPE" \
-            "${EXTRA_LABELS[@]}")
+            "${LABEL_ARGS[@]}")
 
           echo "pr-url=$PR_URL" >> $GITHUB_OUTPUT
           echo "## 🎉 Pull Request Created!" >> $GITHUB_STEP_SUMMARY
@@ -202,7 +213,7 @@ jobs:
       - name: Add reviewers and assignees
         if: steps.check-pr.outputs.exists == '0'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_URL="${{ steps.create-pr.outputs.pr-url }}"
 
@@ -220,7 +231,7 @@ jobs:
       - name: Enable auto-merge if tests pass
         if: steps.check-pr.outputs.exists == '0'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_URL="${{ steps.create-pr.outputs.pr-url }}"
           PR_NUMBER=$(echo $PR_URL | grep -oP '\d+$')

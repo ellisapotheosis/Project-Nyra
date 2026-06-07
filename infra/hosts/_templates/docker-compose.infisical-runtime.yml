@@ -1,0 +1,73 @@
+# Shared Infisical runtime overlay.
+#
+# Use this with the host compose file from the repo root:
+#   NYRA_INFISICAL_PATH=/machines/orchestrator \
+#   docker --context <ctx> compose -f infra/hosts/<host>/docker-compose.yml \
+#     -f infra/hosts/_templates/docker-compose.infisical-runtime.yml up -d
+#
+# It consumes the active shell environment. It does not require per-host .env
+# files in the compose directory.
+
+services:
+  infisical-agent:
+    image: infisical/cli:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-agent
+    restart: unless-stopped
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      NYRA_INFISICAL_EXPORT_ENV: ${NYRA_INFISICAL_EXPORT_ENV:-${INFISICAL_ENV:-prod}}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/}
+      INFISICAL_EXPORT_INTERVAL_SECONDS: ${INFISICAL_EXPORT_INTERVAL_SECONDS:-300}
+    volumes:
+      - nyra_runtime_secrets:/run/nyra-secrets
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - |
+        mkdir -p /run/nyra-secrets
+        while true; do
+          auth_token=""
+          if [ -n "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] && [ -n "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
+            auth_token="$$(infisical login --method universal-auth --client-id "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" --client-secret "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" --plain --silent 2>/dev/null || true)"
+          fi
+          if [ -z "$$auth_token" ] && [ -n "$$INFISICAL_TOKEN" ]; then
+            auth_token="$$INFISICAL_TOKEN"
+          fi
+          if [ -n "$$auth_token" ]; then
+            infisical export \
+              --token "$$auth_token" \
+              --projectId "$$INFISICAL_PROJECT_ID" \
+              --env "$$NYRA_INFISICAL_EXPORT_ENV" \
+              --path "$$INFISICAL_PATH" \
+              --format dotenv > /run/nyra-secrets/runtime.env.tmp &&
+              mv /run/nyra-secrets/runtime.env.tmp /run/nyra-secrets/runtime.env
+          else
+            : > /run/nyra-secrets/runtime.env
+            echo "Infisical Universal Auth and INFISICAL_TOKEN are unavailable; wrote empty runtime env."
+          fi
+          sleep "$$INFISICAL_EXPORT_INTERVAL_SECONDS"
+        done
+
+  infisical-sidecar:
+    image: alpine:3.20
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-sidecar
+    restart: unless-stopped
+    depends_on:
+      - infisical-agent
+    volumes:
+      - nyra_runtime_secrets:/run/nyra-secrets:ro
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        while true; do
+          test -f /run/nyra-secrets/runtime.env && wc -l /run/nyra-secrets/runtime.env || true
+          sleep 300
+        done
+
+volumes:
+  nyra_runtime_secrets:

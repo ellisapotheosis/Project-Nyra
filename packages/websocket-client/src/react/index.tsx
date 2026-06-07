@@ -1,6 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { WebSocketClient } from '../WebSocketClient';
-import { WebSocketClientOptions, SystemEvent, ConnectionInfo } from '../types';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { WebSocketClient } from "../WebSocketClient";
+import {
+  WebSocketClientOptions,
+  SystemEvent,
+  ConnectionInfo,
+  ProductEventChannel,
+} from "../types";
 
 export interface UseWebSocketOptions extends WebSocketClientOptions {
   autoConnect?: boolean;
@@ -29,7 +34,9 @@ export function useWebSocket(
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(null);
+  const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(
+    null
+  );
   const [events, setEvents] = useState<SystemEvent[]>([]);
   const [error, setError] = useState<Error | null>(null);
 
@@ -54,7 +61,7 @@ export function useWebSocket(
         }
       });
 
-      client.on('connected', (info: ConnectionInfo) => {
+      client.on("connected", (info: ConnectionInfo) => {
         setSessionId(client.getSessionId());
         setConnectionInfo(info);
       });
@@ -88,28 +95,28 @@ export function useWebSocket(
 
   const subscribe = useCallback(async (channel: string) => {
     if (!clientRef.current) {
-      throw new Error('WebSocket not connected');
+      throw new Error("WebSocket not connected");
     }
     await clientRef.current.subscribe(channel);
   }, []);
 
   const unsubscribe = useCallback(async (channel: string) => {
     if (!clientRef.current) {
-      throw new Error('WebSocket not connected');
+      throw new Error("WebSocket not connected");
     }
     await clientRef.current.unsubscribe(channel);
   }, []);
 
   const query = useCallback(async (target: string) => {
     if (!clientRef.current) {
-      throw new Error('WebSocket not connected');
+      throw new Error("WebSocket not connected");
     }
     await clientRef.current.query(target);
   }, []);
 
   const command = useCallback(async (cmd: string, params?: any) => {
     if (!clientRef.current) {
-      throw new Error('WebSocket not connected');
+      throw new Error("WebSocket not connected");
     }
     await clientRef.current.command(cmd, params);
   }, []);
@@ -162,11 +169,11 @@ export function useWebSocketEvent(
 
 // Hook for MCP status
 export function useMCPStatus(url: string, options: UseWebSocketOptions = {}) {
-  const { subscribe, ...rest } = useWebSocketEvent(url, 'mcp_status', options);
+  const { subscribe, ...rest } = useWebSocketEvent(url, "mcp_status", options);
 
   useEffect(() => {
     if (rest.connected) {
-      subscribe('mcp:status');
+      subscribe("mcp:status");
     }
   }, [rest.connected, subscribe]);
 
@@ -175,13 +182,33 @@ export function useMCPStatus(url: string, options: UseWebSocketOptions = {}) {
 
 // Hook for GPU metrics
 export function useGPUMetrics(url: string, options: UseWebSocketOptions = {}) {
-  const { subscribe, ...rest } = useWebSocketEvent(url, 'gpu_metrics', options);
+  const { subscribe, ...rest } = useWebSocketEvent(url, "gpu_metrics", options);
 
   useEffect(() => {
     if (rest.connected) {
-      subscribe('gpu:metrics');
+      subscribe("gpu:metrics");
     }
   }, [rest.connected, subscribe]);
 
   return rest;
+}
+
+export function useProductEventChannel(
+  url: string,
+  channel: ProductEventChannel,
+  options: UseWebSocketOptions = {}
+) {
+  const { subscribe, ...rest } = useWebSocketEvent(url, channel, options);
+
+  useEffect(() => {
+    if (rest.connected) {
+      subscribe(channel);
+    }
+  }, [channel, rest.connected, subscribe]);
+
+  return rest;
+}
+
+export function useLeadUpdates(url: string, options: UseWebSocketOptions = {}) {
+  return useProductEventChannel(url, "lead:updates", options);
 }

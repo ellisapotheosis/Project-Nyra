@@ -1,0 +1,221 @@
+# Self-hosted Infisical server stack for oracle-vps.
+#
+# Deployment:
+#   docker --context oracle-vps compose \
+#     -f infra/hosts/oracle-vps/docker-compose.infisical.yml \
+#     --env-file infra/hosts/oracle-vps/.env.infisical \
+#     up -d
+#
+# This stack is INTENTIONALLY ISOLATED from the main oracle-vps docker-compose.yml.
+# It does NOT share the postgres:15 instance used by Twenty/N8N/Activepieces.
+# Secrets manager blast radius MUST stay separate from web-facing CRUD apps.
+
+name: nyra-infisical # COMPOSE_PROJECT_NAME — keeps containers in their own namespace
+
+networks:
+  # Internal bridge — backend, db, redis, gateway only.
+  # NOT joined to the shared nyra-network on purpose.
+  nyra-infisical-net:
+    name: nyra-infisical-net
+    driver: bridge
+
+volumes:
+  infisical_pg_data:
+    name: nyra_infisical_pg_data
+  infisical_redis_data:
+    name: nyra_infisical_redis_data
+  infisical_pki_material:
+    name: nyra_infisical_pki_material # Root CA wrap, scanner workspace
+  infisical_audit_logs:
+    name: nyra_infisical_audit_logs # Long-retention audit trail
+
+services:
+  # -------------------------------------------------------------------
+  # Dedicated Postgres 16. Pinned major version to give Infisical its
+  # own upgrade cadence independent of Twenty CRM (which pins pg15).
+  # Bound to 127.0.0.1:5433 on host (NOT Tailscale) — only the backend
+  # container needs DB access; do not expose to the mesh.
+  # -------------------------------------------------------------------
+  infisical-postgres:
+    image: postgres:16-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-postgres
+    restart: unless-stopped
+    networks: [nyra-infisical-net]
+    environment:
+      POSTGRES_USER: ${INFISICAL_DB_USER:-infisical}
+      POSTGRES_PASSWORD: ${INFISICAL_DB_PASSWORD:?INFISICAL_DB_PASSWORD required}
+      POSTGRES_DB: ${INFISICAL_DB_NAME:-infisical}
+      # pgcrypto required by Infisical migrations
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - infisical_pg_data:/var/lib/postgresql/data
+    ports:
+      # Loopback ONLY — backups/psql via SSH tunnel, never mesh
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${INFISICAL_DB_USER:-infisical} -d ${INFISICAL_DB_NAME:-infisical}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # -------------------------------------------------------------------
+  # Dedicated Redis 7. Session cache + secret rotation queue.
+  # Password-protected even on internal network (defense in depth).
+  # -------------------------------------------------------------------
+  infisical-redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-redis
+    restart: unless-stopped
+    networks: [nyra-infisical-net]
+    command:
+      - redis-server
+      - --requirepass
+      - ${INFISICAL_REDIS_PASSWORD:?INFISICAL_REDIS_PASSWORD required}
+      - --appendonly
+      - "yes"
+      - --maxmemory
+      - "256mb"
+      - --maxmemory-policy
+      - allkeys-lru
+    volumes:
+      - infisical_redis_data:/data
+    ports:
+      - "127.0.0.1:6380:6379" # loopback for ops, not mesh
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${INFISICAL_REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # -------------------------------------------------------------------
+  # Infisical backend = API + Web UI + PKI Manager + Secret Scanning
+  # engine + SMTP sender. PKI/Scanner are first-party features toggled
+  # by env flags; no separate worker images required for those.
+  #
+  # Bound to Tailscale IP 100.64.0.3:8200. The container listens on
+  # 8080 internally; we publish to the Tailscale interface only.
+  # -------------------------------------------------------------------
+  infisical-backend:
+    image: infisical/infisical:latest-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-backend
+    restart: unless-stopped
+    networks: [nyra-infisical-net]
+    depends_on:
+      infisical-postgres:
+        condition: service_healthy
+      infisical-redis:
+        condition: service_healthy
+    environment:
+      # --- Core ---
+      NODE_ENV: production
+      HOST: 0.0.0.0 # listen inside container; Tailscale binding is at port-mapping level
+      PORT: 8080
+      # SITE_URL is the public-facing URL Infisical advertises (for email links, OAuth callbacks).
+      # Use Tailscale MagicDNS so mobile + workstation see the same URL.
+      SITE_URL: ${INFISICAL_SITE_URL:-https://infisical.trex-fiordland.ts.net}
+      TELEMETRY_ENABLED: "false"
+
+      # --- Crypto (CRITICAL — back these up offline) ---
+      # 16-byte hex; rotating this breaks all existing encrypted secrets
+      ENCRYPTION_KEY: ${INFISICAL_ENCRYPTION_KEY:?16-byte hex required}
+      AUTH_SECRET: ${INFISICAL_AUTH_SECRET:?base64 32-byte required}
+
+      # --- Database ---
+      DB_CONNECTION_URI: postgres://${INFISICAL_DB_USER:-infisical}:${INFISICAL_DB_PASSWORD}@infisical-postgres:5432/${INFISICAL_DB_NAME:-infisical}?sslmode=disable
+
+      # --- Redis ---
+      REDIS_URL: redis://default:${INFISICAL_REDIS_PASSWORD}@infisical-redis:6379
+
+      # --- PKI / Certificate Manager ---
+      # Bootstrap mode: Infisical generates root CA on first init.
+      # Material is stored encrypted with ENCRYPTION_KEY in the PG row,
+      # plus an unwrapped working copy in /app/pki for issuance speed.
+      PKI_ENABLED: "true"
+      PKI_DEFAULT_KEY_ALGORITHM: ${INFISICAL_PKI_KEY_ALGO:-ED25519}
+
+      # --- SSH CA (for fluid SSH across cluster) ---
+      SSH_CA_ENABLED: "true"
+      SSH_CA_DEFAULT_TTL: ${INFISICAL_SSH_CA_TTL:-8h}
+
+      # --- Secret Scanning (built-in, not a separate worker) ---
+      # The scanner runs as an internal worker thread inside the backend.
+      # For higher throughput, set SECRET_SCANNING_WORKERS > 1.
+      SECRET_SCANNING_ENABLED: ${SECRET_SCANNING_ENABLED:-false}
+      SECRET_SCANNING_GIT_APP_ID: ${INFISICAL_SCAN_GIT_APP_ID:-}
+      SECRET_SCANNING_GIT_APP_SLUG: ${INFISICAL_SCAN_GIT_APP_SLUG:-}
+      SECRET_SCANNING_PRIVATE_KEY: ${INFISICAL_SCAN_GIT_PRIVATE_KEY:-}
+      SECRET_SCANNING_WEBHOOK_SECRET: ${INFISICAL_SCAN_GIT_WEBHOOK_SECRET:-}
+
+      # --- Audit logs ---
+      AUDIT_LOGS_RETENTION_DAYS: ${INFISICAL_AUDIT_RETENTION:-365}
+
+      # --- SMTP (for invites, alerts) ---
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_ADDRESS: ${SMTP_FROM:-infisical@projectnyra.com}
+      SMTP_FROM_NAME: "Infisical (Project Nyra)"
+
+      # --- License (optional; needed for PKI advanced / SSO) ---
+      LICENSE_KEY: ${INFISICAL_LICENSE_KEY:-}
+
+    volumes:
+      - infisical_pki_material:/app/pki
+      - infisical_audit_logs:/app/audit
+    ports:
+      # TAILSCALE BINDING — only reachable from the mesh.
+      # 100.64.0.3 is the oracle-vps Tailscale IP.
+      - "100.64.0.3:8200:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080/api/status",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    logging:
+      driver: json-file
+      options: { max-size: "20m", max-file: "10" }
+
+  # -------------------------------------------------------------------
+  # PAM Gateway — separate image. Acts as the egress relay for
+  # accessing private SSH/RDP/DB targets across the Tailscale mesh
+  # without exposing those targets directly. The gateway dials OUT to
+  # the backend; it never accepts inbound from public.
+  # -------------------------------------------------------------------
+  infisical-gateway:
+    image: infisical/gateway:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-gateway
+    restart: unless-stopped
+    networks: [nyra-infisical-net]
+    depends_on:
+      infisical-backend:
+        condition: service_healthy
+    environment:
+      # Gateway authenticates to backend via machine identity (issued post-bootstrap)
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_GATEWAY_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_GATEWAY_CLIENT_SECRET:-}
+      INFISICAL_API_URL: http://infisical-backend:8080
+      INFISICAL_GATEWAY_NAME: oracle-vps-gateway
+    cap_add:
+      - NET_ADMIN # required for tun device when proxying TCP sessions
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }

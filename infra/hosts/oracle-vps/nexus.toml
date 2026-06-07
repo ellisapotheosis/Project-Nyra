@@ -1,0 +1,107 @@
+##############################################################################
+# Project Nyra - Grafbase Nexus on oracle-vps
+#
+# Canonical Nexus runtime config. Keep only downstreams that pass local smoke
+# checks; broken MCP servers can leave Nexus serving /mcp with no usable tools.
+##############################################################################
+
+[server]
+listen_address = "0.0.0.0:3000"
+
+[server.health]
+enabled = true
+path = "/health"
+
+[llm]
+enabled = true
+
+[llm.protocols.openai]
+enabled = true
+path = "/v1"
+
+[llm.providers.litellm]
+type = "openai"
+api_key = "{{ env.LITELLM_MASTER_KEY }}"
+base_url = "http://litellm:4000/v1"
+forward_token = false
+
+[llm.providers.litellm.models."*"]
+
+[llm.providers.utility-3060]
+type = "openai"
+api_key = "not-needed"
+base_url = "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1"
+forward_token = false
+
+[llm.providers.utility-3060.models."nomic-embed-text"]
+[llm.providers.utility-3060.models."all-minilm:l6-v2"]
+[llm.providers.utility-3060.models."llama3.2:3b"]
+[llm.providers.utility-3060.models."qwen3:4b"]
+[llm.providers.utility-3060.models."phi3:mini"]
+
+# worker-rtx3090ti LiteLLM (WoL-managed desktop — primary always-on GPU inference)
+[llm.providers.worker-3090ti]
+type = "openai"
+api_key = "{{ env.LITELLM_MASTER_KEY }}"
+base_url = "http://worker-rtx3090ti.trex-fiordland.ts.net:4000/v1"
+forward_token = false
+
+[llm.providers.worker-3090ti.models."worker-3090-vllm"]
+[llm.providers.worker-3090ti.models."qwen3.6-27b"]
+[llm.providers.worker-3090ti.models."qwen3.6-27b-abliterated"]
+[llm.providers.worker-3090ti.models."gemma4-31b"]
+[llm.providers.worker-3090ti.models."gemma4-31b-abliterated"]
+[llm.providers.worker-3090ti.models."gemma4-26b-moe"]
+
+# worker-rtx5090 LiteLLM (mobile laptop — preferred when online; may go offline without warning)
+# Always use --max-time 5 for health checks; never block on this worker
+[llm.providers.worker-5090]
+type = "openai"
+api_key = "{{ env.LITELLM_MASTER_KEY }}"
+base_url = "http://worker-rtx5090.trex-fiordland.ts.net:4000/v1"
+forward_token = false
+
+[llm.providers.worker-5090.models."worker-5090-vllm"]
+[llm.providers.worker-5090.models."qwen3.6-27b"]
+[llm.providers.worker-5090.models."qwen3.6-27b-abliterated"]
+[llm.providers.worker-5090.models."gemma4-31b"]
+[llm.providers.worker-5090.models."gemma4-31b-abliterated"]
+[llm.providers.worker-5090.models."gemma4-26b-moe"]
+
+# worker-rtx3060 LiteLLM (always-on — role-based embeddings + reranker + background LLM)
+[llm.providers.worker-3060]
+type = "openai"
+api_key = "{{ env.LITELLM_MASTER_KEY }}"
+base_url = "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1"
+forward_token = false
+
+[llm.providers.worker-3060.models."worker-3060-embed"]
+[llm.providers.worker-3060.models."worker-3060-embedding"]
+[llm.providers.worker-3060.models."worker-3060-rerank"]
+[llm.providers.worker-3060.models."worker-3060-bg-llm"]
+[llm.providers.worker-3060.models."worker-3060-picoclaw"]
+
+[mcp]
+enabled = true
+path = "/mcp"
+
+# OpenMemory and memOS are deployed and smoke-tested directly, but they are not
+# currently safe Nexus downstreams. On Nexus 0.6.0 their SSE endpoints can keep
+# the router from serving /health after restart. Keep them direct until the
+# transport adapter passes initialize/list-tools without blocking Nexus startup.
+
+# Letta MCP remains deployed directly at oracle localhost:8284 -> letta-mcp:6507.
+# Do not aggregate it here until the bridge emits spec-clean SSE/HTTP responses;
+# the current Rust bridge sends a non-JSON SSE "connected" event and returns a
+# body for initialized notifications, which prevents Nexus from finishing init.
+
+# shadcn/tweakcn remains configured as a direct stdio MCP in the local agent
+# settings. Do not aggregate it here until its stdio-to-SSE bridge supports
+# Nexus without single-transport crashes.
+
+[mcp.servers.tailscale_oracle]
+protocol = "streamable-http"
+url = "http://tailscale-mcp:8780/mcp"
+
+# Add additional MCP downstreams here only after they pass an initialize smoke
+# check from inside the nyra-network_nyra_net Docker network.

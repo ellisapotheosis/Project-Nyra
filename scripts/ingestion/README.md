@@ -44,7 +44,7 @@ node --loader ts-node/esm ingest-content.ts \
 # Custom target directory
 node --loader ts-node/esm ingest-content.ts \
   --source ./content \
-  --target ./apps/webapp/public/custom
+  --target ./apps/projectnyra/public/custom
 
 # Overwrite existing files
 node --loader ts-node/esm ingest-content.ts \
@@ -76,19 +76,19 @@ pnpm ingest:dry-run -- --source ./content
 
 ### Supported File Types
 
-| Type | Extensions | Processor | Features |
-|------|-----------|-----------|----------|
-| Markdown | `.md`, `.markdown` | MarkdownProcessor | Frontmatter extraction, heading analysis, word count |
-| JSON | `.json` | JsonProcessor | Schema detection, depth calculation, validation |
-| PDF | `.pdf` | PdfProcessor | Basic metadata (extensible with pdf-parse) |
-| Images | `.jpg`, `.png`, `.webp`, `.svg`, `.gif` | ImageProcessor | Basic metadata (extensible with sharp) |
+| Type     | Extensions                              | Processor         | Features                                             |
+| -------- | --------------------------------------- | ----------------- | ---------------------------------------------------- |
+| Markdown | `.md`, `.markdown`                      | MarkdownProcessor | Frontmatter extraction, heading analysis, word count |
+| JSON     | `.json`                                 | JsonProcessor     | Schema detection, depth calculation, validation      |
+| PDF      | `.pdf`                                  | PdfProcessor      | Basic metadata (extensible with pdf-parse)           |
+| Images   | `.jpg`, `.png`, `.webp`, `.svg`, `.gif` | ImageProcessor    | Basic metadata (extensible with sharp)               |
 
 ### Target Directory Structure
 
 Files are automatically organized by type:
 
 ```
-apps/webapp/public/content/
+apps/projectnyra/public/content/
 ├── docs/           # Markdown files
 ├── data/           # JSON files
 ├── documents/      # PDF files
@@ -102,7 +102,7 @@ apps/webapp/public/content/
 
 ```typescript
 {
-  targetDir: './apps/webapp/public/content',
+  targetDir: './apps/projectnyra/public/content',
   includePatterns: [
     '**/*.md',
     '**/*.json',
@@ -167,16 +167,19 @@ The generated manifest provides a complete inventory of ingested content:
 The pipeline includes comprehensive validation:
 
 ### Security Checks
+
 - Path traversal prevention
 - File size limits
 - Extension validation
 
 ### Content Checks
+
 - JSON syntax validation
 - Markdown structure analysis
 - File naming conventions
 
 ### Warnings
+
 - Large file sizes
 - Special characters in filenames
 - Missing metadata
@@ -188,12 +191,12 @@ The pipeline includes comprehensive validation:
 Create a new processor in `processors/`:
 
 ```typescript
-import { BaseProcessor } from './base';
-import { FileType, ProcessingResult, FileMetadata } from '../types';
+import { BaseProcessor } from "./base";
+import { FileType, ProcessingResult, FileMetadata } from "../types";
 
 export class CustomProcessor extends BaseProcessor {
   getSupportedTypes(): FileType[] {
-    return ['custom'];
+    return ["custom"];
   }
 
   async process(file: FileMetadata): Promise<ProcessingResult> {
@@ -201,7 +204,7 @@ export class CustomProcessor extends BaseProcessor {
     return {
       success: true,
       file,
-      message: 'Processed successfully'
+      message: "Processed successfully",
     };
   }
 }
@@ -210,7 +213,7 @@ export class CustomProcessor extends BaseProcessor {
 Register it in `processors/index.ts`:
 
 ```typescript
-import { CustomProcessor } from './custom';
+import { CustomProcessor } from "./custom";
 
 export function createProcessorRegistry(options: ProcessorOptions) {
   const registry = new ProcessorRegistry();
@@ -225,12 +228,12 @@ export function createProcessorRegistry(options: ProcessorOptions) {
 Create a new validator in `validators/`:
 
 ```typescript
-import { BaseValidator } from './base';
-import { ValidationResult, FileMetadata } from '../types';
+import { BaseValidator } from "./base";
+import { ValidationResult, FileMetadata } from "../types";
 
 export class CustomValidator extends BaseValidator {
   getName(): string {
-    return 'CustomValidator';
+    return "CustomValidator";
   }
 
   async validate(file: FileMetadata): Promise<ValidationResult> {
@@ -303,15 +306,15 @@ All errors are logged with timestamps and context.
 
 ## CLI Options Reference
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-s, --source <dirs...>` | Source directories (required) | - |
-| `-t, --target <dir>` | Target directory | `./apps/webapp/public/content` |
-| `-d, --dry-run` | Run without copying files | `false` |
-| `--no-manifest` | Skip manifest generation | `false` |
-| `--overwrite` | Overwrite existing files | `false` |
-| `--max-size <bytes>` | Maximum file size | `10485760` |
-| `--log-level <level>` | Logging level | `info` |
+| Option                   | Description                   | Default                             |
+| ------------------------ | ----------------------------- | ----------------------------------- |
+| `-s, --source <dirs...>` | Source directories (required) | -                                   |
+| `-t, --target <dir>`     | Target directory              | `./apps/projectnyra/public/content` |
+| `-d, --dry-run`          | Run without copying files     | `false`                             |
+| `--no-manifest`          | Skip manifest generation      | `false`                             |
+| `--overwrite`            | Overwrite existing files      | `false`                             |
+| `--max-size <bytes>`     | Maximum file size             | `10485760`                          |
+| `--log-level <level>`    | Logging level                 | `info`                              |
 
 ## Examples
 
@@ -320,7 +323,7 @@ All errors are logged with timestamps and context.
 ```bash
 node --loader ts-node/esm ingest-content.ts \
   --source ./old-docs \
-  --target ./apps/webapp/public/content/docs \
+  --target ./apps/projectnyra/public/content/docs \
   --dry-run
 ```
 

@@ -79,6 +79,66 @@ export class CampaignSchedulerService {
   }
 
   /**
+   * Schedule only unfinished steps after a paused execution is resumed.
+   */
+  async scheduleRemainingSteps(campaignExecution, campaign, contact) {
+    try {
+      const jobs = [];
+      const now = new Date();
+      const startTime = campaignExecution.startedAt || now;
+
+      for (let i = 0; i < campaign.steps.length; i++) {
+        const step = campaign.steps[i];
+        const executionStep = campaignExecution.steps[i];
+
+        if (!executionStep || executionStep.isCompleted?.() || ['sent', 'delivered', 'skipped'].includes(executionStep.status)) {
+          continue;
+        }
+
+        let scheduledFor = this.calculateScheduledTime(startTime, step);
+        if (scheduledFor <= now) {
+          scheduledFor = now;
+        }
+
+        executionStep.scheduledFor = scheduledFor;
+        executionStep.status = 'scheduled';
+
+        const job = schedule.scheduleJob(scheduledFor, async () => {
+          await this.executeStep(campaignExecution, step, executionStep, contact);
+        });
+
+        jobs.push({
+          stepId: executionStep.stepId,
+          job,
+          scheduledFor
+        });
+      }
+
+      this.scheduledJobs.set(campaignExecution.id, jobs);
+
+      logger.info('Remaining campaign steps scheduled', {
+        executionId: campaignExecution.id,
+        scheduledCount: jobs.length
+      });
+
+      return {
+        success: true,
+        scheduledCount: jobs.length
+      };
+    } catch (error) {
+      logger.error('Error scheduling remaining campaign steps', {
+        error: error.message,
+        executionId: campaignExecution.id
+      });
+
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
    * Execute a single campaign step
    */
   async executeStep(execution, step, executionStep, contact) {
@@ -212,7 +272,9 @@ export class CampaignSchedulerService {
    * Calculate scheduled time for a step
    */
   calculateScheduledTime(startTime, step) {
-    const absoluteMinutes = step.getAbsoluteMinutes();
+    const absoluteMinutes = typeof step.getAbsoluteMinutes === 'function'
+      ? step.getAbsoluteMinutes()
+      : ((step.day - 1) * 24 * 60) + (step.offset_minutes || 0);
     return addMinutes(parseISO(startTime.toISOString()), absoluteMinutes);
   }
 

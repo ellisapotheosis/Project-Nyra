@@ -13,7 +13,29 @@ bash scripts/setup/codex-webapp-manual-setup.sh \
   --webapp-safe
 '''
 
+[setup.linux]
+script = '''
+cd "${CODEX_WORKTREE_PATH:-/home/ellisapotheosis/repos/project-nyra}" && \
+bash scripts/setup/codex-webapp-manual-setup.sh \
+  --token "$INFISICAL_TOKEN" \
+  --env "$INFISICAL_ENV" \
+  --path "$INFISICAL_PATH" \
+  --project-id "$INFISICAL_PROJECT_ID" \
+  --webapp-safe
+'''
+
 [cleanup]
+script = '''
+cd "${CODEX_WORKTREE_PATH:-/home/ellisapotheosis/repos/project-nyra}" && \
+bash scripts/setup/codex-webapp-manual-maintenance.sh \
+  --token "$INFISICAL_TOKEN" \
+  --env "$INFISICAL_ENV" \
+  --path "$INFISICAL_PATH" \
+  --project-id "$INFISICAL_PROJECT_ID" \
+  --webapp-safe
+'''
+
+[cleanup.linux]
 script = '''
 cd "${CODEX_WORKTREE_PATH:-/home/ellisapotheosis/repos/project-nyra}" && \
 bash scripts/setup/codex-webapp-manual-maintenance.sh \

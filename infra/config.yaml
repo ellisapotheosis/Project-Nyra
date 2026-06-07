@@ -4,7 +4,7 @@
 ## Model List - Define all available models
 model_list:
   # ========== LOCAL GPU MODELS ==========
-  
+
   # RTX 5090: Heavy reasoning (DeepSeek R1)
   - model_name: "deep-think"
     litellm_params:
@@ -175,17 +175,7 @@ cost_tracking:
 
 # Sample config for agents
 agents:
-  archon-os:
-    default_model: "deep-think"
-    max_tokens: 8000
-    temperature: 0.7
-    
   openclaw:
     default_model: "compose"
     max_tokens: 2048
     temperature: 0.5
-    
-  archon-os:
-    default_model: "coder"
-    max_tokens: 4096
-    temperature: 0.3

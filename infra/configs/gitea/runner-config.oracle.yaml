@@ -1,0 +1,47 @@
+log:
+  level: info
+
+runner:
+  file: .runner
+  capacity: 3
+  envs:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    NYRA_CI: "true"
+    NYRA_RUNNER_TYPE: "oracle-standard"
+    NODE_ENV: "test"
+    CI: "true"
+    RUNNER_TOOL_CACHE: /cache/tools
+    RUNNER_TEMP: /tmp
+  timeout: 2h
+  shutdown_timeout: 3m
+  insecure: false
+  fetch_timeout: 30s
+  fetch_interval: 5s
+  labels:
+    - "ubuntu-latest:docker://node:20-bookworm"
+    - "ubuntu-22.04:docker://ubuntu:22.04"
+    - "node:docker://node:20-bookworm"
+    - "python:docker://python:3.11-slim"
+    - "docker:host"
+    - "self-hosted:host"
+    - "nyra:host"
+
+cache:
+  enabled: true
+  dir: /cache
+
+container:
+  network: nyra-gitea
+  privileged: false
+  options: "--cpus=3 --memory=10g --shm-size=512m"
+  workdir_parent: /data/workdir
+  valid_volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    - "/cache:/cache"
+    - "/tmp:/tmp"
+    - "/data/workdir:/data/workdir"
+  docker_host: "unix:///var/run/docker.sock"
+  force_pull: true
+
+host:
+  workdir_parent: /data/workdir

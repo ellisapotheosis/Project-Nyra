@@ -1,2 +1,0 @@
-include:
-  - ../../worker-rtx5090/docker-compose.yml

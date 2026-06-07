@@ -1,2 +1,0 @@
-include:
-  - ../orchestrator/compose/docker-compose.monitoring.yml

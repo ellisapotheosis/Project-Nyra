@@ -63,11 +63,9 @@ mixtral:8x7b
 # Specialized Models (Niche Use Cases)
 # ============================================================================
 
-# Nous Hermes 2 Solar 10.7B (Fast, Smaller)
 # - Size: ~6.4GB disk, ~8GB VRAM
 # - Very fast inference (~40 tokens/sec)
 # - Good for simple tasks, testing
-nous-hermes2-solar:10.7b
 
 # Gemma 2 27B (Google Model)
 # - Size: ~16GB disk, ~12GB VRAM

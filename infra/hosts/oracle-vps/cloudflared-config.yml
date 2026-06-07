@@ -1,0 +1,207 @@
+# Cloudflared source config for the Project Nyra Oracle VPS tunnel.
+# Replace ORACLE_VPS_TUNNEL_ID before using this as a locally managed tunnel.
+#
+# Layout: all services run inside the oracle nyra-network Docker network.
+# Container DNS uses Compose service keys (not container_name values).
+
+tunnel: ORACLE_VPS_TUNNEL_ID
+credentials-file: /etc/cloudflared/ORACLE_VPS_TUNNEL_ID.json
+
+originRequest:
+  connectTimeout: 30s
+  noHappyEyeballs: false
+
+ingress:
+  # ── Public app surfaces ───────────────────────────────────────────────────
+  # Cloudflare Pages owns projectnyra.com apex — do not add here.
+  - hostname: app.projectnyra.com
+    service: http://webapp:3001
+
+  - hostname: api.projectnyra.com
+    service: http://supabase-kong:8000
+
+  - hostname: hooks.projectnyra.com
+    service: http://n8n:5678
+
+  # ── Admin portal ──────────────────────────────────────────────────────────
+  - hostname: admin.projectnyra.com
+    service: http://admin:3002
+
+  # ── CRM & workflows ───────────────────────────────────────────────────────
+  - hostname: twenty.projectnyra.com
+    service: http://twenty:3000
+
+  - hostname: crm.projectnyra.com
+    service: http://twenty:3000
+
+  - hostname: n8n.projectnyra.com
+    service: http://n8n:5678
+
+  - hostname: gitea.projectnyra.com
+    service: http://gitea:3000
+
+  - hostname: activepieces.projectnyra.com
+    service: http://activepieces:80
+
+  # ── Chat interfaces (openwebui) ────────────────────────────────────────────
+  - hostname: openwebui.projectnyra.com
+    service: http://openwebui:8080
+
+  - hostname: chat.projectnyra.com
+    service: http://openwebui:8080
+
+  # ── Business logic services ────────────────────────────────────────────────
+  - hostname: campaigns.projectnyra.com
+    service: http://campaign_engine:8020
+
+  - hostname: quotes.projectnyra.com
+    service: http://quote-api:7070
+
+  # ── AI / routing layer ────────────────────────────────────────────────────
+  - hostname: nexus.projectnyra.com
+    service: http://nexus:3000
+
+  - hostname: nexus-router.projectnyra.com
+    service: http://nexus:3000
+
+  - hostname: litellm.projectnyra.com
+    service: http://litellm:4000
+
+  # ── Observability — owner-only, Access-gated ──────────────────────────────
+  - hostname: grafana.projectnyra.com
+    service: http://grafana:3000
+
+  - hostname: openlit.projectnyra.com
+    service: http://openlit:3000
+
+  - hostname: prometheus.projectnyra.com
+    service: http://prometheus:9090
+
+  - hostname: cadvisor.projectnyra.com
+    service: http://cadvisor:8080
+
+  # ── GasTown (running on oracle as container nyra-network-gastown) ─────────
+  - hostname: gastown.projectnyra.com
+    service: http://gastown:8080
+
+  # ── Status / uptime (uptime-kuma via docker run, no Compose alias) ────────
+  - hostname: uptime.projectnyra.com
+    service: http://nyra-network-nyra-uptime-kuma:3001
+
+  - hostname: public-status.projectnyra.com
+    service: http://nyra-network-nyra-uptime-kuma:3001
+
+  - hostname: status.projectnyra.com
+    service: http://nyra-network-nyra-uptime-kuma:3001
+
+  # ── AI routing & Grafbase gateway ────────────────────────────────────────
+  - hostname: grafbase.projectnyra.com
+    service: http://grafbase:5050
+
+  - hostname: superset.projectnyra.com
+    service: http://superset:8088
+
+  # ── Infisical secrets manager ─────────────────────────────────────────────
+  - hostname: infisical.projectnyra.com
+    service: http://100.64.0.3:8200
+
+  # ── Agent Vault ───────────────────────────────────────────────────────────
+  - hostname: agent-vault.projectnyra.com
+    service: http://agent-vault:14321
+
+  # ── Memory plane ──────────────────────────────────────────────────────────
+  - hostname: letta.projectnyra.com
+    service: http://letta:8283
+
+  - hostname: letta-mcp.projectnyra.com
+    service: http://letta-mcp:8284
+
+  - hostname: mem0.projectnyra.com
+    service: http://mem0:5000
+
+  - hostname: memos.projectnyra.com
+    service: http://memos-api:8001
+
+  - hostname: openmemory.projectnyra.com
+    service: http://openmemory-mcp:8765
+
+  - hostname: searxng.projectnyra.com
+    service: http://searxng:8080
+
+  # ── MCP servers (direct endpoints, Access-gated) ─────────────────────────
+  - hostname: openmemory-mcp.projectnyra.com
+    service: http://openmemory-mcp:8765
+
+  - hostname: activepieces-mcp.projectnyra.com
+    service: http://activepieces-mcp:3333
+
+  - hostname: tailscale-mcp.projectnyra.com
+    service: http://tailscale-mcp:8780
+
+  - hostname: twenty-mcp.projectnyra.com
+    service: http://twenty-mcp:8400
+
+  - hostname: infisical-mcp.projectnyra.com
+    service: http://infisical-mcp:8766
+
+  - hostname: gitea-mcp.projectnyra.com
+    service: http://gitea-mcp:3101
+
+  - hostname: git-mcp.projectnyra.com
+    service: http://git-mcp:8773
+
+  - hostname: paperclip-mcp.projectnyra.com
+    service: http://paperclip-mcp:8767
+
+  - hostname: magicui-mcp.projectnyra.com
+    service: http://magicui-mcp:8768
+
+  - hostname: shadcn-mcp.projectnyra.com
+    service: http://shadcn-mcp:8769
+
+  - hostname: sequential-thinking-mcp.projectnyra.com
+    service: http://sequential-thinking-mcp:8770
+
+  - hostname: playwright-mcp.projectnyra.com
+    service: http://playwright-mcp:8771
+
+  - hostname: firecrawl-mcp.projectnyra.com
+    service: http://firecrawl-mcp:8772
+
+  - hostname: next-devtools-mcp.projectnyra.com
+    service: http://next-devtools-mcp:8774
+
+  - hostname: tavily-mcp.projectnyra.com
+    service: http://tavily-mcp:8775
+
+  - hostname: wcgw-mcp.projectnyra.com
+    service: http://wcgw-mcp:8776
+
+  - hostname: gitingest-mcp.projectnyra.com
+    service: http://gitingest-mcp:8777
+
+  - hostname: codebase-index-mcp.projectnyra.com
+    service: http://codebase-index-mcp:8778
+
+  # ── Internal tooling ──────────────────────────────────────────────────────
+  - hostname: clawteam.projectnyra.com
+    service: http://clawteam:8080
+
+  - hostname: paperclip.projectnyra.com
+    service: http://paperclip:3100
+
+  - hostname: portainer-oracle.projectnyra.com
+    service: https://portainer:9443
+    originRequest:
+      noTLSVerify: true
+
+  # Optional SSH — use only with cloudflared access/SSH clients.
+  - hostname: git-ssh.projectnyra.com
+    service: ssh://gitea:2222
+
+  # Oracle VPS catch-all gateway (Caddy).
+  - hostname: oracle.projectnyra.com
+    service: http://caddy:80
+
+  # Oracle catch-all. Required by cloudflared.
+  - service: http_status:404
