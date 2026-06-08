@@ -64,6 +64,8 @@ describe("lead ingestion payload", () => {
       firstName: "Jordan",
       lastName: "Lead",
       email: "jordan@example.com",
+      consentSms: false,
+      consentVoice: false,
       loanAmount: 400000,
       source: "RATEHUNTER_LANDING",
     });
@@ -84,5 +86,22 @@ describe("lead ingestion payload", () => {
         phone: "555-222-3333",
       })
     ).toThrow(/First name is required/);
+  });
+
+  it("rejects invalid email syntax before ingestion", () => {
+    expect(() =>
+      buildLeadIngestionPayload({
+        loanPurpose: "REFINANCE",
+        propertyType: "CONDO",
+        occupancy: "PRIMARY",
+        propertyValue: 525000,
+        downPayment: 125000,
+        creditScore: "GOOD",
+        firstName: "Jordan",
+        lastName: "Lead",
+        email: "not-an-email",
+        phone: "555-222-3333",
+      })
+    ).toThrow(/valid email/);
   });
 });

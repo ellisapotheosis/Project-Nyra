@@ -17,7 +17,7 @@ export function buildLeadIngestionPayload(
 ) {
   const firstName = requiredText(data.firstName, "First name");
   const lastName = requiredText(data.lastName, "Last name");
-  const email = requiredText(data.email, "Email");
+  const email = requiredEmail(data.email);
   const phone = optionalText(data.phone);
 
   return {
@@ -34,8 +34,8 @@ export function buildLeadIngestionPayload(
     occupancy: data.occupancy,
     source: "RATEHUNTER_LANDING",
     consentEmail: true,
-    consentSms: true,
-    consentVoice: true,
+    consentSms: Boolean(phone),
+    consentVoice: Boolean(phone),
     consentTimestamp,
     metadata: {
       consentTimestamp,
@@ -61,4 +61,12 @@ function requiredText(value: string, label: string) {
     throw new Error(`${label} is required for lead ingestion.`);
   }
   return trimmed;
+}
+
+function requiredEmail(value: string) {
+  const email = requiredText(value, "Email");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error("A valid email is required for lead ingestion.");
+  }
+  return email;
 }
