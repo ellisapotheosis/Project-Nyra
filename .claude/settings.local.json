@@ -1,8 +1,6 @@
 {
   "permissions": {
     "allow": [
-      "*",
-      "mcp__*",
       "Bash",
       "Read",
       "Write",
@@ -28,7 +26,11 @@
       "Bash(dos2unix /home/ellisapotheosis/.claude/plugins/cache/mempalace/mempalace/3.3.0/hooks/mempal-stop-hook.sh)",
       "Bash(mkdir -p ~/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5)",
       "Bash(cp -r ~/.claude/plugins/marketplaces/oh-my-claudecode/. ~/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5/)",
-      "Bash(git -C ~/.claude/plugins/marketplaces/oh-my-claudecode rev-parse HEAD)"
+      "Bash(git -C ~/.claude/plugins/marketplaces/oh-my-claudecode rev-parse HEAD)",
+      "Bash(echo \"\")",
+      "Bash(echo \"# WSL2 browser - use wslview to open Windows default browser\")",
+      "Bash(echo \"export BROWSER=wslview\")",
+      "Bash(rtk read *)"
     ],
     "deny": [
       "Bash(rm -rf /)",
@@ -39,10 +41,7 @@
     "defaultMode": "bypassPermissions"
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "nexus-router",
-    "serena"
-  ],
+  "enabledMcpjsonServers": ["nexus-router", "serena"],
   "outputStyle": "Explanatory",
   "bypassPermissionsModeAccepted": true,
   "experimental": {
