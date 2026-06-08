@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Inventory Project Nyra env keys and Infisical path coverage.
+"""Inventory Project Nyra env keys and Infisical cloud path coverage.
 
-This is a name-only audit. It never prints secret values. If Infisical token
-environment variables are present, it compares required key names against the
-remote key names exported by the Infisical CLI.
+This is a name-only audit. It never prints secret values. If cloud credentials
+are present, it compares required key names against the remote key names
+exported by the Infisical CLI.
 """
 
 from __future__ import annotations
@@ -68,7 +68,8 @@ PATH_RULES = [
     (re.compile(r"^(NEXT_PUBLIC_|CLERK_|PROJECTNYRA_|NYRA_APP_)"), "/apps/projectnyra"),
     (re.compile(r"^RATEHUNTER_"), "/apps/ratehunter"),
     (re.compile(r"^(POSTGRES|DATABASE|REDIS)_"), "/machines/oracle-vps"),
-    (re.compile(r"^INFISICAL_"), "/machines/oracle-vps"),
+    (re.compile(r"^INFISICAL_"), "/security/infisical"),
+    (re.compile(r"^AGENT_VAULT_"), "/agent-vault/vaults"),
     (re.compile(r"^TAILSCALE_"), "/base"),
     (re.compile(r"^NEXUS_"), "/machines/orchestrator"),
     (re.compile(r"^(GRAFANA|PROMETHEUS|LOKI)_"), "/machines/orchestrator"),
@@ -97,9 +98,10 @@ DEFAULT_PATHS = [
     "/clients/letta",
     "/clients/mem0",
     "/clients/memory",
+    "/security/infisical",
+    "/agent-vault/vaults",
     "/databases/qdrant-local",
     "/databases/falkordb",
-    "/agent-vault/vaults",
 ]
 
 
@@ -151,10 +153,40 @@ def scan_required_keys() -> dict[str, set[str]]:
     return keys
 
 
-def export_infisical_key_names(prefix: str, default_url: str) -> dict[str, set[str]] | None:
-    token = os.getenv(f"INFISICAL_TOKEN_{prefix}")
-    project = os.getenv(f"INFISICAL_PROJECT_ID_{prefix}")
-    url = os.getenv(f"INFISICAL_URL_{prefix}", default_url)
+def resolve_infisical_auth_token() -> str | None:
+    token = os.getenv("INFISICAL_TOKEN")
+    if token:
+        return token
+
+    client_id = os.getenv("INFISICAL_UNIVERSAL_AUTH_CLIENT_ID")
+    client_secret = os.getenv("INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET")
+    if not client_id or not client_secret:
+        return None
+
+    url = os.getenv("INFISICAL_API_URL", "https://app.infisical.com")
+    try:
+        proc = subprocess.run(
+            ["bash", "scripts/infra/infisical-auth-token.sh"],
+            cwd=ROOT,
+            check=False,
+            text=True,
+            capture_output=True,
+            env={**os.environ, "INFISICAL_API_URL": url},
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+
+    if proc.returncode != 0:
+        return None
+    resolved = proc.stdout.strip()
+    return resolved or None
+
+
+def export_infisical_key_names() -> dict[str, set[str]] | None:
+    token = resolve_infisical_auth_token()
+    project = os.getenv("INFISICAL_PROJECT_ID")
+    url = os.getenv("INFISICAL_API_URL", "https://app.infisical.com")
     env_name = os.getenv("INFISICAL_ENV", "prod")
     if not token or not project:
         return None
@@ -200,29 +232,19 @@ def export_infisical_key_names(prefix: str, default_url: str) -> dict[str, set[s
 def render(
     required: dict[str, set[str]],
     cloud: dict[str, set[str]] | None,
-    local: dict[str, set[str]] | None,
 ) -> str:
     required_paths: dict[str, list[tuple[str, list[str]]]] = defaultdict(list)
     for key, files in sorted(required.items()):
         required_paths[recommended_path(key)].append((key, sorted(files)[:5]))
 
     cloud_keys = set(cloud or {})
-    local_keys = set(local or {})
     compared_cloud = cloud is not None
-    compared_local = local is not None
     cloud_status = (
         f"enabled; {len(cloud_keys)} key names exported"
         if cloud_keys
-        else "attempted but no key names exported; check token, project, env, and path permissions"
+        else "attempted but no key names exported; check universal auth, project, env, and path permissions"
         if compared_cloud
-        else "not run; set INFISICAL_TOKEN_CLOUD and INFISICAL_PROJECT_ID_CLOUD"
-    )
-    local_status = (
-        f"enabled; {len(local_keys)} key names exported"
-        if local_keys
-        else "attempted but no key names exported; check token, project, env, local DNS, and path permissions"
-        if compared_local
-        else "not run; set INFISICAL_TOKEN_LOCAL and INFISICAL_PROJECT_ID_LOCAL"
+        else "not run; set INFISICAL_UNIVERSAL_AUTH_CLIENT_ID/SECRET and INFISICAL_PROJECT_ID"
     )
 
     lines = [
@@ -235,25 +257,20 @@ def render(
         "## Comparison Status",
         "",
         f"- Cloud comparison: {cloud_status}",
-        f"- Local comparison: {local_status}",
         f"- Required secret/config-like keys found in repo: {len(required)}",
         "",
     ]
 
-    if (compared_cloud and cloud_keys) or (compared_local and local_keys):
+    if compared_cloud:
         lines.extend(["## Missing Keys", ""])
-        lines.append("| Key | Recommended path | Missing from cloud | Missing from local | Evidence files |")
-        lines.append("| --- | --- | --- | --- | --- |")
+        lines.append("| Key | Recommended path | Missing from cloud | Evidence files |")
+        lines.append("| --- | --- | --- | --- |")
         for key in sorted(required):
-            missing_cloud = compared_cloud and key not in cloud_keys
-            missing_local = compared_local and key not in local_keys
-            if not missing_cloud and not missing_local:
+            if key in cloud_keys:
                 continue
             files = "<br>".join(f"`{item}`" for item in sorted(required[key])[:3])
             lines.append(
-                f"| `{key}` | `{recommended_path(key)}` | "
-                f"{'yes' if missing_cloud else 'no' if compared_cloud else 'n/a'} | "
-                f"{'yes' if missing_local else 'no' if compared_local else 'n/a'} | {files} |"
+                f"| `{key}` | `{recommended_path(key)}` | yes | {files} |"
             )
         lines.append("")
 
@@ -274,7 +291,7 @@ def render(
             "",
             "- Add values in Infisical using the recommended path unless a more specific owner path already exists.",
             "- Keep `/shared` link-only; do not write runtime secrets there directly.",
-            "- For self-hosted/cloud parity, run `make infisical-cloud-status` first, then `make infisical-cloud-dry-run` before any sync.",
+            "- Use `make infisical-cloud-status` to audit cloud coverage before shipping infra changes.",
         ]
     )
     return "\n".join(lines) + "\n"
@@ -286,9 +303,8 @@ def main() -> int:
     args = parser.parse_args()
 
     required = scan_required_keys()
-    cloud = export_infisical_key_names("CLOUD", "https://app.infisical.com")
-    local = export_infisical_key_names("LOCAL", "https://infisical.trex-fiordland.ts.net")
-    report = render(required, cloud, local)
+    cloud = export_infisical_key_names()
+    report = render(required, cloud)
 
     if args.write:
         REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)

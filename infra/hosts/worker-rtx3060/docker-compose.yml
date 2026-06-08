@@ -95,9 +95,14 @@ services:
       - ./model-switcher:/app
       - ollama_models:/models
     environment:
-      - OLLAMA_URL=http://worker-3060-ollama:11434
-      - AVAILABLE_MODELS=llama3.2:3b,phi3:mini,nomic-embed-text
-      - DEFAULT_MODEL=llama3.2:3b
+      - OLLAMA_URL=http://ollama:11434
+      - AVAILABLE_MODELS=nomic-embed-text,all-minilm:l6-v2,qwen3:4b,llama3.2:3b,gemma4:4b-obliterated
+      - DEFAULT_MODEL=qwen3:4b
+      - DEFAULT_ROLE=bg-llm
+      - ROLE_MAP=embedding=nomic-embed-text,embedding-legacy=nomic-embed-text,rerank=all-minilm:l6-v2,bg-llm=qwen3:4b,picoclaw=qwen3:4b,fallback=llama3.2:3b,uncensored=gemma4:4b-obliterated
+      - MODEL_KEEP_ALIVE=30m
+      - AUTO_PULL_MODELS=true
+      - SPECIALIZATION=embedding,rerank,background-memory,picoclaw
     command: python /app/switcher.py
     depends_on:
       ollama:
@@ -165,6 +170,7 @@ services:
       OPENCLAW_GATEWAY_URL: ${OPENCLAW_GATEWAY_URL:-http://orchestrator.trex-fiordland.ts.net:8001}
       LITELLM_API_URL: http://worker-3060-litellm:4000
       OPENAI_BASE_URL: http://worker-3060-litellm:4000/v1
+      OPENCLAW_AGENT_MODEL: litellm/worker-3060-general
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY:-}
       MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
       QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
@@ -243,7 +249,10 @@ services:
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
-    profiles: ["sync"]
+    # Canonical Syncthing runs from docker-compose.persistent.yml as
+    # nyra-persistent-worker-3060-syncthing. Leave this legacy surface opt-in
+    # only to avoid starting a second host-networked instance on the same box.
+    profiles: ["legacy-sync"]
     image: syncthing/syncthing:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
     network_mode: host

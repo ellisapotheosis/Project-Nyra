@@ -2,7 +2,15 @@ model_list:
   # Primary alias — resolves to whatever model vLLM currently has loaded
   - model_name: worker-3090-vllm
     litellm_params:
-      model: openai/cyankiwi/Qwen3.6-27B-AWQ-INT4
+      model: openai/Qwen/Qwen3-4B-Instruct-2507
+      api_base: http://worker-3090-vllm:8000/v1
+      api_key: "none"
+      drop_params: true
+
+  # Qwen3 4B — tool-calling baseline for OpenClaw
+  - model_name: qwen3-4b
+    litellm_params:
+      model: openai/Qwen/Qwen3-4B-Instruct-2507
       api_base: http://worker-3090-vllm:8000/v1
       api_key: "none"
       drop_params: true

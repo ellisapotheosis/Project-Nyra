@@ -1,49 +1,34 @@
-name: Infisical Cloud Sync
+name: Infisical Cloud Audit
 
-# Bidirectional sync between self-hosted Infisical (infisical.trex-fiordland.ts.net)
-# and cloud Infisical (app.infisical.com).
+# Cloud-only Infisical audit for app.infisical.com.
 #
 # Required Gitea secrets:
-#   INFISICAL_TOKEN_CLOUD        — machine identity token for app.infisical.com
-#   INFISICAL_TOKEN_LOCAL        — machine identity token for self-hosted Infisical
-#   INFISICAL_PROJECT_ID_LOCAL   — project ID on self-hosted instance
+#   INFISICAL_UNIVERSAL_AUTH_CLIENT_ID
+#   INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET
 #
-# Schedule: runs every 6 hours. Trigger manually via Gitea UI for immediate sync.
+# Optional secret:
+#   INFISICAL_PROJECT_ID         - defaults to the Project Nyra cloud project
 
 on:
   schedule:
     - cron: "0 */6 * * *" # every 6 hours
   workflow_dispatch:
     inputs:
-      direction:
-        description: "Sync direction"
+      command:
+        description: "Audit command"
         required: true
-        default: "sync"
+        default: "audit"
         type: choice
         options:
-          - sync
-          - pull
-          - push
-      conflict_winner:
-        description: "Conflict resolution (only applies to bidirectional sync)"
-        required: false
-        default: "cloud"
-        type: choice
-        options:
-          - cloud
-          - local
-      dry_run:
-        description: "Dry run (no changes made)"
-        required: false
-        default: "false"
-        type: boolean
+          - audit
+          - status
 
 env:
-  INFISICAL_PROJECT_ID_CLOUD: "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+  INFISICAL_PROJECT_ID: "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
 
 jobs:
-  sync:
-    name: Sync Infisical Secrets
+  audit:
+    name: Audit Infisical Secrets
     runs-on: ubuntu-latest
 
     steps:
@@ -55,80 +40,26 @@ jobs:
           curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo bash
           sudo apt-get install -y infisical
 
-      - name: Validate tokens
+      - name: Validate cloud token
         env:
-          INFISICAL_TOKEN_CLOUD: ${{ secrets.INFISICAL_TOKEN_CLOUD }}
-          INFISICAL_TOKEN_LOCAL: ${{ secrets.INFISICAL_TOKEN_LOCAL }}
-          INFISICAL_PROJECT_ID_LOCAL: ${{ secrets.INFISICAL_PROJECT_ID_LOCAL }}
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}
         run: |
-          if [ -z "$INFISICAL_TOKEN_CLOUD" ]; then
-            echo "❌ INFISICAL_TOKEN_CLOUD secret is not set in Gitea."
+          if [ -z "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] || [ -z "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
+            echo "❌ INFISICAL_UNIVERSAL_AUTH_CLIENT_ID/SECRET are not set in Gitea."
             echo "   Add it at: Settings → Secrets → Actions"
             exit 1
           fi
-          if [ -z "$INFISICAL_TOKEN_LOCAL" ]; then
-            echo "⚠️  INFISICAL_TOKEN_LOCAL not set — self-hosted sync skipped."
-            echo "SKIP_LOCAL=true" >> $GITHUB_ENV
+          echo "✅ Universal Auth validation passed"
+
+      - name: Run audit
+        env:
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_ID }}
+          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET }}
+        run: |
+          COMMAND="audit"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            COMMAND="${{ github.event.inputs.command }}"
           fi
-          echo "✅ Token validation passed"
-
-      - name: Show sync status (before)
-        if: env.SKIP_LOCAL != 'true'
-        env:
-          INFISICAL_TOKEN_CLOUD: ${{ secrets.INFISICAL_TOKEN_CLOUD }}
-          INFISICAL_TOKEN_LOCAL: ${{ secrets.INFISICAL_TOKEN_LOCAL }}
-          INFISICAL_PROJECT_ID_LOCAL: ${{ secrets.INFISICAL_PROJECT_ID_LOCAL }}
-          INFISICAL_LOCAL_URL: "https://infisical.trex-fiordland.ts.net"
-        run: |
-          echo "📊 Secret counts before sync:"
-          scripts/infisical/sync-cloud.sh status || true
-
-      - name: Run sync (scheduled — bidirectional cloud-wins)
-        if: github.event_name == 'schedule' && env.SKIP_LOCAL != 'true'
-        env:
-          INFISICAL_TOKEN_CLOUD: ${{ secrets.INFISICAL_TOKEN_CLOUD }}
-          INFISICAL_TOKEN_LOCAL: ${{ secrets.INFISICAL_TOKEN_LOCAL }}
-          INFISICAL_PROJECT_ID_LOCAL: ${{ secrets.INFISICAL_PROJECT_ID_LOCAL }}
-          INFISICAL_LOCAL_URL: "https://infisical.trex-fiordland.ts.net"
-          CONFLICT_WINNER: "cloud"
-        run: |
-          echo "🔄 Running scheduled bidirectional sync (cloud-wins)..."
-          scripts/infisical/sync-cloud.sh sync
-
-      - name: Run sync (manual dispatch)
-        if: github.event_name == 'workflow_dispatch' && env.SKIP_LOCAL != 'true'
-        env:
-          INFISICAL_TOKEN_CLOUD: ${{ secrets.INFISICAL_TOKEN_CLOUD }}
-          INFISICAL_TOKEN_LOCAL: ${{ secrets.INFISICAL_TOKEN_LOCAL }}
-          INFISICAL_PROJECT_ID_LOCAL: ${{ secrets.INFISICAL_PROJECT_ID_LOCAL }}
-          INFISICAL_LOCAL_URL: "https://infisical.trex-fiordland.ts.net"
-          CONFLICT_WINNER: ${{ github.event.inputs.conflict_winner }}
-        run: |
-          DIRECTION="${{ github.event.inputs.direction }}"
-          DRY_RUN="${{ github.event.inputs.dry_run }}"
-          FLAGS=""
-          [ "$DRY_RUN" = "true" ] && FLAGS="--dry-run"
-          [ "$CONFLICT_WINNER" = "local" ] && FLAGS="$FLAGS --local-wins"
-          echo "🔄 Manual sync: direction=$DIRECTION conflict=$CONFLICT_WINNER dry_run=$DRY_RUN"
-          scripts/infisical/sync-cloud.sh "$DIRECTION" $FLAGS
-
-      - name: Cloud-only push (self-hosted not available)
-        if: env.SKIP_LOCAL == 'true'
-        env:
-          INFISICAL_TOKEN_CLOUD: ${{ secrets.INFISICAL_TOKEN_CLOUD }}
-        run: |
-          echo "ℹ️  Self-hosted Infisical not configured yet."
-          echo "   Set INFISICAL_TOKEN_LOCAL and INFISICAL_PROJECT_ID_LOCAL secrets"
-          echo "   in Gitea once self-hosted Infisical is running."
-          echo "   Skipping sync — cloud instance is unaffected."
-
-      - name: Show sync status (after)
-        if: env.SKIP_LOCAL != 'true'
-        env:
-          INFISICAL_TOKEN_CLOUD: ${{ secrets.INFISICAL_TOKEN_CLOUD }}
-          INFISICAL_TOKEN_LOCAL: ${{ secrets.INFISICAL_TOKEN_LOCAL }}
-          INFISICAL_PROJECT_ID_LOCAL: ${{ secrets.INFISICAL_PROJECT_ID_LOCAL }}
-          INFISICAL_LOCAL_URL: "https://infisical.trex-fiordland.ts.net"
-        run: |
-          echo "📊 Secret counts after sync:"
-          scripts/infisical/sync-cloud.sh status || true
+          echo "📊 Running Infisical cloud $COMMAND..."
+          scripts/infisical/sync-cloud.sh "$COMMAND"

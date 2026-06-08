@@ -8,22 +8,22 @@ This document lists the remaining Project Nyra secrets that cannot be safely gen
 
 These paths and imports were created in Infisical Cloud for the active environment:
 
-| Path                        | Keys populated                                                                                                                                                                                              |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/clients/openlit`          | `OPENLIT_DB_PASSWORD`, `OPENLIT_NEXTAUTH_SECRET`, `OPENLIT_VAULT_ENCRYPTION_KEY`, `OPENLIT_NEXTAUTH_URL`, `OPENLIT_ALLOWED_CORS_ORIGINS`, `OPENLIT_DB_USER`, `OPENLIT_DB_NAME`, `OPENLIT_TELEMETRY_ENABLED` |
-| `/clients/superset`         | `SUPERSET_ADMIN_PASSWORD`, `SUPERSET_SECRET_KEY`, `SUPERSET_ADMIN_USERNAME`, `SUPERSET_ADMIN_FIRSTNAME`, `SUPERSET_ADMIN_LASTNAME`, `SUPERSET_ADMIN_EMAIL`, `SUPERSET_ENV`, `SUPERSET_LOAD_EXAMPLES`        |
-| `/clients/memOS`            | `MEMOS_API_KEY`, `MEMORYTENSOR_API_KEY`, `MEMOS_MCP_API_KEY`, `MEMOS_API_URL`, `MEMOS_PUBLIC_URL`, `MEMOS_MCP_URL`                                                                                          |
-| `/clients/GasTown`          | `GASTOWN_API_KEY`, `GASTOWN_ACCESS_TOKEN`, `GASTOWN_PUBLIC_URL`, `GASTOWN_ORACLE_INTERNAL_URL`, `GASTOWN_ORCHESTRATOR_INTERNAL_URL`, `GASTOWN_TAILSCALE_URL`                                                |
-| `/providers/credit-bureau`  | `CERTIFIED_CREDIT_WEBHOOK_SECRET`, `EQUIFAX_WEBHOOK_SECRET`                                                                                                                                                 |
-| `/security/infisical/local` | `INFISICAL_SCAN_GIT_WEBHOOK_SECRET` already existed                                                                                                                                                         |
+| Path                       | Keys populated                                                                                                                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/clients/openlit`         | `OPENLIT_DB_PASSWORD`, `OPENLIT_NEXTAUTH_SECRET`, `OPENLIT_VAULT_ENCRYPTION_KEY`, `OPENLIT_NEXTAUTH_URL`, `OPENLIT_ALLOWED_CORS_ORIGINS`, `OPENLIT_DB_USER`, `OPENLIT_DB_NAME`, `OPENLIT_TELEMETRY_ENABLED` |
+| `/clients/superset`        | `SUPERSET_ADMIN_PASSWORD`, `SUPERSET_SECRET_KEY`, `SUPERSET_ADMIN_USERNAME`, `SUPERSET_ADMIN_FIRSTNAME`, `SUPERSET_ADMIN_LASTNAME`, `SUPERSET_ADMIN_EMAIL`, `SUPERSET_ENV`, `SUPERSET_LOAD_EXAMPLES`        |
+| `/clients/memOS`           | `MEMOS_API_KEY`, `MEMORYTENSOR_API_KEY`, `MEMOS_MCP_API_KEY`, `MEMOS_API_URL`, `MEMOS_PUBLIC_URL`, `MEMOS_MCP_URL`                                                                                          |
+| `/clients/GasTown`         | `GASTOWN_API_KEY`, `GASTOWN_ACCESS_TOKEN`, `GASTOWN_PUBLIC_URL`, `GASTOWN_ORACLE_INTERNAL_URL`, `GASTOWN_ORCHESTRATOR_INTERNAL_URL`, `GASTOWN_TAILSCALE_URL`                                                |
+| `/providers/credit-bureau` | `CERTIFIED_CREDIT_WEBHOOK_SECRET`, `EQUIFAX_WEBHOOK_SECRET`                                                                                                                                                 |
+| `/security/infisical`      | `INFISICAL_SCAN_GIT_WEBHOOK_SECRET` already existed                                                                                                                                                         |
 
 Host/service imports now in place:
 
-| Target path                  | Imported paths                                                                                             |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `/machines/oracle-vps`       | `/clients/openlit`, `/clients/superset`, `/clients/memOS`, `/clients/GasTown`, `/security/infisical/local` |
-| `/machines/orchestrator`     | `/providers/credit-bureau`                                                                                 |
-| `/services/soft-pull-credit` | `/providers/credit-bureau`                                                                                 |
+| Target path                  | Imported paths                                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `/machines/oracle-vps`       | `/clients/openlit`, `/clients/superset`, `/clients/memOS`, `/clients/GasTown`, `/security/infisical` |
+| `/machines/orchestrator`     | `/providers/credit-bureau`                                                                           |
+| `/services/soft-pull-credit` | `/providers/credit-bureau`                                                                           |
 
 Decision: these folders were imported directly into their host/service targets instead of `/shared`. OpenLIT, Superset, memOS, GasTown, and local Infisical scanning are Oracle surfaces. Credit-bureau access belongs to the orchestrator and the soft-pull-credit service, not every worker.
 
@@ -66,7 +66,7 @@ Useful docs:
 
 ### Local Infisical Git Secret Scanning
 
-Target path: `/security/infisical/local`
+Target path: `/security/infisical`
 
 | Key                              | Where to get it                                                                       | Notes                                                                                 |
 | -------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
@@ -75,7 +75,7 @@ Target path: `/security/infisical/local`
 | `INFISICAL_SCAN_GIT_PRIVATE_KEY` | GitHub App settings, private key download: https://github.com/settings/apps           | Download the PEM once and store the PEM in Infisical. Do not generate a random value. |
 | `INFISICAL_LICENSE_KEY`          | Infisical account/sales entitlement: https://app.infisical.com/                       | Optional unless using licensed self-hosted features.                                  |
 
-`INFISICAL_SCAN_GIT_WEBHOOK_SECRET` already exists in `/security/infisical/local`; paste that value into the GitHub App webhook secret field.
+`INFISICAL_SCAN_GIT_WEBHOOK_SECRET` already exists in `/security/infisical`; paste that value into the GitHub App webhook secret field.
 
 Useful docs:
 

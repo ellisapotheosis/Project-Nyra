@@ -10,14 +10,14 @@
 
 set -euo pipefail
 
-LOCAL_SECRETS_FILE="${INFISICAL_LOCAL_SECRETS_FILE:-$HOME/.zsh/99-secrets.zsh}"
-INFISICAL_DOMAIN="${INFISICAL_API_URL:-${INFISICAL_DOMAIN:-https://app.infisical.com/api}}"
+SECRETS_FILE="$HOME/.zsh/99-secrets.zsh"
+INFISICAL_DOMAIN="${INFISICAL_API_URL:-${INFISICAL_DOMAIN:-https://app.infisical.com}}"
 
-if [[ -f "$LOCAL_SECRETS_FILE" ]]; then
+if [[ -f "$SECRETS_FILE" ]]; then
   if [[ -z "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" || -z "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" ]]; then
     set -a
     # shellcheck disable=SC1090
-    source "$LOCAL_SECRETS_FILE" >/dev/null 2>&1 || true
+    source "$SECRETS_FILE" >/dev/null 2>&1 || true
     set +a
   fi
 fi

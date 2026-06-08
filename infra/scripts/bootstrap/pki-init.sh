@@ -7,7 +7,7 @@ set -euo pipefail
 
 # Configuration
 MACHINE_NAME="${1:?machine name required (orchestrator|worker-rtx5090|worker-rtx3090ti|worker-rtx3060)}"
-INFISICAL_API="${INFISICAL_API_URL:-https://infisical.trex-fiordland.ts.net}"
+INFISICAL_API="${INFISICAL_API_URL:-https://app.infisical.com}"
 CERT_DIR="/etc/ssh/certs"
 SSH_CONFIG_DIR="/etc/ssh/sshd_config.d"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -256,7 +256,7 @@ main() {
     log_info "Next steps:"
     log_info "  1. Test SSH: ssh deploy@worker-rtx5090.trex-fiordland.ts.net"
     log_info "  2. Verify certificate: ssh-keygen -L -f ${CERT_DIR}/id_ed25519-cert.pub"
-    log_info "  3. Check audit logs: https://infisical.trex-fiordland.ts.net/admin/audit"
+    log_info "  3. Check audit logs in the Infisical cloud web UI."
 }
 
 main "$@"

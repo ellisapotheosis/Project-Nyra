@@ -29,7 +29,7 @@ warm_on_reload = false
 enabled = false
 path = "/mcp"
 execute_mutations = false
-transport = "streaming-http"
+transport = "http-streaming"
 
 [cors]
 allow_origins = []

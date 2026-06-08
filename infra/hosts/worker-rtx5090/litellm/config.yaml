@@ -2,23 +2,23 @@ model_list:
   # Primary alias — resolves to whatever model vLLM currently has loaded
   - model_name: worker-5090-vllm
     litellm_params:
-      model: openai/cyankiwi/Qwen3.6-27B-AWQ-INT4
+      model: openai/Qwen/Qwen2.5-32B-Instruct-AWQ
       api_base: http://worker-5090-vllm:8000/v1
       api_key: "none"
       drop_params: true
 
-  # Qwen3.6-27B AWQ (primary — best quality/VRAM ratio for 24 GB GDDR7)
-  - model_name: qwen3.6-27b
+  # Stable Qwen3 tool-call endpoint for OpenClaw / LiteLLM routing
+  - model_name: qwen3-4b
     litellm_params:
-      model: openai/cyankiwi/Qwen3.6-27B-AWQ-INT4
+      model: openai/Qwen/Qwen3-4B-Instruct-2507
       api_base: http://worker-5090-vllm:8000/v1
       api_key: "none"
       drop_params: true
 
-  # Qwen3.6-27B abliterated AWQ
-  - model_name: qwen3.6-27b-abliterated
+  # Qwen2.5-32B AWQ (known-good primary on this 24 GB host)
+  - model_name: qwen2.5-32b
     litellm_params:
-      model: openai/lhca521/Huihui-Qwen3.6-27B-abliterated-AWQ
+      model: openai/Qwen/Qwen2.5-32B-Instruct-AWQ
       api_base: http://worker-5090-vllm:8000/v1
       api_key: "none"
       drop_params: true

@@ -9,7 +9,6 @@ services:
         APP_NAME: projectnyra
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-webapp
     restart: unless-stopped
-    command: ["sh", "-c", "node ../../node_modules/next/dist/bin/next start"]
     environment:
       - PORT=3001
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
@@ -30,7 +29,8 @@ services:
       - nyra_net
       - memory_edge
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      test:
+        ["CMD-SHELL", "wget --quiet --tries=1 --spider http://$(hostname):3001"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -51,7 +51,6 @@ services:
         APP_NAME: "@nyra/nexus-ui"
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nexus-ui
     restart: unless-stopped
-    command: ["sh", "-c", "node ../../node_modules/next/dist/bin/next start"]
     environment:
       - PORT=3016
       - NEXUS_UI_SETTINGS_PATH=/app/config/nexus-ui.settings.json
@@ -67,7 +66,8 @@ services:
     networks:
       - nyra_net
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3016"]
+      test:
+        ["CMD-SHELL", "wget --quiet --tries=1 --spider http://$(hostname):3016"]
       interval: 30s
       timeout: 10s
       retries: 3

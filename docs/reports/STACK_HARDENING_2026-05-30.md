@@ -17,25 +17,19 @@ This pass added repo-side guardrails for the next hardening lane:
 
 ## Infisical Mirror Status
 
-Current evidence does not confirm a working bidirectional mirror between
-Infisical Cloud and the self-hosted Infisical instance.
+Current evidence confirms a cloud-only Infisical path. The retired local
+Infisical instance is not part of the active setup.
 
 Observed status:
 
 - `https://app.infisical.com/api/status` returned HTTP 200.
-- `https://infisical.trex-fiordland.ts.net/api/status` was not resolvable from
-  this session.
+- The local self-hosted endpoint has been retired and is no longer part of the
+  active setup.
 - Local Tailscale state is `NeedsLogin`, so MagicDNS-dependent private hostnames
   cannot be trusted from this workstation until Tailscale auth is restored.
-- Oracle runtime has `nyra-network-infisical-agent`,
-  `nyra-network-infisical-sidecar`, and `nyra-network-nyra-infisical-mcp`
-  running, but no isolated `nyra-infisical` self-hosted compose project.
-- Oracle `nyra-network-infisical-agent` logs show Cloud Infisical requests
-  failing with HTTP 403 because the token is expired.
+- Oracle runtime now uses cloud-only Infisical auth paths.
 - Oracle `/run/nyra-secrets/runtime.env` is currently zero bytes.
-- `scripts/infisical/sync-cloud.sh status` returns `n/a` for both cloud and
-  self-hosted counts because the sync-specific local/cloud token and project id
-  variables are not configured.
+- `scripts/infisical/sync-cloud.sh status` reports the cloud-only state.
 
 Conclusion: the repo contains a manual bidirectional sync script, but the
 runtime is currently a broken Cloud pull path, not a verified Cloud/local mirror.
@@ -46,14 +40,12 @@ runtime is currently a broken Cloud pull path, not a verified Cloud/local mirror
    shell secret file and the oracle Infisical agent.
 2. Restore Tailscale login on the workstation and verify MagicDNS resolution for
    `infisical.trex-fiordland.ts.net`.
-3. Deploy or repair the isolated self-hosted Infisical stack from
-   `infra/hosts/oracle-vps/docker-compose.infisical.yml`.
-4. Create a local self-hosted machine identity and export
-   `INFISICAL_TOKEN_LOCAL` plus `INFISICAL_PROJECT_ID_LOCAL`.
-5. Export fresh Cloud sync credentials as `INFISICAL_TOKEN_CLOUD` and
-   `INFISICAL_PROJECT_ID_CLOUD`.
-6. Run `make infisical-cloud-status`, then `make infisical-cloud-dry-run`, then
-   the desired `push`, `pull`, or `sync` action.
+3. Keep the cloud-only auth path in place and do not recreate the retired
+   self-hosted Infisical stack.
+4. Export fresh Cloud sync credentials as `INFISICAL_UNIVERSAL_AUTH_CLIENT_ID`,
+   `INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET`, and `INFISICAL_PROJECT_ID`.
+5. Run `make infisical-cloud-status`, then `make infisical-cloud-dry-run`,
+   then the desired cloud action.
 
 ## Added Commands
 

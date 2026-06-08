@@ -4,7 +4,7 @@
 
 **Last Updated**: 2026-05-19
 
----
+\---
 
 ## Cluster Hosts
 
@@ -16,9 +16,9 @@
 | **worker-rtx3060**   | GPU Worker — Ollama embeddings (12GB) | Local LAN                   | 100.64.1.13  | (N/A — internal only)                    |
 | **oracle-vps**       | Cloud Backend (VPS)                   | Tailscale + Public Internet | 100.64.1.31  | app.projectnyra.com, crm.projectnyra.com |
 
----
+\---
 
-## 1. Local Hostname Resolution (`/etc/hosts`)
+## 1\. Local Hostname Resolution (`/etc/hosts`)
 
 All machines in the cluster (orchestrator + 3 workers + oracle-vps) must have entries for all 5 hosts in their local `/etc/hosts` file. This ensures reliable DNS resolution even when Tailscale DNS resolvers are unavailable.
 
@@ -60,7 +60,7 @@ Add the entries to Oracle's `/etc/hosts`:
 100.64.1.11   worker-rtx5090
 100.64.1.12   worker-rtx3090ti
 100.64.1.13   worker-rtx3060
-100.64.1.31   oracle-vps
+100.64.1.3   oracle-vps
 ```
 
 ### Verification
@@ -81,9 +81,9 @@ curl -I http://orchestrator:7000/health  # Nexus Router health
 ssh orchestrator "tailscale status"
 ```
 
----
+\---
 
-## 2. Tailscale Mesh DNS (`.ts.net` domains)
+## 2\. Tailscale Mesh DNS (`.ts.net` domains)
 
 Tailscale automatically registers all mesh nodes with the `.ts.net` domain suffix. This is handled by the Tailscale daemon and doesn't require manual configuration.
 
@@ -124,9 +124,9 @@ sudo systemctl restart tailscaled  # Linux
 sudo launchctl restart com.tailscale.ipn.macos.daemon  # macOS
 ```
 
----
+\---
 
-## 3. Cloudflare Public Ingress (`*.projectnyra.com`)
+## 3\. Cloudflare Public Ingress (`\*.projectnyra.com`)
 
 Project Nyra uses **Cloudflare Tunnel** (cloudflared) to expose public services via the `projectnyra.com` domain. Two tunnels handle this: **oracle** (app, CRM, workflows) and **orchestrator** (control plane, workers). The `ratehunter.net` domain is served by Cloudflare Pages only (not a tunnel).
 
@@ -167,10 +167,10 @@ The following CNAME records should point to your Cloudflare tunnel.
 See the full matrix in `infra/cloudflare/generated-remote/dns-records.desired.json`.
 
 ```
-app.projectnyra.com     → <ORACLE_TUNNEL_ID>.cfargotunnel.com
-crm.projectnyra.com     → <ORACLE_TUNNEL_ID>.cfargotunnel.com
-admin.projectnyra.com   → <ORCHESTRATOR_TUNNEL_ID>.cfargotunnel.com
-ha.projectnyra.com      → <ORCHESTRATOR_TUNNEL_ID>.cfargotunnel.com
+app.projectnyra.com     → <ORACLE\_TUNNEL\_ID>.cfargotunnel.com
+crm.projectnyra.com     → <ORACLE\_TUNNEL\_ID>.cfargotunnel.com
+admin.projectnyra.com   → <ORCHESTRATOR\_TUNNEL\_ID>.cfargotunnel.com
+ha.projectnyra.com      → <ORCHESTRATOR\_TUNNEL\_ID>.cfargotunnel.com
 ```
 
 Apply all records atomically via `bash infra/cloudflare/apply-cloudflare-desired-state.sh`.
@@ -189,9 +189,9 @@ curl http://orchestrator.ts.net:7000/health   # Direct Tailscale access
 curl http://oracle-vps.ts.net:3000/api/health # Direct Tailscale access
 ```
 
----
+\---
 
-## 4. Network Resolution Priority
+## 4\. Network Resolution Priority
 
 When connecting to cluster services, use this priority order:
 
@@ -217,11 +217,11 @@ When connecting to cluster services, use this priority order:
 3. **Public domain** (e.g., `app.projectnyra.com`, `crm.projectnyra.com`)
    - For external/public access
    - Goes through Cloudflare Tunnel
-   - Slightly higher latency (~50-100ms additional)
+   - Slightly higher latency (\~50-100ms additional)
 
----
+\---
 
-## 5. Troubleshooting DNS Issues
+## 5\. Troubleshooting DNS Issues
 
 ### "Cannot resolve orchestrator"
 
@@ -262,8 +262,8 @@ scutil --dns  # macOS
 
 ```bash
 # Check if cloudflared is running
-docker logs nyra-cloudflared-orchestrator | grep -i "registered\|ingress"
-docker logs nyra-cloudflared-oracle | grep -i "registered\|ingress"
+docker logs nyra-cloudflared-orchestrator | grep -i "registered\\|ingress"
+docker logs nyra-cloudflared-oracle | grep -i "registered\\|ingress"
 
 # Verify Cloudflare DNS records
 dig app.projectnyra.com CNAME +short     # Should resolve to oracle tunnel CNAME
@@ -283,15 +283,15 @@ ssh orchestrator "tailscale status | grep oracle-vps"
 ssh oracle-vps "sudo ufw status"  # If UFW enabled
 
 # 3. Test direct TCP connection
-ssh orchestrator "timeout 3 bash -c 'echo > /dev/tcp/oracle-vps/22' && echo OK || echo FAIL"
+ssh orchestrator "timeout 3 bash -c 'echo > /dev/tcp/oracle-vps/22' \&\& echo OK || echo FAIL"
 
 # 4. Ensure Oracle has entries in /etc/hosts
 ssh oracle-vps "grep orchestrator /etc/hosts"
 ```
 
----
+\---
 
-## 6. Configuration Files Reference
+## 6\. Configuration Files Reference
 
 ### Paths
 
@@ -300,64 +300,64 @@ ssh oracle-vps "grep orchestrator /etc/hosts"
 | Local hosts              | `/etc/hosts`                                              | Manual hostname entries for all 5 hosts              |
 | Tailscale status         | `tailscale status`                                        | View mesh IPs and node status                        |
 | Cloudflare tunnel config | `infra/hosts/orchestrator/docker-compose.cloudflared.yml` | Public ingress tunnel definition                     |
-| SSH config (recommended) | `~/.ssh/config`                                           | SSH aliases for each host (optional but recommended) |
+| SSH config (recommended) | `\~/.ssh/config`                                          | SSH aliases for each host (optional but recommended) |
 
 ### SSH Config Example
 
-Create `~/.ssh/config` for convenient SSH:
+Create `\~/.ssh/config` for convenient SSH:
 
 ```
 Host orchestrator
     HostName orchestrator.ts.net
     User ellisapotheosis
-    IdentityFile ~/.ssh/id_ed25519
+    IdentityFile \~/.ssh/id\_ed25519
     StrictHostKeyChecking no
 
 Host worker-rtx5090
     HostName worker-rtx5090.ts.net
     User ellisapotheosis
-    IdentityFile ~/.ssh/id_ed25519
+    IdentityFile \~/.ssh/id\_ed25519
     StrictHostKeyChecking no
 
 Host worker-rtx3090ti
     HostName worker-rtx3090ti.ts.net
     User ellisapotheosis
-    IdentityFile ~/.ssh/id_ed25519
+    IdentityFile \~/.ssh/id\_ed25519
     StrictHostKeyChecking no
 
 Host worker-rtx3060
     HostName worker-rtx3060.ts.net
     User ellisapotheosis
-    IdentityFile ~/.ssh/id_ed25519
+    IdentityFile \~/.ssh/id\_ed25519
     StrictHostKeyChecking no
 
 Host oracle-vps
     HostName oracle-vps.ts.net
     User ellisapotheosis
-    IdentityFile ~/.ssh/id_ed25519
+    IdentityFile \~/.ssh/id\_ed25519
     StrictHostKeyChecking no
 ```
 
 Then use: `ssh orchestrator`, `ssh oracle-vps`, etc.
 
----
+\---
 
-## 7. Validation Checklist
+## 7\. Validation Checklist
 
 Use this checklist to verify hostname configuration is complete:
 
-- [ ] All 5 hosts have `/etc/hosts` entries for all 5 machines (verify with `getent hosts`)
-- [ ] Tailscale is running on all machines (`tailscale status` works)
-- [ ] `.ts.net` domains resolve (`ping orchestrator.ts.net` succeeds)
-- [ ] Internal services respond on local hostnames (`curl http://orchestrator:7000/health`)
-- [ ] Cloudflare tunnel is running (`docker logs nyra-cloudflared-orchestrator` shows "registered")
-- [ ] Public domains resolve (`dig app.projectnyra.com` returns Cloudflare IP)
-- [ ] Public ingress works (`curl https://app.projectnyra.com/health`)
-- [ ] Oracle VPS is reachable from all workers (`ssh orchestrator ssh oracle-vps hostname`)
+- \[ ] All 5 hosts have `/etc/hosts` entries for all 5 machines (verify with `getent hosts`)
+- \[ ] Tailscale is running on all machines (`tailscale status` works)
+- \[ ] `.ts.net` domains resolve (`ping orchestrator.ts.net` succeeds)
+- \[ ] Internal services respond on local hostnames (`curl http://orchestrator:7000/health`)
+- \[ ] Cloudflare tunnel is running (`docker logs nyra-cloudflared-orchestrator` shows "registered")
+- \[ ] Public domains resolve (`dig app.projectnyra.com` returns Cloudflare IP)
+- \[ ] Public ingress works (`curl https://app.projectnyra.com/health`)
+- \[ ] Oracle VPS is reachable from all workers (`ssh orchestrator ssh oracle-vps hostname`)
 
----
+\---
 
-## 8. Deployment Workflow
+## 8\. Deployment Workflow
 
 ### During Infrastructure Setup (README_SETUP.md, Step 8)
 
@@ -374,15 +374,15 @@ Use this checklist to verify hostname configuration is complete:
 3. Use `.ts.net` domains when needed: `ssh orchestrator docker ps`
 4. Use public domains for external access: `curl https://app.projectnyra.com/health`
 
----
+\---
 
 ## See Also
 
-- `README_SETUP.md` — Step 8 (Hostname & Local DNS Configuration)
-- `NETWORK_TOPOLOGY.md` — Network discovery and service endpoint mapping
-- `INFRASTRUCTURE_REFERENCE.md` — Cluster topology and service inventory
+- `README\_SETUP.md` — Step 8 (Hostname \& Local DNS Configuration)
+- `NETWORK\_TOPOLOGY.md` — Network discovery and service endpoint mapping
+- `INFRASTRUCTURE\_REFERENCE.md` — Cluster topology and service inventory
 - `infra/hosts/orchestrator/docker-compose.cloudflared.yml` — Cloudflare tunnel configuration
 
----
+\---
 
 **Questions?** Refer to README_SETUP.md troubleshooting or contact the infrastructure team.

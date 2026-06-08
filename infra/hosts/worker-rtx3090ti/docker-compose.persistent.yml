@@ -36,4 +36,8 @@ services:
       timeout: 10s
       retries: 3
     volumes:
-      - /home/ellisapotheosis:/var/syncthing
+      - /home/ellisapotheosis:/var/syncthing/data/home
+      - worker_3090ti_syncthing_config:/var/syncthing
+
+volumes:
+  worker_3090ti_syncthing_config:

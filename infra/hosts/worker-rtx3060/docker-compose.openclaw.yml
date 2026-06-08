@@ -18,6 +18,7 @@ services:
       OPENCLAW_GATEWAY_URL: "http://orchestrator.trex-fiordland.ts.net:8001"
       LITELLM_API_URL: "http://worker-3060-litellm:4000"
       OPENAI_BASE_URL: "http://worker-3060-litellm:4000/v1"
+      OPENCLAW_AGENT_MODEL: "litellm/worker-3060-general"
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY:-}
       ACTIVEPIECES_API_URL: "http://oracle.trex-fiordland.ts.net:5000"
       MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}

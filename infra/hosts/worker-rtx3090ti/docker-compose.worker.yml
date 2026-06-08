@@ -24,6 +24,8 @@ services:
   cadvisor:
     ports:
       - "127.0.0.1:${CADVISOR_PORT:-8081}:8080"
+    volumes:
+      - /etc/machine-id:/etc/machine-id:ro
   cloudflared:
     # Workers should not run the tunnel by default
     profiles: ["_disabled"]

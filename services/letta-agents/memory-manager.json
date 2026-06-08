@@ -1,14 +1,15 @@
 {
   "name": "nyra-memory-manager",
   "description": "Specialized Letta agent for memory operations: fact extraction, deduplication, knowledge graph building across mem0, Qdrant, and FalkorDB.",
-  "model": "worker/rtx3060-general",
+  "model": "worker/rtx3060-bg-llm",
   "model_fallback": "subscription/claude",
   "model_routing": {
-    "default": "worker/rtx3060-general",
+    "default": "worker/rtx3060-bg-llm",
     "comment": "Memory background work routes through worker-rtx3060 LiteLLM, with subscription/claude reserved for complex deduplication or schema reasoning.",
     "model_aliases": {
-      "worker/rtx3060-general": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-3060-general to Ollama llama3.2:3b",
+      "worker/rtx3060-bg-llm": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-3060-bg-llm to Ollama qwen3:4b",
       "worker/rtx3060-embedding": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-3060-embedding to Ollama nomic-embed-text",
+      "worker/rtx3060-rerank": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1 — LiteLLM route worker-3060-rerank to Ollama all-minilm:l6-v2",
       "subscription/claude": "http://orchestrator.trex-fiordland.ts.net:8092/v1 — LLxprt bridge Claude lane"
     }
   },

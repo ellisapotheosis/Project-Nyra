@@ -2,8 +2,7 @@
 # Render and run a host compose command with Infisical-provided environment.
 #
 # This wrapper intentionally refuses to invent placeholder secrets. Use it for
-# post-bootstrap stacks that consume Infisical. The self-hosted Infisical stack
-# itself still boots from infra/hosts/oracle-vps/.env.infisical.
+# post-bootstrap stacks that consume Infisical cloud credentials.
 
 set -euo pipefail
 

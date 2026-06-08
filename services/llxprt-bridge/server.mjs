@@ -14,15 +14,18 @@ const host = process.env.LLXPRT_BRIDGE_HOST || "0.0.0.0";
 const port = Number(process.env.LLXPRT_BRIDGE_PORT || 8090);
 const timeoutMs = Number(process.env.LLXPRT_BRIDGE_TIMEOUT_MS || 120000);
 const apiKey = process.env.LLXPRT_BRIDGE_API_KEY || "";
-const npmPrefix = process.env.NYRA_LLXPRT_NPM_PREFIX || path.join(process.env.HOME || "/tmp", ".cache/nyra-llxprt-code");
-const llxprtPackage = process.env.NYRA_LLXPRT_PACKAGE || "@vybestack/llxprt-code";
+const npmPrefix =
+  process.env.NYRA_LLXPRT_NPM_PREFIX ||
+  path.join(process.env.HOME || "/tmp", ".cache/nyra-llxprt-code");
+const llxprtPackage =
+  process.env.NYRA_LLXPRT_PACKAGE || "@vybestack/llxprt-code";
 const cwd = process.env.LLXPRT_BRIDGE_WORKDIR || repoRoot;
 
 const modelMap = {
   "llxprt-codex": {
     backend: process.env.LLXPRT_CODEX_BACKEND || "codex-cli",
     provider: process.env.LLXPRT_CODEX_PROVIDER || "codex",
-    model: process.env.LLXPRT_CODEX_MODEL || "gpt-5.3-codex",
+    model: process.env.LLXPRT_CODEX_MODEL || "",
     profile: process.env.LLXPRT_CODEX_PROFILE || "",
   },
   "llxprt-gemini": {
@@ -108,66 +111,81 @@ function runLlxprt({ model, messages }) {
 
     args.push(messagesToPrompt(messages));
 
-    const child = spawn("npm", args, {
-      cwd,
-      env: {
-        ...process.env,
-        NO_COLOR: "1",
-      },
-      detached: true,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-
     let stdout = "";
     let stderr = "";
-    const timer = setTimeout(() => {
-      try {
-        process.kill(-child.pid, "SIGTERM");
-      } catch {
-        child.kill("SIGTERM");
-      }
-      setTimeout(() => {
-        try {
-          process.kill(-child.pid, "SIGKILL");
-        } catch {
-          child.kill("SIGKILL");
-        }
-      }, 5000).unref();
-      reject(new Error(`llxprt timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
 
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk.toString("utf8");
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk.toString("utf8");
-    });
-    child.on("error", (error) => {
-      clearTimeout(timer);
-      reject(error);
-    });
-    child.on("close", (code) => {
-      clearTimeout(timer);
-      if (code === 0) {
-        resolve(stdout.trim());
-      } else {
-        reject(new Error(`llxprt exited ${code}: ${stderr.trim() || stdout.trim()}`));
-      }
-    });
+    fs.mkdir(npmPrefix, { recursive: true })
+      .then(() => {
+        const child = spawn("npm", args, {
+          cwd,
+          env: {
+            ...process.env,
+            NO_COLOR: "1",
+          },
+          detached: true,
+          stdio: ["ignore", "pipe", "pipe"],
+        });
+
+        const timer = setTimeout(() => {
+          try {
+            process.kill(-child.pid, "SIGTERM");
+          } catch {
+            child.kill("SIGTERM");
+          }
+          setTimeout(() => {
+            try {
+              process.kill(-child.pid, "SIGKILL");
+            } catch {
+              child.kill("SIGKILL");
+            }
+          }, 5000).unref();
+          reject(new Error(`llxprt timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+
+        child.stdout.on("data", (chunk) => {
+          stdout += chunk.toString("utf8");
+        });
+        child.stderr.on("data", (chunk) => {
+          stderr += chunk.toString("utf8");
+        });
+        child.on("error", (error) => {
+          clearTimeout(timer);
+          reject(error);
+        });
+        child.on("close", (code) => {
+          clearTimeout(timer);
+          if (code === 0) {
+            resolve(stdout.trim());
+          } else {
+            reject(
+              new Error(
+                `llxprt exited ${code}: ${stderr.trim() || stdout.trim()}`
+              )
+            );
+          }
+        });
+      })
+      .catch((error) => {
+        try {
+          fs.rm(npmPrefix, { force: true });
+        } catch {}
+        reject(error);
+      });
   });
 }
 
 async function runCodexCli({ model, messages }) {
   const selected = modelMap[model] || modelMap["llxprt-codex"];
-  const outputFile = path.join(os.tmpdir(), `llxprt-bridge-codex-${randomUUID()}.txt`);
+  const outputFile = path.join(
+    os.tmpdir(),
+    `llxprt-bridge-codex-${randomUUID()}.txt`
+  );
 
   try {
     return await new Promise((resolve, reject) => {
       const args = [
         "exec",
         "--ignore-user-config",
-        "--model",
-        selected.model,
         "--sandbox",
         "read-only",
         "--skip-git-repo-check",
@@ -178,6 +196,10 @@ async function runCodexCli({ model, messages }) {
         outputFile,
         "-",
       ];
+
+      if (selected.model) {
+        args.splice(2, 0, "--model", selected.model);
+      }
 
       const child = spawn("codex", args, {
         cwd,
@@ -212,7 +234,9 @@ async function runCodexCli({ model, messages }) {
             child.kill("SIGKILL");
           }
         }, 5000).unref();
-        finish(() => reject(new Error(`codex exec timed out after ${timeoutMs}ms`)));
+        finish(() =>
+          reject(new Error(`codex exec timed out after ${timeoutMs}ms`))
+        );
       }, timeoutMs);
 
       child.stdout.on("data", (chunk) => {
@@ -227,7 +251,11 @@ async function runCodexCli({ model, messages }) {
       child.on("close", async (code) => {
         finish(async () => {
           if (code !== 0) {
-            reject(new Error(`codex exec exited ${code}: ${stderr.trim() || stdout.trim()}`));
+            reject(
+              new Error(
+                `codex exec exited ${code}: ${stderr.trim() || stdout.trim()}`
+              )
+            );
             return;
           }
 
@@ -257,7 +285,10 @@ function runModel({ model, messages }) {
 
 const server = http.createServer(async (req, res) => {
   try {
-    const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
+    const url = new URL(
+      req.url || "/",
+      `http://${req.headers.host || "localhost"}`
+    );
 
     if (req.method === "GET" && url.pathname === "/health") {
       return json(res, 200, { status: "healthy" });
@@ -266,22 +297,36 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/v1/models") {
       return json(res, 200, {
         object: "list",
-        data: Object.keys(modelMap).map((id) => ({ id, object: "model", owned_by: "llxprt-bridge" })),
+        data: Object.keys(modelMap).map((id) => ({
+          id,
+          object: "model",
+          owned_by: "llxprt-bridge",
+        })),
       });
     }
 
     if (req.method === "POST" && url.pathname === "/v1/chat/completions") {
       if (!checkAuth(req)) {
-        return json(res, 401, { error: { message: "Unauthorized", type: "auth_error" } });
+        return json(res, 401, {
+          error: { message: "Unauthorized", type: "auth_error" },
+        });
       }
 
       const request = await readJson(req);
       if (request.stream) {
-        return json(res, 400, { error: { message: "Streaming is not supported by llxprt-bridge yet.", type: "unsupported" } });
+        return json(res, 400, {
+          error: {
+            message: "Streaming is not supported by llxprt-bridge yet.",
+            type: "unsupported",
+          },
+        });
       }
 
       const model = request.model || "llxprt-codex";
-      const content = await runModel({ model, messages: request.messages || [] });
+      const content = await runModel({
+        model,
+        messages: request.messages || [],
+      });
       return json(res, 200, {
         id: `chatcmpl-${randomUUID()}`,
         object: "chat.completion",
@@ -299,7 +344,9 @@ const server = http.createServer(async (req, res) => {
 
     json(res, 404, { error: { message: "Not found", type: "not_found" } });
   } catch (error) {
-    json(res, 500, { error: { message: error.message, type: "llxprt_bridge_error" } });
+    json(res, 500, {
+      error: { message: error.message, type: "llxprt_bridge_error" },
+    });
   }
 });
 

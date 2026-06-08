@@ -59,24 +59,26 @@ At 88% GPU memory utilization with enforce-eager, this worker loads ~21 GB for t
 
 ## Primary Role: Highest-Capacity vLLM Inference
 
-When online, this is the preferred vLLM endpoint. Oracle-vps LiteLLM routes `local/qwen3-27b` here first, falling back to `worker-rtx3090ti` when this machine is offline.
+When online, this is the preferred high-capacity vLLM endpoint. Oracle-vps LiteLLM should route a worker alias here first, falling back to `worker-rtx3090ti` when this machine is offline.
 
 - **vLLM endpoint**: `http://worker-rtx5090.trex-fiordland.ts.net:8000/v1`
-- **LiteLLM alias**: `local/qwen3-27b` (preferred when online)
+- **LiteLLM alias**: `worker-5090-vllm` (preferred when online)
 - **LMCache**: Enabled with 8 GB CUDA cache for KV reuse (matched to 3090ti)
-- **Model switcher**: Available models — `qwen3.6-27b` (default), `qwen3.6-27b-abliterated`, `gemma4-31b`, `gemma4-31b-abliterated`, `gemma4-26b-moe`
+- **Model switcher**: Available models — `Qwen/Qwen2.5-32B-Instruct-AWQ` (default), `cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit`, `cyankiwi/gemma-4-31B-it-AWQ-4bit`, `alonsoko/gemma-4-31b-it-abliterated-heretic-AWQ-W4A16`
 
 ### Switching Models
 
-At 24 GB GDDR7, this worker runs Qwen3.6-27B and Gemma 4 31B AWQ comfortably. Switch via the model-switcher container:
+At 24 GB GDDR7, the known-good default on this worker is `Qwen/Qwen2.5-32B-Instruct-AWQ` with `--gpu-memory-utilization 0.88` and `--max-model-len 2048`. Larger alternatives should be treated as opt-in and validated live before making them the default. Switch via the model-switcher container:
 
 ```bash
-# Switch to Gemma 4 31B (regular)
-curl -X POST http://worker-rtx5090.trex-fiordland.ts.net:8000/v1/admin/model/switch \
-  -d '{"model": "cyankiwi/gemma-4-31B-it-AWQ-4bit"}'
+# Switch to Gemma 4 26B MoE
+curl -X POST http://worker-rtx5090.trex-fiordland.ts.net:8099/select \
+  -H 'content-type: application/json' \
+  -d '{"model": "cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit"}'
 
-# Switch to Gemma 4 31B uncensored (jailbroken)
-curl -X POST http://worker-rtx5090.trex-fiordland.ts.net:8000/v1/admin/model/switch \
+# Switch to Gemma 4 31B abliterated
+curl -X POST http://worker-rtx5090.trex-fiordland.ts.net:8099/select \
+  -H 'content-type: application/json' \
   -d '{"model": "alonsoko/gemma-4-31b-it-abliterated-heretic-AWQ-W4A16"}'
 ```
 
@@ -132,11 +134,12 @@ Key flags from `docker-compose.worker-5090.yml`:
 
 ```
 --gpu-memory-utilization 0.88   # 88% = ~21.1 GB of 24 GB (matches 3090ti)
---enable-prefix-caching         # Reuse shared prompt prefixes
 --enable-chunked-prefill        # Handle long prompts incrementally
+--enable-auto-tool-choice       # Keep tool routing available through LiteLLM/OpenClaw
+--tool-call-parser qwen3_xml    # Current parser setting for worker tool calls
 --trust-remote-code             # Required for some Qwen models
 --enforce-eager                 # Disable CUDA graph capture — faster cold-start
---max-model-len 8192            # Default context cap (override per-model as needed)
+--max-model-len 2048            # Hard cap required to fit this worker's 24 GB budget
 ```
 
 LMCache configuration (8 GB, matched to 3090ti):

@@ -21,7 +21,7 @@ services:
       INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/machines/worker-rtx3090ti}
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks:
@@ -43,7 +43,7 @@ services:
       INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/machines/worker-rtx3090ti}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -148,7 +148,7 @@ services:
       - /bin/sh
       - -c
       - |
-        model=$$(cat /root/.cache/huggingface/current_model.txt 2>/dev/null || echo "$${VLLM_MODEL:-cyankiwi/Qwen3.6-27B-AWQ-INT4}")
+        model=$$(cat /root/.cache/huggingface/current_model.txt 2>/dev/null || echo "$${VLLM_MODEL:-IlyaGusev/gemma-2-9b-it-abliterated}")
         echo "Starting vLLM with model: $$model"
         exec python3 -m vllm.entrypoints.openai.api_server \
           --model "$$model" \
@@ -156,7 +156,7 @@ services:
           --port 8000 \
           --tensor-parallel-size 1 \
           --gpu-memory-utilization 0.90 \
-          --max-model-len 8192 \
+          --max-model-len 2048 \
           --enable-prefix-caching \
           --enable-chunked-prefill \
           --quantization awq
@@ -207,8 +207,8 @@ services:
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - VLLM_URL=http://worker-3090-vllm:8000
-      - AVAILABLE_MODELS=cyankiwi/Qwen3.6-27B-AWQ-INT4,lhca521/Huihui-Qwen3.6-27B-abliterated-AWQ,cyankiwi/gemma-4-31B-it-AWQ-4bit,alonsoko/gemma-4-31b-it-abliterated-heretic-AWQ-W4A16,cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit
-      - DEFAULT_MODEL=cyankiwi/Qwen3.6-27B-AWQ-INT4
+      - AVAILABLE_MODELS=IlyaGusev/gemma-2-9b-it-abliterated,cyankiwi/Qwen3.6-27B-AWQ-INT4,lhca521/Huihui-Qwen3.6-27B-abliterated-AWQ,cyankiwi/gemma-4-31B-it-AWQ-4bit,alonsoko/gemma-4-31b-it-abliterated-heretic-AWQ-W4A16,cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit
+      - DEFAULT_MODEL=IlyaGusev/gemma-2-9b-it-abliterated
       - SPECIALIZATION=analysis,reasoning,code
     command: python /app/switcher.py
     depends_on:

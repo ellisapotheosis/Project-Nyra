@@ -38,6 +38,7 @@ forward_token = false
 [llm.providers.utility-3060.models."llama3.2:3b"]
 [llm.providers.utility-3060.models."qwen3:4b"]
 [llm.providers.utility-3060.models."phi3:mini"]
+[llm.providers.utility-3060.models."mistral:7b-v0.3"]
 
 # worker-rtx3090ti LiteLLM (WoL-managed desktop — primary always-on GPU inference)
 [llm.providers.worker-3090ti]
@@ -101,7 +102,15 @@ path = "/mcp"
 
 [mcp.servers.tailscale_oracle]
 protocol = "streamable-http"
-url = "http://tailscale-mcp:8780/mcp"
+url = "http://nyra-network-nyra-tailscale-mcp:8780/mcp"
+
+[mcp.servers.github]
+protocol = "streamable-http"
+url = "https://api.githubcopilot.com/mcp/"
+
+[mcp.servers.github.auth]
+token = "{{ env.GITHUB_TOKEN }}"
+
 
 # Add additional MCP downstreams here only after they pass an initialize smoke
 # check from inside the nyra-network_nyra_net Docker network.

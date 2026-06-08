@@ -34,6 +34,14 @@ You are **Nyra Dev**, Principal AI Architect. Your mission is to build a high-fi
 - `infra/hosts/<host>/*`: Canonical per-host Docker Compose and config files.
 - `docs/*`: Architecture and execution plans.
 
+## 📈 Mixpanel Instrumentation
+
+- Use `apps/projectnyra/lib/mixpanel.ts` for all browser analytics calls.
+- Configure the browser token with `apps/projectnyra/.env.example` and `NEXT_PUBLIC_MIXPANEL_TOKEN`.
+- Keep identity aligned with Supabase auth: `AuthProvider` owns `identify` on sign-in and `reset` on sign-out.
+- Track the important conversion points only: `sign_up_completed` from auth, `sign_in_completed` when a password login succeeds, and `lead_review_opened` when a broker opens `/leads/[id]`.
+- Do not send secrets, raw credentials, or unrelated high-cardinality data to Mixpanel.
+
 ## ✅ Definition of Done
 
 Work is complete only when:

@@ -1,7 +1,7 @@
 # ============================================================================
-# Worker RTX 3060 - Alienware M15R7 Laptop (12GB VRAM)
+# Worker RTX 3060 - Alienware M15R7 Laptop (6GB VRAM)
 # ============================================================================
-# Ollama-based inference for small/medium models and embeddings
+# Ollama-based inference for tiny models, embeddings, reranking, and PicoClaw
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
@@ -21,7 +21,7 @@ services:
       INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3060}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/machines/worker-rtx3060}
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks:
@@ -43,7 +43,7 @@ services:
       INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3060}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/machines/worker-rtx3060}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -71,7 +71,7 @@ services:
       - worker-network
 
   # ============================================================================
-  # Ollama Service (GPU-enabled) - 12GB VRAM optimized
+  # Ollama Service (GPU-enabled) - 6GB laptop VRAM optimized
   # ============================================================================
   ollama:
     image: ollama/ollama:latest
@@ -85,9 +85,9 @@ services:
     environment:
       - OLLAMA_HOST=0.0.0.0:11434
       - OLLAMA_ORIGINS=*
-      - OLLAMA_NUM_PARALLEL=2
-      - OLLAMA_MAX_LOADED_MODELS=2 # Limited due to 12GB VRAM
-      - OLLAMA_GPU_OVERHEAD=512 # Reserve 512MB for system
+      - OLLAMA_NUM_PARALLEL=1
+      - OLLAMA_MAX_LOADED_MODELS=1
+      - OLLAMA_GPU_OVERHEAD=256
       - OLLAMA_FLASH_ATTENTION=1
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=all
@@ -116,7 +116,7 @@ services:
       - worker-network
     labels:
       - "com.nyra.worker=rtx3060"
-      - "com.nyra.vram=12gb"
+      - "com.nyra.vram=6gb"
       - "com.nyra.device=alienware-m15r7"
 
   # ============================================================================
@@ -132,13 +132,12 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        echo "=== Preloading models for RTX 3060 (12GB VRAM) ==="
-        # Small models that fit well in 12GB
-        curl -X POST http://ollama:11434/api/pull -d '{"name": "llama3.2:3b"}'      # 2GB
-        curl -X POST http://ollama:11434/api/pull -d '{"name": "phi3:mini"}'        # 2.3GB
-        curl -X POST http://ollama:11434/api/pull -d '{"name": "mistral:7b-v0.3"}' # 4.1GB
-        curl -X POST http://ollama:11434/api/pull -d '{"name": "nomic-embed-text"}' # 274MB
-        curl -X POST http://ollama:11434/api/pull -d '{"name": "all-minilm:l6-v2"}' # 45MB
+        echo "=== Preloading models for RTX 3060 (6GB VRAM) ==="
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "nomic-embed-text"}'
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "all-minilm:l6-v2"}'
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "qwen3:4b"}'
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "llama3.2:3b"}'
+        curl -X POST http://ollama:11434/api/pull -d '{"name": "gemma4:4b-obliterated"}'
         echo "=== Model preload complete ==="
     networks:
       - worker-network

@@ -1,5 +1,0 @@
-{
-  "provider": "openai",
-  "baseurl": "http://orchestrator.trex-fiordland.ts.net:4000/v1",
-  "model": "local/vybestack-coder"
-}

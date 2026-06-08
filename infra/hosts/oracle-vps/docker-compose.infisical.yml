@@ -1,4 +1,5 @@
-# Self-hosted Infisical server stack for oracle-vps.
+# DEPRECATED: self-hosted Infisical server stack for oracle-vps.
+# This stack is retired. Use Infisical Cloud with Universal Auth instead.
 #
 # Deployment:
 #   docker --context oracle-vps compose \

@@ -59,7 +59,7 @@ ingress:
 
   # ── AI / routing layer ────────────────────────────────────────────────────
   - hostname: nexus.projectnyra.com
-    service: http://nexus:3000
+    service: http://nexus-ui:3016
 
   - hostname: nexus-router.projectnyra.com
     service: http://nexus:3000
@@ -110,11 +110,14 @@ ingress:
     service: http://agent-vault:14321
 
   # ── Memory plane ──────────────────────────────────────────────────────────
+  # NOTE: letta is only on nyra_memory_private (not memory_edge). Using direct IP because
+  # Docker DNS service-name aliases don't resolve for externally-attached (non-compose) containers.
+  # Restart letta via compose to get it properly on memory_edge, then revert to http://letta:8283.
   - hostname: letta.projectnyra.com
-    service: http://letta:8283
+    service: http://172.22.0.7:8283
 
   - hostname: letta-mcp.projectnyra.com
-    service: http://letta-mcp:8284
+    service: http://nyra-memory-letta-mcp:6507
 
   - hostname: mem0.projectnyra.com
     service: http://mem0:5000

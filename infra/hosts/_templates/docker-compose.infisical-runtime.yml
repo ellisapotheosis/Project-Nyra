@@ -26,7 +26,7 @@ services:
       - nyra_runtime_secrets:/run/nyra-secrets
     entrypoint:
       - /bin/sh
-      - -lc
+      - -c
       - |
         mkdir -p /run/nyra-secrets
         while true; do

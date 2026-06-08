@@ -10,6 +10,7 @@ import { DEFAULT_THEME, themes } from "@/config/themes";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { AppShell } from "@/components/app-shell";
+import { MixpanelRouteTracker } from "@/components/analytics/mixpanel-route-tracker";
 
 export const metadata: Metadata = {
   title: "Project Nyra",
@@ -59,6 +60,7 @@ export default function RootLayout({
             themes={themes.map((t) => t.value) as string[]}
           >
             <AuthProvider>
+              <MixpanelRouteTracker />
               <AppShell>{children}</AppShell>
             </AuthProvider>
             <Toaster />

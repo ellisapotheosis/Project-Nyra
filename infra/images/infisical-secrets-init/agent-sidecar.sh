@@ -38,18 +38,20 @@ refresh_secrets() {
       return 1
     }
 
+  mkdir -p /run/nyra-secrets
+
   while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in
       \#*|"") continue ;;
     esac
     key="${line%%=*}"
+    [ -n "$key" ] || continue
     val="${line#*=}"
     val="${val%\"}"
     val="${val#\"}"
     fname=$(printf '%s' "$key" | tr '[:upper:]' '[:lower:]')
-    mkdir -p "$(dirname "/run/nyra-secrets/${fname}")"
     printf '%s' "$val" > "/run/nyra-secrets/${fname}"
-    done < /tmp/nyra_agent_raw.env
+  done < /tmp/nyra_agent_raw.env
 
   rm -f /tmp/nyra_agent_raw.env
   echo "[Infisical Agent] Secrets refreshed at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
