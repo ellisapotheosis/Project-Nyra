@@ -13,7 +13,9 @@ import {
 } from "lucide-react";
 
 import { KanbanBoard } from "@/components/pipeline/kanban-board";
+import { RateWall } from "@/components/rate-wall";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { LeadScoreRing } from "@/components/ui/lead-score-ring";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { applications, crmOverview, leads } from "@/lib/mock-data";
@@ -136,6 +138,13 @@ export default function PipelinePage() {
             </CardContent>
           </Card>
         ))}
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+          Live Market Rates
+        </h2>
+        <RateWall />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_360px]">

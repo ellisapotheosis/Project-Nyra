@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, ExternalLink, Landmark, Settings } from "lucide-react";
+import { Bell, Bot, ExternalLink, Landmark, Settings } from "lucide-react";
 
+import { AiSidebar } from "@/components/ai-sidebar";
 import { CommandPalette } from "@/components/command-palette";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { buttonVariants } from "@/components/ui/button";
@@ -114,6 +115,19 @@ function NotificationBell({ count = 0 }: { count?: number }) {
 }
 
 export function SiteHeader() {
+  const [aiSidebarOpen, setAiSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "N") {
+        e.preventDefault();
+        setAiSidebarOpen((o) => !o);
+      }
+    }
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, []);
+
   return (
     <>
       <CommandPalette />
@@ -170,6 +184,14 @@ export function SiteHeader() {
             </div>
             <div className="h-4 w-px bg-border/40" />
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setAiSidebarOpen(true)}
+                title="Ask Nyra (⌘⇧N)"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+                <Bot size={14} />
+                <span className="hidden sm:inline">Ask Nyra</span>
+              </button>
               <NotificationBell count={3} />
               <ThemeSwitcher />
               <Link
@@ -198,6 +220,10 @@ export function SiteHeader() {
           ))}
         </nav>
       </header>
+      <AiSidebar
+        isOpen={aiSidebarOpen}
+        onClose={() => setAiSidebarOpen(false)}
+      />
     </>
   );
 }
