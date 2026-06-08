@@ -92,17 +92,12 @@ export async function DELETE(
 ) {
   const { id } = await params;
 
-  if (CAMPAIGN_ENGINE_URL) {
-    return productionWriteUnavailable(
-      "Campaign service",
-      "Campaign deletes are not supported by the configured campaign service"
-    );
-  }
-
   if (!canUseMockFallback()) {
     return productionWriteUnavailable(
       "Campaign service",
-      "CAMPAIGN_ENGINE_URL must be configured for production campaign deletes"
+      CAMPAIGN_ENGINE_URL
+        ? "Campaign deletes are not supported by the configured campaign service"
+        : "CAMPAIGN_ENGINE_URL must be configured for production campaign deletes"
     );
   }
 

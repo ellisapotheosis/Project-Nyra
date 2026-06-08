@@ -29,7 +29,9 @@ export async function POST(request: Request) {
       const data = await response.json().catch(() => ({}));
 
       if (response.ok) {
-        return NextResponse.json(data, { status: response.status });
+        return NextResponse.json(toCanonicalQuoteResponse(payload, data), {
+          status: response.status,
+        });
       }
 
       return NextResponse.json(
@@ -131,9 +133,114 @@ function buildQuoteRequest(payload: any) {
   };
 }
 
+type UpstreamQuoteResponse = {
+  quote_id?: string;
+  inputs?: {
+    loan_amount?: number;
+    annual_interest_rate?: number;
+    term_years?: number;
+  };
+  summary?: {
+    periodic_payment_piti?: number;
+    periodic_payment_pi?: number;
+    periodic_payment_principal_interest?: number;
+  };
+};
+
+function toCanonicalQuoteResponse(
+  payload: any,
+  upstream: UpstreamQuoteResponse
+) {
+  const loanAmount =
+    numberOrUndefined(upstream.inputs?.loan_amount) ??
+    numberOrUndefined(payload.loanAmount) ??
+    centsToDollars(payload.loanScenario?.loanAmount?.amountCents) ??
+    400000;
+  const propertyValue =
+    numberOrUndefined(payload.propertyValue) ??
+    centsToDollars(payload.loanScenario?.propertyValue?.amountCents) ??
+    loanAmount;
+  const rate = percentRate(
+    numberOrUndefined(upstream.inputs?.annual_interest_rate) ??
+      numberOrUndefined(payload.annual_interest_rate) ??
+      numberOrUndefined(payload.rate) ??
+      numberOrUndefined(payload.interestRate) ??
+      numberOrUndefined(payload.loanScenario?.interestRate)
+  );
+  const termYears =
+    numberOrUndefined(upstream.inputs?.term_years) ??
+    numberOrUndefined(payload.term_years) ??
+    numberOrUndefined(payload.termYears) ??
+    numberOrUndefined(payload.loanScenario?.termYears) ??
+    30;
+  const createdAt = new Date();
+  const balanced = option(
+    "BALANCED",
+    loanAmount,
+    propertyValue,
+    rate,
+    0.5,
+    termYears
+  );
+  const upstreamPayment = upstreamMonthlyPaymentCents(upstream);
+
+  return {
+    id: upstream.quote_id,
+    leadId: payload.leadId,
+    status: "READY",
+    source: "quote-service",
+    options: [
+      option(
+        "LOWEST_PAYMENT",
+        loanAmount,
+        propertyValue,
+        Math.max(rate - 0.125, 0.001),
+        1.25,
+        termYears
+      ),
+      {
+        ...balanced,
+        monthlyPayment: {
+          amountCents:
+            upstreamPayment ?? balanced.monthlyPayment.amountCents,
+          currency: "USD",
+        },
+        assumptions: [...balanced.assumptions, "quote-service-v1"],
+      },
+      option(
+        "LOWEST_COST",
+        loanAmount,
+        propertyValue,
+        rate + 0.25,
+        0,
+        termYears
+      ),
+    ],
+    createdAt: createdAt.toISOString(),
+    expiresAt: new Date(
+      createdAt.getTime() + 7 * 24 * 60 * 60_000
+    ).toISOString(),
+  };
+}
+
 function normalizeRate(value: number | undefined) {
   if (value === undefined) return 0.065;
   return value > 1 ? value / 100 : value;
+}
+
+function percentRate(value: number | undefined) {
+  return Math.round(normalizeRate(value) * 100000) / 1000;
+}
+
+function upstreamMonthlyPaymentCents(upstream: UpstreamQuoteResponse) {
+  const payment =
+    numberOrUndefined(upstream.summary?.periodic_payment_piti) ??
+    numberOrUndefined(upstream.summary?.periodic_payment_pi) ??
+    numberOrUndefined(
+      upstream.summary?.periodic_payment_principal_interest
+    );
+
+  return payment === undefined ? undefined : Math.round(payment * 100);
 }
 
 function option(
@@ -141,9 +248,12 @@ function option(
   loanAmount: number,
   propertyValue: number,
   rate: number,
-  points: number
+  points: number,
+  termYears = 30
 ) {
-  const monthlyPayment = Math.round(monthlyPi(loanAmount, rate, 30) * 100);
+  const monthlyPayment = Math.round(
+    monthlyPi(loanAmount, rate, termYears) * 100
+  );
   const closingCosts = Math.round(loanAmount * (0.0125 + points / 100) * 100);
 
   return {

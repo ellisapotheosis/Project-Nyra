@@ -160,7 +160,17 @@ describe("production API mutation fallbacks", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(body.summary.periodic_payment_pi).toBe(2528.27);
+    expect(body.leadId).toBe("lead_123");
+    expect(body.status).toBe("READY");
+    expect(body.source).toBe("quote-service");
+    expect(body.summary).toBeUndefined();
+    expect(body.options).toHaveLength(3);
+    expect(body.options[1]).toEqual(
+      expect.objectContaining({
+        kind: "BALANCED",
+        monthlyPayment: { amountCents: 252827, currency: "USD" },
+      })
+    );
     expect(fetchMock).toHaveBeenCalledWith(
       "https://quote.example.test/quote",
       expect.objectContaining({
@@ -299,6 +309,31 @@ describe("production API mutation fallbacks", () => {
     expect(fetchMock).not.toHaveBeenCalled();
     expect(body.error).toBe("Campaign service is unavailable");
     expect(body.detail).toContain("Campaign deletes are not supported");
+  });
+
+  it("keeps mock campaign deletes available when mocks are explicitly enabled", async () => {
+    const fetchMock = jest.fn();
+    global.fetch = fetchMock;
+    process.env = {
+      ...process.env,
+      CAMPAIGN_ENGINE_URL: "https://campaign.example.test",
+      NYRA_ENABLE_MOCKS: "true",
+    };
+    jest.resetModules();
+    const { DELETE } = await import("../src/app/api/campaigns/[id]/route");
+
+    const response = await DELETE(requestJson({}), {
+      params: Promise.resolve({ id: "campaign-123" }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(body).toEqual({
+      success: true,
+      id: "campaign-123",
+      source: "mock",
+    });
   });
 });
 
