@@ -26,6 +26,7 @@ export default {
       "tests/unit/logic/tcpa-sentinel.test.ts",
       "tests/unit/scripts/lead-lifecycle-smoke.test.ts",
       "tests/unit/scripts/finish-line-validators.test.ts",
+      "tests/unit/scripts/portainer-sync-stack.test.ts",
     ],
     exclude: ["node_modules/**", "dist/**", "build/**", ".next/**"],
   },
