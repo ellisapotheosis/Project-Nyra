@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -38,6 +40,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { RateHeartbeat } from "@/components/ui/rate-heartbeat";
+import { InkReveal } from "@/components/ui/ink-reveal";
+import { RateCard3D } from "@/components/ui/rate-card-3d";
+import { PaymentDonut } from "@/components/ui/payment-donut";
+import { RateLockWidget } from "@/components/RateLockWidget";
+import { RateParticleCloud } from "@/components/RateParticleCloud";
+import { useRates } from "@/hooks/useRates";
 
 const contact = {
   name: "Ellis Andersen",
@@ -156,6 +165,7 @@ const marketPulse = [
 ];
 
 export default function Home() {
+  const { rates, best } = useRates(true);
   return (
     <main className="relative min-h-screen pb-20 text-white selection:bg-primary/20">
       <AuroraBackground />
@@ -354,6 +364,22 @@ export default function Home() {
                       ))}
                     </div>
 
+                    <InkReveal delay={0.5} className="mt-5">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wider opacity-50">
+                          Live Rate Feed
+                        </span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[oklch(0.8871_0.1828_166.5465)] animate-pulse" />
+                      </div>
+                      <RateHeartbeat
+                        currentRate={best?.rate ?? 6.625}
+                        weeklyAverage={6.75}
+                        width={400}
+                        height={56}
+                        className="w-full max-w-[400px]"
+                      />
+                    </InkReveal>
+
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="subtle-panel rounded-[1.35rem] p-4">
                         <p className="eyebrow text-[10px] text-white/40">
@@ -473,6 +499,44 @@ export default function Home() {
                   </p>
                 </div>
               ))}
+            </div>
+          </section>
+        </BlurFade>
+
+        <BlurFade delay={0.1}>
+          <section className="glass-panel overflow-hidden rounded-[2rem] p-6">
+            <p className="eyebrow text-[11px] text-white/45 mb-2">
+              Compare Rates
+            </p>
+            <h2 className="display-copy text-2xl tracking-[-0.04em] mb-4">
+              Today's Lender Landscape
+            </h2>
+            <p className="text-sm text-white/60 mb-4">
+              Click a bubble to select. Seafoam = best available rate.
+            </p>
+            <RateParticleCloud
+              rates={rates}
+              onSelect={(lender) => console.log("Selected:", lender.name)}
+            />
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-6 min-h-[120px]">
+              {rates.slice(0, 8).map((lender) => (
+                <RateCard3D
+                  key={lender.id}
+                  lender={lender}
+                  isBest={lender.id === (best?.id ?? "")}
+                />
+              ))}
+            </div>
+            <div className="mt-6">
+              <p className="text-xs text-white/40 uppercase tracking-wider mb-3">
+                Payment Breakdown
+              </p>
+              <PaymentDonut
+                principal={1240}
+                interest={1380}
+                taxes={320}
+                insurance={130}
+              />
             </div>
           </section>
         </BlurFade>
@@ -767,6 +831,10 @@ export default function Home() {
       </div>
 
       <BorrowerChatWidget />
+      <RateLockWidget
+        rate={best?.rate ?? 6.375}
+        lender={best?.name ?? "Best Rate"}
+      />
     </main>
   );
 }
