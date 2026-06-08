@@ -41,4 +41,31 @@ describe("lead ingestion payload", () => {
       },
     });
   });
+
+  it("omits blank optional contact fields before ingestion", () => {
+    const payload = buildLeadIngestionPayload(
+      {
+        loanPurpose: "REFINANCE",
+        propertyType: "CONDO",
+        occupancy: "PRIMARY",
+        propertyValue: 525000,
+        downPayment: 125000,
+        creditScore: "GOOD",
+        firstName: " ",
+        lastName: "",
+        email: "   ",
+        phone: " 555-222-3333 ",
+      },
+      "2026-06-08T02:50:00.000Z"
+    );
+
+    expect(payload).not.toHaveProperty("firstName");
+    expect(payload).not.toHaveProperty("lastName");
+    expect(payload).not.toHaveProperty("email");
+    expect(payload).toMatchObject({
+      phone: "555-222-3333",
+      loanAmount: 400000,
+      source: "RATEHUNTER_LANDING",
+    });
+  });
 });

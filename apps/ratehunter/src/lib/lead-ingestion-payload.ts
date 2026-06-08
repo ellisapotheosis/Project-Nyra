@@ -15,11 +15,16 @@ export function buildLeadIngestionPayload(
   data: RateHunterLeadData,
   consentTimestamp = new Date().toISOString()
 ) {
+  const firstName = optionalText(data.firstName);
+  const lastName = optionalText(data.lastName);
+  const email = optionalText(data.email);
+  const phone = optionalText(data.phone);
+
   return {
-    firstName: data.firstName,
-    lastName: data.lastName,
-    email: data.email,
-    phone: data.phone,
+    ...(firstName ? { firstName } : {}),
+    ...(lastName ? { lastName } : {}),
+    ...(email ? { email } : {}),
+    ...(phone ? { phone } : {}),
     loanPurpose: data.loanPurpose,
     loanAmount: data.propertyValue - data.downPayment,
     propertyValue: data.propertyValue,
@@ -43,4 +48,9 @@ export function buildLeadIngestionPayload(
       occupancy: data.occupancy,
     },
   };
+}
+
+function optionalText(value: string) {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
 }
