@@ -1,0 +1,283 @@
+title: Nyra Command Deck
+views:
+  - title: Overview
+    path: overview
+    icon: mdi:view-dashboard
+    cards:
+      - type: grid
+        columns: 3
+        cards:
+          - type: button
+            name: Status Bridge
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://status.projectnyra.com
+          - type: button
+            name: Openwebui
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://openwebui.projectnyra.com
+          - type: button
+            name: Crm
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://crm.projectnyra.com
+          - type: button
+            name: App
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://app.projectnyra.com
+          - type: button
+            name: Nexus
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://nexus.projectnyra.com
+  - title: Public + Borrower
+    path: public-borrower
+    icon: mdi:view-dashboard
+    cards:
+      - type: grid
+        columns: 3
+        cards:
+          - type: button
+            name: RateHunter Landing
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://ratehunter.net
+          - type: button
+            name: RateHunter Landing
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://ratehunter.net
+          - type: button
+            name: App
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://app.projectnyra.com
+          - type: button
+            name: Borrower ChatUI
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://borrower-chat.projectnyra.com
+  - title: Broker Workspace
+    path: broker-workspace
+    icon: mdi:view-dashboard
+    cards:
+      - type: grid
+        columns: 3
+        cards:
+          - type: button
+            name: Broker ChatUI
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://broker-chat.projectnyra.com
+          - type: button
+            name: Quote Workspace
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://quotes.projectnyra.com
+          - type: button
+            name: Crm
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://crm.projectnyra.com
+          - type: button
+            name: Admin Page
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://admin.projectnyra.com
+  - title: CRM + Campaigns
+    path: crm-campaigns
+    icon: mdi:view-dashboard
+    cards:
+      - type: grid
+        columns: 3
+        cards:
+          - type: button
+            name: Crm
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://crm.projectnyra.com
+          - type: button
+            name: Twenty
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://twenty.projectnyra.com
+          - type: button
+            name: Campaign Builder
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://campaigns.projectnyra.com
+          - type: button
+            name: App
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://app.projectnyra.com
+  - title: AI Cockpit
+    path: ai-cockpit
+    icon: mdi:view-dashboard
+    cards:
+      - type: grid
+        columns: 3
+        cards:
+          - type: button
+            name: Openwebui
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://openwebui.projectnyra.com
+          - type: button
+            name: Nexus
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://nexus.projectnyra.com
+          - type: button
+            name: Nexus Router
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://nexus-router.projectnyra.com
+          - type: button
+            name: Litellm
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://litellm.projectnyra.com
+  - title: Workers + OpenClaw/PicoClaw
+    path: workers-openclaw-picoclaw
+    icon: mdi:view-dashboard
+    cards:
+      - type: grid
+        columns: 3
+        cards:
+          - type: button
+            name: Worker RTX5090 Nerve UI
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://nerve-5090.projectnyra.com
+          - type: button
+            name: Worker RTX5090 OpenClaw UI
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://claw-5090.projectnyra.com
+          - type: button
+            name: Worker RTX3090Ti Nerve UI
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://nerve-3090.projectnyra.com
+          - type: button
+            name: Worker RTX3090Ti OpenClaw UI
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://claw-3090.projectnyra.com
+          - type: button
+            name: Worker RTX3060 Nerve UI
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://nerve-3060.projectnyra.com
+          - type: button
+            name: Worker RTX3060 PicoClaw UI
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://picoclaw-3060.projectnyra.com
+  - title: Ops + Containers
+    path: ops-containers
+    icon: mdi:view-dashboard
+    cards:
+      - type: grid
+        columns: 3
+        cards:
+          - type: button
+            name: Grafana
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://grafana.projectnyra.com
+          - type: button
+            name: Prometheus
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://prometheus.projectnyra.com
+          - type: button
+            name: Cadvisor
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://cadvisor.projectnyra.com
+  - title: Tunnels + Domains
+    path: tunnels-domains
+    icon: mdi:view-dashboard
+    cards:
+      - type: grid
+        columns: 3
+        cards:
+          - type: button
+            name: RateHunter Landing
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://ratehunter.net
+          - type: button
+            name: App
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://app.projectnyra.com
+          - type: button
+            name: Api
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://api.projectnyra.com
+          - type: button
+            name: Hooks
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://hooks.projectnyra.com
+          - type: button
+            name: Home Assistant
+            icon: mdi:open-in-new
+            tap_action:
+              action: url
+              url_path: https://ha.projectnyra.com
+  - title: Docs + Runbooks
+    path: docs-runbooks
+    icon: mdi:view-dashboard
+    cards:
+      - type: markdown
+        title: Runbooks
+        content: "- HOST-COMPOSE-INVENTORY.md
+
+          - DOMAIN-ROUTING-MATRIX.md
+
+          - CLOUDFLARED-VALIDATION-REPORT.md
+
+          - PORTAINER-FLEET-SETUP.md
+
+          - OPENCLAW-PICOCLAW-COMPATIBILITY-MATRIX.md"

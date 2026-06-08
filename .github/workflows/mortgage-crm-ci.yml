@@ -3,21 +3,24 @@ name: Mortgage CRM CI/CD
 on:
   pull_request:
     paths:
-      - 'apps/mortgage-crm/**'
+      - "apps/mortgage-crm/**"
   push:
     branches: [main, develop]
     paths:
-      - 'apps/mortgage-crm/**'
+      - "apps/mortgage-crm/**"
 
 jobs:
   lint-and-typecheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v4
+        with:
+          version: 10.27.0
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: 'pnpm'
+          cache: "pnpm"
       - run: pnpm install
       - run: pnpm --filter @nyra/mortgage-crm lint
       - run: pnpm --filter @nyra/mortgage-crm typecheck
@@ -37,11 +40,14 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v4
+        with:
+          version: 10.27.0
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: 'pnpm'
+          cache: "pnpm"
       - run: pnpm install
       - name: Prisma Generate
         run: pnpm --filter @nyra/mortgage-crm prisma:generate
@@ -55,7 +61,7 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Deploy to Staging
         run: |
           echo "Deploying @nyra/mortgage-crm to staging..."
@@ -69,7 +75,7 @@ jobs:
       name: production
       url: https://app.mortgage-crm.com
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Deploy to Production
         run: |
           echo "Deploying @nyra/mortgage-crm to production..."

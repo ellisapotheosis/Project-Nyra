@@ -13,10 +13,12 @@ RUN apt-get update && apt-get install -y \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install Python dependencies
+# Install only the runtime dependencies the container actually uses.
 COPY requirements.txt /tmp/
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r /tmp/requirements.txt
+RUN awk '/^litellm\\[proxy,extra_proxy_features\\]==/{print} /^psycopg2-binary==/{print} /^redis==/{print} /^hiredis==/{print}' /tmp/requirements.txt > /tmp/requirements.docker.txt && \
+    printf '%s\n' 'requests==2.32.5' >> /tmp/requirements.docker.txt && \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir -r /tmp/requirements.docker.txt
 
 # Production stage
 FROM python:3.11-slim

@@ -235,7 +235,7 @@ curl -X POST http://192.168.1.100:8000/v1/chat/completions \
 
 ```bash
 curl https://openrouter.ai/api/v1/models \
-  -H "Authorization: Bearer sk-or-v1-your-key-here"
+  -H "Authorization: Bearer <OPENROUTER_API_KEY>"
 ```
 
 ### Step 4: Configure in LiteLLM
@@ -380,7 +380,7 @@ Update Nexus Router environment:
 ```bash
 # Edit services/nexus-router/.env
 LITELLM_BASE_URL=http://litellm-proxy:4000
-LITELLM_API_KEY=sk-your-master-key
+LITELLM_API_KEY=<LITELLM_MASTER_KEY>
 ```
 
 Update Nexus Router code:
@@ -401,7 +401,7 @@ router.post('/v1/chat/completions', async (req, res) => {
 
 ```bash
 OPENAI_API_BASE=http://localhost:4000/v1
-OPENAI_API_KEY=sk-your-master-key
+OPENAI_API_KEY=<LITELLM_MASTER_KEY>
 ```
 
 **Python example**:
@@ -410,7 +410,7 @@ OPENAI_API_KEY=sk-your-master-key
 import openai
 
 openai.api_base = "http://localhost:4000/v1"
-openai.api_key = "sk-your-master-key"
+openai.api_key = "<LITELLM_MASTER_KEY>"
 
 response = openai.ChatCompletion.create(
     model="llama-3.1-70b",
@@ -425,7 +425,7 @@ const OpenAI = require('openai');
 
 const client = new OpenAI({
   baseURL: 'http://localhost:4000/v1',
-  apiKey: 'sk-your-master-key',
+  apiKey: '<LITELLM_MASTER_KEY>',
 });
 
 const response = await client.chat.completions.create({

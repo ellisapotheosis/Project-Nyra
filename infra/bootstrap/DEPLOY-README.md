@@ -26,7 +26,7 @@ Per each node (orchestrator, oracle-vps, worker-rtx5090, worker-rtx3090ti, worke
 1. **Deploys .zsh configuration** via rsync
    - Copies entire `zsh-config/` directory to `~/bootstrap-zsh-config/`
    - Runs `BOOTSTRAP.sh` to set up `~/.zsh/` and symlink `.zshrc`
-   - Preserves existing `~/.zsh/99-secrets.zsh` if present, otherwise creates it from template
+   - Creates `99-secrets.zsh.template` (you add actual secrets)
 
 2. **Sets up SSH config** (`~/.ssh/config`)
    - Adds all 5 cluster nodes as Host entries
@@ -67,7 +67,7 @@ SSH user: `edane` on all nodes
 2. **Add secrets to each node:**
    ```bash
    ssh orchestrator
-   # Then manually edit ~/.zsh/99-secrets.zsh with actual tokens if it was newly created
+   # Then manually edit ~/.zsh/99-secrets.zsh with actual tokens
    # Source: Your automated rotation system
    ```
 
@@ -117,8 +117,8 @@ SSH user: `edane` on all nodes
 Remove bootstrap files from all nodes:
 ```bash
 for node in orchestrator oracle-vps worker-rtx5090 worker-rtx3090ti worker-rtx3060; do
-  ssh $node "rm -rf ~/bootstrap-zsh-config && rm ~/.zshrc"
+  ssh $node "rm -rf ~/bootstrap-zsh-config ~/.zsh && rm ~/.zshrc"
 done
 ```
 
-This leaves `~/.zsh/99-secrets.zsh` intact. Restore the rest of `~/.zsh` from the backup path printed by `BOOTSTRAP.sh`, or reinstall your preferred shell config.
+Then restore original `.zshrc` or reinstall oh-my-zsh.

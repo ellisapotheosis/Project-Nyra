@@ -11,9 +11,6 @@
 - MCP config/server artifacts: `docs/reports/infra-recovery-catalog/mcp-configs.txt` (143 files)
 - Grafbase/Nexus artifacts: `docs/reports/infra-recovery-catalog/grafbase-nexus-files.txt` (11 files)
 - n8n workflows: `docs/reports/infra-recovery-catalog/n8n-workflows.txt` (13 files)
-
-<<<<<<< codex/prevent-.env-files-from-being-uploaded
-=======
 ## Security validation: leaked env history is not yet remediated
 - ✅ Verified `.gitignore` blocks future accidental recommits for the named paths.
 - ❌ Verified `infra-archived/infra-20260206-1551/docker-compose/.env.golden-stack-populated` is still tracked in HEAD and present in commit history, so credentials remain recoverable from Git history.
@@ -29,8 +26,6 @@
 - `nyra-configs/.env`
 - `config/env/.env.legacy`
 - `configs/env/.env.legacy`
-
->>>>>>> main
 ## Recovery list (high-priority items missing or weakly represented in active infra)
 | Filename | Path | Service | Recommendation |
 |---|---|---|---|
@@ -39,7 +34,7 @@
 | `bitwarden-mcp/Dockerfile` | `infra-archived/infra-20260206-1551/bitwarden-mcp/Dockerfile` | Bitwarden MCP | On-demand via Docker MCP toolkit unless Bitwarden is mandatory daily. |
 | `infisical-mcp/docker-compose.yml` | `infra-archived/infra-20260206-1551/infisical-mcp/docker-compose.yml` | Infisical MCP server | Integrate directly if secrets are centralized in Infisical; otherwise toolkit on-demand. |
 | `docker-compose.mcp-servers.yml` | `infra-archived/infra-20260206-1551/docker-compose/docker-compose.mcp-servers.yml` | MCP multiplex stack | Keep on-demand for troubleshooting/ops, not always-on. |
-| `nexus.toml` | `infra/configs/nexus/nexus.toml` + archived variants | Nexus routing policy | Integrate directly as canonical config and deduplicate with `infra/nexus.toml`. |
+| `nexus.toml` | `infra/hosts/oracle-vps/nexus.toml` + archived variants | Nexus routing policy | Keep the oracle host file as canonical config and do not recreate `infra/configs/nexus/nexus.toml`. |
 | `docker-compose.letta.yml` | `infra/stacks/nyra-mortgage/docker-compose.letta.yml` | letta memory graph | Keep optional/on-demand unless graph memory is actively used. |
 | `docker-compose.voice.yml` | `infra/stacks/nyra-mortgage/docker-compose.voice.yml` | Voice pipeline | On-demand extension only. |
 | `start-mcp-servers.ps1` | `infra/scripts/runtime/start-mcp-servers.ps1` (+ archived) | MCP bootstrap automation | Integrate directly (operator UX). |

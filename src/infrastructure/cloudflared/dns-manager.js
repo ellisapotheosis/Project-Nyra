@@ -4,19 +4,19 @@
  * Manages DNS records for all compute nodes and services
  */
 
-const axios = require('axios');
-const fs = require('fs').promises;
-const path = require('path');
+const axios = require("axios");
+const fs = require("fs").promises;
+const path = require("path");
 
 class CloudflareDNSManager {
   constructor() {
     this.apiKey = process.env.CLOUDFLARE_API_KEY;
     this.email = process.env.CLOUDFLARE_EMAIL;
     this.zoneId = process.env.CLOUDFLARE_ZONE_ID; // ratehunter.net zone
-    this.baseURL = 'https://api.cloudflare.com/client/v4';
+    this.baseURL = "https://api.cloudflare.com/client/v4";
     this.headers = {
-      'Authorization': `Bearer ${this.apiKey}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${this.apiKey}`,
+      "Content-Type": "application/json",
     };
   }
 
@@ -26,47 +26,47 @@ class CloudflareDNSManager {
   getDNSRecords() {
     return [
       {
-        name: 'orchestrator.ratehunter.net',
-        type: 'CNAME',
+        name: "orchestrator.projectnyra.com",
+        type: "CNAME",
         content: `${process.env.NYRA_ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com`,
-        comment: 'Nyra Orchestrator Node - Minisforum UH680'
+        comment: "Nyra Orchestrator Node - Minisforum UH680",
       },
       {
-        name: 'worker1.ratehunter.net',
-        type: 'CNAME',
+        name: "worker1.projectnyra.com",
+        type: "CNAME",
         content: `${process.env.NYRA_ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com`,
-        comment: 'Nyra Worker 1 - Alienware M15R7 (RTX 3060)'
+        comment: "Nyra Worker 1 - Alienware M15R7 (RTX 3060)",
       },
       {
-        name: 'worker2.ratehunter.net',
-        type: 'CNAME',
+        name: "worker2.projectnyra.com",
+        type: "CNAME",
         content: `${process.env.NYRA_ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com`,
-        comment: 'Nyra Worker 2 - Alienware Area-51 (RTX 5090)'
+        comment: "Nyra Worker 2 - Alienware Area-51 (RTX 5090)",
       },
       {
-        name: 'worker3.ratehunter.net',
-        type: 'CNAME',
+        name: "worker3.projectnyra.com",
+        type: "CNAME",
         content: `${process.env.NYRA_ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com`,
-        comment: 'Nyra Worker 3 - Desktop PC (RTX 3090Ti)'
+        comment: "Nyra Worker 3 - Desktop PC (RTX 3090Ti)",
       },
       {
-        name: 'api.ratehunter.net',
-        type: 'CNAME',
+        name: "api.projectnyra.com",
+        type: "CNAME",
         content: `${process.env.NYRA_ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com`,
-        comment: 'Nyra API Gateway - Load Balanced'
+        comment: "Nyra API Gateway - Load Balanced",
       },
       {
-        name: 'health.ratehunter.net',
-        type: 'CNAME',
+        name: "health.projectnyra.com",
+        type: "CNAME",
         content: `${process.env.NYRA_ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com`,
-        comment: 'Nyra Health Monitoring Dashboard'
+        comment: "Nyra Health Monitoring Dashboard",
       },
       {
-        name: 'nyra.ratehunter.net',
-        type: 'CNAME',
+        name: "app.projectnyra.com",
+        type: "CNAME",
         content: `${process.env.NYRA_ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com`,
-        comment: 'Main Nyra Interface'
-      }
+        comment: "Main Nyra Interface",
+      },
     ];
   }
 
@@ -89,7 +89,10 @@ class CloudflareDNSManager {
         console.log(`✅ Created DNS record: ${record.name}`);
       }
     } catch (error) {
-      console.error(`❌ Failed to create/update DNS record ${record.name}:`, error.message);
+      console.error(
+        `❌ Failed to create/update DNS record ${record.name}:`,
+        error.message
+      );
       throw error;
     }
   }
@@ -107,7 +110,7 @@ class CloudflareDNSManager {
       const response = await axios.get(url, { headers: this.headers });
       return response.data.result;
     } catch (error) {
-      console.error('Failed to get DNS records:', error.message);
+      console.error("Failed to get DNS records:", error.message);
       throw error;
     }
   }
@@ -125,13 +128,16 @@ class CloudflareDNSManager {
           content: record.content,
           comment: record.comment,
           proxied: false, // Direct connection for tunnels
-          ttl: 1 // Automatic TTL
+          ttl: 1, // Automatic TTL
         },
         { headers: this.headers }
       );
       return response.data.result;
     } catch (error) {
-      console.error('Failed to create DNS record:', error.response?.data || error.message);
+      console.error(
+        "Failed to create DNS record:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -149,13 +155,16 @@ class CloudflareDNSManager {
           content: record.content,
           comment: record.comment,
           proxied: false,
-          ttl: 1
+          ttl: 1,
         },
         { headers: this.headers }
       );
       return response.data.result;
     } catch (error) {
-      console.error('Failed to update DNS record:', error.response?.data || error.message);
+      console.error(
+        "Failed to update DNS record:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   }
@@ -171,7 +180,7 @@ class CloudflareDNSManager {
       );
       console.log(`✅ Deleted DNS record: ${recordId}`);
     } catch (error) {
-      console.error('Failed to delete DNS record:', error.message);
+      console.error("Failed to delete DNS record:", error.message);
       throw error;
     }
   }
@@ -180,7 +189,7 @@ class CloudflareDNSManager {
    * Setup all Nyra DNS records
    */
   async setupAllRecords() {
-    console.log('🚀 Setting up Nyra DNS records...');
+    console.log("🚀 Setting up Nyra DNS records...");
 
     const records = this.getDNSRecords();
     const results = [];
@@ -190,12 +199,16 @@ class CloudflareDNSManager {
         await this.createOrUpdateRecord(record);
         results.push({ success: true, record: record.name });
       } catch (error) {
-        results.push({ success: false, record: record.name, error: error.message });
+        results.push({
+          success: false,
+          record: record.name,
+          error: error.message,
+        });
       }
     }
 
-    console.log('\n📊 DNS Setup Results:');
-    results.forEach(result => {
+    console.log("\n📊 DNS Setup Results:");
+    results.forEach((result) => {
       if (result.success) {
         console.log(`✅ ${result.record}`);
       } else {
@@ -210,7 +223,7 @@ class CloudflareDNSManager {
    * Validate DNS configuration
    */
   async validateConfiguration() {
-    console.log('🔍 Validating DNS configuration...');
+    console.log("🔍 Validating DNS configuration...");
 
     const records = this.getDNSRecords();
     const issues = [];
@@ -224,7 +237,9 @@ class CloudflareDNSManager {
         } else {
           const existing = existingRecords[0];
           if (existing.content !== record.content) {
-            issues.push(`Incorrect content for ${record.name}: expected ${record.content}, got ${existing.content}`);
+            issues.push(
+              `Incorrect content for ${record.name}: expected ${record.content}, got ${existing.content}`
+            );
           }
         }
       } catch (error) {
@@ -233,10 +248,10 @@ class CloudflareDNSManager {
     }
 
     if (issues.length === 0) {
-      console.log('✅ All DNS records are correctly configured');
+      console.log("✅ All DNS records are correctly configured");
     } else {
-      console.log('❌ DNS configuration issues found:');
-      issues.forEach(issue => console.log(`  - ${issue}`));
+      console.log("❌ DNS configuration issues found:");
+      issues.forEach((issue) => console.log(`  - ${issue}`));
     }
 
     return issues;
@@ -248,28 +263,32 @@ class CloudflareDNSManager {
   async exportConfiguration() {
     try {
       const records = await this.getRecords();
-      const nyraRecords = records.filter(record =>
-        record.name.includes('ratehunter.net') &&
-        (record.name.includes('nyra') ||
-         record.name.includes('orchestrator') ||
-         record.name.includes('worker') ||
-         record.name.includes('api') ||
-         record.name.includes('health'))
+      const nyraRecords = records.filter(
+        (record) =>
+          record.name.includes("ratehunter.net") &&
+          (record.name.includes("nyra") ||
+            record.name.includes("orchestrator") ||
+            record.name.includes("worker") ||
+            record.name.includes("api") ||
+            record.name.includes("health"))
       );
 
       const exportData = {
         exported: new Date().toISOString(),
-        zone: 'ratehunter.net',
-        records: nyraRecords
+        zone: "ratehunter.net",
+        records: nyraRecords,
       };
 
-      const exportPath = path.join(__dirname, '../../../config/dns-backup.json');
+      const exportPath = path.join(
+        __dirname,
+        "../../../config/dns-backup.json"
+      );
       await fs.writeFile(exportPath, JSON.stringify(exportData, null, 2));
       console.log(`✅ DNS configuration exported to: ${exportPath}`);
 
       return exportData;
     } catch (error) {
-      console.error('Failed to export DNS configuration:', error.message);
+      console.error("Failed to export DNS configuration:", error.message);
       throw error;
     }
   }
@@ -283,16 +302,16 @@ if (require.main === module) {
   (async () => {
     try {
       switch (command) {
-        case 'setup':
+        case "setup":
           await manager.setupAllRecords();
           break;
-        case 'validate':
+        case "validate":
           await manager.validateConfiguration();
           break;
-        case 'export':
+        case "export":
           await manager.exportConfiguration();
           break;
-        case 'list':
+        case "list":
           const records = await manager.getRecords();
           console.log(JSON.stringify(records, null, 2));
           break;
@@ -308,7 +327,7 @@ Commands:
           `);
       }
     } catch (error) {
-      console.error('Command failed:', error.message);
+      console.error("Command failed:", error.message);
       process.exit(1);
     }
   })();

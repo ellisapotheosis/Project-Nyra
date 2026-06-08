@@ -10,12 +10,16 @@ if ! command -v docker >/dev/null 2>&1; then
 fi
 
 for file in \
-  .env.gitea.template \
-  .env.infisical.template \
-  docker-compose.gitea.yml \
-  docker-compose.gitea.bootstrap.yml \
-  docker-compose.infisical.yml \
-  scripts/gitea/bootstrap-orchestrator-gitea.sh \
+  infra/COMPOSE_SOURCE_OF_TRUTH.md \
+  infra/hosts/oracle-vps/.env.example \
+  infra/hosts/oracle-vps/docker-compose.yml \
+  infra/hosts/oracle-vps/docker-compose.gitea.yml \
+  infra/hosts/orchestrator/docker-compose.yml \
+  infra/hosts/worker-rtx3060/docker-compose.yml \
+  infra/hosts/worker-rtx3090ti/docker-compose.yml \
+  infra/hosts/worker-rtx5090/docker-compose.yml \
+  scripts/infra/assert-compose-source-of-truth.sh \
+  scripts/infra/validate-repo-policy.sh \
   scripts/gitea/bootstrap-act-runner.sh \
   scripts/setup/bootstrap-gitea.ps1
 do
@@ -25,21 +29,11 @@ do
   fi
 done
 
-tmp_gitea="$(mktemp)"
-tmp_infisical="$(mktemp)"
+tmp_env="$(mktemp)"
 cleanup() {
-  rm -f "$tmp_gitea" "$tmp_infisical"
+  rm -f "$tmp_env"
 }
 trap cleanup EXIT
-
-cp .env.gitea.template "$tmp_gitea"
-cp .env.infisical.template "$tmp_infisical"
-
-if command -v infisical >/dev/null 2>&1 && [[ -n "${INFISICAL_TOKEN:-}" ]] && [[ -n "${INFISICAL_PROJECT_ID:-}" ]]; then
-  echo "Using Infisical secrets for compose validation"
-  infisical export --projectId="$INFISICAL_PROJECT_ID" --env="${INFISICAL_ENV:-prod}" --path=/shared --format=dotenv >> "$tmp_infisical" || true
-  infisical export --projectId="$INFISICAL_PROJECT_ID" --env="${INFISICAL_ENV:-prod}" --path=/infisical --format=dotenv >> "$tmp_infisical" || true
-fi
 
 ensure_env() {
   local file="$1"
@@ -50,15 +44,34 @@ ensure_env() {
   fi
 }
 
-ensure_env "$tmp_infisical" INFISICAL_POSTGRES_PASSWORD "$(openssl rand -hex 16)"
-ensure_env "$tmp_infisical" INFISICAL_ENCRYPTION_KEY "$(openssl rand -hex 32)"
-ensure_env "$tmp_infisical" INFISICAL_AUTH_SECRET "$(openssl rand -base64 48 | tr -d '\n')"
+cat infra/hosts/oracle-vps/.env.example > "$tmp_env"
 
-bash -n scripts/gitea/bootstrap-orchestrator-gitea.sh
+ensure_env "$tmp_env" COMPOSE_PROJECT_NAME nyra-ci
+ensure_env "$tmp_env" POSTGRES_PASSWORD "$(openssl rand -hex 16)"
+ensure_env "$tmp_env" JWT_SECRET "$(openssl rand -hex 32)"
+ensure_env "$tmp_env" TWENTY_DB_PASSWORD "$(openssl rand -hex 16)"
+ensure_env "$tmp_env" PORTAINER_EDGE_ID ci-portainer-edge-id
+ensure_env "$tmp_env" PORTAINER_EDGE_KEY ci-portainer-edge-key
+ensure_env "$tmp_env" ORCHESTRATOR_TUNNEL_TOKEN ci-orchestrator-tunnel-token
+ensure_env "$tmp_env" FIRECRAWL_API_KEY ci-firecrawl-api-key
+ensure_env "$tmp_env" TAVILY_API_KEY ci-tavily-api-key
+
 bash -n scripts/gitea/bootstrap-act-runner.sh
+bash -n scripts/infra/assert-compose-source-of-truth.sh
+bash -n scripts/infra/validate-repo-policy.sh
 
-docker compose -f docker-compose.gitea.yml --env-file "$tmp_gitea" config >/dev/null
-docker compose -f docker-compose.gitea.bootstrap.yml --env-file "$tmp_gitea" config >/dev/null
-docker compose -f docker-compose.infisical.yml --env-file "$tmp_infisical" config >/dev/null
+bash scripts/infra/assert-compose-source-of-truth.sh
+bash scripts/infra/validate-repo-policy.sh
+
+for compose_file in \
+  infra/hosts/oracle-vps/docker-compose.yml \
+  infra/hosts/oracle-vps/docker-compose.gitea.yml \
+  infra/hosts/orchestrator/docker-compose.yml \
+  infra/hosts/worker-rtx3060/docker-compose.yml \
+  infra/hosts/worker-rtx3090ti/docker-compose.yml \
+  infra/hosts/worker-rtx5090/docker-compose.yml
+do
+  docker compose --env-file "$tmp_env" -f "$compose_file" config >/dev/null
+done
 
 echo "infra validation passed"

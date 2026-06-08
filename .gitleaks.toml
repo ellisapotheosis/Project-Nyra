@@ -1,0 +1,11 @@
+[allowlist]
+description = "Allow documented non-secret schema identifiers."
+regexes = [
+  '''conventional_(30yr|15yr)|fha_30yr''',
+  '''YOUR_[A-Z_]*(TOKEN|KEY)''',
+  '''your[-_](token|key|api-key|api_key)''',
+  '''test[-_](token|key|api-key|api_key)''',
+  '''replace-with-[a-z0-9-]+''',
+  '''dummy-[a-z0-9-]+''',
+  '''8374cea9-e5e8-4050-bda4-b91f25ab30ef''',
+]

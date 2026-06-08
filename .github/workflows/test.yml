@@ -2,7 +2,7 @@ name: Test Suite
 
 on:
   schedule:
-    - cron: '0 5 * * *'
+    - cron: "0 5 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -33,7 +33,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -67,6 +67,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
+        continue-on-error: true
         with:
           files: ./coverage/lcov.info
           flags: unit
@@ -124,7 +125,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -191,7 +192,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093 # v4
         with:
           version: ${{ env.PNPM_VERSION }}
 

@@ -64,12 +64,12 @@ ipconfig /all | Select-String "IPv4", "Physical Address", "Default Gateway"
 
 **Create this table** (fill in as you go):
 
-| PC | Role | Current IP | MAC Address | Target Static IP | Gateway |
-|---|---|---|---|---|---|
-| PC1 | Orchestrator | ___________ | ___________ | `192.168.1.100` | `192.168.1.1` |
-| PC2 | RTX 3060 | ___________ | ___________ | `192.168.1.101` | `192.168.1.1` |
-| PC3 | RTX 5090 | ___________ | ___________ | `192.168.1.102` | `192.168.1.1` |
-| PC4 | RTX 3090 | ___________ | ___________ | `192.168.1.103` | `192.168.1.1` |
+| PC  | Role         | Current IP     | MAC Address    | Target Static IP | Gateway       |
+| --- | ------------ | -------------- | -------------- | ---------------- | ------------- |
+| PC1 | Orchestrator | ****\_\_\_**** | ****\_\_\_**** | `192.168.1.100`  | `192.168.1.1` |
+| PC2 | RTX 3060     | ****\_\_\_**** | ****\_\_\_**** | `192.168.1.101`  | `192.168.1.1` |
+| PC3 | RTX 5090     | ****\_\_\_**** | ****\_\_\_**** | `192.168.1.102`  | `192.168.1.1` |
+| PC4 | RTX 3090     | ****\_\_\_**** | ****\_\_\_**** | `192.168.1.103`  | `192.168.1.1` |
 
 **Save this table** - you'll need it for router configuration!
 
@@ -104,6 +104,7 @@ ipconfig /all | Select-String "IPv4", "Physical Address", "Default Gateway"
 **Option B: Windows Network Settings (if router doesn't support reservations)**
 
 On each PC:
+
 1. Open **Settings** → **Network & Internet** → **Ethernet**
 2. Click **Edit** next to IP assignment
 3. Choose **Manual** → Enable **IPv4**
@@ -140,10 +141,10 @@ ping 1.1.1.1 -n 4
 
 **RECOMMENDED: Use Docker** for easier management and consistency.
 
-| Method | Pros | Cons | Use When |
-|---|---|---|---|
-| **Docker** | Easy updates, consistent config, portable | Slight overhead | **Default choice** |
-| **Native** | Slightly faster, OS-level service | Manual updates, OS-specific | Advanced users only |
+| Method     | Pros                                      | Cons                        | Use When            |
+| ---------- | ----------------------------------------- | --------------------------- | ------------------- |
+| **Docker** | Easy updates, consistent config, portable | Slight overhead             | **Default choice**  |
+| **Native** | Slightly faster, OS-level service         | Manual updates, OS-specific | Advanced users only |
 
 **We'll use Docker method below.**
 
@@ -184,12 +185,12 @@ ping 1.1.1.1 -n 4
 
 In Cloudflare Tunnel settings, add public hostnames:
 
-| Hostname | Type | URL |
-|---|---|---|
-| `nyra.ratehunter.net` | HTTP | `http://192.168.1.100:3000` (TwentyCRM) |
-| `n8n.ratehunter.net` | HTTP | `http://192.168.1.100:5678` (n8n) |
-| `dify.ratehunter.net` | HTTP | `http://192.168.1.100:3001` (Dify) |
-| `grafana.ratehunter.net` | HTTP | `http://192.168.1.100:3002` (Grafana) |
+| Hostname                  | Type | URL                                     |
+| ------------------------- | ---- | --------------------------------------- |
+| `app.projectnyra.com`     | HTTP | `http://192.168.1.100:3000` (TwentyCRM) |
+| `n8n.projectnyra.com`     | HTTP | `http://192.168.1.100:5678` (n8n)       |
+| `dify.projectnyra.com`    | HTTP | `http://192.168.1.100:3001` (Dify)      |
+| `grafana.projectnyra.com` | HTTP | `http://192.168.1.100:3002` (Grafana)   |
 
 **Skip this for now** if you just want internal access via Tailscale.
 
@@ -233,6 +234,7 @@ docker logs cloudflared-pc1
 ```
 
 **Repeat on PC2, PC3, PC4** with updated container names:
+
 - PC2: `cloudflared-pc2`
 - PC3: `cloudflared-pc3`
 - PC4: `cloudflared-pc4`
@@ -281,12 +283,12 @@ tailscale ip -4
 
 **Update your table**:
 
-| PC | Role | LAN IP | Tailscale IP | Purpose |
-|---|---|---|---|---|
-| PC1 | Orchestrator | 192.168.1.100 | _________ | Internal access only |
-| PC2 | RTX 3060 | 192.168.1.101 | _________ | Internal access only |
-| PC3 | RTX 5090 | 192.168.1.102 | _________ | Internal access only |
-| PC4 | RTX 3090 | 192.168.1.103 | _________ | Internal access only |
+| PC  | Role         | LAN IP        | Tailscale IP | Purpose              |
+| --- | ------------ | ------------- | ------------ | -------------------- |
+| PC1 | Orchestrator | 192.168.1.100 | ****\_****   | Internal access only |
+| PC2 | RTX 3060     | 192.168.1.101 | ****\_****   | Internal access only |
+| PC3 | RTX 5090     | 192.168.1.102 | ****\_****   | Internal access only |
+| PC4 | RTX 3090     | 192.168.1.103 | ****\_****   | Internal access only |
 
 ---
 
@@ -305,11 +307,13 @@ Set-NetIPInterface -Forwarding Enabled
 ```
 
 **In Tailscale Admin Console** (https://login.tailscale.com/admin/machines):
+
 - Find PC1 (`nyra-orchestrator`)
 - Click **Edit route settings**
 - **Approve** the `192.168.1.0/24` subnet
 
 **On other PCs**:
+
 ```powershell
 tailscale up --accept-routes
 ```
@@ -348,6 +352,7 @@ nvidia-smi
 ```
 
 **If drivers need updating**:
+
 1. Go to https://www.nvidia.com/Download/index.aspx
 2. Select your GPU model
 3. Download and install **Game Ready Driver** or **Studio Driver**
@@ -364,6 +369,7 @@ nvidia-smi
    - During install, ensure **WSL 2** is enabled
 
 2. **Enable GPU support in Docker**:
+
    ```powershell
    # In Docker Desktop settings:
    # Settings → Resources → WSL Integration → Enable Ubuntu
@@ -371,6 +377,7 @@ nvidia-smi
    ```
 
 3. **Test GPU access in Docker**:
+
    ```powershell
    docker run --rm --gpus all nvidia/cuda:12.4.0-base-ubuntu22.04 nvidia-smi
    ```
@@ -622,11 +629,12 @@ Once complete, you'll have:
 ✅ **Cloudflared tunnels** on all 4 PCs for secure external access
 ✅ **Tailscale mesh VPN** for remote administration
 ✅ **Ollama running** on 3 GPU workers with optimal models:
-  - PC2 (RTX 3060): 4 models (8B-13B range)
-  - PC3 (RTX 5090): 4 large models (70B+ range)
-  - PC4 (RTX 3090): 4 medium-large models (32B-70B range)
-✅ **Docker with GPU support** on all workers
-✅ **Network verified** (LAN + Tailscale)
+
+- PC2 (RTX 3060): 4 models (8B-13B range)
+- PC3 (RTX 5090): 4 large models (70B+ range)
+- PC4 (RTX 3090): 4 medium-large models (32B-70B range)
+  ✅ **Docker with GPU support** on all workers
+  ✅ **Network verified** (LAN + Tailscale)
 
 ---
 
@@ -661,6 +669,7 @@ After completing this manual setup, Claude will handle:
 ### Issue: Cloudflared won't connect
 
 **Solution**:
+
 ```powershell
 # Check token is correct
 docker logs cloudflared-pc1
@@ -676,6 +685,7 @@ docker-compose restart
 ### Issue: Ollama can't access GPU
 
 **Solution**:
+
 ```powershell
 # Verify GPU drivers
 nvidia-smi
@@ -692,6 +702,7 @@ docker-compose up -d --build
 ### Issue: Tailscale IPs not working
 
 **Solution**:
+
 ```powershell
 # Restart Tailscale
 tailscale down

@@ -1,44 +1,41 @@
 # Project Nyra Documentation
 
-**Last Updated**: 2026-01-22
-**Status**: Reorganized and production-ready
+**Last Updated**: 2026-05-20
+**Status**: Active architecture and operations documentation
 
 ## 📋 What's in This Folder (Root)
 
-This root directory contains **ONLY**:
-- ✅ **Completion Reports** - Status reports from major initiatives
-- ✅ **Step-by-Step Guides** - Manual procedures for you to follow
-- ✅ **To-Do Lists** - Task checklists and action items
-- ✅ **This README** - Navigation guide
-
-All other documentation is organized in subdirectories below.
+This root directory contains the active Project Nyra architecture references, execution plans, runbooks, owner-only action lists, and selected completion reports. Historical or superseded material should stay under `docs/archive/` or another clearly named archive/research folder.
 
 ## 📂 Directory Structure
 
-| Directory | Purpose | Key Files |
-|---|---|---|
-| **architecture/** | System architecture, ADRs, diagrams | ARCHITECTURE-OVERVIEW.md, ARCHITECTURE-DECISIONS.md (23 ADRs) |
-| **api/** | API documentation, OpenAPI specs | API-REFERENCE.md |
-| **deployment/** | Deployment guides, infrastructure | SETUP-GUIDE.md, DEPLOYMENT.md |
-| **manual-tasks/** | Human-required procedures | YOUR-MANUAL-SETUP-GUIDE.md, PRODUCTION-READINESS-CHECKLIST.md |
-| **ai-automatable/** | Claude-automatable tasks | AI-AUTOMATION-GUIDE.md |
-| **development/** | Development guides, templates | CLAUDE-MD-V3-TEMPLATE-GUIDE.md |
-| **configuration/** | Configuration references | CONFIGURATION.md |
-| **sparc/** | SPARC methodology specs | SPARC-SPECIFICATIONS.md |
-| **cleanup/** | Reorganization reports | Completion reports, migration logs |
-| **archive/** | Archived/obsolete files | Historical documentation |
+| Directory                  | Purpose                                    | Key Files                                           |
+| -------------------------- | ------------------------------------------ | --------------------------------------------------- |
+| **architecture/**          | System architecture, ADRs, diagrams        | ARCHITECTURE.md, distributed-memory-architecture.md |
+| **adr/**                   | Architecture decision records              | Decision records                                    |
+| **apps/**                  | App surface documentation                  | APPS-FOLDER-ARCHITECTURE.md                         |
+| **deployment/**            | Deployment guides and infrastructure notes | Deployment checklists                               |
+| **manual-tasks/**          | Human-required procedures                  | Manual setup guides                                 |
+| **operations/** / **ops/** | Operational runbooks                       | Local dev and secrets runbooks                      |
+| **infra/**                 | Infrastructure reports and routing notes   | Cloudflare, CSP, and service registry reports       |
+| **research/**              | Research and historical investigations     | Integration and deprecated-stack research           |
+| **archive/**               | Archived/obsolete files                    | Historical documentation                            |
 
 ## 🚀 Quick Navigation
 
-**Getting Started**: Start with [`manual-tasks/YOUR-MANUAL-SETUP-GUIDE.md`](manual-tasks/YOUR-MANUAL-SETUP-GUIDE.md)
+**Getting Started**: Start with [`BOOTSTRAP_RUNBOOK.md`](BOOTSTRAP_RUNBOOK.md) and [`ops/LOCAL_DEV_RUNBOOK.md`](ops/LOCAL_DEV_RUNBOOK.md)
 
-**Architecture**: See [`architecture/ARCHITECTURE-OVERVIEW.md`](architecture/ARCHITECTURE-OVERVIEW.md)
+**Architecture**: See [`MASTER_ARCHITECTURE.md`](MASTER_ARCHITECTURE.md)
 
-**API Reference**: See [`api/API-REFERENCE.md`](api/API-REFERENCE.md)
+**Apps Plan**: See [`EXECUTION_PLAN_APPS.md`](EXECUTION_PLAN_APPS.md)
 
-**Deployment**: See [`deployment/SETUP-GUIDE.md`](deployment/SETUP-GUIDE.md)
+**Infrastructure Plan**: See [`EXECUTION_PLAN_INFRA.md`](EXECUTION_PLAN_INFRA.md)
 
-**AI Automation**: See [`ai-automatable/AI-AUTOMATION-GUIDE.md`](ai-automatable/AI-AUTOMATION-GUIDE.md)
+**Owner Actions**: See [`OWNER_MANUAL_ACTIONS.md`](OWNER_MANUAL_ACTIONS.md) and [`user-todo/`](user-todo/)
+
+**Release Candidate Path**: See [`user-todo/FINISH_LINE_ACCELERATION_PLAN.md`](user-todo/FINISH_LINE_ACCELERATION_PLAN.md)
+
+**Prompt Pack Execution**: See [`PROMPT_PACK_EXECUTION.md`](PROMPT_PACK_EXECUTION.md)
 
 ## 🔍 Finding Documentation
 
@@ -61,9 +58,11 @@ See `CLAUDE.md` for complete rules.
 
 ## 🎯 Key Documents
 
-| Document | Purpose |
-|---|---|
-| [WHITEPAPER.md](WHITEPAPER.md) | Complete technical whitepaper (2,900+ lines) |
-| [YOUR-MANUAL-SETUP-GUIDE.md](manual-tasks/YOUR-MANUAL-SETUP-GUIDE.md) | Hardware/network setup guide |
-| [PRODUCTION-READINESS-CHECKLIST.md](manual-tasks/PRODUCTION-READINESS-CHECKLIST.md) | Production deployment checklist |
-| [AI-AUTOMATION-GUIDE.md](ai-automatable/AI-AUTOMATION-GUIDE.md) | What Claude can automate |
+| Document                                                                                 | Purpose                                     |
+| ---------------------------------------------------------------------------------------- | ------------------------------------------- |
+| [MASTER_ARCHITECTURE.md](MASTER_ARCHITECTURE.md)                                         | Authoritative target architecture           |
+| [EXECUTION_PLAN_APPS.md](EXECUTION_PLAN_APPS.md)                                         | Product/app/service implementation playbook |
+| [EXECUTION_PLAN_INFRA.md](EXECUTION_PLAN_INFRA.md)                                       | Infrastructure and runtime playbook         |
+| [OWNER_MANUAL_ACTIONS.md](OWNER_MANUAL_ACTIONS.md)                                       | Owner-only dashboard/MFA/credential tasks   |
+| [user-todo/FINISH_LINE_ACCELERATION_PLAN.md](user-todo/FINISH_LINE_ACCELERATION_PLAN.md) | Shortest release-candidate critical path    |
+| [PROMPT_PACK_EXECUTION.md](PROMPT_PACK_EXECUTION.md)                                     | Imported prompt-pack execution mapping      |

@@ -70,7 +70,7 @@ class TestConventionalEndpoint:
 
         data = response.json()
         assert data["summary"]["monthly_pmi_or_mip"] > 0  # Should have PMI
-        assert data["summary"]["ltv"] == 1.0
+        assert data["summary"]["ltv"] == 0.9
 
     def test_conventional_invalid_ltv(self, test_client, base_conventional_request):
         """Test conventional fails with invalid LTV."""
@@ -223,6 +223,15 @@ class TestErrorHandling:
 
         response = test_client.post("/quote/conventional", json=base_conventional_request)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def test_rejects_percent_style_interest_rate(self, test_client, base_conventional_request):
+        """Quote requests must use decimal rates, not percent-style whole numbers."""
+        base_conventional_request["annual_interest_rate"] = 7.0
+
+        response = test_client.post("/quote/conventional", json=base_conventional_request)
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert "use 0.07, not 7" in response.text
 
     def test_invalid_credit_score(self, test_client, base_conventional_request):
         """Test error with invalid credit score."""

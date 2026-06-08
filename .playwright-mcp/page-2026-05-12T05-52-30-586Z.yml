@@ -1,0 +1,361 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "Project Nyra Broker_Ops_Cockpit" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img [ref=e8]
+          - generic [ref=e12]:
+            - paragraph [ref=e13]: Project Nyra
+            - paragraph [ref=e14]: Broker_Ops_Cockpit
+        - generic [ref=e15]:
+          - button "3" [ref=e16]:
+            - img
+            - generic [ref=e17]: "3"
+          - button "SUBSCRIBER_LOGIN" [ref=e18]:
+            - img
+            - text: SUBSCRIBER_LOGIN
+          - link "Open settings" [ref=e19] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e20]
+      - group [ref=e23]:
+        - generic "Navigation Open" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - text: Navigation
+          - generic [ref=e27]: Open
+  - main [ref=e28]:
+    - main [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - img [ref=e34]
+              - text: NerveUI Fleet Control
+            - heading "Local-first command cockpit for agents, workers, memory, and approvals." [level=1] [ref=e37]
+          - generic [ref=e38]:
+            - generic [ref=e39]: Fleet live
+            - generic [ref=e40]: Human approval gates armed
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - paragraph [ref=e44]:
+                - img [ref=e45]
+                - text: Fleet map
+              - heading "Worker constellation" [level=2] [ref=e50]
+            - generic [ref=e56]:
+              - link "online orchestrator Control plane / service host / tunnel manager / route coordinator Stacks 18 Tunnels 5 Routes 42 Secrets Infisical" [ref=e57] [cursor=pointer]:
+                - /url: /fleet/orchestrator
+                - generic [ref=e59]:
+                  - generic [ref=e60]:
+                    - generic [ref=e61]:
+                      - img [ref=e62]
+                      - generic [ref=e65]: online
+                    - heading "orchestrator" [level=2] [ref=e66]
+                    - paragraph [ref=e67]: Control plane / service host / tunnel manager / route coordinator
+                  - generic [ref=e68]:
+                    - generic [ref=e69]:
+                      - paragraph [ref=e70]: Stacks
+                      - paragraph [ref=e71]: "18"
+                    - generic [ref=e72]:
+                      - paragraph [ref=e73]: Tunnels
+                      - paragraph [ref=e74]: "5"
+                    - generic [ref=e75]:
+                      - paragraph [ref=e76]: Routes
+                      - paragraph [ref=e77]: "42"
+                    - generic [ref=e78]:
+                      - paragraph [ref=e79]: Secrets
+                      - paragraph [ref=e80]: Infisical
+              - link "online worker-rtx5090 Burst reasoning / code generation / quote logic / heavy inference VRAM used 18.6 / 24 GB GPU util 72% Temp 66 C Power 310 W" [ref=e81] [cursor=pointer]:
+                - /url: /fleet/worker-rtx5090
+                - generic [ref=e83]:
+                  - generic [ref=e84]:
+                    - generic [ref=e85]:
+                      - img [ref=e86]
+                      - generic [ref=e89]: online
+                    - heading "worker-rtx5090" [level=2] [ref=e90]
+                    - paragraph [ref=e91]: Burst reasoning / code generation / quote logic / heavy inference
+                  - generic [ref=e92]:
+                    - generic [ref=e93]:
+                      - paragraph [ref=e94]: VRAM used
+                      - paragraph [ref=e95]: 18.6 / 24 GB
+                    - generic [ref=e96]:
+                      - paragraph [ref=e97]: GPU util
+                      - paragraph [ref=e98]: 72%
+                    - generic [ref=e99]:
+                      - paragraph [ref=e100]: Temp
+                      - paragraph [ref=e101]: 66 C
+                    - generic [ref=e102]:
+                      - paragraph [ref=e103]: Power
+                      - paragraph [ref=e104]: 310 W
+              - link "online worker-rtx3090ti Steady-state AI operations / drip intelligence / lead reply parsing VRAM used 14.2 / 24 GB GPU util 48% Temp 61 C Power 235 W" [ref=e105] [cursor=pointer]:
+                - /url: /fleet/worker-rtx3090ti
+                - generic [ref=e107]:
+                  - generic [ref=e108]:
+                    - generic [ref=e109]:
+                      - img [ref=e110]
+                      - generic [ref=e113]: online
+                    - heading "worker-rtx3090ti" [level=2] [ref=e114]
+                    - paragraph [ref=e115]: Steady-state AI operations / drip intelligence / lead reply parsing
+                  - generic [ref=e116]:
+                    - generic [ref=e117]:
+                      - paragraph [ref=e118]: VRAM used
+                      - paragraph [ref=e119]: 14.2 / 24 GB
+                    - generic [ref=e120]:
+                      - paragraph [ref=e121]: GPU util
+                      - paragraph [ref=e122]: 48%
+                    - generic [ref=e123]:
+                      - paragraph [ref=e124]: Temp
+                      - paragraph [ref=e125]: 61 C
+                    - generic [ref=e126]:
+                      - paragraph [ref=e127]: Power
+                      - paragraph [ref=e128]: 235 W
+              - link "online worker-rtx3060 Lightweight Ollama worker / fallback inference / small-agent utility VRAM used 3.8 / 6 GB GPU util 34% Temp 58 C Active model llama3.2:3b" [ref=e129] [cursor=pointer]:
+                - /url: /fleet/worker-rtx3060
+                - generic [ref=e131]:
+                  - generic [ref=e132]:
+                    - generic [ref=e133]:
+                      - img [ref=e134]
+                      - generic [ref=e137]: online
+                    - heading "worker-rtx3060" [level=2] [ref=e138]
+                    - paragraph [ref=e139]: Lightweight Ollama worker / fallback inference / small-agent utility
+                  - generic [ref=e140]:
+                    - generic [ref=e141]:
+                      - paragraph [ref=e142]: VRAM used
+                      - paragraph [ref=e143]: 3.8 / 6 GB
+                    - generic [ref=e144]:
+                      - paragraph [ref=e145]: GPU util
+                      - paragraph [ref=e146]: 34%
+                    - generic [ref=e147]:
+                      - paragraph [ref=e148]: Temp
+                      - paragraph [ref=e149]: 58 C
+                    - generic [ref=e150]:
+                      - paragraph [ref=e151]: Active model
+                      - paragraph [ref=e152]: llama3.2:3b
+              - generic [ref=e153]:
+                - generic [ref=e155]:
+                  - generic [ref=e156]:
+                    - paragraph [ref=e157]: Oracle VPS
+                    - paragraph [ref=e158]: Durable cloud services / Twenty / Activepieces / memory
+                  - generic [ref=e159]: optional watch
+                - generic [ref=e161]:
+                  - generic [ref=e162]:
+                    - paragraph [ref=e163]: Home Assistant
+                    - paragraph [ref=e164]: Reference-only local automation node
+                  - generic [ref=e165]: optional
+          - generic [ref=e166]:
+            - generic [ref=e167]:
+              - generic [ref=e168]:
+                - paragraph [ref=e169]:
+                  - img [ref=e170]
+                  - text: Agent sessions
+                - heading "Assigned orbits" [level=2] [ref=e173]
+              - generic [ref=e174]:
+                - generic [ref=e175]:
+                  - generic [ref=e176]:
+                    - generic [ref=e177]:
+                      - paragraph [ref=e178]: Mortgage Assistant
+                      - paragraph [ref=e179]: Broker context and action proposals
+                    - generic [ref=e180]: active
+                  - paragraph [ref=e181]: orchestrator
+                - generic [ref=e182]:
+                  - generic [ref=e183]:
+                    - generic [ref=e184]:
+                      - paragraph [ref=e185]: Lead Intake Parser
+                      - paragraph [ref=e186]: Inbound source normalization
+                    - generic [ref=e187]: active
+                  - paragraph [ref=e188]: worker-rtx3090ti
+                - generic [ref=e189]:
+                  - generic [ref=e190]:
+                    - generic [ref=e191]:
+                      - paragraph [ref=e192]: Campaign Builder Agent
+                      - paragraph [ref=e193]: Mortgage drip templates
+                    - generic [ref=e194]: ready
+                  - paragraph [ref=e195]: worker-rtx3090ti
+                - generic [ref=e196]:
+                  - generic [ref=e197]:
+                    - generic [ref=e198]:
+                      - paragraph [ref=e199]: Quote Generator Agent
+                      - paragraph [ref=e200]: Scenario and pricing requests
+                    - generic [ref=e201]: active
+                  - paragraph [ref=e202]: worker-rtx5090
+                - generic [ref=e203]:
+                  - generic [ref=e204]:
+                    - generic [ref=e205]:
+                      - paragraph [ref=e206]: CRM Sync Agent
+                      - paragraph [ref=e207]: Twenty API boundary
+                    - generic [ref=e208]: ready
+                  - paragraph [ref=e209]: orchestrator
+                - generic [ref=e210]:
+                  - generic [ref=e211]:
+                    - generic [ref=e212]:
+                      - paragraph [ref=e213]: Memory Manager Agent
+                      - paragraph [ref=e214]: Shared context compaction
+                    - generic [ref=e215]: active
+                  - paragraph [ref=e216]: orchestrator
+                - generic [ref=e217]:
+                  - generic [ref=e218]:
+                    - generic [ref=e219]:
+                      - paragraph [ref=e220]: Compliance Auditor Agent
+                      - paragraph [ref=e221]: STOP, quiet hours, consent
+                    - generic [ref=e222]: watch
+                  - paragraph [ref=e223]: worker-rtx3090ti
+                - generic [ref=e224]:
+                  - generic [ref=e225]:
+                    - generic [ref=e226]:
+                      - paragraph [ref=e227]: Dev/Code Agent
+                      - paragraph [ref=e228]: Code and refactor lanes
+                    - generic [ref=e229]: ready
+                  - paragraph [ref=e230]: worker-rtx5090
+            - generic [ref=e231]:
+              - generic [ref=e232]:
+                - paragraph [ref=e233]:
+                  - img [ref=e234]
+                  - text: Actions
+                - heading "Control surface" [level=2] [ref=e244]
+              - generic [ref=e245]:
+                - button "Launch session" [ref=e246]:
+                  - img
+                  - text: Launch session
+                - button "Attach workspace" [ref=e247]:
+                  - img
+                  - text: Attach workspace
+                - button "Assign worker" [ref=e248]:
+                  - img
+                  - text: Assign worker
+                - button "Inspect memory" [ref=e249]:
+                  - img
+                  - text: Inspect memory
+                - button "Open logs" [ref=e250]:
+                  - img
+                  - text: Open logs
+                - button "Kill session" [ref=e251]:
+                  - img
+                  - text: Kill session
+                - button "Promote task to RTX 5090" [ref=e252]:
+                  - img
+                  - text: Promote task to RTX 5090
+                - button "Route steady task to RTX 3090 Ti" [ref=e253]:
+                  - img
+                  - text: Route steady task to RTX 3090 Ti
+                - button "Route lightweight task to RTX 3060" [ref=e254]:
+                  - img
+                  - text: Route lightweight task to RTX 3060
+        - generic [ref=e255]:
+          - generic [ref=e256]:
+            - generic [ref=e257]:
+              - paragraph [ref=e258]:
+                - img [ref=e259]
+                - text: Workspace browser
+              - heading "Attached scopes" [level=2] [ref=e264]
+            - generic [ref=e265]:
+              - generic [ref=e267]:
+                - img [ref=e268]
+                - generic [ref=e273]:
+                  - paragraph [ref=e274]: Lead JSON directory
+                  - paragraph [ref=e275]: data/leads/*.json
+              - generic [ref=e277]:
+                - img [ref=e278]
+                - generic [ref=e282]:
+                  - paragraph [ref=e283]: Campaign templates
+                  - paragraph [ref=e284]: services/campaign-engine/templates
+              - generic [ref=e286]:
+                - img [ref=e287]
+                - generic [ref=e290]:
+                  - paragraph [ref=e291]: Quote API workspace
+                  - paragraph [ref=e292]: services/quote-api
+              - generic [ref=e294]:
+                - img [ref=e295]
+                - generic [ref=e300]:
+                  - paragraph [ref=e301]: Webapp source
+                  - paragraph [ref=e302]: apps/nyra-webapp
+              - generic [ref=e304]:
+                - img [ref=e305]
+                - generic [ref=e308]:
+                  - paragraph [ref=e309]: Logs/audit directory
+                  - paragraph [ref=e310]: logs/audit
+              - generic [ref=e312]:
+                - img [ref=e313]
+                - generic [ref=e317]:
+                  - paragraph [ref=e318]: Memory exports
+                  - paragraph [ref=e319]: exports/memory
+          - generic [ref=e320]:
+            - generic [ref=e321]:
+              - paragraph [ref=e322]:
+                - img [ref=e323]
+                - text: Session tree
+              - heading "Trace and approvals" [level=2] [ref=e326]
+            - generic [ref=e327]:
+              - generic [ref=e328]:
+                - img [ref=e329]
+                - generic [ref=e332]:
+                  - paragraph [ref=e333]: Parent agent
+                  - paragraph [ref=e334]: Mortgage Assistant
+                - generic [ref=e335]: active
+              - generic [ref=e336]:
+                - img [ref=e337]
+                - generic [ref=e349]:
+                  - paragraph [ref=e350]: Sub-agent
+                  - paragraph [ref=e351]: Quote Generator Agent
+                - generic [ref=e352]: active
+              - generic [ref=e353]:
+                - img [ref=e354]
+                - generic [ref=e357]:
+                  - paragraph [ref=e358]: Tool calls
+                  - paragraph [ref=e359]: quote-api.generateScenario
+                - generic [ref=e360]: approved
+              - generic [ref=e361]:
+                - img [ref=e362]
+                - generic [ref=e364]:
+                  - paragraph [ref=e365]: Memory writes
+                  - paragraph [ref=e366]: lead.timeline.summary
+                - generic [ref=e367]: logged
+              - generic [ref=e368]:
+                - img [ref=e369]
+                - generic [ref=e372]:
+                  - paragraph [ref=e373]: Human approvals
+                  - paragraph [ref=e374]: Broker quote delivery gate
+                - generic [ref=e375]: waiting
+              - generic [ref=e376]:
+                - img [ref=e377]
+                - generic [ref=e380]:
+                  - paragraph [ref=e381]: Finished/failed states
+                  - paragraph [ref=e382]: 3 finished / 0 failed
+                - generic [ref=e383]: clean
+          - generic [ref=e384]:
+            - generic [ref=e385]:
+              - paragraph [ref=e386]:
+                - img [ref=e387]
+                - text: Voice controls
+              - heading "Hands-free command layer" [level=2] [ref=e390]
+            - generic [ref=e391]:
+              - generic [ref=e393]:
+                - img [ref=e394]
+                - generic [ref=e397]:
+                  - paragraph [ref=e398]: Push-to-talk
+                  - paragraph [ref=e399]: placeholder
+              - generic [ref=e401]:
+                - img [ref=e402]
+                - generic [ref=e408]:
+                  - paragraph [ref=e409]: Wake word
+                  - paragraph [ref=e410]: placeholder
+              - generic [ref=e412]:
+                - img [ref=e413]
+                - generic [ref=e414]:
+                  - paragraph [ref=e415]: Transcription
+                  - paragraph [ref=e416]: idle
+              - generic [ref=e418]:
+                - img [ref=e419]
+                - generic [ref=e423]:
+                  - paragraph [ref=e424]: TTS provider
+                  - paragraph [ref=e425]: Pocket TTS placeholder
+              - generic [ref=e427]:
+                - img [ref=e428]
+                - generic [ref=e432]:
+                  - paragraph [ref=e433]: Language
+                  - paragraph [ref=e434]: English
+              - generic [ref=e436]:
+                - img [ref=e437]
+                - generic [ref=e440]:
+                  - paragraph [ref=e441]: Stop/cancel phrase
+                  - paragraph [ref=e442]: armed

@@ -4,21 +4,23 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'apps/**/Dockerfile'
-      - 'services/**/Dockerfile'
-      - 'infra/**'
-      - '.github/workflows/docker-build-matrix.yml'
-      - '!**/infra-archived/**'
+      - "apps/**/Dockerfile"
+      - "services/**/Dockerfile"
+      - "infra/**"
+      - ".github/workflows/docker-build-matrix.yml"
+      - "!**/infra-archived/**"
   pull_request:
     branches: [main]
     paths:
-      - 'apps/**/Dockerfile'
-      - 'services/**/Dockerfile'
-      - '!**/infra-archived/**'
+      - ".github/workflows/docker-build-matrix.yml"
+      - "apps/**/Dockerfile"
+      - "services/**/Dockerfile"
+      - "infra/**"
+      - "!**/infra-archived/**"
   workflow_dispatch:
     inputs:
       service:
-        description: 'Specific service to build (leave empty for all)'
+        description: "Specific service to build (leave empty for all)"
         required: false
         type: string
 
@@ -38,6 +40,7 @@ jobs:
     outputs:
       apps: ${{ steps.filter.outputs.apps }}
       services: ${{ steps.filter.outputs.services }}
+      build_date: ${{ steps.set-matrix.outputs.build_date }}
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v6
@@ -59,16 +62,32 @@ jobs:
       - name: Set build matrix
         id: set-matrix
         run: |
+          shopt -s nullglob
+
           # Build matrix of all services with Dockerfiles
           MATRIX='{"include":['
+          BUILD_DATE="${{ github.event.head_commit.timestamp }}"
+          REQUESTED_SERVICE="${{ github.event.inputs.service }}"
+          selected_count=0
+
+          if [ -z "$BUILD_DATE" ]; then
+            BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          fi
 
           # Add apps
           if [ "${{ steps.filter.outputs.apps }}" == "true" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             for dir in apps/*/Dockerfile; do
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
-                app=$(dirname "$dir" | cut -d'/' -f2)
-                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\".\",\"dockerfile\":\"apps/${app}/Dockerfile\",\"type\":\"app\"},"
+                app_dir=$(dirname "$dir")
+                app=$(basename "$app_dir")
+
+                if [ -n "$REQUESTED_SERVICE" ] && [ "$REQUESTED_SERVICE" != "$app" ]; then
+                  continue
+                fi
+
+                MATRIX="${MATRIX}{\"name\":\"${app}\",\"context\":\"${app_dir}\",\"dockerfile\":\"${app_dir}/Dockerfile\",\"type\":\"app\"},"
+                selected_count=$((selected_count + 1))
               fi
             done
           fi
@@ -79,15 +98,36 @@ jobs:
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 service=$(dirname "$dir" | cut -d'/' -f2)
-                MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\".\",\"dockerfile\":\"services/${service}/Dockerfile\",\"type\":\"service\"},"
+                context="services/${service}"
+                dockerfile="${context}/Dockerfile"
+
+                if [ -n "$REQUESTED_SERVICE" ] && [ "$REQUESTED_SERVICE" != "$service" ]; then
+                  continue
+                fi
+
+                case "$service" in
+                  crm-api)
+                    context="."
+                    dockerfile="services/${service}/Dockerfile"
+                    ;;
+                esac
+
+                MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\"${context}\",\"dockerfile\":\"${dockerfile}\",\"type\":\"service\"},"
+                selected_count=$((selected_count + 1))
               fi
             done
+          fi
+
+          if [ -n "$REQUESTED_SERVICE" ] && [ "$selected_count" -eq 0 ]; then
+            echo "No Docker build target matched workflow_dispatch input: $REQUESTED_SERVICE" >&2
+            exit 1
           fi
 
           # Remove trailing comma and close JSON
           MATRIX=$(echo "$MATRIX" | sed 's/,$//')
           MATRIX="${MATRIX}]}"
 
+          echo "build_date=$BUILD_DATE" >> $GITHUB_OUTPUT
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
           echo "Generated matrix: $MATRIX"
 
@@ -133,7 +173,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=sha-
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push
@@ -148,7 +188,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
           platforms: linux/amd64,linux/arm64
           build-args: |
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            BUILD_DATE=${{ needs.detect-changes.outputs.build_date }}
             VCS_REF=${{ github.sha }}
             VERSION=${{ steps.meta.outputs.version }}
 
@@ -157,16 +197,16 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ steps.meta.outputs.version }}
-          format: 'sarif'
-          output: 'trivy-results-${{ matrix.name }}.sarif'
+          format: "sarif"
+          output: "trivy-results-${{ matrix.name }}.sarif"
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         if: github.event_name != 'pull_request' && github.actor != 'dependabot[bot]'
         continue-on-error: true
         with:
-          sarif_file: 'trivy-results-${{ matrix.name }}.sarif'
-          category: 'docker-${{ matrix.name }}'
+          sarif_file: "trivy-results-${{ matrix.name }}.sarif"
+          category: "docker-${{ matrix.name }}"
 
   # Verify all builds succeeded
   build-complete:

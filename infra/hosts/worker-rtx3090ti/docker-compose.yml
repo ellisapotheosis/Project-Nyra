@@ -5,80 +5,42 @@
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
-version: '3.8'
-
 services:
-  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
+  # Portainer Agent and Syncthing are managed by docker-compose.persistent.yml
+  # (make persistent-up-worker-3090ti) and must never appear here.
+
   secrets-init:
     build:
-      context: ../../infisical-secrets-init
-    container_name: worker-3090-secrets-init
+      context: ../../images/infisical-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3090ti}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
+      NYRA_SECRETS_DIR: /run/nyra-secrets
     volumes:
       - nyra_secrets:/run/nyra-secrets
-    networks:
-      - worker-network
-
-  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
-  infisical-agent:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: worker-3090-infisical-agent
-    restart: unless-stopped
-    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3090ti}
-      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - worker-network
-
-
-
-  # ── Portainer Edge Agent ────────────────────────────────────────────────
-  portainer-edge-agent:
-    image: portainer/agent:2.27.9
-    container_name: worker-3090-portainer-agent
-    restart: unless-stopped
-    environment:
-      EDGE: "1"
-      EDGE_ID: ${PORTAINER_EDGE_ID}
-      EDGE_KEY: ${PORTAINER_EDGE_KEY}
-      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
-      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
-      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,edge}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks:
       - worker-network
 
   # ── Redis Cache (for LMCache and LiteLLM) ───────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: worker-3090-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-redis
     hostname: worker-3090-redis
     restart: unless-stopped
     ports:
-      - '${REDIS_PORT:-6379}:6379'
-    command: redis-server --maxmemory 4gb --maxmemory-policy allkeys-lru
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    command: redis-server --maxmemory ${REDIS_MAX_MEMORY:-4gb} --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -88,32 +50,31 @@ services:
   # ── vLLM Server (24GB VRAM optimized) ───────────────────────────────────
   vllm:
     image: vllm/vllm-openai:latest
-    container_name: worker-3090-vllm
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-vllm
     hostname: worker-3090-vllm
     restart: unless-stopped
     ports:
-      - '${VLLM_PORT:-8000}:8000'
+      - "${VLLM_PORT:-8000}:8000"
     volumes:
       - vllm_models:/root/.cache/huggingface
       - lmcache_data:/root/.cache/lmcache
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-      - HF_TOKEN_FILE=/run/nyra-secrets/hf_token
+      - HF_TOKEN=${HF_TOKEN}
       - VLLM_ATTENTION_BACKEND=FLASHINFER
       - LMCACHE_ENABLED=true
       - LMCACHE_BACKEND=redis
       - LMCACHE_REDIS_HOST=worker-3090-redis
-      - LMCACHE_REDIS_PORT=6379
+      - LMCACHE_REDIS_PORT=${LMCACHE_REDIS_PORT:-6379}
     command: >
-      --model ${VLLM_MODEL:-meta-llama/Llama-3.1-8B-Instruct}
+      --model ${VLLM_MODEL:-Qwen/Qwen2.5-7B-Instruct}
       --host 0.0.0.0
       --port 8000
       --tensor-parallel-size 1
-      --gpu-memory-utilization 0.90
-      --max-model-len 8192
+      --gpu-memory-utilization ${VLLM_GPU_MEMORY_UTILIZATION:-0.90}
+      --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
       --enable-prefix-caching
       --trust-remote-code
     deploy:
@@ -123,11 +84,8 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -137,17 +95,16 @@ services:
   # ── LiteLLM Proxy (Local entrypoint) ────────────────────────────────────
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: worker-3090-litellm
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-litellm
     hostname: worker-3090-litellm
     restart: unless-stopped
     ports:
-      - '${LITELLM_PORT:-4000}:4000'
+      - "${LITELLM_PORT:-4000}:4000"
     environment:
       - MODEL_ID=worker-3090-vllm
       - VLLM_BASE_URL=http://worker-3090-vllm:8000/v1
     volumes:
       - ./litellm:/app/litellm:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     command: --config /app/litellm/config.yaml --port 4000
     depends_on:
       vllm:
@@ -158,17 +115,16 @@ services:
   # ── Model Switcher ──────────────────────────────────────────────────────
   model-switcher:
     image: python:3.11-slim
-    container_name: worker-3090-switcher
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-switcher
     hostname: worker-3090-switcher
     restart: unless-stopped
     volumes:
       - ./model-switcher:/app
       - vllm_models:/models
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - VLLM_URL=http://worker-3090-vllm:8000
-      - AVAILABLE_MODELS=meta-llama/Llama-3.1-8B-Instruct,Qwen/Qwen2.5-32B-Instruct,mistralai/Mixtral-8x22B-Instruct-v0.1
-      - DEFAULT_MODEL=meta-llama/Llama-3.1-8B-Instruct
+      - AVAILABLE_MODELS=Qwen/Qwen2.5-7B-Instruct,Qwen/Qwen2.5-14B-Instruct,meta-llama/Llama-3.1-8B-Instruct
+      - DEFAULT_MODEL=${VLLM_MODEL:-Qwen/Qwen2.5-7B-Instruct}
     command: python /app/switcher.py
     depends_on:
       vllm:
@@ -179,43 +135,41 @@ services:
   # ── Monitoring (Promtail, Node Exporter, GPU Exporter, Health) ──────────
   promtail:
     image: grafana/promtail:latest
-    container_name: worker-3090-promtail
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-promtail
     restart: unless-stopped
+    network_mode: host
     volumes:
-      - ./promtail:/etc/promtail:ro
+      - ./promtail-config.yml:/etc/promtail/config.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
+      - LOKI_URL=${LOKI_URL:-http://100.64.0.3:3100}
       - WORKER_ID=worker-3090
-    command: -config.file=/etc/promtail/config.yml
-    networks:
-      - worker-network
+    command: -config.file=/etc/promtail/config.yml -config.expand-env=true
 
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: worker-3090-node-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-node-exporter
     restart: unless-stopped
     ports:
-      - '9100:9100'
+      - "9100:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--path.rootfs=/rootfs'
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
     networks:
       - worker-network
 
   gpu-exporter:
     image: utkuozdemir/nvidia_gpu_exporter:1.4.1
-    container_name: worker-3090-gpu-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-gpu-exporter
     restart: unless-stopped
     ports:
-      - '9835:9835'
+      - "9835:9835"
     deploy:
       resources:
         reservations:
@@ -226,9 +180,25 @@ services:
     networks:
       - worker-network
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-cadvisor
+    restart: unless-stopped
+    privileged: true
+    ports:
+      - "${CADVISOR_PORT:-8081}:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    networks:
+      - worker-network
+
   health-monitor:
     image: curlimages/curl:latest
-    container_name: worker-3090-health
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-health
     restart: unless-stopped
     depends_on:
       - vllm
@@ -246,54 +216,11 @@ services:
     networks:
       - worker-network
 
-  # ── Syncthing ───────────────────────────────────────────────────────────
-  syncthing:
-    image: syncthing/syncthing:latest
-    container_name: nyra-syncthing
-    network_mode: host
-    environment:
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - syncthing_config:/var/syncthing
-      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
-    restart: unless-stopped
-
-  # ── OpenClaw (with Nerve UI) ────────────────────────────────────────────
-  openclaw:
-    build:
-      context: ../../../services/openclaw
-      dockerfile: Dockerfile
-    container_name: worker-3090-openclaw
-    restart: unless-stopped
-    ports:
-      - "8001:8001"
-      - "18789:18789"
-    environment:
-      NODE_ENV: production
-      NEXUS_API_URL: "http://oracle.trex-fiordland.ts.net:6000"
-      LITELLM_API_URL: "http://worker-3090-litellm:4000"
-      MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      DATABASE_URL: ${DATABASE_URL:-}
-      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets:ro
-    depends_on:
-      litellm:
-        condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
-    networks:
-      - worker-network
-
 volumes:
   vllm_models:
   redis_data:
   lmcache_data:
   nyra_secrets:
-  syncthing_config:
-  portainer_data:
 
 networks:
   worker-network:

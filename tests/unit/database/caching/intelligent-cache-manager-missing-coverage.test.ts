@@ -32,8 +32,7 @@ describe('IntelligentCacheManager - Missing Critical Coverage', () => {
       // Should trigger predictive prefetch for seq-5, seq-6, etc.
       const prefetchTriggered = await cacheManager.triggerPredictivePrefetch(cacheId, 'seq-4');
 
-      // TODO: Implement actual test when method is implemented
-      expect(prefetchTriggered).toBeDefined();
+      expect(Array.isArray(prefetchTriggered)).toBe(true);
     });
 
     it('should learn from cache misses effectively', async () => {
@@ -49,8 +48,7 @@ describe('IntelligentCacheManager - Missing Critical Coverage', () => {
       // Should learn to prefetch similar patterns
       const learnedPattern = await cacheManager.learnFromMiss(cacheId, missedKey);
 
-      // TODO: Test learning effectiveness when implemented
-      expect(learnedPattern).toBeDefined();
+      expect(learnedPattern).toMatchObject({ cacheId, key: missedKey });
     });
 
     it('should update spatial locality tracking correctly', async () => {
@@ -66,8 +64,7 @@ describe('IntelligentCacheManager - Missing Critical Coverage', () => {
 
       const spatialUpdate = await cacheManager.updateSpatialLocality(cacheId, 'user:1', relatedKeys);
 
-      // TODO: Verify spatial relationships when implemented
-      expect(spatialUpdate).toBeDefined();
+      expect(spatialUpdate).toEqual(expect.arrayContaining(['profile:1', 'settings:1']));
     });
 
     it('should train ML models with performance data', async () => {
@@ -80,8 +77,7 @@ describe('IntelligentCacheManager - Missing Critical Coverage', () => {
 
       const modelTraining = await cacheManager.trainModels(trainingData);
 
-      // TODO: Test model accuracy when implemented
-      expect(modelTraining).toBeDefined();
+      expect(modelTraining).toMatchObject({ trained: true, samples: 3 });
     });
   });
 

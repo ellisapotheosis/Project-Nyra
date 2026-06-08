@@ -71,6 +71,8 @@ export class MetricsCollectorService extends EventEmitter {
   private traces: Map<string, Trace> = new Map();
   private logs: LogEntry[] = [];
   private historyPoints: MetricsHistoryPoint[] = [];
+  private activeConnections = 0;
+  private providerNames: Map<string, string> = new Map();
 
   // Latency histogram buckets (in milliseconds)
   private readonly latencyBuckets = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000];
@@ -98,6 +100,33 @@ export class MetricsCollectorService extends EventEmitter {
 
   public getConfig(): MetricsCollectorConfig {
     return { ...this.config };
+  }
+
+  public registerWebSocketConnection(): () => void {
+    this.activeConnections += 1;
+    this.emitUpdate('metrics_update', {
+      metric: 'activeConnections',
+      value: this.activeConnections,
+    });
+
+    let closed = false;
+    return () => {
+      if (closed) return;
+      closed = true;
+      this.activeConnections = Math.max(0, this.activeConnections - 1);
+      this.emitUpdate('metrics_update', {
+        metric: 'activeConnections',
+        value: this.activeConnections,
+      });
+    };
+  }
+
+  public registerProviderName(providerId: string, providerName: string): void {
+    this.providerNames.set(providerId, providerName);
+  }
+
+  public unregisterProviderName(providerId: string): void {
+    this.providerNames.delete(providerId);
   }
 
   // ============================================================================
@@ -139,7 +168,9 @@ export class MetricsCollectorService extends EventEmitter {
     if (this.traces.size > this.config.maxTraces) {
       // Remove oldest trace
       const oldestKey = this.traces.keys().next().value;
-      this.traces.delete(oldestKey);
+      if (oldestKey) {
+        this.traces.delete(oldestKey);
+      }
     }
   }
 
@@ -212,7 +243,7 @@ export class MetricsCollectorService extends EventEmitter {
       tokenUsage,
       totalCost,
       cacheHitRate,
-      activeConnections: 0, // TODO: Track WebSocket connections
+      activeConnections: this.activeConnections,
       memoryUsage: {
         heapUsed: memoryUsage.heapUsed,
         heapTotal: memoryUsage.heapTotal,
@@ -461,7 +492,7 @@ export class MetricsCollectorService extends EventEmitter {
 
       return {
         providerId,
-        providerName: providerId, // TODO: Get actual name from provider config
+        providerName: this.providerNames.get(providerId) || providerId,
         requests,
         latency,
         tokenUsage,

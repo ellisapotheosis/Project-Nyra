@@ -1,0 +1,794 @@
+version: 1
+generated_at: "2026-05-17"
+services:
+  - id: clawteam
+    name: Clawteam
+    category: ai
+    host: oracle
+    container: clawteam
+    internal_url: http://clawteam:8080
+    public_url: https://clawteam.projectnyra.com
+    tailnet_url: http://clawteam:8080
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://clawteam.projectnyra.com
+    ports:
+      - 8080
+    notes: Requires optional clawteam compose overlay to be running.
+  - id: gasteam
+    name: GasTeam
+    category: ai
+    host: unknown
+    container: unknown
+    internal_url: none
+    public_url: https://gasteam.projectnyra.com
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://gasteam.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: gastown
+    name: Gastown
+    category: ai
+    host: oracle
+    container: gastown
+    internal_url: http://gastown:8080
+    public_url: https://gastown.projectnyra.com
+    tailnet_url: http://gastown:8080
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://gastown.projectnyra.com
+    ports:
+      - 8080
+    notes: Replaces Gastown for Oracle agent workspace coordination.
+  - id: openclaw-gateway
+    name: Openclaw Gateway
+    category: ai
+    host: orchestrator
+    container: nyra-openclaw-gateway
+    internal_url: http://nyra-openclaw-gateway:8001
+    public_url: https://openclaw-gateway.projectnyra.com
+    tailnet_url: http://nyra-openclaw-gateway:8001
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://openclaw-gateway.projectnyra.com
+    ports:
+      - 8001
+    notes: ""
+  - id: openwebui
+    name: Openwebui
+    category: ai
+    host: oracle
+    container: openwebui
+    internal_url: http://openwebui:8080
+    public_url: https://openwebui.projectnyra.com
+    tailnet_url: http://openwebui:8080
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://openwebui.projectnyra.com
+    ports:
+      - 8080
+    notes: ""
+  - id: app
+    name: App
+    category: app
+    host: oracle
+    container: webapp
+    internal_url: http://webapp:3001
+    public_url: https://app.projectnyra.com
+    tailnet_url: http://webapp:3001
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: https://app.projectnyra.com
+    ports:
+      - 3001
+    notes: Broker/customer webapp. Keep Access until Supabase/app auth is production-ready.
+  - id: ratehunter-landing
+    name: RateHunter Landing
+    category: app
+    host: cloudflare-pages
+    container: none
+    internal_url: none
+    public_url: https://ratehunter.net
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: false
+    cloudflare_access: not-required
+    contains_borrower_data: false
+    risk_level: public
+    healthcheck:
+      type: http
+      url: https://ratehunter.net
+    ports: []
+    notes: Cloudflare Pages only; do not route through Nyra tunnels.
+  - id: borrower-chat
+    name: Borrower ChatUI
+    category: broker-workspace
+    host: orchestrator
+    container: unknown
+    internal_url: none
+    public_url: https://borrower-chat.projectnyra.com
+    tailnet_url: none
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: https://borrower-chat.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: broker-chat
+    name: Broker ChatUI
+    category: broker-workspace
+    host: orchestrator
+    container: unknown
+    internal_url: none
+    public_url: https://broker-chat.projectnyra.com
+    tailnet_url: none
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: https://broker-chat.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: campaigns
+    name: Campaign Builder
+    category: broker-workspace
+    host: oracle
+    container: unknown
+    internal_url: none
+    public_url: https://campaigns.projectnyra.com
+    tailnet_url: none
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: https://campaigns.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: quotes
+    name: Quote Workspace
+    category: broker-workspace
+    host: oracle
+    container: unknown
+    internal_url: none
+    public_url: https://quotes.projectnyra.com
+    tailnet_url: none
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: https://quotes.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: crm
+    name: Crm
+    category: crm
+    host: oracle
+    container: twenty
+    internal_url: http://twenty:3000
+    public_url: https://crm.projectnyra.com
+    tailnet_url: http://twenty:3000
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: https://crm.projectnyra.com
+    ports:
+      - 3000
+    notes: Alias for Twenty CRM.
+  - id: twenty
+    name: Twenty
+    category: crm
+    host: oracle
+    container: twenty
+    internal_url: http://twenty:3000
+    public_url: https://twenty.projectnyra.com
+    tailnet_url: http://twenty:3000
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: https://twenty.projectnyra.com
+    ports:
+      - 3000
+    notes: ""
+  - id: admin
+    name: Admin Page
+    category: ops
+    host: orchestrator
+    container: unknown
+    internal_url: none
+    public_url: https://admin.projectnyra.com
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://admin.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: cadvisor
+    name: Cadvisor
+    category: ops
+    host: oracle
+    container: cadvisor
+    internal_url: http://cadvisor:8080
+    public_url: https://cadvisor.projectnyra.com
+    tailnet_url: http://cadvisor:8080
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://cadvisor.projectnyra.com
+    ports:
+      - 8080
+    notes: ""
+  - id: grafana
+    name: Grafana
+    category: ops
+    host: oracle
+    container: grafana
+    internal_url: http://grafana:3000
+    public_url: https://grafana.projectnyra.com
+    tailnet_url: http://grafana:3000
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://grafana.projectnyra.com
+    ports:
+      - 3000
+    notes: ""
+  - id: ha
+    name: Home Assistant
+    category: ops
+    host: homeassistant
+    container: unknown
+    internal_url: none
+    public_url: https://ha.projectnyra.com
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://ha.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: litellm
+    name: Litellm
+    category: ops
+    host: oracle
+    container: litellm
+    internal_url: http://litellm:4000
+    public_url: https://litellm.projectnyra.com
+    tailnet_url: http://litellm:4000
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://litellm.projectnyra.com
+    ports:
+      - 4000
+    notes: ""
+  - id: nexus
+    name: Nexus
+    category: ops
+    host: oracle
+    container: nexus-ui
+    internal_url: http://nexus-ui:3016
+    public_url: https://nexus.projectnyra.com
+    tailnet_url: http://nexus-ui:3016
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://nexus.projectnyra.com
+    ports:
+      - 3016
+    notes: Human UI for Nexus. Surface the OpenMemory entry here instead of the main webapp.
+    linked_tools:
+      - openmemory
+      - mem0
+      - letta
+  - id: openmemory
+    name: OpenMemory
+    category: memory
+    host: oracle
+    container: openmemory-mcp
+    internal_url: http://openmemory-mcp:8765
+    public_url: https://memory.projectnyra.com
+    tailnet_url: http://oracle.trex-fiordland.ts.net:8765
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: http://oracle.trex-fiordland.ts.net:8765/health
+    ports:
+      - 8765
+    notes:
+      NexusUI-only memory management entrypoint. Mem0 is the singular runtime
+      memory endpoint, backed by FalkorDB for graph memory and Qdrant for vector
+      retrieval; OpenMemory MCP is the management surface.
+  - id: mem0
+    name: Mem0 Runtime Memory
+    category: memory
+    host: oracle
+    container: mem0
+    internal_url: http://mem0:5000
+    public_url: none
+    tailnet_url: http://oracle.trex-fiordland.ts.net:5001
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: private-only
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: http://oracle.trex-fiordland.ts.net:5001/health
+    ports:
+      - 5001
+    notes:
+      Singular runtime memory API for agents through Nexus. Keep private; do not
+      expose as a raw public endpoint.
+  - id: letta
+    name: Letta Memory Manager
+    category: memory
+    host: oracle
+    container: letta
+    internal_url: http://letta:8283
+    public_url: none
+    tailnet_url: http://oracle.trex-fiordland.ts.net:8283
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: private-only
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: http://oracle.trex-fiordland.ts.net:8283/v1/health
+    ports:
+      - 8283
+    notes:
+      Memory-manager and OpenClaw-agent orchestration support layer. Route model
+      calls through Nexus/LiteLLM and private worker GPUs; do not make Letta the
+      CRM or workflow system of record.
+  - id: nexus-router
+    name: Nexus Router
+    category: ops
+    host: oracle
+    container: nexus
+    internal_url: http://nexus:3000
+    public_url: https://nexus-router.projectnyra.com
+    tailnet_url: http://nexus:3000
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: service-token-or-signed
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://nexus-router.projectnyra.com
+    ports:
+      - 3000
+    notes:
+      Machine/API entrypoint; prefer agents use Tailscale/private URL unless external
+      access is needed.
+  - id: portainer-oracle
+    name: Portainer Oracle
+    category: ops
+    host: oracle
+    container: portainer
+    internal_url: https://portainer:9443
+    public_url: https://portainer-oracle.projectnyra.com
+    tailnet_url: https://portainer:9443
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://portainer-oracle.projectnyra.com
+    ports:
+      - 9443
+    notes: ""
+  - id: prometheus
+    name: Prometheus
+    category: ops
+    host: oracle
+    container: prometheus
+    internal_url: http://prometheus:9090
+    public_url: https://prometheus.projectnyra.com
+    tailnet_url: http://prometheus:9090
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://prometheus.projectnyra.com
+    ports:
+      - 9090
+    notes: ""
+  - id: status
+    name: Status Bridge
+    category: ops
+    host: orchestrator
+    container: unknown
+    internal_url: none
+    public_url: https://status.projectnyra.com
+    tailnet_url: none
+    iframe_policy: iframe-ok
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: internal
+    healthcheck:
+      type: http
+      url: https://status.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: activepieces
+    name: Activepieces
+    category: service
+    host: oracle
+    container: activepieces
+    internal_url: http://activepieces:80
+    public_url: https://activepieces.projectnyra.com
+    tailnet_url: http://activepieces:80
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://activepieces.projectnyra.com
+    ports:
+      - 80
+    notes: ""
+  - id: api
+    name: Api
+    category: service
+    host: oracle
+    container: supabase-kong
+    internal_url: http://supabase-kong:8000
+    public_url: https://api.projectnyra.com
+    tailnet_url: http://supabase-kong:8000
+    iframe_policy: unknown-test-required
+    requires_auth: false
+    cloudflare_access: not-required
+    contains_borrower_data: false
+    risk_level: internal
+    healthcheck:
+      type: http
+      url: https://api.projectnyra.com
+    ports:
+      - 8000
+    notes:
+      Browser auth/API gateway for self-hosted Supabase; do not block Auth with
+      interactive Access.
+  - id: git-ssh
+    name: Git Ssh
+    category: service
+    host: oracle
+    container: gitea
+    internal_url: ssh://gitea:2222
+    public_url: https://git-ssh.projectnyra.com
+    tailnet_url: ssh://gitea:2222
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: internal
+    healthcheck:
+      type: http
+      url: https://git-ssh.projectnyra.com
+    ports:
+      - 2222
+    notes: Optional. Requires cloudflared access ssh client flow.
+  - id: gitea
+    name: Gitea
+    category: service
+    host: oracle
+    container: gitea
+    internal_url: http://gitea:3000
+    public_url: https://gitea.projectnyra.com
+    tailnet_url: http://gitea:3000
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://gitea.projectnyra.com
+    ports:
+      - 3000
+    notes: ""
+  - id: hooks
+    name: Hooks
+    category: service
+    host: oracle
+    container: n8n
+    internal_url: http://n8n:5678
+    public_url: https://hooks.projectnyra.com
+    tailnet_url: http://n8n:5678
+    iframe_policy: unknown-test-required
+    requires_auth: false
+    cloudflare_access: service-token-or-signed
+    contains_borrower_data: false
+    risk_level: internal
+    healthcheck:
+      type: http
+      url: https://hooks.projectnyra.com
+    ports:
+      - 5678
+    notes: Prefer provider allowlists and signed webhook paths.
+  - id: links
+    name: Links
+    category: service
+    host: orchestrator
+    container: 100.64.0.2
+    internal_url: http://100.64.0.2:3007
+    public_url: https://links.projectnyra.com
+    tailnet_url: http://100.64.0.2:3007
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://links.projectnyra.com
+    ports:
+      - 3007
+    notes:
+      Preferred Linkwarden/Starwarden hostname. Origin timed out in current smoke
+      test.
+  - id: linkwarden
+    name: Linkwarden
+    category: service
+    host: orchestrator
+    container: 100.64.0.2
+    internal_url: http://100.64.0.2:3007
+    public_url: https://linkwarden.projectnyra.com
+    tailnet_url: http://100.64.0.2:3007
+    iframe_policy: unknown-test-required
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://linkwarden.projectnyra.com
+    ports:
+      - 3007
+    notes: Existing dashboard route; keep temporarily or redirect to links.projectnyra.com.
+  - id: n8n
+    name: N8N
+    category: service
+    host: oracle
+    container: n8n
+    internal_url: http://n8n:5678
+    public_url: https://n8n.projectnyra.com
+    tailnet_url: http://n8n:5678
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: privileged
+    healthcheck:
+      type: http
+      url: https://n8n.projectnyra.com
+    ports:
+      - 5678
+    notes: ""
+  - id: claw-3090
+    name: Worker RTX3090Ti OpenClaw UI
+    category: worker
+    host: worker-rtx3090ti
+    container: unknown
+    internal_url: none
+    public_url: https://claw-3090.projectnyra.com
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://claw-3090.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: claw-5090
+    name: Worker RTX5090 OpenClaw UI
+    category: worker
+    host: worker-rtx5090
+    container: unknown
+    internal_url: none
+    public_url: https://claw-5090.projectnyra.com
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://claw-5090.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: nerve-3060
+    name: Worker RTX3060 Nerve UI
+    category: worker
+    host: worker-rtx3060
+    container: unknown
+    internal_url: none
+    public_url: https://nerve-3060.projectnyra.com
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://nerve-3060.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: nerve-3090
+    name: Worker RTX3090Ti Nerve UI
+    category: worker
+    host: worker-rtx3090ti
+    container: unknown
+    internal_url: none
+    public_url: https://nerve-3090.projectnyra.com
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://nerve-3090.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: nerve-5090
+    name: Worker RTX5090 Nerve UI
+    category: worker
+    host: worker-rtx5090
+    container: unknown
+    internal_url: none
+    public_url: https://nerve-5090.projectnyra.com
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://nerve-5090.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.
+  - id: picoclaw-3060
+    name: Worker RTX3060 PicoClaw UI
+    category: worker
+    host: worker-rtx3060
+    container: unknown
+    internal_url: none
+    public_url: https://picoclaw-3060.projectnyra.com
+    tailnet_url: none
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: false
+    risk_level: infrastructure-control
+    healthcheck:
+      type: http
+      url: https://picoclaw-3060.projectnyra.com
+    ports: []
+    notes:
+      Planned or compatibility-gated; expose only after origin and Access policy
+      validation.

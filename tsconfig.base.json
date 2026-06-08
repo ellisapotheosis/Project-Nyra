@@ -49,7 +49,15 @@
       "@app/*": ["./apps/*"],
       "@services/*": ["./services/*"],
       "@packages/*": ["./packages/*"],
-      "@nyra/crm-client": ["./packages/crm-client/src/index.ts"]
+      "@nyra/domain-models": ["./packages/domain-models/src/index.ts"],
+      "@nyra/integration-adapters": [
+        "./packages/integration-adapters/src/index.ts"
+      ],
+      "@nyra/crm-client": ["./packages/crm-client/src/index.ts"],
+      "@nyra/crm-types": ["./packages/crm-types/src/index.ts"],
+      "@nyra/campaign-domain": ["./packages/campaign-domain/src/index.ts"],
+      "@nyra/compliance-domain": ["./packages/compliance-domain/src/index.ts"],
+      "@nyra/quote-domain": ["./packages/quote-domain/src/index.ts"]
     }
   },
   "exclude": [

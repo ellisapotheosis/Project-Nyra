@@ -5,21 +5,21 @@
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
-version: '3.8'
-
 services:
   # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
   secrets-init:
     build:
-      context: ../../infisical-secrets-init
+      context: ../../images/infisical-secrets-init
     container_name: worker-5090-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx5090}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks:
@@ -28,7 +28,7 @@ services:
   # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
   infisical-agent:
     build:
-      context: ../../infisical-secrets-init
+      context: ../../images/infisical-secrets-init
     container_name: worker-5090-infisical-agent
     restart: unless-stopped
     entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
@@ -36,10 +36,12 @@ services:
       secrets-init:
         condition: service_completed_successfully
     environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx5090}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx5090}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -74,6 +76,9 @@ services:
     container_name: worker-5090-vllm
     hostname: worker-5090-vllm
     restart: unless-stopped
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     ports:
       - "${VLLM_PORT:-8000}:8000"
     volumes:
@@ -93,12 +98,12 @@ services:
       - LMCACHE_LOCAL_DEVICE=cuda
       - LMCACHE_MAX_LOCAL_CACHE_SIZE=12G
     command: >
-      --model Qwen/Qwen2.5-Coder-32B-Instruct
+      --model Qwen/Qwen2.5-Coder-3B-Instruct
       --host 0.0.0.0
       --port 8000
       --tensor-parallel-size 1
-      --gpu-memory-utilization 0.92
-      --max-model-len 32768
+      --gpu-memory-utilization 0.70
+      --max-model-len 8192
       --enable-prefix-caching
       --enable-chunked-prefill
       --trust-remote-code
@@ -112,9 +117,6 @@ services:
               capabilities: [gpu]
         limits:
           memory: 48G
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -143,10 +145,10 @@ services:
       - SPECIALIZATION=mortgage,compliance,reasoning
     command: python /app/switcher.py
     depends_on:
-      vllm:
-        condition: service_healthy
       secrets-init:
         condition: service_completed_successfully
+      vllm:
+        condition: service_healthy
     networks:
       - worker-network
 
@@ -167,10 +169,10 @@ services:
       - nyra_secrets:/run/nyra-secrets:ro
     command: --config /app/config.yaml --port 4000
     depends_on:
-      vllm:
-        condition: service_healthy
       secrets-init:
         condition: service_completed_successfully
+      vllm:
+        condition: service_healthy
     networks:
       - worker-network
 
@@ -178,7 +180,7 @@ services:
   # GPU Metrics Exporter
   # ============================================================================
   gpu-exporter:
-    image: utkuozdemir/nvidia_gpu_exporter:latest
+    image: utkuozdemir/nvidia_gpu_exporter:1.4.1
     container_name: worker-5090-gpu-exporter
     hostname: worker-5090-gpu-exporter
     restart: unless-stopped
@@ -208,10 +210,10 @@ services:
     ports:
       - "${NODE_EXPORTER_PORT:-9100}:9100"
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--path.rootfs=/rootfs'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -228,9 +230,12 @@ services:
     hostname: worker-5090-health
     restart: unless-stopped
     depends_on:
-      - vllm
-      - litellm
-      - secrets-init
+      secrets-init:
+        condition: service_completed_successfully
+      vllm:
+        condition: service_started
+      litellm:
+        condition: service_started
     environment:
       - VLLM_URL=http://vllm:8000
       - LITELLM_URL=http://litellm:4000
@@ -258,6 +263,10 @@ services:
     container_name: worker-5090-promtail
     hostname: worker-5090-promtail
     restart: unless-stopped
+    network_mode: host
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     volumes:
       - ./promtail-config.yaml:/etc/promtail/config.yaml:ro
       - ./logs:/var/log/worker-5090:ro
@@ -265,18 +274,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
+      - LOKI_URL=${LOKI_URL:-http://100.64.0.3:3100}
       - WORKER_ID=worker-5090
-    command: -config.file=/etc/promtail/config.yaml
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    networks:
-      - worker-network
+    command: -config.file=/etc/promtail/config.yaml -config.expand-env=true
 
 networks:
   worker-network:
     name: nyra-worker-5090
+    external: true
     driver: bridge
     ipam:
       config:

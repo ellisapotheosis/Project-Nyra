@@ -13,12 +13,14 @@ name: nyra-cloudflared-orchestrator
 services:
   secrets-init:
     build:
-      context: ../../infisical-secrets-init
-    container_name: orchestrator-cf-secrets-init
+      context: ../../images/infisical-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cf-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
       INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
@@ -28,13 +30,50 @@ services:
     networks:
       - nyra-network
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: nyra-cloudflared-orchestrator
+  infisical-agent:
+    build:
+      context: ../../images/infisical-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cf-infisical-agent
     restart: unless-stopped
-    command: ["tunnel", "run"]
+    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     environment:
-      TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+    volumes:
+      - cf_secrets:/run/nyra-secrets
+    networks:
+      - nyra-network
+
+  cloudflared:
+    build:
+      context: .
+      dockerfile: Dockerfile.cloudflared-wrapper
+    image: nyra/cloudflared-wrapper:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cloudflared-orchestrator
+    restart: unless-stopped
+    command:
+      - |
+        token="$${TUNNEL_TOKEN:-}"
+        if [ -z "$$token" ] && [ -f /run/nyra-secrets/orchestrator_tunnel_token ]; then
+          token="$$(cat /run/nyra-secrets/orchestrator_tunnel_token)"
+        fi
+        if [ -z "$$token" ]; then
+          echo "ORCHESTRATOR_TUNNEL_TOKEN is required" >&2
+          exit 1
+        fi
+        exec cloudflared tunnel --no-autoupdate run --token "$$token"
+    environment:
+      TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN:-}
+    volumes:
+      - cf_secrets:/run/nyra-secrets:ro
     depends_on:
       secrets-init:
         condition: service_completed_successfully
@@ -47,4 +86,4 @@ volumes:
 networks:
   nyra-network:
     external: true
-    name: nyra-network
+    name: orchestrator_nyra-network

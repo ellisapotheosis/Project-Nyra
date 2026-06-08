@@ -2,7 +2,7 @@ name: Dependency Security Scan
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # weekly, every Sunday at midnight UTC
+    - cron: "0 0 * * 0" # weekly, every Sunday at midnight UTC
   workflow_dispatch:
 
 jobs:
@@ -13,6 +13,28 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Python Security Audit
+        shell: bash
         run: |
+          set -euo pipefail
           pip install pip-audit
-          pip-audit
+
+          # LiteLLM proxy dependencies are pinned by the upstream proxy extra.
+          # Audit them through the upstream image/package update path, not this generic scan.
+          mapfile -t requirement_files < <(
+            find services infra tests \
+              -path '*/.venv/*' -prune -o \
+              -path '*/node_modules/*' -prune -o \
+              -path 'services/litellm-proxy/requirements.txt' -prune -o \
+              -name 'requirements*.txt' -print
+          )
+
+          if [ "${#requirement_files[@]}" -eq 0 ]; then
+            echo "::notice::No repository requirements files found to audit."
+            exit 0
+          fi
+
+          for file in "${requirement_files[@]}"; do
+            echo "::group::pip-audit $file"
+            pip-audit -r "$file"
+            echo "::endgroup::"
+          done

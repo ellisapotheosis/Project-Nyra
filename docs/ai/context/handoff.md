@@ -2,9 +2,16 @@
 
 This file manages task continuity, session transitions, and knowledge transfer for AI-assisted development sessions.
 
+## Current Status — 2026-05-26
+
+This file is a reusable template only. It is not an active Project Nyra task
+queue. Current executable work lives in `docs/CONDUCTOR_TASKS.md`,
+`conductor/tracks/`, and owner-only gates under `docs/user-todo/`.
+
 ## Purpose
 
 This template helps maintain:
+
 - **Session continuity** between AI development sessions
 - **Task status tracking** for complex, multi-session work
 - **Context preservation** when switching between team members
@@ -14,17 +21,19 @@ This template helps maintain:
 ## Current Session Status
 
 ### Active Tasks
+
 Document currently in-progress work:
 
 ```markdown
 ## In Progress
-- [ ] Task 1: [Brief description]
+
+- [template] Task 1: [Brief description]
   - Status: [Started/Blocked/Awaiting review]
   - Context: [Relevant files, decisions made]
   - Next steps: [What needs to be done next]
   - Dependencies: [What this task depends on]
 
-- [ ] Task 2: [Brief description]
+- [template] Task 2: [Brief description]
   - Status: [Current status]
   - Files modified: [List of files changed]
   - Challenges: [Any issues encountered]
@@ -32,27 +41,31 @@ Document currently in-progress work:
 ```
 
 ### Pending Tasks
+
 Document queued work:
 
 ```markdown
 ## Pending
-- [ ] Task A: [Description]
+
+- [template] Task A: [Description]
   - Priority: [High/Medium/Low]
   - Dependencies: [What must be completed first]
   - Estimated effort: [Time estimate]
   - Context: [Background information]
 
-- [ ] Task B: [Description]
+- [template] Task B: [Description]
   - Priority: [Priority level]
   - Requirements: [Specific requirements or constraints]
   - Resources needed: [Tools, access, information needed]
 ```
 
 ### Completed Tasks
+
 Track completed work for context:
 
 ```markdown
 ## Completed This Session
+
 - [x] Task X: [Description]
   - Completed: [Date]
   - Outcome: [What was accomplished]
@@ -68,10 +81,12 @@ Track completed work for context:
 ## Architecture & Design Decisions
 
 ### Recent Decisions
+
 Document architectural decisions made during development:
 
 ```markdown
 ## Design Decisions Made
+
 - **Decision**: [What was decided]
   - Date: [When decision was made]
   - Rationale: [Why this approach was chosen]
@@ -86,10 +101,12 @@ Document architectural decisions made during development:
 ```
 
 ### Technical Debt & Issues
+
 Track technical debt and known issues:
 
 ```markdown
 ## Technical Debt Identified
+
 - **Issue**: [Description of technical debt]
   - Location: [Where in codebase]
   - Impact: [How it affects development/performance]
@@ -105,10 +122,12 @@ Track technical debt and known issues:
 ## Next Session Goals
 
 ### Immediate Priorities
+
 Define what should be tackled next:
 
 ```markdown
 ## Next Session Priorities
+
 1. **Primary Goal**: [Main objective for next session]
    - Success criteria: [How to know this is complete]
    - Prerequisites: [What must be ready beforehand]
@@ -124,10 +143,12 @@ Define what should be tackled next:
 ```
 
 ### Knowledge Gaps
+
 Document areas needing research or clarification:
 
 ```markdown
 ## Knowledge Gaps to Address
+
 - **Question**: [What needs to be clarified]
   - Impact: [How this affects current work]
   - Research needed: [What investigation is required]
@@ -142,25 +163,30 @@ Document areas needing research or clarification:
 ## Context for Continuation
 
 ### Key Files & Components
+
 Document important files for session continuity:
 
 ```markdown
 ## Files Currently Being Modified
+
 - `[file-path]`: [Purpose and current changes]
 - `[file-path]`: [What's being implemented here]
 - `[file-path]`: [Status and next steps]
 
 ## Important Context Files
+
 - `[context-file]`: [Why this is relevant]
 - `[documentation]`: [What information this contains]
 - `[reference]`: [How this relates to current work]
 ```
 
 ### Development Environment
+
 Document environment and setup considerations:
 
 ```markdown
 ## Environment Status
+
 - **Development setup**: [Current state of dev environment]
 - **Database**: [Schema changes, migrations, data state]
 - **External services**: [API keys, service configurations]
@@ -168,7 +194,6 @@ Document environment and setup considerations:
 - **Build/Deploy**: [Build status, deployment considerations]
 ```
 
-
 ---
 
-*This template provides a comprehensive framework for managing task continuity and knowledge transfer. Customize it based on your team's workflow, project complexity, and communication needs.*
+_This template provides a comprehensive framework for managing task continuity and knowledge transfer. Customize it based on your team's workflow, project complexity, and communication needs._

@@ -1,21 +1,20 @@
-import { Router, Request, Response } from 'express';
-import { z } from 'zod';
-import { SecurityConfigService } from '../services/security-config';
-import { oauth2Middleware } from '../middleware/oauth2';
-import { createLogger } from '../utils/logger';
-import { asyncHandler, BadRequestError, NotFoundError } from '../middleware/error-handler';
+import { Router, Request, Response } from "express";
+import { z } from "zod";
+import { SecurityConfigService } from "../services/security-config";
+import { MetricsCollectorService } from "../services/metrics-collector";
+import { oauth2Middleware } from "../middleware/oauth2";
+import { createLogger } from "../utils/logger";
 import {
-  OAuth2ConfigUpdateRequest,
-  PermissionsUpdateRequest,
-  GroupCreateRequest,
-  GroupUpdateRequest,
-  TokenTestRequest,
-  SecurityHealth,
-} from '../types/security';
+  asyncHandler,
+  BadRequestError,
+  NotFoundError,
+} from "../middleware/error-handler";
+import { SecurityHealth } from "../types/security";
 
-const logger = createLogger('security-route');
+const logger = createLogger("security-route");
 const router = Router();
 const securityConfig = SecurityConfigService.getInstance();
+const metricsCollector = MetricsCollectorService.getInstance();
 
 // ============================================================================
 // Validation Schemas
@@ -71,9 +70,9 @@ const TokenTestSchema = z.object({
  * NOTE: Sensitive fields are redacted for security
  */
 router.get(
-  '/oauth2',
+  "/oauth2",
   asyncHandler(async (_req: Request, res: Response) => {
-    logger.info('Fetching OAuth2 configuration');
+    logger.info("Fetching OAuth2 configuration");
     const config = await securityConfig.getOAuth2Config();
 
     // Redact sensitive information
@@ -102,9 +101,9 @@ router.get(
  * Update OAuth2 configuration
  */
 router.patch(
-  '/oauth2',
+  "/oauth2",
   asyncHandler(async (req: Request, res: Response) => {
-    logger.info('Updating OAuth2 configuration');
+    logger.info("Updating OAuth2 configuration");
 
     // Validate request body
     const validatedData = OAuth2UpdateSchema.parse(req.body);
@@ -114,7 +113,7 @@ router.patch(
       const currentConfig = await securityConfig.getOAuth2Config();
       if (!currentConfig.jwksEndpoint) {
         throw new BadRequestError(
-          'JWKS endpoint is required when enabling OAuth2'
+          "JWKS endpoint is required when enabling OAuth2"
         );
       }
     }
@@ -123,11 +122,12 @@ router.patch(
     const updated = await securityConfig.updateOAuth2Config(validatedData);
 
     // Clear JWKS cache when config changes
-    if (
-      validatedData.jwksEndpoint ||
-      validatedData.enabled !== undefined
-    ) {
-      oauth2Middleware.constructor.clearJWKSCache();
+    if (validatedData.jwksEndpoint || validatedData.enabled !== undefined) {
+      (
+        oauth2Middleware.constructor as unknown as {
+          clearJWKSCache: () => void;
+        }
+      ).clearJWKSCache();
     }
 
     res.json({
@@ -141,7 +141,7 @@ router.patch(
         expectedAudience: updated.expectedAudience,
         tokenValidation: updated.tokenValidation,
       },
-      message: 'OAuth2 configuration updated successfully',
+      message: "OAuth2 configuration updated successfully",
       timestamp: new Date().toISOString(),
     });
   })
@@ -152,9 +152,9 @@ router.patch(
  * Test token validation
  */
 router.post(
-  '/oauth2/test',
+  "/oauth2/test",
   asyncHandler(async (req: Request, res: Response) => {
-    logger.info('Testing token validation');
+    logger.info("Testing token validation");
 
     // Validate request
     const { token, expectedGroups } = TokenTestSchema.parse(req.body);
@@ -187,12 +187,14 @@ router.post(
         response.hasExpectedGroups = hasExpectedGroups;
         if (!hasExpectedGroups) {
           response.warnings = [
-            `Token missing expected groups: ${expectedGroups.join(', ')}`,
+            `Token missing expected groups: ${expectedGroups.join(", ")}`,
           ];
         }
       }
     } else {
-      response.errors = [result.error || result.reason || 'Token validation failed'];
+      response.errors = [
+        result.error || result.reason || "Token validation failed",
+      ];
     }
 
     res.json({
@@ -211,9 +213,9 @@ router.post(
  * Get permissions matrix for all servers
  */
 router.get(
-  '/permissions',
+  "/permissions",
   asyncHandler(async (_req: Request, res: Response) => {
-    logger.info('Fetching permissions matrix');
+    logger.info("Fetching permissions matrix");
     const matrix = await securityConfig.getPermissionsMatrix();
 
     res.json({
@@ -236,17 +238,21 @@ router.get(
  * Update permissions for a specific server
  */
 router.patch(
-  '/permissions',
+  "/permissions",
   asyncHandler(async (req: Request, res: Response) => {
-    logger.info('Updating server permissions');
+    logger.info("Updating server permissions");
 
     // Validate request
-    const { serverId, ...permissions } = PermissionsUpdateSchema.parse(req.body);
+    const { serverId, ...permissions } = PermissionsUpdateSchema.parse(
+      req.body
+    );
 
     // Update permissions
     const updated = await securityConfig.updateServerPermissions(
       serverId,
-      permissions
+      permissions as Parameters<
+        typeof securityConfig.updateServerPermissions
+      >[1]
     );
 
     res.json({
@@ -263,16 +269,18 @@ router.patch(
  * Get permissions for a specific server
  */
 router.get(
-  '/permissions/:serverId',
+  "/permissions/:serverId",
   asyncHandler(async (req: Request, res: Response) => {
-    const { serverId } = req.params;
-    logger.info('Fetching server permissions', { serverId });
+    const serverId = String(req.params.serverId);
+    logger.info("Fetching server permissions", { serverId });
 
     const matrix = await securityConfig.getPermissionsMatrix();
     const serverPerms = matrix[serverId];
 
     if (!serverPerms) {
-      throw new NotFoundError(`No permissions configured for server: ${serverId}`);
+      throw new NotFoundError(
+        `No permissions configured for server: ${serverId}`
+      );
     }
 
     res.json({
@@ -293,9 +301,9 @@ router.get(
  * List all user groups
  */
 router.get(
-  '/groups',
+  "/groups",
   asyncHandler(async (_req: Request, res: Response) => {
-    logger.info('Listing user groups');
+    logger.info("Listing user groups");
     const groups = await securityConfig.listGroups();
 
     res.json({
@@ -315,10 +323,10 @@ router.get(
  * Get a specific user group
  */
 router.get(
-  '/groups/:id',
+  "/groups/:id",
   asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    logger.info('Fetching user group', { id });
+    const id = String(req.params.id);
+    logger.info("Fetching user group", { id });
 
     const group = await securityConfig.getGroup(id);
     if (!group) {
@@ -338,12 +346,14 @@ router.get(
  * Create a new user group
  */
 router.post(
-  '/groups',
+  "/groups",
   asyncHandler(async (req: Request, res: Response) => {
-    logger.info('Creating user group');
+    logger.info("Creating user group");
 
     // Validate request
-    const { name, description, permissions } = GroupCreateSchema.parse(req.body);
+    const { name, description, permissions } = GroupCreateSchema.parse(
+      req.body
+    );
 
     // Create group
     const group = await securityConfig.createGroup(
@@ -366,10 +376,10 @@ router.post(
  * Update an existing user group
  */
 router.patch(
-  '/groups/:id',
+  "/groups/:id",
   asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    logger.info('Updating user group', { id });
+    const id = String(req.params.id);
+    logger.info("Updating user group", { id });
 
     // Validate request
     const updates = GroupUpdateSchema.parse(req.body);
@@ -391,10 +401,10 @@ router.patch(
  * Delete a user group
  */
 router.delete(
-  '/groups/:id',
+  "/groups/:id",
   asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    logger.info('Deleting user group', { id });
+    const id = String(req.params.id);
+    logger.info("Deleting user group", { id });
 
     await securityConfig.deleteGroup(id);
 
@@ -415,20 +425,32 @@ router.delete(
  * Get security subsystem health status
  */
 router.get(
-  '/health',
+  "/health",
   asyncHandler(async (_req: Request, res: Response) => {
-    logger.info('Checking security health');
+    logger.info("Checking security health");
 
     const oauth2Config = await securityConfig.getOAuth2Config();
     const permissions = await securityConfig.getPermissionsMatrix();
     const groups = await securityConfig.listGroups();
+    const jwksReachable = oauth2Config.jwksEndpoint
+      ? await checkJwksEndpoint(oauth2Config.jwksEndpoint)
+      : undefined;
+    const auditLogs = metricsCollector
+      .getLogs(undefined, 100)
+      .filter((log) => log.service === "security");
+    const recentViolations = auditLogs.filter(
+      (log) => log.level === "warn" || log.context?.eventType === "violation"
+    ).length;
+    const lastAuditEntry = auditLogs[0]?.timestamp
+      ? new Date(auditLogs[0].timestamp).toISOString()
+      : undefined;
 
     const health: SecurityHealth = {
       oauth2: {
         enabled: oauth2Config.enabled,
         configured:
           !!oauth2Config.jwksEndpoint && !!oauth2Config.expectedIssuer,
-        jwksReachable: undefined, // TODO: Add JWKS endpoint health check
+        jwksReachable,
       },
       permissions: {
         configured: Object.keys(permissions).length > 0,
@@ -436,8 +458,9 @@ router.get(
         groupCount: groups.length,
       },
       audit: {
-        enabled: false, // TODO: Add audit logging
-        recentViolations: 0,
+        enabled: true,
+        recentViolations,
+        lastAuditEntry,
       },
     };
 
@@ -447,7 +470,7 @@ router.get(
 
     res.status(isHealthy ? 200 : 503).json({
       success: isHealthy,
-      status: isHealthy ? 'healthy' : 'degraded',
+      status: isHealthy ? "healthy" : "degraded",
       data: health,
       timestamp: new Date().toISOString(),
     });
@@ -459,16 +482,18 @@ router.get(
  * Clear security configuration cache
  */
 router.post(
-  '/cache/clear',
+  "/cache/clear",
   asyncHandler(async (_req: Request, res: Response) => {
-    logger.info('Clearing security cache');
+    logger.info("Clearing security cache");
 
     securityConfig.invalidateCache();
-    oauth2Middleware.constructor.clearJWKSCache();
+    (
+      oauth2Middleware.constructor as unknown as { clearJWKSCache: () => void }
+    ).clearJWKSCache();
 
     res.json({
       success: true,
-      message: 'Security cache cleared successfully',
+      message: "Security cache cleared successfully",
       timestamp: new Date().toISOString(),
     });
   })
@@ -488,7 +513,28 @@ function redactUrl(url: string): string {
     const parsed = new URL(url);
     return `${parsed.protocol}//***${parsed.pathname}${parsed.search}`;
   } catch {
-    return '***';
+    return "***";
+  }
+}
+
+async function checkJwksEndpoint(jwksEndpoint: string): Promise<boolean> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+
+  try {
+    const response = await fetch(jwksEndpoint, {
+      method: "GET",
+      signal: controller.signal,
+    });
+    return response.ok;
+  } catch (error) {
+    logger.warn("JWKS endpoint health check failed", {
+      jwksEndpoint: redactUrl(jwksEndpoint),
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+    return false;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 

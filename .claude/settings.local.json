@@ -25,7 +25,14 @@
       "Bash(sed -i 's/\\\\r$//' /home/ellisapotheosis/.claude/plugins/marketplaces/mempalace/.claude-plugin/hooks/mempal-stop-hook.sh)",
       "Bash(dos2unix /home/ellisapotheosis/.claude/plugins/cache/mempalace/mempalace/3.0.14/hooks/mempal-stop-hook.sh)",
       "Bash(sed -i 's/\\\\r$//' /home/ellisapotheosis/.claude/plugins/cache/mempalace/mempalace/3.0.14/hooks/mempal-stop-hook.sh)",
-      "Bash(dos2unix /home/ellisapotheosis/.claude/plugins/cache/mempalace/mempalace/3.3.0/hooks/mempal-stop-hook.sh)"
+      "Bash(dos2unix /home/ellisapotheosis/.claude/plugins/cache/mempalace/mempalace/3.3.0/hooks/mempal-stop-hook.sh)",
+      "Bash(mkdir -p ~/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5)",
+      "Bash(cp -r ~/.claude/plugins/marketplaces/oh-my-claudecode/. ~/.claude/plugins/cache/oh-my-claudecode/oh-my-claudecode/4.13.5/)",
+      "Bash(git -C ~/.claude/plugins/marketplaces/oh-my-claudecode rev-parse HEAD)",
+      "Bash(echo \"\")",
+      "Bash(echo \"# WSL2 browser - use wslview to open Windows default browser\")",
+      "Bash(echo \"export BROWSER=wslview\")",
+      "Bash(rtk read *)"
     ],
     "deny": [
       "Bash(rm -rf /)",
@@ -37,7 +44,8 @@
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "archon-os"
+    "nexus-router",
+    "serena"
   ],
   "outputStyle": "Explanatory",
   "bypassPermissionsModeAccepted": true,
@@ -82,7 +90,7 @@
   },
   "suggestions": {
     "enabled": true,
-    "autoApply": false,
+    "autoApply": true,
     "showInline": true,
     "aggressiveness": "high"
   }

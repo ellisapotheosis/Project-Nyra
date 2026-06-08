@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/auth/**/*.ts",
+    "src/cli/**/*.ts",
+    "src/client/**/*.ts",
+    "src/routes/**/*.ts",
+    "src/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

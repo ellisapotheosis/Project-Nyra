@@ -4,14 +4,14 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { IntelligentCacheManager } from '../../../../src/database/caching/intelligent-cache-manager';
 
 describe('IntelligentCacheManager - Complete Coverage', () => {
   let cacheManager: any;
   const testNodeId = 'test-node-1';
 
   beforeEach(() => {
-    // TODO: Import and initialize IntelligentCacheManager
-    // cacheManager = new IntelligentCacheManager(testNodeId);
+    cacheManager = new IntelligentCacheManager(testNodeId);
   });
 
   afterEach(async () => {

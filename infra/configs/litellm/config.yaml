@@ -1,5 +1,4 @@
 model_list:
-  # === RTX 5090 (vLLM) - Personal Assistant / Reasoning ===
   - model_name: local/gemma-4
     litellm_params:
       model: openai/google/gemma-4-26B-A4B-it
@@ -7,63 +6,74 @@ model_list:
       api_key: "not-needed"
       timeout: 120
 
-  # === RTX 3090Ti (vLLM) - Coding @ 100.64.0.13 ===
   - model_name: local/qwen-coder-32b
     litellm_params:
       model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
       api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1
       api_key: "not-needed"
       timeout: 120
-  
-  # Moved to RTX 5090 per user request
-  - model_name: local/qwen3.5-35b-a3b
+
+  - model_name: local/qwen2.5-4b
     litellm_params:
-      model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
+      model: openai/worker-3060-general
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:4000/v1
+      api_key: "not-needed"
+      timeout: 120
+
+  - model_name: local/llama3.2-3b
+    litellm_params:
+      model: openai/worker-3060-memory-extraction
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:4000/v1
+      api_key: "not-needed"
+      timeout: 120
+
+  - model_name: local/embeddings
+    litellm_params:
+      model: openai/worker-3060-embedding
+      api_base: http://worker-rtx3060.trex-fiordland.ts.net:4000/v1
+      api_key: "not-needed"
+      timeout: 120
+    model_info:
+      mode: embedding
+
+  - model_name: local/vybestack-jefe
+    litellm_params:
+      model: openai/google/gemma-4-26B-A4B-it
       api_base: http://worker-rtx5090.trex-fiordland.ts.net:8000/v1
       api_key: "not-needed"
       timeout: 120
 
-  # === RTX 3060 (Ollama) - Small/Fast @ 100.64.0.12 ===
-  - model_name: local/qwen2.5-4b
-    litellm_params:
-      model: ollama/qwen2.5:4b
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
-  - model_name: local/llama3.2-3b
-    litellm_params:
-      model: ollama/llama3.2:3b
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
-  - model_name: local/embeddings
-    litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
-
-  # === Vybestack / Claude Code aliases ===
-  - model_name: local/vybestack-jefe
-    litellm_params:
-      model: local/gemma-4
   - model_name: local/vybestack-coder
     litellm_params:
-      model: local/qwen3.5-35b-a3b
+      model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
+      api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1
+      api_key: "not-needed"
+      timeout: 120
 
-  # === Cloud Fallbacks ===
-  - model_name: openrouter/auto
+  - model_name: subscription/codex
     litellm_params:
-      model: openrouter/auto
-      api_key: os.environ/OPENROUTER_API_KEY
-      api_base: https://openrouter.ai/api/v1
-  - model_name: claude-sonnet
+      model: openai/llxprt-codex
+      api_base: http://host.docker.internal:8091/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 900
+
+  - model_name: subscription/gemini
     litellm_params:
-      model: anthropic/claude-sonnet-4-5-20251022
-      api_key: os.environ/ANTHROPIC_API_KEY
+      model: openai/llxprt-gemini
+      api_base: http://host.docker.internal:8091/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 900
+
+  - model_name: subscription/claude
+    litellm_params:
+      model: openai/llxprt-claude
+      api_base: http://host.docker.internal:8091/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 900
 
 litellm_settings:
-  cache: true
-  cache_params:
-    type: redis
-    host: redis
-    port: 6379
   set_verbose: false
-  strategy: latency_based_routing
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: "postgresql://nyra:SA%21rMsdctQ2ThIzC5sZL%21l%26%250%40R7if3E@postgres:5432/shared-db"

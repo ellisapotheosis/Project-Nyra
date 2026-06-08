@@ -1,0 +1,63 @@
+# Generated source config for the Oracle VPS Cloudflare Tunnel.
+# Runtime preference: API/dashboard-managed tunnel with ORACLE_TUNNEL_TOKEN.
+# ratehunter.net is Cloudflare Pages, not a tunnel route.
+#
+# Source of truth: infra/hosts/oracle-vps/cloudflared-config.yml
+
+tunnel: ${ORACLE_TUNNEL_ID}
+credentials-file: /etc/cloudflared/${ORACLE_TUNNEL_ID}.json
+
+originRequest:
+  connectTimeout: 30s
+  noHappyEyeballs: false
+
+ingress:
+  - hostname: app.projectnyra.com
+    service: http://webapp:3001
+  - hostname: api.projectnyra.com
+    service: http://supabase-kong:8000
+  - hostname: hooks.projectnyra.com
+    service: http://n8n:5678
+  - hostname: twenty.projectnyra.com
+    service: http://twenty:3000
+  - hostname: crm.projectnyra.com
+    service: http://twenty:3000
+  - hostname: n8n.projectnyra.com
+    service: http://n8n:5678
+  - hostname: gitea.projectnyra.com
+    service: http://gitea:3000
+  - hostname: activepieces.projectnyra.com
+    service: http://activepieces:80
+  - hostname: grafana.projectnyra.com
+    service: http://grafana:3000
+  - hostname: openlit.projectnyra.com
+    service: http://openlit:3000
+  - hostname: prometheus.projectnyra.com
+    service: http://prometheus:9090
+  - hostname: cadvisor.projectnyra.com
+    service: http://cadvisor:8080
+  - hostname: openwebui.projectnyra.com
+    service: http://openwebui:8080
+  - hostname: nexus.projectnyra.com
+    service: http://nexus-ui:3016
+  - hostname: nexus-router.projectnyra.com
+    service: http://nexus:3000
+  - hostname: litellm.projectnyra.com
+    service: http://litellm:4000
+  - hostname: gastown.projectnyra.com
+    service: http://gastown:8080
+  - hostname: clawteam.projectnyra.com
+    service: http://clawteam:8080
+  - hostname: portainer-oracle.projectnyra.com
+    service: https://portainer:9443
+    originRequest:
+      noTLSVerify: true
+  - hostname: git-ssh.projectnyra.com
+    service: ssh://gitea:2222
+  - hostname: uptime.projectnyra.com
+    service: http://nyra-uptime-kuma:3001
+  - hostname: public-status.projectnyra.com
+    service: http://nyra-uptime-kuma:3001
+  - hostname: oracle.projectnyra.com
+    service: http://nyra-caddy:80
+  - service: http_status:404

@@ -4,6 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { OptimizedRedisClient } from '../../../../src/database/caching/optimized-redis-client';
 
 describe('OptimizedRedisClient - Complete Coverage', () => {
   let redisClient: any;
@@ -19,8 +20,7 @@ describe('OptimizedRedisClient - Complete Coverage', () => {
   };
 
   beforeEach(() => {
-    // TODO: Import OptimizedRedisClient when available
-    // redisClient = OptimizedRedisClient.getInstance(testConfig);
+    redisClient = OptimizedRedisClient.getInstance(testConfig);
   });
 
   afterEach(async () => {

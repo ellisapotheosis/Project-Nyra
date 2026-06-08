@@ -1,0 +1,37 @@
+services:
+  openclaw:
+    build:
+      context: ../../../services/openclaw
+      dockerfile: Dockerfile
+    container_name: worker-3090-openclaw
+    restart: unless-stopped
+    ports:
+      - "8002:18789"
+    environment:
+      NODE_ENV: production
+      NEXUS_API_URL: "http://orchestrator.trex-fiordland.ts.net:6000"
+      OPENCLAW_GATEWAY_URL: "http://orchestrator.trex-fiordland.ts.net:8001"
+      LITELLM_API_URL: "http://worker-3090-litellm:4000"
+      MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      DATABASE_URL: ${DATABASE_URL:-}
+      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-local-dev-placeholder-change-me}
+    depends_on:
+      - litellm
+    networks:
+      - worker-network
+
+  nerve-ui:
+    build:
+      context: ../../images/nerve-ui
+      dockerfile: Dockerfile
+    container_name: worker-3090-nerve-ui
+    restart: unless-stopped
+    ports:
+      - "18790:18789"
+    environment:
+      OPENCLAW_URL: http://worker-3090-openclaw:18789
+      WORKER_NAME: worker-rtx3090ti
+    networks:
+      - worker-network
