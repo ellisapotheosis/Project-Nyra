@@ -75,6 +75,90 @@ def root():
         "docs": "/docs",
     }
 
+@app.get("/quote/loan-types")
+def get_loan_types():
+    """Get available loan types and their characteristics."""
+    return {
+        "loan_types": [
+            {
+                "type": "conventional",
+                "name": "Conventional Loan",
+                "description": "Standard conforming loan with PMI if LTV > 80%",
+                "min_down_payment": "3%",
+                "max_ltv": "97%",
+                "min_credit_score": 620,
+                "pmi_required": "Yes, if LTV > 80%",
+            },
+            {
+                "type": "fha",
+                "name": "FHA Loan",
+                "description": "Government-insured loan with lower down payment",
+                "min_down_payment": "3.5%",
+                "max_ltv": "96.5%",
+                "min_credit_score": 580,
+                "mortgage_insurance": "1.75% upfront MIP + 0.55% annual MIP",
+            },
+            {
+                "type": "va",
+                "name": "VA Loan",
+                "description": "Veterans Affairs loan with no down payment",
+                "min_down_payment": "0%",
+                "max_ltv": "100%",
+                "min_credit_score": 620,
+                "funding_fee": "2.18% (can be financed)",
+            },
+            {
+                "type": "usda",
+                "name": "USDA Loan",
+                "description": "Rural development loan with no down payment",
+                "min_down_payment": "0%",
+                "max_ltv": "100%",
+                "min_credit_score": 640,
+                "guarantee_fee": "1% upfront + 0.35% annual",
+            },
+        ]
+    }
+
+@app.post("/quote/compare-loan-types")
+def compare_loan_types(base_request: LoanTypeRequest):
+    """
+    Compare all loan types for the same property/borrower.
+    """
+    results = {}
+    loan_types: List[LoanType] = ["conventional", "fha", "va", "usda"]
+
+    for loan_type in loan_types:
+        try:
+            req_copy = base_request.model_copy(deep=True)
+            req_copy.loan_type = loan_type
+
+            is_valid, error_msg = validate_loan_type_request(req_copy)
+            if not is_valid:
+                results[loan_type] = {"error": error_msg, "available": False}
+                continue
+
+            summary, _ = calculate_loan_type_quote(req_copy)
+
+            results[loan_type] = {
+                "available": True,
+                "quote_id": summary.quote_id,
+                "monthly_payment": summary.periodic_payment_piti,
+                "total_paid": summary.total_paid,
+                "upfront_fees": summary.upfront_fees,
+                "financed_amount": summary.financed_amount,
+                "summary": summary.model_dump(),
+            }
+
+        except Exception as e:
+            results[loan_type] = {"error": str(e), "available": False}
+
+    return {
+        "comparison": results,
+        "property_value": base_request.property_value,
+        "loan_amount": base_request.loan_amount,
+        "credit_score": base_request.credit_score,
+    }
+
 # ============================================================================
 # LOAN-TYPE-SPECIFIC ENDPOINTS
 # ============================================================================
@@ -145,46 +229,6 @@ def quote_pdf(loan_type: LoanType, req: LoanTypeRequest):
             "Content-Disposition": f"attachment; filename=quote_{summary.quote_id}.pdf"
         }
     )
-
-@app.post("/quote/compare-loan-types")
-def compare_loan_types(base_request: LoanTypeRequest):
-    """
-    Compare all loan types for the same property/borrower.
-    """
-    results = {}
-    loan_types: List[LoanType] = ["conventional", "fha", "va", "usda"]
-
-    for loan_type in loan_types:
-        try:
-            req_copy = base_request.model_copy(deep=True)
-            req_copy.loan_type = loan_type
-
-            is_valid, error_msg = validate_loan_type_request(req_copy)
-            if not is_valid:
-                results[loan_type] = {"error": error_msg, "available": False}
-                continue
-
-            summary, _ = calculate_loan_type_quote(req_copy)
-
-            results[loan_type] = {
-                "available": True,
-                "quote_id": summary.quote_id,
-                "monthly_payment": summary.periodic_payment_piti,
-                "total_paid": summary.total_paid,
-                "upfront_fees": summary.upfront_fees,
-                "financed_amount": summary.financed_amount,
-                "summary": summary.model_dump(),
-            }
-
-        except Exception as e:
-            results[loan_type] = {"error": str(e), "available": False}
-
-    return {
-        "comparison": results,
-        "property_value": base_request.property_value,
-        "loan_amount": base_request.loan_amount,
-        "credit_score": base_request.credit_score,
-    }
 
 # ============================================================================
 # GENERIC QUOTE ENDPOINTS (backward compatible)

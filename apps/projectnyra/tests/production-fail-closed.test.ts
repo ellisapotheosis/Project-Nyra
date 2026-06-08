@@ -177,6 +177,68 @@ describe("production API mutation fallbacks", () => {
     );
   });
 
+  it("normalizes production quote comparisons to the deployed loan-type contract", async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        comparison: {
+          conventional: { available: true, monthly_payment: 2528.27 },
+        },
+      }),
+    });
+    global.fetch = fetchMock;
+    process.env = {
+      ...process.env,
+      QUOTE_API_URL: "https://quote.example.test",
+    };
+    jest.resetModules();
+    const { POST } = await import(
+      "../src/app/api/quote/compare-loan-types/route"
+    );
+
+    const response = await POST(
+      requestJson({
+        property_value: 500000,
+        loan_amount: 400000,
+        credit_score: 740,
+        annual_interest_rate: 6.5,
+        term_years: 30,
+        annual_property_tax: 6000,
+        annual_home_insurance: 1200,
+        monthly_hoa: 100,
+        start_date: "2026-07-01",
+      })
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.comparison.conventional.monthly_payment).toBe(2528.27);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://quote.example.test/quote/compare-loan-types",
+      expect.objectContaining({
+        method: "POST",
+      })
+    );
+    const forwardedBody = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(forwardedBody).toEqual(
+      expect.objectContaining({
+        loan_amount: 400000,
+        property_value: 500000,
+        annual_interest_rate: 0.065,
+        term_years: 30,
+        loan_type: "conventional",
+        credit_score: 740,
+        down_payment: 100000,
+        annual_property_tax: 6000,
+        annual_home_insurance: 1200,
+        monthly_hoa: 100,
+        start_date: "2026-07-01",
+        include_schedule: false,
+      })
+    );
+  });
+
   it("fails closed for production campaign writes without campaign-service config", async () => {
     const { POST } = await import("../src/app/api/campaigns/route");
 
