@@ -2172,7 +2172,496 @@ git commit -m "feat(projectnyra): wire AiSidebar, LeadScoreRing, and RateWall in
 
 ---
 
-## Task 13: Phase 1 validation gate
+## Task 14: AnimatedBeam Pipeline Status (projectnyra)
+
+**Files:**
+
+- Create: `apps/projectnyra/src/components/ui/animated-beam.tsx`
+- Create: `apps/projectnyra/src/components/LoanPipelineBeam.tsx`
+- Modify: `apps/projectnyra/src/app/(broker)/pipeline/page.tsx` (add LoanPipelineBeam to loan detail cards)
+
+**Source:** `docs/superpowers/specs/2026-06-07-ui-upgrade-design.md` — feature #51
+
+- [ ] **Step 1: Create the AnimatedBeam base component**
+
+```tsx
+// apps/projectnyra/src/components/ui/animated-beam.tsx
+"use client";
+
+import { RefObject, useEffect, useId, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+interface AnimatedBeamProps {
+  containerRef: RefObject<HTMLDivElement | null>;
+  fromRef: RefObject<HTMLDivElement | null>;
+  toRef: RefObject<HTMLDivElement | null>;
+  curvature?: number;
+  reverse?: boolean;
+  pathColor?: string;
+  pathWidth?: number;
+  gradientStartColor?: string;
+  gradientStopColor?: string;
+  delay?: number;
+  duration?: number;
+  className?: string;
+}
+
+function getCenter(
+  containerRef: RefObject<HTMLDivElement | null>,
+  elRef: RefObject<HTMLDivElement | null>
+) {
+  const c = containerRef.current?.getBoundingClientRect();
+  const e = elRef.current?.getBoundingClientRect();
+  if (!c || !e) return { x: 0, y: 0 };
+  return { x: e.left - c.left + e.width / 2, y: e.top - c.top + e.height / 2 };
+}
+
+export function AnimatedBeam({
+  containerRef,
+  fromRef,
+  toRef,
+  curvature = 0,
+  reverse = false,
+  pathColor = "rgba(255,255,255,0.07)",
+  pathWidth = 2,
+  gradientStartColor = "oklch(0.5038 0.2937 285.3753)",
+  gradientStopColor = "oklch(0.8871 0.1828 166.5465)",
+  delay = 0,
+  duration = 3,
+  className,
+}: AnimatedBeamProps) {
+  const uid = useId();
+  const pathRef = useRef<SVGPathElement>(null);
+  const [dims, setDims] = useState({ w: 0, h: 0 });
+  const [pathD, setPathD] = useState("");
+  const [pathLen, setPathLen] = useState(200);
+
+  useEffect(() => {
+    const update = () => {
+      if (!containerRef.current) return;
+      const r = containerRef.current.getBoundingClientRect();
+      setDims({ w: r.width, h: r.height });
+      const from = getCenter(containerRef, fromRef);
+      const to = getCenter(containerRef, toRef);
+      const mx = (from.x + to.x) / 2;
+      const my = (from.y + to.y) / 2 - curvature;
+      setPathD(`M${from.x},${from.y} Q${mx},${my} ${to.x},${to.y}`);
+    };
+    update();
+    const obs = new ResizeObserver(update);
+    if (containerRef.current) obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, [containerRef, fromRef, toRef, curvature]);
+
+  useEffect(() => {
+    if (pathRef.current && pathD) {
+      setPathLen(pathRef.current.getTotalLength());
+    }
+  }, [pathD]);
+
+  const beamLen = pathLen * 0.2;
+  const gapLen = pathLen * 0.8;
+
+  return (
+    <svg
+      className={cn("pointer-events-none absolute inset-0", className)}
+      width={dims.w}
+      height={dims.h}
+      style={{ zIndex: 0 }}
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id={`beam-grad-${uid}`} gradientUnits="userSpaceOnUse">
+          <stop
+            offset="0%"
+            stopColor={reverse ? gradientStopColor : gradientStartColor}
+            stopOpacity={0}
+          />
+          <stop
+            offset="40%"
+            stopColor={reverse ? gradientStopColor : gradientStartColor}
+          />
+          <stop
+            offset="60%"
+            stopColor={reverse ? gradientStartColor : gradientStopColor}
+          />
+          <stop
+            offset="100%"
+            stopColor={reverse ? gradientStartColor : gradientStopColor}
+            stopOpacity={0}
+          />
+        </linearGradient>
+      </defs>
+      {pathD && (
+        <path
+          d={pathD}
+          fill="none"
+          stroke={pathColor}
+          strokeWidth={pathWidth}
+          strokeLinecap="round"
+        />
+      )}
+      {pathD && pathLen > 0 && (
+        <motion.path
+          ref={pathRef}
+          d={pathD}
+          fill="none"
+          stroke={`url(#beam-grad-${uid})`}
+          strokeWidth={pathWidth * 1.6}
+          strokeLinecap="round"
+          strokeDasharray={`${beamLen} ${gapLen}`}
+          initial={{ strokeDashoffset: reverse ? -pathLen : pathLen }}
+          animate={{ strokeDashoffset: reverse ? pathLen : -pathLen }}
+          transition={{ duration, delay, repeat: Infinity, ease: "linear" }}
+        />
+      )}
+    </svg>
+  );
+}
+```
+
+- [ ] **Step 2: Create LoanPipelineBeam wrapper**
+
+Note: all 5 stage refs are declared individually — **never call `useRef` inside `.map()`** as that violates React's rules of hooks.
+
+```tsx
+// apps/projectnyra/src/components/LoanPipelineBeam.tsx
+"use client";
+
+import { useRef } from "react";
+import { AnimatedBeam } from "@/components/ui/animated-beam";
+import { cn } from "@/lib/utils";
+
+const STAGES = [
+  { id: "preapproval", label: "Pre-Approval", icon: "🏦" },
+  { id: "processing", label: "Processing", icon: "📋" },
+  { id: "underwriting", label: "Underwriting", icon: "🔍" },
+  { id: "approval", label: "Approval", icon: "✅" },
+  { id: "closing", label: "Closing", icon: "🔑" },
+] as const;
+
+interface LoanPipelineBeamProps {
+  currentStage?: number; // 0–4
+  borrowerName?: string;
+  loanAmount?: string;
+  className?: string;
+}
+
+export function LoanPipelineBeam({
+  currentStage = 2,
+  borrowerName,
+  loanAmount,
+  className,
+}: LoanPipelineBeamProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Declare refs individually — hooks must not go inside .map()
+  const ref0 = useRef<HTMLDivElement>(null);
+  const ref1 = useRef<HTMLDivElement>(null);
+  const ref2 = useRef<HTMLDivElement>(null);
+  const ref3 = useRef<HTMLDivElement>(null);
+  const ref4 = useRef<HTMLDivElement>(null);
+  const stageRefs = [ref0, ref1, ref2, ref3, ref4];
+
+  return (
+    <div className={cn("relative w-full", className)}>
+      {(borrowerName || loanAmount) && (
+        <div className="flex items-center gap-3 mb-3 text-sm">
+          {borrowerName && (
+            <span className="font-semibold">{borrowerName}</span>
+          )}
+          {loanAmount && (
+            <span className="text-muted-foreground">{loanAmount}</span>
+          )}
+          <span className="ml-auto text-[10px] text-muted-foreground uppercase tracking-wider">
+            {STAGES[currentStage].label}
+          </span>
+        </div>
+      )}
+      <div
+        ref={containerRef}
+        className="relative flex items-center justify-between py-5 px-2"
+        style={{ minHeight: 80 }}
+      >
+        {stageRefs.map((ref, i) => (
+          <div
+            key={STAGES[i].id}
+            ref={ref}
+            className="relative z-10 flex flex-col items-center gap-1.5"
+          >
+            <div
+              className={cn(
+                "w-9 h-9 rounded-full flex items-center justify-center text-sm border-2 transition-all duration-500",
+                i < currentStage
+                  ? "border-[oklch(0.8871_0.1828_166.5465)] bg-[oklch(0.8871_0.1828_166.5465)]/15 shadow-[0_0_10px_rgba(0,204,178,0.35)]"
+                  : i === currentStage
+                    ? "border-[oklch(0.5038_0.2937_285.3753)] bg-[oklch(0.5038_0.2937_285.3753)]/15 shadow-[0_0_14px_rgba(80,56,255,0.45)] scale-110"
+                    : "border-white/10 bg-white/[0.03]"
+              )}
+            >
+              {STAGES[i].icon}
+            </div>
+            <span
+              className={cn(
+                "text-[9px] uppercase tracking-wider font-medium",
+                i <= currentStage
+                  ? "text-foreground"
+                  : "text-muted-foreground/40"
+              )}
+            >
+              {STAGES[i].label}
+            </span>
+          </div>
+        ))}
+
+        {/* Beams between each adjacent stage pair */}
+        {stageRefs.slice(0, -1).map((fromRef, i) => (
+          <AnimatedBeam
+            key={i}
+            containerRef={containerRef}
+            fromRef={fromRef}
+            toRef={stageRefs[i + 1]}
+            duration={2.2 + i * 0.25}
+            delay={i * 0.15}
+            pathColor={
+              i < currentStage
+                ? "rgba(0,204,178,0.12)"
+                : "rgba(255,255,255,0.04)"
+            }
+            gradientStartColor={
+              i < currentStage
+                ? "oklch(0.8871 0.1828 166.5465)"
+                : "oklch(0.5038 0.2937 285.3753)"
+            }
+            gradientStopColor={
+              i < currentStage
+                ? "oklch(0.5038 0.2937 285.3753)"
+                : "oklch(0.65 0.27 300)"
+            }
+            curvature={-20}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 3: Add LoanPipelineBeam to pipeline page**
+
+In `apps/projectnyra/src/app/(broker)/pipeline/page.tsx`, add import:
+
+```tsx
+import { LoanPipelineBeam } from "@/components/LoanPipelineBeam";
+```
+
+Add inside each loan/application card (find where `applications` data maps to card components):
+
+```tsx
+<LoanPipelineBeam
+  currentStage={app.stage ?? 2}
+  borrowerName={app.borrowerName}
+  loanAmount={
+    app.loanAmount ? `$${Number(app.loanAmount).toLocaleString()}` : undefined
+  }
+  className="mt-3"
+/>
+```
+
+If `app.stage` doesn't exist yet, derive a deterministic value for the mock:
+
+```tsx
+currentStage={Math.floor((app.id.charCodeAt(0) % 5))}
+```
+
+- [ ] **Step 4: TypeScript check**
+
+```bash
+rtk pnpm -C apps/projectnyra exec tsc --noEmit 2>&1 | grep -i "beam\|pipeline" || echo "No errors"
+```
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add apps/projectnyra/src/components/ui/animated-beam.tsx \
+        apps/projectnyra/src/components/LoanPipelineBeam.tsx \
+        apps/projectnyra/src/app/\(broker\)/pipeline/page.tsx
+git commit -m "feat(projectnyra): add AnimatedBeam + LoanPipelineBeam loan stage tracker"
+```
+
+---
+
+## Task 15: EncryptedText Welcome (projectnyra)
+
+**Files:**
+
+- Create: `apps/projectnyra/src/components/ui/encrypted-text.tsx`
+- Modify: broker dashboard page (or layout header) to use `<EncryptedText>` on the welcome heading
+
+**Source:** `docs/superpowers/specs/2026-06-07-ui-upgrade-design.md` — feature #52
+
+- [ ] **Step 1: Create the EncryptedText component**
+
+```tsx
+// apps/projectnyra/src/components/ui/encrypted-text.tsx
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useInView } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+const CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*!?><~";
+
+interface EncryptedTextProps {
+  text: string;
+  duration?: number;
+  trigger?: "mount" | "hover" | "inView";
+  className?: string;
+}
+
+export function EncryptedText({
+  text,
+  duration = 750,
+  trigger = "inView",
+  className,
+}: EncryptedTextProps) {
+  const containerRef = useRef<HTMLSpanElement>(null);
+  const inView = useInView(containerRef, { once: true });
+  const animating = useRef(false);
+
+  const [displayed, setDisplayed] = useState(
+    trigger === "mount"
+      ? text.replace(
+          /\S/g,
+          () => CHARSET[Math.floor(Math.random() * CHARSET.length)]
+        )
+      : text
+  );
+
+  const scramble = useCallback(() => {
+    if (animating.current) return;
+    animating.current = true;
+    const chars = text.split("");
+    const startTime = performance.now();
+
+    function frame(now: number) {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const revealCount = Math.floor(progress * chars.length);
+      setDisplayed(
+        chars
+          .map((ch, i) => {
+            if (ch === " ") return " ";
+            if (i < revealCount) return ch;
+            return CHARSET[Math.floor(Math.random() * CHARSET.length)];
+          })
+          .join("")
+      );
+      if (progress < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        setDisplayed(text);
+        animating.current = false;
+      }
+    }
+    requestAnimationFrame(frame);
+  }, [text, duration]);
+
+  useEffect(() => {
+    if (trigger === "mount") scramble();
+  }, [trigger, scramble]);
+
+  useEffect(() => {
+    if (trigger === "inView" && inView) scramble();
+  }, [trigger, inView, scramble]);
+
+  return (
+    <span
+      ref={containerRef}
+      className={cn("font-mono", className)}
+      onMouseEnter={trigger === "hover" ? scramble : undefined}
+      aria-label={text}
+    >
+      {displayed}
+    </span>
+  );
+}
+```
+
+- [ ] **Step 2: Find the broker dashboard page**
+
+```bash
+find apps/projectnyra/src/app -name "page.tsx" | head -15
+```
+
+Look for a dashboard or overview page — typically `apps/projectnyra/src/app/(broker)/dashboard/page.tsx` or `apps/projectnyra/src/app/(broker)/page.tsx`.
+
+- [ ] **Step 3: Wire EncryptedText into the welcome heading**
+
+In the dashboard page, add import:
+
+```tsx
+import { EncryptedText } from "@/components/ui/encrypted-text";
+```
+
+Find the main page heading (e.g., `<h1>Dashboard</h1>` or a welcome message) and wrap it:
+
+```tsx
+<h1 className="text-2xl font-black tracking-tight">
+  <EncryptedText
+    text="Welcome back"
+    trigger="mount"
+    duration={900}
+    className="text-foreground"
+  />
+</h1>
+```
+
+For broker name (if available from session/auth):
+
+```tsx
+<EncryptedText
+  text={`Welcome back, ${brokerName}`}
+  trigger="mount"
+  duration={1100}
+/>
+```
+
+Also add a hover-triggered version on the "Project Nyra" wordmark in the site header:
+
+In `apps/projectnyra/src/components/site-header.tsx`, wrap the brand name:
+
+```tsx
+import { EncryptedText } from "@/components/ui/encrypted-text";
+
+// In JSX where the brand name appears:
+<EncryptedText text="Project Nyra" trigger="hover" duration={600} />;
+```
+
+- [ ] **Step 4: TypeScript check**
+
+```bash
+rtk pnpm -C apps/projectnyra exec tsc --noEmit 2>&1 | grep -i "encrypted" || echo "No errors"
+```
+
+- [ ] **Step 5: Dev server check**
+
+On `http://localhost:3001`:
+
+- [ ] Dashboard welcome heading scrambles through matrix characters on page load
+- [ ] Hovering the "Project Nyra" brand name in the header triggers a 600ms scramble
+- [ ] Characters visible during scramble are uppercase + symbols (not lowercase)
+- [ ] `aria-label` preserves the original text for screen readers (check DevTools Accessibility panel)
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add apps/projectnyra/src/components/ui/encrypted-text.tsx
+git commit -m "feat(projectnyra): add EncryptedText matrix scramble reveal component"
+```
+
+---
+
+## Task 16: Phase 1 validation gate
 
 - [ ] **Step 1: Full TypeScript check — both apps**
 
@@ -2200,12 +2689,13 @@ On `localhost:3000`, open Chrome DevTools → Performance tab. Record 5 seconds 
 
 ```bash
 git add -u
-git commit -m "feat: complete Phase 1 Tier S UI upgrade — 10 components across both apps
+git commit -m "feat: complete Phase 1 Tier S UI upgrade — 12 components across both apps
 
 Ratehunter: RateParticleCloud, Savings Counter, RateHeartbeat, InkReveal,
 RateCard3D, RateLockWidget, PaymentDonut
 
-Projectnyra: AiSidebar (Cmd+Shift+N), LeadScoreRing, RateWall"
+Projectnyra: AiSidebar (Cmd+Shift+N), LeadScoreRing, RateWall,
+AnimatedBeam/LoanPipelineBeam, EncryptedText"
 ```
 
 ---

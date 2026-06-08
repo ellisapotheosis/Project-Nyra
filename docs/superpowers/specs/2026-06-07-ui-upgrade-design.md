@@ -100,6 +100,21 @@ All new components consume existing oklch design tokens:
 - **File:** `apps/projectnyra/src/components/rate-wall.tsx`
 - **Approach:** CSS grid of lender tiles. Each tile has a color that shifts via CSS custom property animation when rate changes (interpolated via `useSpring`). Best broker rates highlighted with glowing border.
 
+### #51 — Animated Beam Pipeline Status _(added from user notes)_
+
+- **File:** `apps/projectnyra/src/components/ui/animated-beam.tsx` (base component)
+- **File:** `apps/projectnyra/src/components/LoanPipelineBeam.tsx` (loan-specific wrapper)
+- **Approach:** SVG bezier path between 5 stage nodes (Pre-Approval → Processing → Underwriting → Approval → Closing). `ResizeObserver` recalculates path on layout changes. `getTotalLength()` drives `strokeDashoffset` animation via Framer Motion `repeat: Infinity`. Completed stages get seafoam beam color; current stage gets indigo with a subtle scale-up; future stages get dim track only.
+- **Integration:** Mounted on individual loan detail cards in projectnyra pipeline view. Props: `currentStage: 0–4`, `borrowerName`, `loanAmount`.
+- **Source:** User note: _"animated beam used for lead status/loan status/etc."_
+
+### #52 — Encrypted Text Welcome _(added from user notes)_
+
+- **File:** `apps/projectnyra/src/components/ui/encrypted-text.tsx`
+- **Approach:** `requestAnimationFrame` loop runs for `duration` ms, revealing characters left-to-right while unresolved positions display random chars from `ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*!?`. Three trigger modes: `mount`, `hover`, `inView`. Uses `useInView` for scroll-triggered variant.
+- **Integration:** Broker dashboard welcome heading ("Welcome back, [name]"), pipeline page section headers. Also usable on projectnyra login page for the product name reveal.
+- **Source:** User note: _"encrypted matrix-like scrolling text is a must"_
+
 ---
 
 ## Phase 2 — Tier A: High-Value UX (15 features)
