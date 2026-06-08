@@ -2,21 +2,15 @@ FROM node:20-alpine AS base
 ARG APP_PATH
 ARG APP_NAME
 
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
-# Ensure we copy the specific app's package.json correctly
-COPY ${APP_PATH}/package.json ./${APP_PATH}/
-RUN corepack enable && pnpm install --frozen-lockfile
-
 FROM base AS builder
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 ARG APP_PATH
 ARG APP_NAME
-COPY --from=deps /app/node_modules ./node_modules
+# Full workspace copy is required so pnpm sees all workspace package.json files
+# and resolves peer-dep hashes consistently with the lockfile.
 COPY . .
-RUN corepack enable && pnpm --filter ${APP_NAME} build
+RUN corepack enable && pnpm install --no-frozen-lockfile && pnpm --filter ${APP_NAME} build
 
 FROM base AS runner
 WORKDIR /app
@@ -25,14 +19,12 @@ ARG APP_NAME
 ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/${APP_PATH}/.next ./${APP_PATH}/.next
+# standalone output traces only runtime-needed files — image ~200MB vs ~3GB
+COPY --from=builder --chown=nextjs:nodejs /app/${APP_PATH}/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/${APP_PATH}/.next/static ./${APP_PATH}/.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/${APP_PATH}/public ./${APP_PATH}/public
-COPY --from=builder --chown=nextjs:nodejs /app/${APP_PATH}/package.json ./${APP_PATH}/package.json
-COPY --from=builder --chown=nextjs:nodejs /app/${APP_PATH}/next.config.* ./${APP_PATH}/
 WORKDIR /app/${APP_PATH}
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
-ENV APP_PATH=${APP_PATH}
-CMD ["sh", "-c", "node ../../node_modules/next/dist/bin/next start"]
+CMD ["node", "server.js"]

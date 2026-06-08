@@ -104,6 +104,8 @@ make_payload() {
 
 cat > "$RESULTS_DIR/access-desired.tsv" <<'EOF'
 Nyra Twenty CRM	twenty.projectnyra.com	team
+Nyra CRM Alias	crm.projectnyra.com	team
+Nyra Gitea	gitea.projectnyra.com	team
 Nyra n8n	n8n.projectnyra.com	team
 Nyra Activepieces	activepieces.projectnyra.com	team
 Nyra Grafana	grafana.projectnyra.com	owner

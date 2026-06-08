@@ -15,8 +15,10 @@ services:
       INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
       INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+      # Use NYRA_INFISICAL_ENV/PATH (set by Makefile before infisical run) to prevent
+      # clobbering by Infisical-injected INFISICAL_ENV/INFISICAL_PATH secrets.
+      INFISICAL_ENV: ${NYRA_INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/machines/oracle-vps}
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks: [nyra_net]
@@ -36,8 +38,8 @@ services:
       INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
       INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+      INFISICAL_ENV: ${NYRA_INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/machines/oracle-vps}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -526,65 +528,9 @@ services:
   # NOTE: mem0-rest, falkordb, and qdrant are CANONICAL in
   # docker-compose.memory.yml. Do not redefine them here.
 
-  # ── Infisical MCP (stdio→SSE bridge via supergateway) ────────────────────
-  # Converts @infisical/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
-  # Exposed on port 8766; Nexus connects at http://100.64.0.3:8766/sse
-  infisical-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-infisical-mcp
-    restart: unless-stopped
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENVIRONMENT: ${INFISICAL_ENV:-prod}
-      INFISICAL_FOLDER_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
-      NPM_CONFIG_CACHE: /tmp/.npm
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - "npx -y @infisical/mcp"
-      - --port
-      - "8766"
-    ports:
-      - "8766:8766"
-    networks: [nyra_net]
-
   # NOTE: gitea, gitea-runner, github-mirror-sync, gitea-mcp are managed via the
   # docker-compose.gitea.yml overlay (use `make gitea-up`). They are NOT defined
   # here so the overlay's hardened secrets and dedicated DB stay canonical.
-
-  # ── Generic Git MCP (stdio→SSE bridge via supergateway) ──────────────────
-  # Local Git repository operations for Gitea-backed repos. API-level Gitea
-  # actions still go through gitea-mcp/Composio; raw git goes through this.
-  git-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-git-mcp
-    restart: unless-stopped
-    working_dir: /workspace
-    environment:
-      NPM_CONFIG_CACHE: /tmp/.npm
-      UV_CACHE_DIR: /tmp/.uv-cache
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        if [ ! -d /workspace/.git ]; then
-          echo "/workspace is not a Git repository; keeping git-mcp idle until a repo checkout is mounted.";
-          tail -f /dev/null;
-        fi
-        apk add --no-cache git python3 py3-pip \
-          && pip install --break-system-packages uv \
-          && npx -y supergateway --stdio "uvx mcp-server-git --repository /workspace" --port 8773
-    ports:
-      - "8773:8773"
-    volumes:
-      - ../../..:/workspace
-      - ${HOME:-/home/ellisapotheosis}/.ssh:/root/.ssh:ro
-    networks: [nyra_net]
 
   quote_engine:
     profiles: ["apps"]
@@ -650,32 +596,6 @@ services:
   # Gastown is managed via docker-compose.gastown.yml so the source build,
   # workspace volumes, and dashboard port stay isolated from the base stack.
 
-  # ── Magic UI MCP (stdio→SSE bridge via supergateway) ──────────────────────
-  # Converts @magicuidesign/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
-  # Exposed on port 8768; Nexus connects at http://magicui-mcp:8768/sse.
-  magicui-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-magicui-mcp
-    restart: unless-stopped
-    working_dir: /app
-    environment:
-      NPM_CONFIG_CACHE: /tmp/.npm
-      NYRA_UI_INSTALL_COMMAND: npx shadxn add
-      SHADCN_ADD_COMMAND: npx shadxn add
-      SHADCN_REGISTRY_CLI: shadxn
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        npm install -g shadxn \
-          && npm install magicui-hooks magicui-utils \
-          && npx -y supergateway --stdio "npx -y @magicuidesign/mcp@latest" --port 8768
-    ports:
-      - "8768:8768"
-    volumes:
-      - ../../../apps/projectnyra:/app
-    networks: [nyra_net]
-
   # ── Nyra UI Factory ─────────────────────────────────────────────────────
   # Long-lived execution container for registry installs into the Project Nyra app.
   nyra-ui-engine:
@@ -698,210 +618,6 @@ services:
       - /dev/null
     volumes:
       - ../../../apps/projectnyra:/app
-    networks: [nyra_net]
-
-  # ── shadcn Registry MCP (stdio→SSE bridge via supergateway) ──────────────
-  # Registry browser/search sidecar bound to the same /app workspace.
-  # Uses the tweakcn registry MCP for Project Nyra theme/component discovery.
-  shadcn-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-shadcn-mcp
-    restart: unless-stopped
-    working_dir: /app
-    environment:
-      NPM_CONFIG_CACHE: /tmp/.npm
-      NYRA_UI_INSTALL_COMMAND: npx shadxn add
-      SHADCN_ADD_COMMAND: npx shadxn add
-      SHADCN_REGISTRY_CLI: shadcn
-      REGISTRY_URL: https://tweakcn.com/r/themes/registry.json
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        npx -y supergateway --stdio "npx -y shadcn@canary mcp" --port 8769
-    ports:
-      - "127.0.0.1:8769:8769"
-    volumes:
-      - ../../../apps/projectnyra:/app
-    networks: [nyra_net]
-
-  # ── Sequential Thinking MCP (stdio→SSE bridge via supergateway) ──────────
-  sequential-thinking-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-sequential-thinking-mcp
-    restart: unless-stopped
-    environment:
-      NPM_CONFIG_CACHE: /tmp/.npm
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - "npx -y @modelcontextprotocol/server-sequential-thinking"
-      - --port
-      - "8770"
-    ports:
-      - "8770:8770"
-    networks: [nyra_net]
-
-  # ── Playwright MCP (stdio→SSE bridge via supergateway) ───────────────────
-  playwright-mcp:
-    image: mcr.microsoft.com/playwright:v1.56.1-noble
-    container_name: nyra-network-nyra-playwright-mcp
-    restart: unless-stopped
-    working_dir: /workspace
-    environment:
-      NPM_CONFIG_CACHE: /tmp/.npm
-      PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        npx -y supergateway --stdio "npx -y @playwright/mcp@latest --browser chromium --headless --no-sandbox" --port 8771
-    ports:
-      - "8771:8771"
-    volumes:
-      - ../../..:/workspace:ro
-    networks: [nyra_net]
-
-  # ── Firecrawl MCP (stdio→SSE bridge via supergateway) ───────────────────
-  firecrawl-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-firecrawl-mcp
-    restart: unless-stopped
-    environment:
-      FIRECRAWL_API_KEY: ${FIRECRAWL_API_KEY}
-      FIRECRAWL_API_URL: ${FIRECRAWL_API_URL:-https://api.firecrawl.dev}
-      NPM_CONFIG_CACHE: /tmp/.npm
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - "npx -y firecrawl-mcp"
-      - --port
-      - "8772"
-    ports:
-      - "8772:8772"
-    networks: [nyra_net]
-
-  # ── Next.js DevTools MCP (stdio→SSE bridge via supergateway) ─────────────
-  # Discovers running Next.js dev servers and proxies their /_next/mcp tools.
-  next-devtools-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-next-devtools-mcp
-    restart: unless-stopped
-    working_dir: /workspace
-    environment:
-      NPM_CONFIG_CACHE: /tmp/.npm
-      NEXT_DEVTOOLS_WORKSPACE: /workspace
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - "npx -y next-devtools-mcp@latest"
-      - --port
-      - "8774"
-    ports:
-      - "8774:8774"
-    volumes:
-      - ../../..:/workspace
-    networks: [nyra_net]
-
-  # ── Tavily MCP (stdio→SSE bridge via supergateway) ──────────────────────
-  tavily-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-tavily-mcp
-    restart: unless-stopped
-    environment:
-      TAVILY_API_KEY: ${TAVILY_API_KEY}
-      NPM_CONFIG_CACHE: /tmp/.npm
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - "npx -y tavily-mcp@latest"
-      - --port
-      - "8775"
-    ports:
-      - "8775:8775"
-    networks: [nyra_net]
-
-  # ── WCGW MCP (stdio→SSE bridge via supergateway) ────────────────────────
-  # Shell/code execution workspace tools. Keep private behind Nexus only.
-  wcgw-mcp:
-    image: node:20-bookworm-slim
-    container_name: nyra-network-nyra-wcgw-mcp
-    restart: unless-stopped
-    working_dir: /workspace
-    environment:
-      NPM_CONFIG_CACHE: /tmp/.npm
-      UV_CACHE_DIR: /tmp/.uv-cache
-      WCGW_WORKSPACE: /workspace
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        apt-get update \
-          && apt-get install -y --no-install-recommends python3 python3-pip git ca-certificates curl \
-          && rm -rf /var/lib/apt/lists/* \
-          && pip install --break-system-packages uv \
-          && npx -y supergateway --stdio "uvx --from wcgw@latest wcgw_mcp" --port 8776
-    ports:
-      - "8776:8776"
-    volumes:
-      - ../../..:/workspace
-      - ${HOME:-/home/ellisapotheosis}/.ssh:/root/.ssh:ro
-    networks: [nyra_net]
-
-  # ── Gitingest MCP (stdio→SSE bridge via supergateway) ───────────────────
-  gitingest-mcp:
-    image: node:20-alpine
-    container_name: nyra-network-nyra-gitingest-mcp
-    restart: unless-stopped
-    working_dir: /workspace
-    environment:
-      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-      NPM_CONFIG_CACHE: /tmp/.npm
-      UV_CACHE_DIR: /tmp/.uv-cache
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        apk add --no-cache git python3 py3-pip \
-          && pip install --break-system-packages uv \
-          && npx -y supergateway --stdio "uvx gitingestmcp@latest" --port 8777
-    ports:
-      - "8777:8777"
-    volumes:
-      - ../../..:/workspace:ro
-    networks: [nyra_net]
-
-  # ── Codebase Index MCP (stdio→SSE bridge via supergateway) ───────────────
-  codebase-index-mcp:
-    image: node:20-bookworm-slim
-    container_name: nyra-network-nyra-codebase-index-mcp
-    restart: unless-stopped
-    working_dir: /workspace
-    environment:
-      PROJECT_ROOT: /workspace
-      NPM_CONFIG_CACHE: /tmp/.npm
-      PIP_CACHE_DIR: /tmp/.pip-cache
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        apt-get update \
-          && apt-get install -y --no-install-recommends python3 python3-pip git ca-certificates \
-          && rm -rf /var/lib/apt/lists/* \
-          && pip install --break-system-packages "mcp-codebase-index[mcp]" \
-          && npx -y supergateway --stdio "mcp-codebase-index" --port 8778
-    ports:
-      - "8778:8778"
-    volumes:
-      - ../../..:/workspace
     networks: [nyra_net]
 
   # ── Supabase Stack ────────────────────────────────────────────────────────
@@ -1076,30 +792,6 @@ services:
         condition: service_started
       litellm:
         condition: service_healthy
-      firecrawl-mcp:
-        condition: service_started
-      gitingest-mcp:
-        condition: service_started
-      git-mcp:
-        condition: service_started
-      magicui-mcp:
-        condition: service_started
-      next-devtools-mcp:
-        condition: service_started
-      playwright-mcp:
-        condition: service_started
-      codebase-index-mcp:
-        condition: service_started
-      sequential-thinking-mcp:
-        condition: service_started
-      tavily-mcp:
-        condition: service_started
-      wcgw-mcp:
-        condition: service_started
-      nyra-ui-engine:
-        condition: service_started
-      shadcn-mcp:
-        condition: service_started
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]

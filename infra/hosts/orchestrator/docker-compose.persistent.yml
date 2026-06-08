@@ -21,9 +21,12 @@ services:
       - default
 
   syncthing:
+    # The active orchestrator Syncthing identity is the native OBN2HMP instance.
+    # Keep this stale ZANXEPD Docker identity opt-in to avoid lock conflicts.
+    profiles: ["stale-docker-sync"]
     image: syncthing/syncthing:latest
     container_name: nyra-persistent-orchestrator-syncthing
-    restart: always
+    restart: "no"
     network_mode: host
     environment:
       PUID: "1000"

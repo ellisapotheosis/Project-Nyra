@@ -69,7 +69,8 @@ services:
       - LMCACHE_REDIS_HOST=worker-3090-redis
       - LMCACHE_REDIS_PORT=${LMCACHE_REDIS_PORT:-6379}
     command: >
-      --model ${VLLM_MODEL:-Qwen/Qwen2.5-7B-Instruct}
+      --model ${VLLM_MODEL:-QuantTrio/Qwen3.6-27B-AWQ}
+      --quantization awq
       --host 0.0.0.0
       --port 8000
       --tensor-parallel-size 1
@@ -123,8 +124,8 @@ services:
       - vllm_models:/models
     environment:
       - VLLM_URL=http://worker-3090-vllm:8000
-      - AVAILABLE_MODELS=Qwen/Qwen2.5-7B-Instruct,Qwen/Qwen2.5-14B-Instruct,meta-llama/Llama-3.1-8B-Instruct
-      - DEFAULT_MODEL=${VLLM_MODEL:-Qwen/Qwen2.5-7B-Instruct}
+      - AVAILABLE_MODELS=${AVAILABLE_MODELS:-QuantTrio/Qwen3.6-27B-AWQ,google/gemma-4-26B-A4B,meta-llama/Llama-3.1-8B-Instruct}
+      - DEFAULT_MODEL=${VLLM_MODEL:-QuantTrio/Qwen3.6-27B-AWQ}
     command: python /app/switcher.py
     depends_on:
       vllm:

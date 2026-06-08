@@ -34,11 +34,11 @@ curl http://worker-rtx5090.trex-fiordland.ts.net:8000/health
 
 ## VRAM Budget
 
-| Component | VRAM Usage | Notes |
-|-----------|-----------|-------|
-| vLLM | 22–28 GB | 70% utilization (`--gpu-memory-utilization 0.70`, enforce-eager) |
-| LMCache | 12 GB (CUDA, configurable) | Larger cache due to 32 GB VRAM |
-| **Total VRAM** | **32 GB** | Highest in cluster |
+| Component      | VRAM Usage                 | Notes                                                            |
+| -------------- | -------------------------- | ---------------------------------------------------------------- |
+| vLLM           | 22–28 GB                   | 70% utilization (`--gpu-memory-utilization 0.70`, enforce-eager) |
+| LMCache        | 12 GB (CUDA, configurable) | Larger cache due to 32 GB VRAM                                   |
+| **Total VRAM** | **32 GB**                  | Highest in cluster                                               |
 
 At 70% GPU memory utilization with enforce-eager, this worker loads ~22 GB for the model and keeps the rest for KV cache. The `--enforce-eager` flag disables CUDA graph capture for faster cold-start at the cost of slightly lower throughput.
 
@@ -46,14 +46,14 @@ At 70% GPU memory utilization with enforce-eager, this worker loads ~22 GB for t
 
 ## Services (when machine is online)
 
-| Service | Container | Port | Health Check |
-|---------|-----------|------|-------------|
-| vLLM | worker-5090-vllm | 8000 | `curl --max-time 5 http://worker-rtx5090.trex-fiordland.ts.net:8000/health` |
-| LiteLLM proxy | worker-5090-litellm | 4000 | `curl --max-time 5 http://worker-rtx5090.trex-fiordland.ts.net:4000/health` |
-| GPU exporter | worker-5090-gpu-exporter | 9835 | `curl --max-time 5 http://worker-rtx5090.trex-fiordland.ts.net:9835/metrics` |
-| Node exporter | worker-5090-node-exporter | 9100 | `curl --max-time 5 http://worker-rtx5090.trex-fiordland.ts.net:9100/metrics` |
-| Health monitor | worker-5090-health | — | internal check loop |
-| Promtail | worker-5090-promtail | — | ships logs to Loki on oracle-vps:3100 |
+| Service        | Container                 | Port | Health Check                                                                 |
+| -------------- | ------------------------- | ---- | ---------------------------------------------------------------------------- |
+| vLLM           | worker-5090-vllm          | 8000 | `curl --max-time 5 http://worker-rtx5090.trex-fiordland.ts.net:8000/health`  |
+| LiteLLM proxy  | worker-5090-litellm       | 4000 | `curl --max-time 5 http://worker-rtx5090.trex-fiordland.ts.net:4000/health`  |
+| GPU exporter   | worker-5090-gpu-exporter  | 9835 | `curl --max-time 5 http://worker-rtx5090.trex-fiordland.ts.net:9835/metrics` |
+| Node exporter  | worker-5090-node-exporter | 9100 | `curl --max-time 5 http://worker-rtx5090.trex-fiordland.ts.net:9100/metrics` |
+| Health monitor | worker-5090-health        | —    | internal check loop                                                          |
+| Promtail       | worker-5090-promtail      | —    | ships logs to Loki on oracle-vps:3100                                        |
 
 ---
 
@@ -64,17 +64,17 @@ When online, this is the preferred vLLM endpoint. Oracle-vps LiteLLM routes `loc
 - **vLLM endpoint**: `http://worker-rtx5090.trex-fiordland.ts.net:8000/v1`
 - **LiteLLM alias**: `local/qwen3-27b` (preferred when online)
 - **LMCache**: Enabled with 12 GB CUDA cache for aggressive KV reuse
-- **Model switcher**: Available models include Llama-3.1-70B-AWQ, DeepSeek-R1-Distill-Llama-70B, Qwen2.5-72B-AWQ, Mixtral-8x22B-AWQ
+- **Model switcher**: Available models include Qwen3.6 27B AWQ, Gemma 4 26B-A4B, and Llama-3.1-8B fallback
 
 ### Switching to a Larger Model
 
-The 32 GB VRAM allows running 70B-class models with AWQ quantization:
+The 32 GB VRAM allows running larger models with AWQ quantization:
 
 ```bash
-# Qwen2.5 72B AWQ (recommended for complex reasoning when online)
+# Qwen3.6 27B AWQ (recommended default for 24 GB-class runs)
 # Available via model-switcher container
 curl -X POST http://worker-rtx5090.trex-fiordland.ts.net:8000/v1/admin/model/switch \
-  -d '{"model": "Qwen/Qwen2.5-72B-Instruct-AWQ"}'
+  -d '{"model": "QuantTrio/Qwen3.6-27B-AWQ"}'
 ```
 
 ---
@@ -100,6 +100,7 @@ docker compose -f infra/hosts/worker-rtx5090/docker-compose.distributed-voice.ym
 ```
 
 The distributed pipeline:
+
 - worker-rtx3060: STT
 - worker-rtx3090ti: TTS
 - worker-rtx5090: LLM (this worker, ~300–400 ms total pipeline latency)
@@ -108,17 +109,17 @@ The distributed pipeline:
 
 ## Compose Files on This Host
 
-| File | Purpose | Start Command |
-|------|---------|--------------|
-| `docker-compose.yml` | Base network + shared volumes | Always included |
-| `docker-compose.worker-5090.yml` | vLLM + LiteLLM + exporters + health (primary) | `docker compose -f docker-compose.worker-5090.yml up -d` |
-| `docker-compose.voice.yml` | Standalone Unmute (complete instance) | `docker compose -f docker-compose.voice.yml up -d` |
-| `docker-compose.distributed-voice.yml` | Distributed voice — LLM role only | `docker compose -f docker-compose.distributed-voice.yml up -d` |
-| `docker-compose.clawteam.yml` | ClawTeam node | `docker compose -f docker-compose.clawteam.yml up -d` |
-| `docker-compose.llxprt.yml` | llxprt worker variant | `docker compose -f docker-compose.llxprt.yml up -d` |
-| `docker-compose.nerve.yml` | Nerve UI for this worker | `docker compose -f docker-compose.nerve.yml up -d` |
-| `docker-compose.assistant.yml` | Assistant variant | `docker compose -f docker-compose.assistant.yml up -d` |
-| `docker-compose.model-switcher.yml` | Model hot-swap manager | `docker compose -f docker-compose.model-switcher.yml up -d` |
+| File                                   | Purpose                                       | Start Command                                                  |
+| -------------------------------------- | --------------------------------------------- | -------------------------------------------------------------- |
+| `docker-compose.yml`                   | Base network + shared volumes                 | Always included                                                |
+| `docker-compose.worker-5090.yml`       | vLLM + LiteLLM + exporters + health (primary) | `docker compose -f docker-compose.worker-5090.yml up -d`       |
+| `docker-compose.voice.yml`             | Standalone Unmute (complete instance)         | `docker compose -f docker-compose.voice.yml up -d`             |
+| `docker-compose.distributed-voice.yml` | Distributed voice — LLM role only             | `docker compose -f docker-compose.distributed-voice.yml up -d` |
+| `docker-compose.clawteam.yml`          | ClawTeam node                                 | `docker compose -f docker-compose.clawteam.yml up -d`          |
+| `docker-compose.llxprt.yml`            | llxprt worker variant                         | `docker compose -f docker-compose.llxprt.yml up -d`            |
+| `docker-compose.nerve.yml`             | Nerve UI for this worker                      | `docker compose -f docker-compose.nerve.yml up -d`             |
+| `docker-compose.assistant.yml`         | Assistant variant                             | `docker compose -f docker-compose.assistant.yml up -d`         |
+| `docker-compose.model-switcher.yml`    | Model hot-swap manager                        | `docker compose -f docker-compose.model-switcher.yml up -d`    |
 
 ---
 
@@ -136,6 +137,7 @@ Key flags from `docker-compose.worker-5090.yml`:
 ```
 
 LMCache configuration (12 GB, larger than 3090ti):
+
 ```
 LMCACHE_ENABLED=true
 LMCACHE_STORAGE_BACKEND=local
