@@ -96,7 +96,10 @@ const BASE_RATES: LenderRate[] = [
   },
 ];
 
-export function useRates(live = false) {
+export function useRates(live = false): {
+  rates: LenderRate[];
+  best: LenderRate | null;
+} {
   const [rates, setRates] = useState<LenderRate[]>(BASE_RATES);
 
   useEffect(() => {
@@ -112,6 +115,7 @@ export function useRates(live = false) {
     return () => clearInterval(id);
   }, [live]);
 
-  const best = rates.reduce((a, b) => (a.rate < b.rate ? a : b));
+  const best =
+    rates.length > 0 ? rates.reduce((a, b) => (a.rate < b.rate ? a : b)) : null;
   return { rates, best };
 }
