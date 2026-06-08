@@ -30,21 +30,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  buildLeadIngestionPayload,
+  type RateHunterLeadData,
+} from "@/lib/lead-ingestion-payload";
 
 type Step = "PURPOSE" | "PROPERTY" | "LOAN" | "CONTACT" | "CONSENT" | "SUCCESS";
 
-interface LeadData {
-  loanPurpose: string;
-  propertyType: string;
-  occupancy: string;
-  propertyValue: number;
-  downPayment: number;
-  creditScore: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-}
+type LeadData = RateHunterLeadData;
 
 export function LeadCaptureWizard() {
   const [step, setStep] = useState<Step>("PURPOSE");
@@ -88,21 +81,7 @@ export function LeadCaptureWizard() {
 
   const handleSubmit = async () => {
     try {
-      const payload = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        loanPurpose: data.loanPurpose,
-        loanAmount: data.propertyValue - data.downPayment,
-        propertyValue: data.propertyValue,
-        downPayment: data.downPayment,
-        creditScore: data.creditScore,
-        propertyType: data.propertyType,
-        occupancy: data.occupancy,
-        source: "RATEHUNTER_LANDING",
-        consentTimestamp: new Date().toISOString(),
-      };
+      const payload = buildLeadIngestionPayload(data);
 
       // Send to n8n WF_LEAD_INGEST Webhook (via Next.js Proxy)
       const response = await fetch("/api/leads/ingest", {
