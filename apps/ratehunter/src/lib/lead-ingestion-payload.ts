@@ -15,15 +15,15 @@ export function buildLeadIngestionPayload(
   data: RateHunterLeadData,
   consentTimestamp = new Date().toISOString()
 ) {
-  const firstName = optionalText(data.firstName);
-  const lastName = optionalText(data.lastName);
-  const email = optionalText(data.email);
+  const firstName = requiredText(data.firstName, "First name");
+  const lastName = requiredText(data.lastName, "Last name");
+  const email = requiredText(data.email, "Email");
   const phone = optionalText(data.phone);
 
   return {
-    ...(firstName ? { firstName } : {}),
-    ...(lastName ? { lastName } : {}),
-    ...(email ? { email } : {}),
+    firstName,
+    lastName,
+    email,
     ...(phone ? { phone } : {}),
     loanPurpose: data.loanPurpose,
     loanAmount: data.propertyValue - data.downPayment,
@@ -53,4 +53,12 @@ export function buildLeadIngestionPayload(
 function optionalText(value: string) {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function requiredText(value: string, label: string) {
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    throw new Error(`${label} is required for lead ingestion.`);
+  }
+  return trimmed;
 }

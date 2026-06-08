@@ -97,6 +97,7 @@ export function LeadCaptureWizard() {
       }
     } catch (error) {
       console.error("Lead submission failed:", error);
+      alert("Please review your contact details and try again.");
     }
   };
 
