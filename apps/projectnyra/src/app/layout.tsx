@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Suspense } from "react";
 import { Electrolize, Michroma, Space_Mono } from "next/font/google";
 
 import "./globals.css";
@@ -60,7 +61,9 @@ export default function RootLayout({
             themes={themes.map((t) => t.value) as string[]}
           >
             <AuthProvider>
-              <MixpanelRouteTracker />
+              <Suspense fallback={null}>
+                <MixpanelRouteTracker />
+              </Suspense>
               <AppShell>{children}</AppShell>
             </AuthProvider>
             <Toaster />
