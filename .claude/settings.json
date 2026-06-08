@@ -42,17 +42,7 @@
         ]
       }
     ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/skills/save-task-list/hooks/verify-task-list.sh",
-            "statusMessage": "Checking for restored task list..."
-          }
-        ]
-      }
-    ],
+    "SessionStart": [],
     "Stop": [
       {
         "hooks": [
