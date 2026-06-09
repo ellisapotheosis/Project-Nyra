@@ -49,6 +49,7 @@ import { RateParticleCloud } from "@/components/RateParticleCloud";
 import { MortgageNarrativeHero } from "@/components/MortgageNarrativeHero";
 import { RateForecastWidget } from "@/components/ui/rate-forecast-widget";
 import { RateAlertWidget } from "@/components/ui/rate-alert-widget";
+import { ShareSnapshot } from "@/components/ui/share-snapshot";
 import { useRates } from "@/hooks/useRates";
 
 const contact = {
@@ -175,6 +176,9 @@ export default function Home() {
       <AuroraBackground />
       <ScrollProgress />
       <div className="relative z-[1] mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-24 pt-6 md:px-6 lg:px-8">
+        <div className="flex justify-end px-4 pt-4 max-w-4xl mx-auto w-full">
+          <ShareSnapshot />
+        </div>
         <nav className="glass-panel sticky top-4 z-40 flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-black/60 px-6 py-3 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <span className="flex size-8 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
