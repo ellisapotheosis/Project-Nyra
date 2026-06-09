@@ -47,6 +47,7 @@ import { PaymentDonut } from "@/components/ui/payment-donut";
 import { RateLockWidget } from "@/components/RateLockWidget";
 import { RateParticleCloud } from "@/components/RateParticleCloud";
 import { MortgageNarrativeHero } from "@/components/MortgageNarrativeHero";
+import { RateForecastWidget } from "@/components/ui/rate-forecast-widget";
 import { useRates } from "@/hooks/useRates";
 
 const contact = {
@@ -542,6 +543,10 @@ export default function Home() {
             </div>
           </section>
         </BlurFade>
+
+        <section className="mx-auto max-w-4xl px-4 py-8">
+          <RateForecastWidget />
+        </section>
 
         <BlurFade delay={0.12}>
           <section className="section-divider pt-8">
