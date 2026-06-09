@@ -48,6 +48,7 @@ import { RateLockWidget } from "@/components/RateLockWidget";
 import { RateParticleCloud } from "@/components/RateParticleCloud";
 import { MortgageNarrativeHero } from "@/components/MortgageNarrativeHero";
 import { RateForecastWidget } from "@/components/ui/rate-forecast-widget";
+import { RateAlertWidget } from "@/components/ui/rate-alert-widget";
 import { useRates } from "@/hooks/useRates";
 
 const contact = {
@@ -544,8 +545,9 @@ export default function Home() {
           </section>
         </BlurFade>
 
-        <section className="mx-auto max-w-4xl px-4 py-8">
+        <section className="mx-auto max-w-4xl px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <RateForecastWidget />
+          <RateAlertWidget />
         </section>
 
         <BlurFade delay={0.12}>
