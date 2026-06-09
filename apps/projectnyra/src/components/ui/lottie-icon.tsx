@@ -20,7 +20,10 @@ export function LottieIcon({
   "aria-label": ariaLabel,
 }: LottieIconProps) {
   return (
-    <div style={{ width: size, height: size }} className={className}>
+    <div
+      style={{ width: `${size}px`, height: `${size}px` }}
+      className={className}
+    >
       <Lottie
         animationData={animationData}
         loop={loop}
