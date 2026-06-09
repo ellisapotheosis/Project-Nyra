@@ -70,7 +70,7 @@ services:
     restart: "no"
     environment:
       - OLLAMA_HOST=http://ollama:11434
-      - OLLAMA_PRELOAD_MODELS=${OLLAMA_PRELOAD_MODELS:-nomic-embed-text llama3.2:3b mistral:7b-instruct-v0.3-q4_K_M}
+      - OLLAMA_PRELOAD_MODELS=${OLLAMA_PRELOAD_MODELS:-nomic-embed-text llama3.2:3b phi3:mini mistral:7b-instruct-v0.3-q4_K_M}
     entrypoint: ["/bin/sh", "-lc"]
     command:
       - set -eu; for model in $${OLLAMA_PRELOAD_MODELS}; do echo "pulling $${model}"; ollama pull "$${model}"; done
@@ -110,7 +110,7 @@ services:
       - ollama_models:/models
     environment:
       - OLLAMA_URL=http://ollama:11434
-      - AVAILABLE_MODELS=nomic-embed-text,llama3.2:3b,mistral:7b-instruct-v0.3-q4_K_M
+      - AVAILABLE_MODELS=nomic-embed-text,llama3.2:3b,phi3:mini,mistral:7b-instruct-v0.3-q4_K_M
       - DEFAULT_MODEL=llama3.2:3b
       - SPECIALIZATION=embeddings,extraction,summarization,mem0,letta
     command: python /app/switcher.py

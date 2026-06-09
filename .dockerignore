@@ -116,6 +116,12 @@ _archive
 _deprecated
 submodules
 
+# Large non-source directories not needed for app builds
+external/
+archive/
+security-reports/
+ToDo/
+
 # Documentation (keep minimal)
 docs/**/*.md
 !docs/README.md

@@ -1,0 +1,210 @@
+# RateHunter Landing Page
+
+Production-ready Next.js landing page optimized for Cloudflare Pages deployment.
+
+## 🚀 Quick Deploy
+
+**5 minutes to live:**
+
+1. Push to GitHub: `git push origin main`
+2. Connect repository in [Cloudflare Pages](https://dash.cloudflare.com/)
+3. Configure build settings (see QUICK-START.md)
+4. Deploy!
+
+**📖 Full guides:**
+- **[QUICK-START.md](./QUICK-START.md)** - Deploy in 15 minutes
+- **[CLOUDFLARE-SETUP.md](./CLOUDFLARE-SETUP.md)** - Complete setup guide
+- **[DEPLOYMENT-CHECKLIST.md](./DEPLOYMENT-CHECKLIST.md)** - Production checklist
+
+## 📦 What's Included
+
+### Features
+- ✅ **Security**: CSP, HSTS, XSS protection, secure headers
+- ✅ **Performance**: Edge caching, auto-minify, Brotli, HTTP/3
+- ✅ **SEO**: robots.txt, sitemap, meta tags, Open Graph
+- ✅ **PWA**: Progressive web app support with manifest
+- ✅ **Error Pages**: Custom 404 and 500 pages
+- ✅ **Analytics Ready**: Cloudflare Web Analytics integration
+- ✅ **Mobile Optimized**: Responsive design, touch-friendly
+
+### Tech Stack
+- **Framework**: Next.js 14.2.35
+- **Hosting**: Cloudflare Pages (Free tier)
+- **Deployment**: Git integration (auto-deploy)
+- **CDN**: 300+ global locations
+- **SSL**: Automatic HTTPS with free certificates
+
+## 🛠️ Local Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run development server
+pnpm run dev
+
+# Build for production
+pnpm run build
+
+# Start production server
+pnpm run start
+```
+
+## 📁 Project Structure
+
+```
+ratehunter-landing/
+├── public/
+│   ├── _headers              # Security & performance headers
+│   ├── _redirects            # URL redirects
+│   ├── 404.html              # Custom 404 page
+│   ├── 500.html              # Custom 500 page
+│   ├── manifest.json         # PWA manifest
+│   ├── robots.txt            # SEO crawling rules
+│   └── sitemap.xml           # SEO sitemap
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx        # Root layout with PWA support
+│   │   └── page.tsx          # Homepage
+│   └── lib/                  # Utilities
+├── .env.example              # Environment variables template
+├── next.config.js            # Next.js configuration
+├── wrangler.toml             # Cloudflare Workers config
+├── open-next.config.ts       # Advanced Cloudflare optimization
+└── Documentation             # Setup & deployment guides
+```
+
+## 🔧 Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `wrangler.toml` | Cloudflare Pages/Workers configuration |
+| `open-next.config.ts` | Advanced Cloudflare Workers optimization |
+| `next.config.js` | Next.js build & runtime configuration |
+| `_headers` | Security and caching headers |
+| `_redirects` | URL redirect rules |
+| `.env.example` | Environment variables template |
+
+## 🌐 Cloudflare Pages Build Settings
+
+```
+Framework preset: Next.js
+Build command: cd apps/landing/ratehunter-landing && npm run build:cf
+Build output: apps/landing/ratehunter-landing/.open-next/assets
+Root directory: /
+Node version: 20
+```
+
+**Environment variables:**
+```
+NODE_VERSION=20
+PNPM_VERSION=10.27.0
+NEXT_TELEMETRY_DISABLED=1
+NEXT_PUBLIC_SITE_URL=https://ratehunter.com
+```
+
+## 🔐 Security Features
+
+- **HTTPS**: Automatic SSL/TLS with auto-renewal
+- **HSTS**: Strict Transport Security with preload
+- **CSP**: Content Security Policy configured
+- **Headers**: X-Frame-Options, X-Content-Type-Options, etc.
+- **DDoS**: Cloudflare DDoS protection included
+- **Bot Protection**: Bot Fight Mode enabled
+
+## 📊 Performance
+
+- **Global CDN**: 300+ Cloudflare data centers
+- **Edge Caching**: Static assets cached at edge
+- **Auto Optimization**: Images, CSS, JS optimized
+- **Compression**: Brotli and Gzip enabled
+- **HTTP/3**: Modern protocol support
+
+**Target metrics:**
+- **PageSpeed Score**: >90
+- **Load Time**: <2 seconds globally
+- **Core Web Vitals**: All green
+
+## 🔄 Deployment
+
+### Automatic (Git Integration)
+Every push to `main` triggers automatic deployment:
+```bash
+git add -A
+git commit -m "Update content"
+git push origin main
+```
+
+### Manual (Wrangler CLI)
+```bash
+pnpm run cf:login
+pnpm run build
+pnpm run deploy
+```
+
+## 🆘 Emergency Rollback
+
+If something breaks:
+1. Go to Cloudflare dashboard
+2. Navigate to Deployments tab
+3. Find last working deployment
+4. Click "Rollback to this deployment"
+5. Restore time: ~30 seconds
+
+## 📈 Analytics
+
+**Built-in:**
+- Cloudflare Web Analytics (no tracking scripts)
+- Real-time traffic metrics
+- Core Web Vitals monitoring
+- Geographic distribution
+
+**Optional integrations:**
+- Google Analytics 4
+- Plausible Analytics
+- Sentry (error tracking)
+
+## 💰 Cost
+
+**Free Tier (Recommended):**
+- ✅ Unlimited bandwidth
+- ✅ Unlimited requests
+- ✅ Automatic SSL
+- ✅ DDoS protection
+- ✅ 99.99% uptime SLA
+
+**Pro Tier ($20/month - Optional):**
+- Advanced analytics
+- Access logs
+- Priority support
+- Higher limits
+
+## 📞 Support
+
+- **Documentation**: See guides in this directory
+- **Cloudflare Community**: https://community.cloudflare.com/
+- **Status Page**: https://www.cloudflarestatus.com/
+- **Next.js Docs**: https://nextjs.org/docs
+
+## 🔗 Quick Links
+
+- [QUICK-START.md](./QUICK-START.md) - 15-minute deployment
+- [CLOUDFLARE-SETUP.md](./CLOUDFLARE-SETUP.md) - Complete setup
+- [DEPLOYMENT-CHECKLIST.md](./DEPLOYMENT-CHECKLIST.md) - Production checklist
+- [CLOUDFLARE-DEPLOY.md](./CLOUDFLARE-DEPLOY.md) - Deployment guide
+
+## 📝 License
+
+Private business use.
+
+## 🤝 Contributing
+
+This is a business-critical landing page. All changes should:
+1. Be tested locally: `pnpm run build`
+2. Pass the deployment checklist
+3. Be deployed to preview first
+4. Be monitored after production deploy
+
+---
+
+**Ready to deploy?** Start with [QUICK-START.md](./QUICK-START.md)

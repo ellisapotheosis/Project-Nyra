@@ -9,6 +9,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { DEFAULT_THEME, themes } from "@/config/themes";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { AppShell } from "@/components/app-shell";
 
 export const metadata: Metadata = {
   title: "Project Nyra",
@@ -57,7 +58,9 @@ export default function RootLayout({
             enableSystem={false}
             themes={themes.map((t) => t.value) as string[]}
           >
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              <AppShell>{children}</AppShell>
+            </AuthProvider>
             <Toaster />
           </ThemeProvider>
         </ErrorBoundary>

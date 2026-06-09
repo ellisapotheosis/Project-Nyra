@@ -12,13 +12,13 @@ Platform: Windows 11 + Docker Desktop + WSL2 mirrored mode
 
 ## VRAM Budget
 
-| Component | VRAM Usage | Status |
-|-----------|-----------|--------|
-| nomic-embed-text | ~274 MB | Always running — do not unload |
-| llama3.2:3b | ~2.0 GB | Always running — primary background LLM |
-| phi3:mini | ~2.3 GB | Loaded on demand |
-| mistral:7b-v0.3 | ~4.1 GB | Loaded on demand |
-| **Total usable VRAM** | **~5 GB** | After GPU driver overhead |
+| Component             | VRAM Usage | Status                                  |
+| --------------------- | ---------- | --------------------------------------- |
+| nomic-embed-text      | ~274 MB    | Always running — do not unload          |
+| llama3.2:3b           | ~2.0 GB    | Always running — primary background LLM |
+| phi3:mini             | ~2.3 GB    | Loaded on demand                        |
+| mistral:7b-v0.3       | ~4.1 GB    | Loaded on demand                        |
+| **Total usable VRAM** | **~5 GB**  | After GPU driver overhead               |
 
 **Critical constraint**: Only ~5 GB of VRAM is actually usable after driver and OS overhead, despite the GPU having 12 GB. The RTX 3060 laptop variant has reduced memory bandwidth and the Windows GPU overhead is higher than desktop equivalents.
 
@@ -35,13 +35,13 @@ curl http://worker-rtx3060.trex-fiordland.ts.net:11434/api/ps
 
 These services are expected to be up at all times. If they are down, this is an incident.
 
-| Service | Container | Port | Health Check |
-|---------|-----------|------|-------------|
-| Ollama | worker-3060-ollama | 11434 | `curl http://worker-rtx3060.trex-fiordland.ts.net:11434/api/version` |
-| Health monitor | worker-3060-health | 9090 | `curl http://worker-rtx3060.trex-fiordland.ts.net:9090/health` |
-| Node exporter | worker-3060-node-exporter | 9100 | `curl http://worker-rtx3060.trex-fiordland.ts.net:9100/metrics` |
-| GPU exporter | worker-3060-gpu-exporter | 9445 | `curl http://worker-rtx3060.trex-fiordland.ts.net:9445/metrics` |
-| Promtail | worker-3060-promtail | — | ships logs to Loki on oracle-vps:3100 |
+| Service        | Container                 | Port  | Health Check                                                         |
+| -------------- | ------------------------- | ----- | -------------------------------------------------------------------- |
+| Ollama         | worker-3060-ollama        | 11434 | `curl http://worker-rtx3060.trex-fiordland.ts.net:11434/api/version` |
+| Health monitor | worker-3060-health        | 9090  | `curl http://worker-rtx3060.trex-fiordland.ts.net:9090/health`       |
+| Node exporter  | worker-3060-node-exporter | 9100  | `curl http://worker-rtx3060.trex-fiordland.ts.net:9100/metrics`      |
+| GPU exporter   | worker-3060-gpu-exporter  | 9445  | `curl http://worker-rtx3060.trex-fiordland.ts.net:9445/metrics`      |
+| Promtail       | worker-3060-promtail      | —     | ships logs to Loki on oracle-vps:3100                                |
 
 ---
 
@@ -52,7 +52,7 @@ This worker is the designated embedding compute node for the entire Nyra memory 
 - **Collection**: `mem0-nyra-v2` in Qdrant on oracle-vps
 - **Embedding model**: `nomic-embed-text` (768-dimensional)
 - **Embedding endpoint**: `http://worker-rtx3060.trex-fiordland.ts.net:11434`
-- **LiteLLM alias**: `local/embeddings`
+- **LiteLLM aliases**: `worker-3060-embedding`, `worker-3060-memory-extraction`, `worker-3060-summarization`
 
 The nomic-embed-text model uses only 274 MB VRAM and must never be unloaded. If you are loading a new model that would push VRAM above 4.5 GB total, refuse and log a warning instead.
 
@@ -97,6 +97,7 @@ docker compose -f infra/hosts/worker-rtx3060/docker-compose.distributed-voice.ym
 ```
 
 The distributed pipeline:
+
 - worker-rtx3060: STT (this worker)
 - worker-rtx3090ti: TTS
 - worker-rtx5090: LLM
@@ -105,16 +106,16 @@ The distributed pipeline:
 
 ## Compose Files on This Host
 
-| File | Purpose | Start Command |
-|------|---------|--------------|
-| `docker-compose.yml` | Base override | Always included |
-| `docker-compose.worker-3060.yml` | Ollama + health monitor + exporters (primary) | `docker compose -f docker-compose.worker-3060.yml up -d` |
-| `docker-compose.voice.yml` | Standalone Unmute (complete instance) | `docker compose -f docker-compose.voice.yml up -d` |
-| `docker-compose.distributed-voice.yml` | Distributed voice — STT role only | `docker compose -f docker-compose.distributed-voice.yml up -d` |
-| `docker-compose.clawteam.yml` | PicoClaw node (check VRAM first) | `docker compose -f docker-compose.clawteam.yml up -d` |
-| `docker-compose.llxprt.yml` | llxprt worker variant | `docker compose -f docker-compose.llxprt.yml up -d` |
-| `docker-compose.openclaw.yml` | OpenClaw variant | `docker compose -f docker-compose.openclaw.yml up -d` |
-| `docker-compose.observability.yml` | Extra observability | `docker compose -f docker-compose.observability.yml up -d` |
+| File                                   | Purpose                                       | Start Command                                                  |
+| -------------------------------------- | --------------------------------------------- | -------------------------------------------------------------- |
+| `docker-compose.yml`                   | Base override                                 | Always included                                                |
+| `docker-compose.worker-3060.yml`       | Ollama + health monitor + exporters (primary) | `docker compose -f docker-compose.worker-3060.yml up -d`       |
+| `docker-compose.voice.yml`             | Standalone Unmute (complete instance)         | `docker compose -f docker-compose.voice.yml up -d`             |
+| `docker-compose.distributed-voice.yml` | Distributed voice — STT role only             | `docker compose -f docker-compose.distributed-voice.yml up -d` |
+| `docker-compose.clawteam.yml`          | PicoClaw node (check VRAM first)              | `docker compose -f docker-compose.clawteam.yml up -d`          |
+| `docker-compose.llxprt.yml`            | llxprt worker variant                         | `docker compose -f docker-compose.llxprt.yml up -d`            |
+| `docker-compose.openclaw.yml`          | OpenClaw variant                              | `docker compose -f docker-compose.openclaw.yml up -d`          |
+| `docker-compose.observability.yml`     | Extra observability                           | `docker compose -f docker-compose.observability.yml up -d`     |
 
 ---
 
@@ -122,13 +123,13 @@ The distributed pipeline:
 
 The model-preloader container downloads these on first startup:
 
-| Model | VRAM | Purpose |
-|-------|------|---------|
+| Model            | VRAM   | Purpose                                   |
+| ---------------- | ------ | ----------------------------------------- |
 | nomic-embed-text | 274 MB | Embeddings (768-dim) — always keep loaded |
-| llama3.2:3b | 2.0 GB | Background memory LLM |
-| phi3:mini | 2.3 GB | Lightweight reasoning fallback |
-| mistral:7b-v0.3 | 4.1 GB | Load on demand only |
-| all-minilm:l6-v2 | 45 MB | Lightweight sentence similarity |
+| llama3.2:3b      | 2.0 GB | Background memory LLM                     |
+| phi3:mini        | 2.3 GB | Lightweight reasoning fallback            |
+| mistral:7b-v0.3  | 4.1 GB | Load on demand only                       |
+| all-minilm:l6-v2 | 45 MB  | Lightweight sentence similarity           |
 
 ---
 

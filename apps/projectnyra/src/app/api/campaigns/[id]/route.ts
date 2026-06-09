@@ -92,12 +92,25 @@ export async function DELETE(
 ) {
   const { id } = await params;
 
+  if (CAMPAIGN_ENGINE_URL) {
+    try {
+      const response = await fetch(
+        `${CAMPAIGN_ENGINE_URL}/api/campaigns/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        return NextResponse.json(await response.json());
+      }
+    } catch {}
+  }
+
   if (!canUseMockFallback()) {
     return productionWriteUnavailable(
       "Campaign service",
-      CAMPAIGN_ENGINE_URL
-        ? "Campaign deletes are not supported by the configured campaign service"
-        : "CAMPAIGN_ENGINE_URL must be configured for production campaign deletes"
+      "CAMPAIGN_ENGINE_URL must be configured for production campaign deletes"
     );
   }
 

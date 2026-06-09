@@ -11,7 +11,6 @@ const CRM_API_URL = process.env.CRM_API_URL;
 const CRM_API_KEY = process.env.CRM_API_KEY;
 const LEAD_INGESTION_API_URL = process.env.LEAD_INGESTION_API_URL;
 const LEAD_INGESTION_API_KEY = process.env.LEAD_INGESTION_API_KEY;
-const LEAD_INGESTION_TIMEOUT_MS = 10_000;
 
 export async function GET() {
   if (CRM_API_URL) {
@@ -42,32 +41,23 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const payload = await request.json();
+  const ingestionUrl = LEAD_INGESTION_API_URL ?? CRM_API_URL;
   let upstreamError: unknown;
 
-  if (LEAD_INGESTION_API_URL) {
-    const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
-      LEAD_INGESTION_TIMEOUT_MS
-    );
-
+  if (ingestionUrl) {
     try {
-      const response = await fetch(
-        `${LEAD_INGESTION_API_URL}/api/leads/ingest`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(LEAD_INGESTION_API_KEY
-              ? { "x-lead-ingestion-api-key": LEAD_INGESTION_API_KEY }
-              : {}),
-            ...(CRM_API_KEY ? { "x-crm-api-key": CRM_API_KEY } : {}),
-          },
-          body: JSON.stringify(payload),
-          cache: "no-store",
-          signal: controller.signal,
-        }
-      );
+      const response = await fetch(`${ingestionUrl}/api/leads/ingest`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(LEAD_INGESTION_API_KEY
+            ? { "x-lead-ingestion-api-key": LEAD_INGESTION_API_KEY }
+            : {}),
+          ...(CRM_API_KEY ? { "x-crm-api-key": CRM_API_KEY } : {}),
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      });
 
       const data = await response.json().catch(() => ({}));
 
@@ -85,8 +75,6 @@ export async function POST(request: Request) {
       );
     } catch (error) {
       upstreamError = error;
-    } finally {
-      clearTimeout(timeout);
     }
   }
 
@@ -95,7 +83,7 @@ export async function POST(request: Request) {
       "Lead ingestion",
       upstreamError
         ? "Configured lead ingestion service could not be reached"
-        : "LEAD_INGESTION_API_URL must be configured for production lead writes"
+        : "LEAD_INGESTION_API_URL or CRM_API_URL must be configured for production lead writes"
     );
   }
 
@@ -131,7 +119,7 @@ export async function POST(request: Request) {
     {
       lead,
       source: "mock",
-      warning: "LEAD_INGESTION_API_URL is not configured",
+      warning: "LEAD_INGESTION_API_URL or CRM_API_URL is not configured",
     },
     { status: 202 }
   );

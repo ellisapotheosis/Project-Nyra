@@ -4,26 +4,26 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to deploy (e.g., v1.2.3 or git sha)'
+        description: "Version to deploy (e.g., v1.2.3 or git sha)"
         required: true
         type: string
       environment:
-        description: 'Target environment'
+        description: "Target environment"
         required: true
         type: choice
         options:
           - production
           - oracle-vps
-        default: 'production'
+        default: "production"
       skip_tests:
-        description: 'Skip production tests'
+        description: "Skip production tests"
         required: false
         type: boolean
         default: false
 
 env:
-  DEPLOY_HOST: prod.nyra.internal  # Your production server
-  ORACLE_HOST: oracle.nyra.external  # Your Oracle VPS
+  DEPLOY_HOST: prod.nyra.internal # Your production server
+  ORACLE_HOST: oracle.nyra.external # Your Oracle VPS
 
 jobs:
   pre-deployment-checks:

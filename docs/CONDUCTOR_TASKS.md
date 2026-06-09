@@ -47,8 +47,8 @@ This is the human-readable backlog mirror for the current finish-line tracks und
 
 - [x] Renew/save orchestrator Cloudflare tunnel token to Infisical and verify `secrets-init` completes for the orchestrator cloudflared stack.
 - [x] Finish Cloudflare DNS, Access, gtunnel, and service-token setup for current projectnyra.com routed domains; owner review still required for any future domain additions.
-- [~] Provide/verify live CRM, Twilio, SendGrid, Activepieces, n8n, OpenClaw, and quote service credentials.
-- [~] Run live lead lifecycle smoke after domains, secrets, and provider credentials are ready.
+- [x] Provide/verify live CRM, Supabase, and service-token credentials required for strict live validation; `pnpm release:validate -- --strict-live` passed on 2026-05-31 with 0 critical and 0 warnings. Provider callback credentials remain covered by the separate provider/domain smoke gate.
+- [x] Run live lead lifecycle CRM mutation smoke after credentials were ready; `pnpm smoke:lead-lifecycle -- --live --crm-api-url http://127.0.0.1:14002 --report-dir tests/results/lead-lifecycle-smoke` passed on 2026-05-31 through an SSH tunnel to Oracle CRM API and created Twenty lead `7f2a2897-daf3-4208-9513-70180dcc408c`.
 - [x] UI/theme prompt 08 safe slice explicitly started on 2026-05-26 and completed through dependency validation plus theme registry/provider/switcher.
 - [~] Continue broader UI work only after the next explicit UI assignment: landing polish, webapp shell, component plans, and visual artifacts.
 

@@ -14,13 +14,6 @@ type QuoteScenario = {
   annual_interest_rate: number;
   term_years: number;
   credit_score: number;
-  start_date?: string;
-  loan_type?: "conventional" | "fha" | "va" | "usda";
-  down_payment?: number;
-  annual_property_tax?: number;
-  annual_home_insurance?: number;
-  monthly_hoa?: number;
-  include_schedule?: boolean;
 };
 
 function payment(principal: number, annualRate: number, years: number) {
@@ -98,7 +91,7 @@ export async function POST(request: Request) {
             "Content-Type": "application/json",
             ...(QUOTE_API_SECRET ? { "x-api-key": QUOTE_API_SECRET } : {}),
           },
-          body: JSON.stringify(buildLoanTypeRequest(body)),
+          body: JSON.stringify(body),
           cache: "no-store",
         }
       );
@@ -123,45 +116,4 @@ export async function POST(request: Request) {
     credit_score: body.credit_score,
     source: "mock",
   });
-}
-
-function buildLoanTypeRequest(input: QuoteScenario) {
-  return {
-    loan_amount: numberOrDefault(input.loan_amount, 400000),
-    property_value: numberOrDefault(input.property_value, 500000),
-    annual_interest_rate: normalizeRate(input.annual_interest_rate),
-    term_years: numberOrDefault(input.term_years, 30),
-    start_date:
-      typeof input.start_date === "string"
-        ? input.start_date
-        : new Date().toISOString().slice(0, 10),
-    loan_type: input.loan_type ?? "conventional",
-    credit_score: numberOrDefault(input.credit_score, 720),
-    down_payment:
-      numberOrUndefined(input.down_payment) ??
-      Math.max(
-        numberOrDefault(input.property_value, 500000) -
-          numberOrDefault(input.loan_amount, 400000),
-        0
-      ),
-    annual_property_tax: numberOrDefault(input.annual_property_tax, 0),
-    annual_home_insurance: numberOrDefault(input.annual_home_insurance, 0),
-    monthly_hoa: numberOrDefault(input.monthly_hoa, 0),
-    include_schedule: input.include_schedule === true,
-  };
-}
-
-function normalizeRate(value: number | undefined) {
-  const numeric = numberOrDefault(value, 0.065);
-  return numeric > 1 ? numeric / 100 : numeric;
-}
-
-function numberOrDefault(value: unknown, fallback: number) {
-  return numberOrUndefined(value) ?? fallback;
-}
-
-function numberOrUndefined(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value)
-    ? value
-    : undefined;
 }

@@ -36,9 +36,7 @@ export async function POST(req: Request) {
       data.source = "ratehunter";
     }
 
-    const targetUrl = leadIngestionUrl
-      ? buildLeadIngestionUrl(leadIngestionUrl)
-      : n8nWebhookUrl;
+    const targetUrl = leadIngestionUrl || n8nWebhookUrl;
 
     if (!targetUrl) {
       if (!canUseLocalMockFallback()) {
@@ -64,16 +62,21 @@ export async function POST(req: Request) {
       );
     }
 
-    const response = await fetch(targetUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(process.env.LEAD_INGESTION_API_KEY
-          ? { "x-lead-ingestion-api-key": process.env.LEAD_INGESTION_API_KEY }
-          : {}),
-      },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      targetUrl.endsWith("/ingest")
+        ? targetUrl
+        : `${targetUrl}/api/leads/ingest`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(process.env.LEAD_INGESTION_API_KEY
+            ? { "x-lead-ingestion-api-key": process.env.LEAD_INGESTION_API_KEY }
+            : {}),
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -93,12 +96,6 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
-
-function buildLeadIngestionUrl(baseUrl: string) {
-  return baseUrl.endsWith("/ingest")
-    ? baseUrl
-    : `${baseUrl.replace(/\/$/, "")}/api/leads/ingest`;
 }
 
 function redactLogValue(value: any) {

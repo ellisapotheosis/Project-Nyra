@@ -9,7 +9,7 @@ services:
         APP_NAME: projectnyra
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-webapp
     restart: unless-stopped
-    command: ["sh", "-c", "node ../../node_modules/next/dist/bin/next start"]
+    command: ["node", "server.js"]
     environment:
       - PORT=3001
       - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
@@ -42,7 +42,7 @@ services:
           memory: 512m
 
   nexus-ui:
-    profiles: ["apps"]
+    profiles: ["nexus-ui"] # disabled from default apps profile — apps/nexusUI has no source yet
     build:
       context: ../../../
       dockerfile: infra/images/Dockerfile.nextjs
@@ -50,8 +50,8 @@ services:
         APP_PATH: apps/nexusUI
         APP_NAME: "@nyra/nexus-ui"
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nexus-ui
-    restart: unless-stopped
-    command: ["sh", "-c", "node ../../node_modules/next/dist/bin/next start"]
+    restart: "no"
+    command: ["node", "/app/node_modules/next/dist/bin/next", "start"]
     environment:
       - PORT=3016
       - NEXUS_UI_SETTINGS_PATH=/app/config/nexus-ui.settings.json
