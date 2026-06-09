@@ -46,6 +46,7 @@ import { RateCard3D } from "@/components/ui/rate-card-3d";
 import { PaymentDonut } from "@/components/ui/payment-donut";
 import { RateLockWidget } from "@/components/RateLockWidget";
 import { RateParticleCloud } from "@/components/RateParticleCloud";
+import { MortgageNarrativeHero } from "@/components/MortgageNarrativeHero";
 import { useRates } from "@/hooks/useRates";
 
 const contact = {
@@ -168,6 +169,7 @@ export default function Home() {
   const { rates, best } = useRates(true);
   return (
     <main className="relative min-h-screen pb-20 text-white selection:bg-primary/20">
+      <MortgageNarrativeHero />
       <AuroraBackground />
       <ScrollProgress />
       <div className="relative z-[1] mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-24 pt-6 md:px-6 lg:px-8">
