@@ -21,6 +21,7 @@ import { LeadScoreRing } from "@/components/ui/lead-score-ring";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { applications, crmOverview, leads } from "@/lib/mock-data";
+import { SpeedDialFAB } from "@/components/ui/speed-dial-fab";
 
 const metrics = [
   {
@@ -216,6 +217,7 @@ export default function PipelinePage() {
         <PipelineSankey />
       </section>
       <PresenceCursors roomId="pipeline" />
+      <SpeedDialFAB />
     </main>
   );
 }
