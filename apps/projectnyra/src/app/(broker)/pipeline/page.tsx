@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { PipelineSankey } from "@/components/PipelineSankey";
 import { KanbanBoard } from "@/components/pipeline/kanban-board";
 import { RateWall } from "@/components/rate-wall";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
@@ -208,6 +209,10 @@ export default function PipelinePage() {
             </CardContent>
           </Card>
         </div>
+      </section>
+
+      <section className="mt-8">
+        <PipelineSankey />
       </section>
     </main>
   );
