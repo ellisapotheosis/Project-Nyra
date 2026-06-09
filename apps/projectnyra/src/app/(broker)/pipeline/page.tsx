@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { PipelineSankey } from "@/components/PipelineSankey";
+import { PresenceCursors } from "@/components/ui/presence-cursors";
 import { KanbanBoard } from "@/components/pipeline/kanban-board";
 import { RateWall } from "@/components/rate-wall";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
@@ -214,6 +215,7 @@ export default function PipelinePage() {
       <section className="mt-8">
         <PipelineSankey />
       </section>
+      <PresenceCursors roomId="pipeline" />
     </main>
   );
 }
