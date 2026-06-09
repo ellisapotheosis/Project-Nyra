@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import confetti from "canvas-confetti";
 import {
   DndContext,
   DragOverlay,
@@ -209,6 +210,23 @@ function LeadCard({ lead }: { lead: Lead }) {
   );
 }
 
+// ─── Close celebration ────────────────────────────────────────────────────────
+
+function triggerCloseCelebration() {
+  confetti({
+    particleCount: 120,
+    spread: 80,
+    origin: { y: 0.6 },
+    colors: [
+      "oklch(0.8871 0.1828 166.5465)",
+      "oklch(0.5038 0.2937 285.3753)",
+      "oklch(0.667 0.295 322.15)",
+      "#ffffff",
+    ],
+    scalar: 1.1,
+  });
+}
+
 // ─── Main board ───────────────────────────────────────────────────────────────
 
 export function KanbanBoard() {
@@ -273,6 +291,10 @@ export function KanbanBoard() {
       : (leads.find((l) => l.id === overId)?.status as LeadStatus | undefined);
 
     if (!targetStatus) return;
+
+    if (targetStatus === "CLOSED") {
+      triggerCloseCelebration();
+    }
 
     setLeads((prev) =>
       prev.map((l) => (l.id === cardId ? { ...l, status: targetStatus } : l))
