@@ -3,7 +3,7 @@ version: "3.8"
 services:
   portainer:
     image: portainer/portainer-ce:2.27.9
-    container_name: nyra-portainer
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-portainer
     restart: unless-stopped
     command:
       - --http-enabled
@@ -23,7 +23,7 @@ services:
 
   portainer-edge-agent-local:
     image: portainer/agent:2.27.9
-    container_name: nyra-portainer-edge-local
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-portainer-edge-local
     restart: unless-stopped
     environment:
       EDGE: "1"
@@ -40,4 +40,4 @@ services:
 
 volumes:
   portainer_data:
-    name: nyra-portainer-data
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-portainer-data

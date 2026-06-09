@@ -4,201 +4,48 @@ Software engineering playbook for Project Nyra.
 
 ## Scope
 
-This document covers:
-
 - CRM integration
-- lead ingestion
-- campaign runtime
-- compliance logic
-- communication logging
-- quote engine
-- admin UI
-- landing page
-- broker/customer webapp
+- Lead ingestion
+- Campaign runtime
+- Compliance logic
+- Communication logging
+- Quote engine
+- Admin UI
+- Landing page
+- Broker/customer webapp
 - OpenClaw assistant integration
-
-## Product rules
-
-- Twenty CRM is the system of record.
-- n8n is internal glue, not the business brain.
-- OpenClaw is the assistant surface, not the CRM.
-- Compliance logic is explicit code, with tests.
-
-## Target repo layout
-
-```text
-apps/
-  admin/
-  webapp/
-  landing/
-
-services/
-  api-gateway/
-  crm-api/
-  lead-ingestion/
-  campaign-service/
-  compliance-service/
-  communication-service/
-  quote-service/
-  assistant-service/
-  webhook-service/
-
-packages/
-  crm-types/
-  compliance-domain/
-  campaign-domain/
-  quote-domain/
-  shared/
-  ui/
-
-workflows/
-  n8n/
-```
 
 ## Phase 1 — CRM data layer
 
-### Goals
-- Deploy and stabilize Twenty CRM
-- Model mortgage-specific objects
-- Build shared CRM client package and service wrapper
+- **Goals**: Stabilize Twenty CRM, model mortgage objects, build shared CRM client.
+- **Core Objects**: LOAN, CAMPAIGN_ENROLLMENT, COMMUNICATION_LOG, QUOTE.
+- **Contact Extensions**: Consent fields, lead source, lead score.
 
-### Core objects
-- `LOAN`
-- `CAMPAIGN_ENROLLMENT`
-- `COMMUNICATION_LOG`
-- `QUOTE`
+## Phase 2 — Lead Ingestion
 
-### Contact extensions
-- consent_email
-- consent_sms
-- consent_voice
-- consent_timestamp
-- lead_source
-- lead_score
-- do_not_contact
+- **Service**: `services/crm-api` (or specialized ingestion service).
+- **Functions**: Accept raw payloads, normalize, dedupe against Twenty CRM, write records.
 
-### Required package
-- `packages/crm-client`
-- `services/crm-api`
+## Phase 3 — Campaign Engine
 
-## Phase 2 — Lead ingestion
-
-Build `services/lead-ingestion` to:
-
-- accept raw lead payloads
-- normalize and validate fields
-- dedupe against Twenty CRM
-- write cleaned records
-- assign campaign eligibility
-- log ingestion audit events
-
-Expected routes:
-- `POST /api/leads`
-- `POST /api/leads/ingest`
-- `GET /api/leads/:id`
-
-## Phase 3 — Campaign engine
-
-Build `services/campaign-service` to own:
-
-- campaign definitions
-- scheduled steps
-- pause/resume
-- reply-based pausing
-- STOP-based cancellation
-- quiet hours
-- per-channel eligibility
-- enrollment state
-
-n8n may execute steps, but campaign logic belongs here.
+- **Service**: `services/campaign-engine`.
+- **Functions**: Definitions, scheduled steps, pause/resume, reply-based pausing, STOP-based cancellation.
 
 ## Phase 4 — Compliance
 
-Build `services/compliance-service` to own:
+- **Logic**: STOP/unsubscribe handling, quiet hours, suppression audit logs.
+- **Invariants**: STOP/unsubscribe must halt outreach immediately.
 
-- STOP/unsubscribe handling
-- do-not-contact enforcement
-- channel consent
-- quiet hours
-- suppression audit logs
-- contact-level compliance state
+## Phase 5 — Communication Service
 
-Required invariants:
-- STOP must halt all future outreach immediately
-- unsubscribe must be honored immediately
-- reply must pause automation and notify broker
+- **Functions**: Outbound send requests, provider callbacks, inbound replies, timeline sync.
 
-## Phase 5 — Communication service
+## Phase 6 — Quote Engine
 
-Build `services/communication-service` to own:
+- **Service**: `services/quote-api` (Python/FastAPI).
+- **Functions**: 3-option quote generation, payment calculations, cost breakdowns.
 
-- outbound send requests
-- provider callbacks
-- inbound replies
-- message/call logging
-- CRM timeline sync
+## Phase 7 — App Surfaces
 
-Channels:
-- email
-- sms
-- voice / voicemail
-
-## Phase 6 — Quote engine
-
-Build `services/quote-service` to own:
-
-- 3-option quote generation
-- payment calculations
-- cost breakdowns
-- quote PDFs
-- quote history and expiration
-
-Important:
-- quotes come from the quote service only
-- assistant must never fabricate quote terms
-
-## Phase 7 — App surfaces
-
-### apps/admin
-Build the operator/admin portal with:
-- dashboard
-- lead list/detail
-- campaign management
-- quote management
-- communications timeline
-- compliance controls
-- assistant tooling panel
-- provider/settings pages
-
-### apps/webapp
-Build the broker/customer-facing application with:
-- intake
-- status
-- quote views
-- document collection
-- assistant/chat experience via OpenClaw
-
-### apps/landing
-Build the marketing and lead-capture landing experience.
-
-## UI standards
-
-Use everywhere:
-- Next.js App Router
-- TypeScript
-- Tailwind
-- shadcn/ui
-- Magic UI
-- shared tweakcn palette/tokens
-
-## Acceptance criteria
-
-Applications are considered ready when:
-
-- lead ingestion writes correct CRM records
-- campaign engine schedules and stops correctly
-- STOP/reply/unsubscribe rules work immediately
-- quote engine outputs deterministic 3-option scenarios
-- admin UI exposes operational controls
-- webapp integrates the OpenClaw chat surface
-- all domain logic has tests
+- **apps/projectnyra**: The central broker command center.
+- **apps/ratehunter**: Marketing and lead capture.

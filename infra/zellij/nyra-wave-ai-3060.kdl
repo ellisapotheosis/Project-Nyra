@@ -1,0 +1,66 @@
+layout {
+  default_tab_template {
+    pane size=1 borderless=true {
+      plugin location="zellij:tab-bar"
+    }
+    children
+    pane size=2 borderless=true {
+      plugin location="zellij:status-bar"
+    }
+  }
+
+  tab name="Letta + LLxprt" focus=true {
+    pane split_direction="vertical" {
+      pane name="letta-orchestrator" command="scripts/nyra-zellij-pane.sh" {
+        args "letta-orchestrator" "curl -fsS http://oracle-vps.trex-fiordland.ts.net:8283/health || true; exec bash"
+      }
+      pane name="llxprt-jefe" command="scripts/nyra-zellij-pane.sh" {
+        args "llxprt-jefe" "npx @vybestack/llxprt-jefe --profile nyra-codex-subscription"
+      }
+    }
+  }
+
+  tab name="Subscriptions" {
+    pane split_direction="vertical" {
+      pane name="codex-cli" command="scripts/nyra-zellij-pane.sh" {
+        args "codex-cli" "codex --model gpt-5.5"
+      }
+      pane split_direction="horizontal" {
+        pane name="gemini-cli" command="scripts/nyra-zellij-pane.sh" {
+          args "gemini-cli" "gemini"
+        }
+        pane name="claude-code" command="scripts/nyra-zellij-pane.sh" {
+          args "claude-code" "claude"
+        }
+      }
+    }
+  }
+
+  tab name="Workers" {
+    pane split_direction="vertical" {
+      pane name="rtx5090-openclaw" command="scripts/nyra-zellij-pane.sh" {
+        args "rtx5090-openclaw" "ssh -A worker-rtx5090.trex-fiordland.ts.net 'docker ps --format \"table {{.Names}}\t{{.Status}}\t{{.Ports}}\"; nvidia-smi -l 5'"
+      }
+      pane name="rtx3090ti-openclaw" command="scripts/nyra-zellij-pane.sh" {
+        args "rtx3090ti-openclaw" "ssh -A worker-rtx3090ti.trex-fiordland.ts.net 'docker ps --format \"table {{.Names}}\t{{.Status}}\t{{.Ports}}\"; nvidia-smi -l 5'"
+      }
+    }
+  }
+
+  tab name="RTX3060" {
+    pane name="rtx3060-openclaw" command="scripts/nyra-zellij-pane.sh" {
+      args "rtx3060-openclaw" "ssh -A worker-rtx3060.trex-fiordland.ts.net 'docker ps --format \"table {{.Names}}\t{{.Status}}\t{{.Ports}}\"; nvidia-smi -l 5'"
+    }
+  }
+
+  tab name="Ops" {
+    pane split_direction="vertical" {
+      pane name="cloudflare-tail" command="scripts/nyra-zellij-pane.sh" {
+        args "cloudflare-tail" "npx wrangler pages deployment tail project-nyra"
+      }
+      pane name="stack-status" command="scripts/nyra-zellij-pane.sh" {
+        args "stack-status" "make wave-stack-status; exec bash"
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "provider": "openai",
+  "model": "local-5090",
+  "ephemeralSettings": {
+    "auth-key-name": "nyra-worker",
+    "base-url": "http://worker-rtx5090.trex-fiordland.ts.net:8000/v1",
+    "context-limit": 128000,
+    "compression-threshold": 0.76,
+    "tool-output-max-items": 40,
+    "tool-output-max-tokens": 36000,
+    "tool-output-truncate-mode": "warn",
+    "shell-default-timeout-seconds": 180,
+    "shell-max-timeout-seconds": 1200
+  }
+}

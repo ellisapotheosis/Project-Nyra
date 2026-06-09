@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Nyra API - Interactive Documentation</title>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css">
+  <link rel="icon" type="image/png" href="https://unpkg.com/swagger-ui-dist@5.10.5/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="https://unpkg.com/swagger-ui-dist@5.10.5/favicon-16x16.png" sizes="16x16">
+  <style>
+    html {
+      box-sizing: border-box;
+      overflow: -moz-scrollbars-vertical;
+      overflow-y: scroll;
+    }
+
+    *,
+    *:before,
+    *:after {
+      box-sizing: inherit;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .topbar {
+      background-color: #1a1a2e !important;
+    }
+
+    .swagger-ui .topbar .download-url-wrapper .download-url-button {
+      background: #0f3460 !important;
+      border-color: #0f3460 !important;
+    }
+
+    .swagger-ui .info .title {
+      color: #e94560;
+    }
+
+    .swagger-ui .opblock.opblock-get {
+      background: rgba(97, 175, 254, 0.1);
+      border-color: #61affe;
+    }
+
+    .swagger-ui .opblock.opblock-post {
+      background: rgba(73, 204, 144, 0.1);
+      border-color: #49cc90;
+    }
+
+    .swagger-ui .opblock.opblock-put {
+      background: rgba(252, 161, 48, 0.1);
+      border-color: #fca130;
+    }
+
+    .swagger-ui .opblock.opblock-delete {
+      background: rgba(249, 62, 62, 0.1);
+      border-color: #f93e3e;
+    }
+
+    .custom-header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+      color: white;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .custom-header p {
+      margin: 0.5rem 0 0 0;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+
+    .nav-links a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .info-section {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      margin: 0 2rem 2rem 2rem;
+      border-radius: 8px;
+      border-left: 4px solid #0f3460;
+    }
+
+    .info-section h3 {
+      margin-top: 0;
+      color: #1a1a2e;
+    }
+
+    .info-section ul {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .info-section li {
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="custom-header">
+    <h1>🚀 Project Nyra API Documentation</h1>
+    <p>Intelligent Mortgage Platform with AI-Powered Orchestration</p>
+    <div class="nav-links">
+      <a href="#/default">REST API</a>
+      <a href="WEBSOCKET-API.md" target="_blank">WebSocket API</a>
+      <a href="MCP-API.md" target="_blank">MCP API</a>
+      <a href="https://github.com/project-nyra" target="_blank">GitHub</a>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <h3>📘 Getting Started</h3>
+    <ol>
+      <li><strong>Authentication:</strong> Obtain a JWT token via <code>POST /auth/login</code></li>
+      <li><strong>Authorization:</strong> Include token in header: <code>Authorization: Bearer YOUR_TOKEN</code></li>
+      <li><strong>Try it out:</strong> Click "Try it out" on any endpoint to test it live</li>
+      <li><strong>Rate Limits:</strong> 1000 requests/hour for authenticated users</li>
+    </ol>
+  </div>
+
+  <div id="swagger-ui"></div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function() {
+      // Detect current environment
+      const hostname = window.location.hostname;
+      let apiUrl = 'https://api.project-nyra.io';
+
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        apiUrl = 'http://localhost:3000';
+      } else if (hostname.includes('staging')) {
+        apiUrl = 'https://staging-api.project-nyra.io';
+      }
+
+      // Build a system
+      const ui = SwaggerUIBundle({
+        url: "./openapi.yaml",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout",
+        defaultModelsExpandDepth: 1,
+        defaultModelExpandDepth: 1,
+        docExpansion: "list",
+        filter: true,
+        showRequestHeaders: true,
+        showCommonExtensions: true,
+        tryItOutEnabled: true,
+        requestSnippetsEnabled: true,
+        requestSnippets: {
+          generators: {
+            curl_bash: {
+              title: "cURL (bash)",
+              syntax: "bash"
+            },
+            curl_powershell: {
+              title: "cURL (PowerShell)",
+              syntax: "powershell"
+            },
+            curl_cmd: {
+              title: "cURL (CMD)",
+              syntax: "bash"
+            }
+          },
+          defaultExpanded: true,
+          languages: null // All languages
+        },
+        persistAuthorization: true,
+        onComplete: function() {
+          // Add custom behaviors after Swagger UI loads
+          console.log('Swagger UI loaded successfully');
+
+          // Auto-fill API URL based on environment
+          const serverSelect = document.querySelector('.servers select');
+          if (serverSelect) {
+            if (apiUrl.includes('localhost')) {
+              serverSelect.value = apiUrl + '/v1';
+            }
+          }
+        }
+      });
+
+      window.ui = ui;
+
+      // Add authorization token from localStorage if available
+      const savedToken = localStorage.getItem('nyra_api_token');
+      if (savedToken) {
+        ui.preauthorizeApiKey('BearerAuth', savedToken);
+      }
+
+      // Save token when user authenticates
+      window.addEventListener('load', () => {
+        const authButton = document.querySelector('.auth-wrapper .authorize');
+        if (authButton) {
+          authButton.addEventListener('click', () => {
+            setTimeout(() => {
+              const tokenInput = document.querySelector('input[name="bearer"]');
+              if (tokenInput && tokenInput.value) {
+                localStorage.setItem('nyra_api_token', tokenInput.value);
+              }
+            }, 500);
+          });
+        }
+      });
+    };
+  </script>
+</body>
+</html>

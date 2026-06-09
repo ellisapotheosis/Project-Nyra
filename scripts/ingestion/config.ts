@@ -3,6 +3,7 @@
  */
 
 import path from 'path';
+import fs from 'fs';
 import { IngestionConfig } from './types';
 
 /**
@@ -95,9 +96,43 @@ export const TARGET_STRUCTURE = {
  * Load configuration from file or environment
  */
 export function loadConfig(configPath?: string): Partial<IngestionConfig> {
-  // TODO: Implement config file loading
-  // For now, return empty config to use defaults
-  return {};
+  const config: Partial<IngestionConfig> = {};
+  const resolvedPath = configPath || process.env.INGESTION_CONFIG;
+
+  if (resolvedPath) {
+    const absolutePath = path.resolve(resolvedPath);
+    if (!fs.existsSync(absolutePath)) {
+      throw new Error(`Ingestion config file not found: ${absolutePath}`);
+    }
+
+    const raw = fs.readFileSync(absolutePath, 'utf-8');
+    const parsed = JSON.parse(raw) as Partial<IngestionConfig>;
+    Object.assign(config, parsed);
+  }
+
+  if (process.env.INGESTION_SOURCE_DIRS) {
+    config.sourceDirs = process.env.INGESTION_SOURCE_DIRS
+      .split(',')
+      .map(dir => dir.trim())
+      .filter(Boolean);
+  }
+  if (process.env.INGESTION_TARGET_DIR) config.targetDir = process.env.INGESTION_TARGET_DIR;
+  if (process.env.INGESTION_INCLUDE_PATTERNS) {
+    config.includePatterns = process.env.INGESTION_INCLUDE_PATTERNS.split(',').map(pattern => pattern.trim()).filter(Boolean);
+  }
+  if (process.env.INGESTION_EXCLUDE_PATTERNS) {
+    config.excludePatterns = process.env.INGESTION_EXCLUDE_PATTERNS.split(',').map(pattern => pattern.trim()).filter(Boolean);
+  }
+  if (process.env.INGESTION_DRY_RUN) config.dryRun = process.env.INGESTION_DRY_RUN === 'true';
+  if (process.env.INGESTION_OVERWRITE) config.overwrite = process.env.INGESTION_OVERWRITE === 'true';
+  if (process.env.INGESTION_MAX_FILE_SIZE) config.maxFileSize = parseInt(process.env.INGESTION_MAX_FILE_SIZE, 10);
+  if (process.env.INGESTION_GENERATE_MANIFEST) config.generateManifest = process.env.INGESTION_GENERATE_MANIFEST !== 'false';
+  if (process.env.INGESTION_MANIFEST_PATH) config.manifestPath = process.env.INGESTION_MANIFEST_PATH;
+  if (process.env.INGESTION_LOG_LEVEL) {
+    config.logLevel = process.env.INGESTION_LOG_LEVEL as IngestionConfig['logLevel'];
+  }
+
+  return config;
 }
 
 /**

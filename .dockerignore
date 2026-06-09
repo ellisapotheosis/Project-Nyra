@@ -50,7 +50,6 @@ data/
 .env.test
 
 # Agent and AI Meta-directories
-.archon/
 .claude/
 .gemini/
 .codex/
@@ -116,6 +115,12 @@ nyra-*
 _archive
 _deprecated
 submodules
+
+# Large non-source directories not needed for app builds
+external/
+archive/
+security-reports/
+ToDo/
 
 # Documentation (keep minimal)
 docs/**/*.md

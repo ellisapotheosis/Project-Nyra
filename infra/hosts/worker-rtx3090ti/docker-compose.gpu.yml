@@ -1,7 +1,7 @@
 services:
   vllm-server:
     image: vllm/vllm-openai:latest
-    container_name: nyra-worker-rtx3090ti-vllm
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3090ti-vllm
     profiles: ['gpu']
     environment:
       - MODEL_NAME=${VLLM_MODEL:-Qwen/Qwen2.5-Coder-32B-Instruct}
@@ -16,7 +16,6 @@ services:
       - LMCACHE_REDIS_HOST=redis-cache
       - LMCACHE_REDIS_PORT=6379
     ports:
-      - "127.0.0.1:${VLLM_PORT:-8000}:8000"
       - "0.0.0.0:8000:8000"  # Expose on all interfaces for Tailscale
     volumes:
       - /root/.cache/huggingface:/root/.cache/huggingface
@@ -47,7 +46,7 @@ services:
 
   lmcache-server:
     image: lmcache/lmcache-server:latest
-    container_name: nyra-worker-rtx3090ti-lmcache
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3090ti-lmcache
     profiles: ['gpu']
     environment:
       - LMCACHE_STORAGE_BACKEND=local
@@ -61,7 +60,7 @@ services:
 
   redis-cache:
     image: redis:7-alpine
-    container_name: nyra-worker-rtx3090ti-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3090ti-redis
     profiles: ['gpu']
     ports:
       - "127.0.0.1:6379:6379"

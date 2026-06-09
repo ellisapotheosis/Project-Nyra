@@ -6,6 +6,13 @@
 **Memory Stack**: ✅ NYRA Memory v3 integrated (Qdrant + Neo4j + letta + OpenMemory)  
 **AIO Bootstrap**: ✅ Fully integrated with 20+ MCP servers operational
 
+## Current Status — 2026-05-26
+
+This file is a historical bootstrap snapshot from October 18, 2025. It is not
+the active Project Nyra task queue and contains obsolete Windows-path examples.
+Current executable status lives in `docs/CONDUCTOR_TASKS.md`,
+`conductor/tracks/`, and owner-only gates under `docs/user-todo/`.
+
 ## 🎉 What You've Accomplished
 
 ✅ **Complete NYRA-AIO-Bootstrap Integration** (C:\Dev\NYRA-AIO-Bootstrap)  
@@ -20,7 +27,9 @@
 ## 🚀 Immediate Next Steps (This Week)
 
 ### 1. **Test Your Intake Form**
+
 Open your first NYRA feature:
+
 ```bash
 # Navigate to your form
 cd "C:\Dev\DevProjects\Personal-Projects\Project-Nyra\nyra-webapp"
@@ -29,7 +38,9 @@ start intake-form.html
 ```
 
 ### 2. **Build the Backend API**
+
 Create your first API endpoint to process intake forms:
+
 ```bash
 # Create the API structure
 mkdir nyra-webapp\api\v1
@@ -38,6 +49,7 @@ touch nyra-webapp\api\v1\intake.py
 ```
 
 ### 3. **Ask Gordon for Architecture Guidance**
+
 ```powershell
 # Get specific development guidance
 gordon "Help me design the API endpoints for mortgage intake processing"
@@ -46,6 +58,7 @@ gordon "How should I implement the multi-agent orchestration system?"
 ```
 
 ### 4. **Start Your Development Servers**
+
 ```powershell
 # Start full NYRA environment
 .\Start-NYRA-Development.ps1 -QuickStart
@@ -62,34 +75,39 @@ docker-ai
 ## 🏗️ Development Roadmap (Next 4 Weeks)
 
 ### **Week 1: Core Infrastructure** ⭐ **YOU ARE HERE**
+
 - [x] ✅ Project initialization
-- [x] ✅ Docker AI environment  
+- [x] ✅ Docker AI environment
 - [x] ✅ Basic intake form
-- [ ] 🔲 **Backend API development**
-- [ ] 🔲 **Database schema design**
-- [ ] 🔲 **Form submission processing**
+- [historical] 🔲 **Backend API development**
+- [historical] 🔲 **Database schema design**
+- [historical] 🔲 **Form submission processing**
 
 ### **Week 2: Multi-Agent System**
-- [ ] 🔲 **Primary Orchestrator implementation**
-- [ ] 🔲 **Lead Coder agent setup**
-- [ ] 🔲 **TaskGen Orchestrator**
-- [ ] 🔲 **Agent communication protocols**
+
+- [historical] 🔲 **Primary Orchestrator implementation**
+- [historical] 🔲 **Lead Coder agent setup**
+- [historical] 🔲 **TaskGen Orchestrator**
+- [historical] 🔲 **Agent communication protocols**
 
 ### **Week 3: Mortgage Logic**
-- [ ] 🔲 **Pre-qualification algorithms**
-- [ ] 🔲 **Credit assessment logic**
-- [ ] 🔲 **Rate calculation engine**
-- [ ] 🔲 **Document requirements system**
+
+- [historical] 🔲 **Pre-qualification algorithms**
+- [historical] 🔲 **Credit assessment logic**
+- [historical] 🔲 **Rate calculation engine**
+- [historical] 🔲 **Document requirements system**
 
 ### **Week 4: Advanced Features**
-- [ ] 🔲 **Memory system integration**
-- [ ] 🔲 **Voice agent setup**
-- [ ] 🔲 **Real-time notifications**
-- [ ] 🔲 **Dashboard and analytics**
+
+- [historical] 🔲 **Memory system integration**
+- [historical] 🔲 **Voice agent setup**
+- [historical] 🔲 **Real-time notifications**
+- [historical] 🔲 **Dashboard and analytics**
 
 ## 💻 Your Development Commands
 
 ### **NYRA Environment Management**
+
 ```powershell
 # Start complete NYRA development environment
 .\Start-NYRA-Development.ps1 -DevMode -QuickStart
@@ -102,6 +120,7 @@ docker-ai
 ```
 
 ### **Docker AI Assistant (Gordon)**
+
 ```powershell
 # Get development guidance
 gordon "Help me implement mortgage pre-qualification logic"
@@ -111,6 +130,7 @@ gordon "Show me mortgage industry compliance requirements"
 ```
 
 ### **Development Workflow**
+
 ```powershell
 # View running containers
 docker ps
@@ -158,14 +178,18 @@ C:\Dev\DevProjects\Personal-Projects\Project-Nyra\
 ## 🎯 Today's Recommended Actions
 
 ### **1. Explore Your Intake Form**
+
 ```bash
 # Open your first NYRA feature
 start nyra-webapp\intake-form.html
 ```
+
 **What you'll see**: Beautiful Xulbux Purple-themed mortgage intake form with real-time calculations, progress tracking, and AI assistance messaging.
 
 ### **2. Plan Your Backend API**
+
 Create `nyra-webapp\api\v1\intake.py`:
+
 ```python
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -186,14 +210,16 @@ class MortgageIntake(BaseModel):
 @app.post("/api/v1/intake")
 async def process_intake(intake: MortgageIntake):
     """Process mortgage intake form with NYRA AI"""
-    # TODO: Implement multi-agent processing
-    # TODO: Store in database
-    # TODO: Trigger pre-qualification workflow
+    # Historical TODO: Implement multi-agent processing
+    # Historical TODO: Store in database
+    # Historical TODO: Trigger pre-qualification workflow
     return {"status": "received", "message": "NYRA AI is processing your application"}
 ```
 
 ### **3. Start Building Your Database Models**
+
 Create `nyra-core\models\customer.py`:
+
 ```python
 from sqlalchemy import Column, Integer, String, Float, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
@@ -203,31 +229,32 @@ Base = declarative_base()
 
 class Customer(Base):
     __tablename__ = "customers"
-    
+
     id = Column(Integer, primary_key=True)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     email = Column(String(255), unique=True, nullable=False)
     phone = Column(String(20), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    
+
     # Loan information
     loan_amount = Column(Float)
     property_value = Column(Float)
     loan_purpose = Column(String(50))
-    
+
     # Financial information
     annual_income = Column(Float)
     credit_score_range = Column(String(20))
     employment_status = Column(String(50))
     monthly_debts = Column(Float)
-    
+
     # Application status
     status = Column(String(50), default="intake")
     is_pre_qualified = Column(Boolean, default=False)
 ```
 
 ### **4. Test Gordon AI Guidance**
+
 ```powershell
 # Ask for specific technical guidance
 gordon "What mortgage industry APIs should NYRA integrate with for credit scores and property values?"
@@ -241,15 +268,15 @@ gordon "What compliance requirements must NYRA handle for mortgage processing?"
 
 After running `.\Start-NYRA-Development.ps1`:
 
-| Service | URL | Purpose |
-|---------|-----|---------|
-| **NYRA Intake Form** | `file:///.../intake-form.html` | Your first feature! |
-| **NYRA Web UI** | http://localhost:3000 | Main application interface |
-| **API Orchestrator** | http://localhost:8000 | Backend API endpoints |
-| **ChromaDB** | http://localhost:8001 | Vector database for AI |
-| **FalkorDB** | redis://localhost:6379 | Graph database for relationships |
-| **FileSystem MCP** | http://localhost:8000 | File operations |
-| **GitHub MCP** | http://localhost:8001 | GitHub integration |
+| Service              | URL                            | Purpose                          |
+| -------------------- | ------------------------------ | -------------------------------- |
+| **NYRA Intake Form** | `file:///.../intake-form.html` | Your first feature!              |
+| **NYRA Web UI**      | http://localhost:3000          | Main application interface       |
+| **API Orchestrator** | http://localhost:8000          | Backend API endpoints            |
+| **ChromaDB**         | http://localhost:8001          | Vector database for AI           |
+| **FalkorDB**         | redis://localhost:6379         | Graph database for relationships |
+| **FileSystem MCP**   | http://localhost:8000          | File operations                  |
+| **GitHub MCP**       | http://localhost:8001          | GitHub integration               |
 
 ## 🔥 Pro Tips for NYRA Development
 
@@ -266,7 +293,7 @@ After running `.\Start-NYRA-Development.ps1`:
 ## 🚨 Important Notes
 
 - **Compliance First**: Mortgage industry has strict regulations - research TRID, RESPA, and other requirements
-- **Security Critical**: Handle SSNs, financial data, and personal information with extreme care  
+- **Security Critical**: Handle SSNs, financial data, and personal information with extreme care
 - **Multi-Agent Architecture**: Design for the split-orchestrator pattern from the beginning
 - **Memory Integration**: Plan how memOS, letta, and FalkorDB will store and retrieve mortgage knowledge
 
@@ -281,7 +308,7 @@ After running `.\Start-NYRA-Development.ps1`:
 ✅ MCP server ecosystem  
 ✅ Memory and database systems ready  
 ✅ XulbuX Purple brand system  
-✅ Comprehensive documentation  
+✅ Comprehensive documentation
 
 ## 🚀 **Next Command to Run:**
 

@@ -4,28 +4,31 @@ PowerShell scripts for migrating Project Nyra secrets to Infisical.
 
 ## 📁 Scripts Overview
 
-| Script | Description | Usage |
-|--------|-------------|-------|
-| `upload-all-secrets.ps1` | **Master script** - Uploads all secrets | Primary entry point |
-| `upload-shared-secrets.ps1` | Uploads shared secrets (API keys) | Called by master script |
-| `upload-orchestrator-secrets.ps1` | Uploads PC1 orchestrator secrets | Called by master script |
-| `upload-worker-secrets.ps1` | Uploads PC2/PC3/PC4 worker secrets | Called by master script |
+| Script                            | Description                             | Usage                   |
+| --------------------------------- | --------------------------------------- | ----------------------- |
+| `upload-all-secrets.ps1`          | **Master script** - Uploads all secrets | Primary entry point     |
+| `upload-shared-secrets.ps1`       | Uploads shared secrets (API keys)       | Called by master script |
+| `upload-orchestrator-secrets.ps1` | Uploads PC1 orchestrator secrets        | Called by master script |
+| `upload-worker-secrets.ps1`       | Uploads PC2/PC3/PC4 worker secrets      | Called by master script |
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 1. Install Infisical CLI:
+
 ```powershell
 npm install -g @infisical/cli
 ```
 
 2. Login to Infisical:
+
 ```powershell
 infisical login
 ```
 
 3. Create project (if not exists):
+
 ```powershell
 infisical projects create --name "project-nyra"
 ```
@@ -55,11 +58,13 @@ Get-Content ..\..\..\.env | ForEach-Object {
 ## 📊 What Gets Uploaded
 
 ### Shared Secrets (/shared)
+
 - API keys (Anthropic, Google, OpenRouter, GitHub)
 - Domain configuration
 - Environment variables
 
-### Orchestrator Secrets (/orchestrator/*)
+### Orchestrator Secrets (/orchestrator/\*)
+
 - Database passwords (PostgreSQL, Redis, FalkorDB)
 - Service encryption keys (n8n, OpenClaw UI, TwentyCRM, Letta)
 - Admin credentials
@@ -68,6 +73,7 @@ Get-Content ..\..\..\.env | ForEach-Object {
 - MCP server ports
 
 ### Worker Secrets
+
 - **PC2 RTX 3060** (/worker-rtx3060): Ollama configuration
 - **PC3 RTX 5090** (/worker-rtx5090): vLLM + LMCache settings
 - **PC4 RTX 3090 Ti** (/worker-rtx3090ti): vLLM + LMCache settings
@@ -87,15 +93,17 @@ Get-Content ..\..\..\.env | ForEach-Object {
    - Verify all paths have correct secrets
 
 2. **Configure Access Control**:
+
 ```powershell
 # Grant worker read-only access to /shared
-infisical access grant worker@ratehunter.net --role viewer --path /shared
+infisical access grant worker@ratehunter.com --role viewer --path /shared
 
 # Grant orchestrator admin full access
-infisical access grant admin@ratehunter.net --role admin --path /orchestrator
+infisical access grant admin@ratehunter.com --role admin --path /orchestrator
 ```
 
 3. **Update Docker Compose Files**:
+
 ```powershell
 # PC1 (Orchestrator)
 infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/shared --path=/orchestrator -- docker-compose -f docker-compose.orchestrator.yml up -d
@@ -111,6 +119,7 @@ infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --e
 ```
 
 4. **Test Secret Retrieval**:
+
 ```powershell
 # List shared secrets
 infisical secrets --path /shared --env development
@@ -125,18 +134,21 @@ infisical secrets --path /shared --env development --format dotenv > .env.shared
 ## 🛠️ Troubleshooting
 
 ### Error: "Infisical token not found"
+
 ```powershell
 # Re-login
 infisical login
 ```
 
 ### Error: "Secret already exists"
+
 ```powershell
 # Update existing secret
 infisical secrets set MY_SECRET "new-value" --token "$INFISICAL_TOKEN" --projectId "$INFISICAL_PROJECT_ID" --path /shared --env development
 ```
 
 ### Error: "Permission denied"
+
 ```powershell
 # Check your access level
 infisical user me
@@ -145,7 +157,9 @@ infisical user me
 ```
 
 ### Error: "Environment variable not set"
+
 Make sure you loaded .env file before running scripts:
+
 ```powershell
 Get-Content ..\..\..\.env | ForEach-Object {
     if ($_ -match '^([^=]+)=(.*)$' -and -not $_.StartsWith('#')) {

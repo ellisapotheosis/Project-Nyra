@@ -14,13 +14,13 @@ ENV PATH="/uv/bin:${PATH}"
 
 WORKDIR /app
 
-# Install dependencies from PyPI
-# We use the CPU version of torch as mandated
+# Install PocketTTS from PyPI, then install CPU-only torch from the PyTorch index.
 RUN uv pip install --system \
     pocket-tts \
     fastapi \
     uvicorn \
-    scipy \
+    scipy
+RUN uv pip install --system \
     torch --index-url https://download.pytorch.org/whl/cpu
 
 # Copy our OpenAI wrapper

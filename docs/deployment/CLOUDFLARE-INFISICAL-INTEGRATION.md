@@ -69,17 +69,20 @@ curl http://localhost:8080/api/status
 Install the Infisical CLI:
 
 **macOS:**
+
 ```bash
 brew install infisical/get-cli/infisical
 ```
 
 **Linux:**
+
 ```bash
 curl -1sLf https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh | sudo -E bash
 sudo apt-get install infisical
 ```
 
 **Windows:**
+
 ```powershell
 scoop bucket add infisical https://github.com/Infisical/scoop-infisical.git
 scoop install infisical
@@ -130,21 +133,11 @@ Create `.env` file with Infisical credentials:
 INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef
 INFISICAL_ENV=production
 
-# Orchestrator Infisical Credentials
-INFISICAL_CLIENT_ID_ORCHESTRATOR=your-orchestrator-client-id
-INFISICAL_CLIENT_SECRET_ORCHESTRATOR=your-orchestrator-client-secret
-
-# Worker RTX 5090 Infisical Credentials
-INFISICAL_CLIENT_ID_WORKER_RTX5090=your-worker-rtx5090-client-id
-INFISICAL_CLIENT_SECRET_WORKER_RTX5090=your-worker-rtx5090-client-secret
-
-# Worker RTX 3060 Infisical Credentials
-INFISICAL_CLIENT_ID_WORKER_RTX3060=your-worker-rtx3060-client-id
-INFISICAL_CLIENT_SECRET_WORKER_RTX3060=your-worker-rtx3060-client-secret
-
-# Worker RTX 3090Ti Infisical Credentials
-INFISICAL_CLIENT_ID_WORKER_RTX3090TI=your-worker-rtx3090ti-client-id
-INFISICAL_CLIENT_SECRET_WORKER_RTX3090TI=your-worker-rtx3090ti-client-secret
+# Infisical Universal Auth machine identity credentials.
+# Prefer a least-privileged identity per host; export the selected host identity
+# into these canonical names before running Makefile/Docker context targets.
+INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=your-host-client-id
+INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=your-host-client-secret
 ```
 
 ### Step 2: Store Cloudflare Tunnel Tokens
@@ -201,6 +194,7 @@ Verify tokens are properly stored and accessible:
 ```
 
 Expected output:
+
 ```
 ╔═══════════════════════════════════════════════════════════════════════╗
 ║   Project Nyra - Cloudflare Tunnel Token Validation                  ║
@@ -272,6 +266,7 @@ docker logs nyra-cloudflared-worker-rtx3090ti
 ```
 
 Look for messages like:
+
 ```
 INF Connection established connIndex=0
 INF Registered tunnel connection
@@ -311,10 +306,12 @@ The schema includes rotation policies. To enable automated rotation:
 ### Issue: Tunnel Fails to Connect
 
 **Symptoms:**
+
 - Cloudflared container keeps restarting
 - Logs show "authentication failed"
 
 **Solutions:**
+
 1. Verify token format:
    ```bash
    ./scripts/infisical/validate-cloudflare-tokens.sh production
@@ -331,10 +328,12 @@ The schema includes rotation policies. To enable automated rotation:
 ### Issue: Infisical Agent Not Injecting Secrets
 
 **Symptoms:**
+
 - `/secrets/cloudflare.env` file not created
 - Cloudflared logs show "missing token"
 
 **Solutions:**
+
 1. Check agent configuration:
    ```bash
    cat bootstrap/configs/infisical/agent-orchestrator.yaml
@@ -351,9 +350,11 @@ The schema includes rotation policies. To enable automated rotation:
 ### Issue: Token Format Validation Fails
 
 **Symptoms:**
+
 - Validation script reports "Token format may be invalid"
 
 **Solutions:**
+
 1. Ensure token is base64-encoded
 2. Check for extra whitespace or newlines
 3. Regenerate token from Cloudflare:
@@ -395,17 +396,17 @@ Project-Nyra/
 
 ## Environment Variable Reference
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `INFISICAL_PROJECT_ID` | Infisical project UUID | Yes |
-| `INFISICAL_ENV` | Environment (production/development) | Yes |
-| `INFISICAL_CLIENT_ID_*` | Service account client ID | Yes |
-| `INFISICAL_CLIENT_SECRET_*` | Service account client secret | Yes |
-| `CLOUDFLARE_TUNNEL_TOKEN_*` | Cloudflare tunnel token (stored in Infisical) | Yes |
-| `CLOUDFLARE_TUNNEL_NAME_*` | Tunnel name | No |
-| `CLOUDFLARE_TUNNEL_ID_*` | Tunnel UUID | No |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID | No |
-| `CLOUDFLARE_ZONE_ID` | Cloudflare zone ID | No |
+| Variable                                 | Description                                   | Required |
+| ---------------------------------------- | --------------------------------------------- | -------- |
+| `INFISICAL_PROJECT_ID`                   | Infisical project UUID                        | Yes      |
+| `INFISICAL_ENV`                          | Environment (production/development)          | Yes      |
+| `INFISICAL_UNIVERSAL_AUTH_CLIENT_ID`     | Universal Auth machine identity client ID     | Yes      |
+| `INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET` | Universal Auth machine identity client secret | Yes      |
+| `CLOUDFLARE_TUNNEL_TOKEN_*`              | Cloudflare tunnel token (stored in Infisical) | Yes      |
+| `CLOUDFLARE_TUNNEL_NAME_*`               | Tunnel name                                   | No       |
+| `CLOUDFLARE_TUNNEL_ID_*`                 | Tunnel UUID                                   | No       |
+| `CLOUDFLARE_ACCOUNT_ID`                  | Cloudflare account ID                         | No       |
+| `CLOUDFLARE_ZONE_ID`                     | Cloudflare zone ID                            | No       |
 
 ## API Endpoints
 
@@ -457,6 +458,7 @@ docker-compose logs -f agent-cloudflare-orchestrator
 ## Support
 
 For issues or questions:
+
 1. Check troubleshooting section above
 2. Review Infisical server logs
 3. Check Cloudflare tunnel dashboard

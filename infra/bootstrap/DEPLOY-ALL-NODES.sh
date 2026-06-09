@@ -83,7 +83,7 @@ deploy_zsh_config() {
   log_info "Deploying .zsh config to $node_name..."
   rsync -avz --delete -e "ssh -p $port" "$BOOTSTRAP_ZSH_CONFIG/" \
     "edane@$host:~/bootstrap-zsh-config/" &>/dev/null || return 1
-  
+
   ssh -p "$port" "edane@$host" bash ~/bootstrap-zsh-config/BOOTSTRAP.sh &>/dev/null || return 1
   log_success "$node_name: .zsh config deployed"
   return 0

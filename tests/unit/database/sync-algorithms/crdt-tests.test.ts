@@ -4,14 +4,14 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { CRDTSynchronization } from '../../../../src/database/sync-algorithms/crdt-synchronization';
 
 describe('CRDT Synchronization - Complete Coverage', () => {
   let crdtSync: any;
   const testNodeId = 'test-node-1';
 
   beforeEach(() => {
-    // TODO: Import CRDTSynchronization when available
-    // crdtSync = new CRDTSynchronization(testNodeId);
+    crdtSync = new CRDTSynchronization(testNodeId);
   });
 
   afterEach(async () => {

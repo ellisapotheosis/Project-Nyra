@@ -128,7 +128,7 @@ Test JWT token validation.
 **Request:**
 ```json
 {
-  "token": "eyJhbGciOiJSUzI1NiIs...",
+  "token": "<TOKEN>",
   "expectedGroups": ["admin", "developers"]
 }
 ```
@@ -450,7 +450,7 @@ curl -X PATCH http://localhost:8000/api/security/oauth2 \
 curl -X POST http://localhost:8000/api/security/oauth2/test \
   -H "Content-Type: application/json" \
   -d '{
-    "token": "eyJhbGciOiJSUzI1NiIs...",
+    "token": "<TOKEN>",
     "expectedGroups": ["admin"]
   }'
 ```
@@ -461,7 +461,7 @@ Once OAuth2 is enabled, include JWT token in Authorization header:
 
 ```bash
 curl -X GET http://localhost:8000/v1/models \
-  -H "Authorization: Bearer eyJhbGciOiJSUzI1NiIs..."
+  -H "Authorization: Bearer <JWT_TOKEN>"
 ```
 
 The middleware will:
@@ -721,7 +721,7 @@ curl -X PATCH http://localhost:8000/api/security/permissions \
 # 4. Test token
 curl -X POST http://localhost:8000/api/security/oauth2/test \
   -H "Content-Type: application/json" \
-  -d '{"token": "eyJ..."}'
+  -d '{"token": "<TOKEN>"}'
 
 # 5. Check health
 curl -X GET http://localhost:8000/api/security/health

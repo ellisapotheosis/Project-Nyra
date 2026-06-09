@@ -1,7 +1,7 @@
 image: python:latest
 
 pages:
-  stage: deploy  
+  stage: deploy
   script:
   - mv docs public
   artifacts:

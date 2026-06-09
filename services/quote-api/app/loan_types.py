@@ -4,11 +4,12 @@ Loan-type-specific models and assumptions for Conventional, FHA, VA, and USDA lo
 from __future__ import annotations
 
 from typing import Literal, Optional, Dict, Any
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, field_validator
 from datetime import date
 import uuid
 
 LoanType = Literal["conventional", "fha", "va", "usda"]
+MAX_REASONABLE_ANNUAL_RATE = 0.25
 
 
 class LoanAssumptions(BaseModel):
@@ -120,11 +121,21 @@ class LoanTypeRequest(BaseModel):
     # Output options
     include_schedule: bool = False
 
+    @field_validator("annual_interest_rate")
+    @classmethod
+    def annual_interest_rate_must_be_decimal(cls, value: float) -> float:
+        if value > MAX_REASONABLE_ANNUAL_RATE:
+            raise ValueError(
+                "annual_interest_rate must be a decimal rate <= 0.25; use 0.07, not 7"
+            )
+
+        return value
+
     @computed_field
     @property
     def ltv(self) -> float:
         """Loan-to-value ratio."""
-        return (self.loan_amount + self.down_payment) / self.property_value if self.property_value > 0 else 0.0
+        return self.loan_amount / self.property_value if self.property_value > 0 else 0.0
 
     @computed_field
     @property

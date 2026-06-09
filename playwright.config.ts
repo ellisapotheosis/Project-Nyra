@@ -3,11 +3,11 @@
  * End-to-end testing configuration for Project Nyra
  */
 
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   // Test directory
-  testDir: './tests/e2e',
+  testDir: "./tests/e2e",
 
   // Maximum time one test can run for
   timeout: 30 * 1000,
@@ -20,25 +20,25 @@ export default defineConfig({
 
   // Reporter configuration
   reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
-    ['json', { outputFile: 'playwright-report/results.json' }],
-    ['junit', { outputFile: 'playwright-report/results.xml' }],
-    ['list'],
+    ["html", { outputFolder: "playwright-report" }],
+    ["json", { outputFile: "playwright-report/results.json" }],
+    ["junit", { outputFile: "playwright-report/results.xml" }],
+    ["list"],
   ],
 
   // Shared settings for all projects
   use: {
     // Base URL for navigation
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.BASE_URL || "http://localhost:3010",
 
     // Collect trace when retrying the failed test
-    trace: 'on-first-retry',
+    trace: "on-first-retry",
 
     // Screenshot on failure
-    screenshot: 'only-on-failure',
+    screenshot: "only-on-failure",
 
     // Video on failure
-    video: 'retain-on-failure',
+    video: "retain-on-failure",
 
     // Navigation timeout
     navigationTimeout: 10 * 1000,
@@ -50,35 +50,35 @@ export default defineConfig({
   // Configure projects for major browsers
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
 
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
     },
 
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
     },
 
     // Mobile browsers
     {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      name: "Mobile Chrome",
+      use: { ...devices["Pixel 5"] },
     },
 
     {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      name: "Mobile Safari",
+      use: { ...devices["iPhone 12"] },
     },
 
     // Tablet
     {
-      name: 'Tablet',
-      use: { ...devices['iPad Pro'] },
+      name: "Tablet",
+      use: { ...devices["iPad Pro"] },
     },
   ],
 
@@ -87,25 +87,25 @@ export default defineConfig({
     ? undefined
     : [
         {
-          command: 'pnpm --filter @nyra/webapp dev',
-          port: 3000,
+          command: "PORT=3010 pnpm --filter projectnyra dev",
+          port: 3010,
           timeout: 120 * 1000,
           reuseExistingServer: !process.env.CI,
         },
         {
-          command: 'pnpm --filter @nyra/nexus-dashboard dev',
-          port: 3001,
+          command: "PORT=3011 pnpm --filter ratehunter-landing dev",
+          port: 3011,
           timeout: 120 * 1000,
           reuseExistingServer: !process.env.CI,
         },
       ],
 
   // Global setup and teardown
-  globalSetup: './tests/e2e/global-setup.ts',
-  globalTeardown: './tests/e2e/global-teardown.ts',
+  globalSetup: "./tests/e2e/global-setup.ts",
+  globalTeardown: "./tests/e2e/global-teardown.ts",
 
   // Output folder
-  outputDir: 'test-results/',
+  outputDir: "test-results/",
 
   // Expect settings
   expect: {

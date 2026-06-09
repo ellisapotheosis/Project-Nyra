@@ -58,13 +58,13 @@ choco install infisical -y
 infisical login
 
 # Create machine identity token at:
-# https://app.infisical.com/project/8374cea9-e5e8-4050-bda4-b91f25ab30ef/settings/tokens
+# https://app.infisical.com/project/<PROJECT_ID>/settings/tokens
 
 # Set token as environment variable
 $env:INFISICAL_TOKEN = "your-token-here"
 
 # Verify connection
-infisical secrets list --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" --env="dev" --path="/worker-3090"
+infisical secrets list --projectId="<PROJECT_ID>" --env="dev" --path="/worker-3090"
 ```
 
 ### 3. Verify Installation
@@ -437,7 +437,7 @@ Never commit `.env` file to git. Use Infisical for secret management:
 
 ```powershell
 # Pull secrets from Infisical
-infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" --env="dev" --path="/worker-3090" -- docker-compose up -d
+infisical run --projectId="<PROJECT_ID>" --env="dev" --path="/worker-3090" -- docker-compose up -d
 ```
 
 ## Support

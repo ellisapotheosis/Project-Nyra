@@ -1,18 +1,28 @@
-version: 2
-purpose: Canonical host split for Portainer migration
+version: 3
+purpose: Canonical host split for Project Nyra orchestration
+infra_structure_doc: infra/CLAUDE.md
+last_updated: "2026-05-24"
 
 bootstrap_order:
   - oracle-vps
   - orchestrator
   - worker-hosts
-  - homeassistant
+
+# Canonical infra/ categories (do not create top-level dirs outside these):
+#   hosts/      — docker-compose files per host
+#   images/     — Dockerfiles and build contexts
+#   configs/    — service runtime configs
+#   scripts/    — operational scripts
+#   env/        — environment / secret files
+#   docs/       — infrastructure documentation
+#   cloudflare/ — Cloudflare IaC
 
 host_constraints:
   orchestrator:
     resources:
       ram_gb: 16
     policy:
-      - Keep latency-sensitive UI/API routing services local (gateway, router, Open WebUI/OpenClaw UI).
+      - Keep latency-sensitive UI/API routing local (gateway, router, Open WebUI/OpenClaw UI).
       - Keep write-heavy orchestration control loops local.
   oracle-vps:
     resources:
@@ -22,40 +32,134 @@ host_constraints:
     policy:
       - Prefer internet-facing and durable/stateful services (CRM, database replicas, backups, async automations).
       - Avoid GPU-bound and ultra-low-latency interactive control loops.
+
+# PERSISTENT SERVICES — managed separately from all canonical stacks.
+# Each host has infra/hosts/<hostname>/docker-compose.persistent.yml
+# Deploy: make persistent-up  (never make persistent-down — these run 24/7)
+# See: infra/CLAUDE.md §Persistent Services Architecture
+persistent_services:
+  oracle-vps:
+    services: [portainer-ce, portainer-agent, syncthing]
+    notes: Portainer CE on ports 9000/9443; edge tunnel 8050
+  orchestrator:
+    services: [portainer-edge-agent, syncthing]
+  worker-rtx3060:
+    services: [portainer-edge-agent, syncthing]
+  worker-rtx3090ti:
+    services: [portainer-edge-agent, syncthing]
+  worker-rtx5090:
+    services: [portainer-edge-agent, syncthing]
+
 hosts:
   orchestrator:
     owner: control-plane
+    tailscale_ip: 100.64.0.2
+    hostname: orchestrator.trex-fiordland.ts.net
     compose_files:
-      - infra/docker-compose.yml
-      - infra/compose/overrides/docker-compose.orchestrator.override.yml
+      - infra/hosts/orchestrator/docker-compose.yml # core: LiteLLM :4000, Nexus :6000, Redis, OpenClaw
+      - infra/hosts/orchestrator/docker-compose.cloudflared.yml # standalone cloudflared tunnel (separate project)
+      - infra/hosts/orchestrator/docker-compose.voice.yml # Unmute voice standalone instance
+      - infra/hosts/orchestrator/docker-compose.observability.yml # Prometheus, Grafana, Loki
+      - infra/hosts/orchestrator/docker-compose.clawteam.yml # ClawTeam agent node
+      - infra/hosts/orchestrator/docker-compose.llxprt.yml # llxprt-jefe + llxprt-code + llxprt-bridge :8091
+      - infra/hosts/orchestrator/docker-compose.bitnet.yml # bitnet.cpp CPU LLM
+      - infra/hosts/orchestrator/docker-compose.status-bridge.yml # status/health bridge
+      - infra/hosts/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml
+    persistent_compose: infra/hosts/orchestrator/docker-compose.persistent.yml
     env_files:
-      - infra/env/.env.orchestrator
+      - .env
+    pending:
+      - name: power-management-api
+        port: 8765
+        description: >
+          FastAPI service for Letta WoL tools (nyra_wake_gpu_worker, nyra_sleep_gpu_worker,
+          nyra_cluster_power_status). Letta agent tools timeout until this is deployed.
+        priority: high
+
   worker-hosts:
     owner: gpu-workers
+    voice_setups:
+      standalone: docker-compose.voice.yml # one complete Unmute per worker
+      distributed: docker-compose.distributed-voice.yml # STT(3060)/TTS(3090ti)/LLM(5090)
     nodes:
       worker-rtx5090:
+        tailscale_ip: 100.64.0.7
+        hostname: worker-rtx5090.trex-fiordland.ts.net
+        mac: "A8:A1:59:D4:3B:88"
+        vram_gb: 32
+        role: primary-vllm + distributed-voice-llm
         compose_files:
-          - infra/workers/worker-rtx5090/docker-compose.worker.yml
-        env_files:
-          - infra/env/.env.worker-rtx5090
+          - infra/hosts/worker-rtx5090/docker-compose.yml
+          - infra/hosts/worker-rtx5090/docker-compose.worker.yml # base worker services
+          - infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml # vLLM :8000, GPU-specific
+          - infra/hosts/worker-rtx5090/docker-compose.gpu.yml
+          - infra/hosts/worker-rtx5090/docker-compose.voice.yml
+          - infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
+          - infra/hosts/worker-rtx5090/docker-compose.clawteam.yml
+          - infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
+          - infra/hosts/worker-rtx5090/docker-compose.nerve.yml
+          - infra/hosts/worker-rtx5090/docker-compose.assistant.yml
+          - infra/hosts/worker-rtx5090/docker-compose.model-switcher.yml
+        persistent_compose: infra/hosts/worker-rtx5090/docker-compose.persistent.yml
+
       worker-rtx3090ti:
+        tailscale_ip: 100.64.0.6
+        hostname: worker-rtx3090ti.trex-fiordland.ts.net
+        mac: "B4:2E:99:F0:1A:7C"
+        vram_gb: 24
+        role: secondary-vllm + distributed-voice-tts
         compose_files:
-          - infra/workers/worker-rtx3090ti/docker-compose.worker.yml
-        env_files:
-          - infra/env/.env.worker-rtx3090ti
+          - infra/hosts/worker-rtx3090ti/docker-compose.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.worker.yml # base worker services
+          - infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.voice.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.clawteam.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.assistant.yml
+        persistent_compose: infra/hosts/worker-rtx3090ti/docker-compose.persistent.yml
+
       worker-rtx3060:
+        tailscale_ip: 100.64.0.5
+        hostname: worker-rtx3060.trex-fiordland.ts.net
+        mac: "04:7C:16:AA:D8:34"
+        vram_gb: 12
+        role: ollama-inference + distributed-voice-stt
         compose_files:
-          - infra/workers/worker-rtx3060/docker-compose.worker.yml
-          - infra/compose/overrides/docker-compose.worker-rtx3060.override.yml
-        env_files:
-          - infra/env/.env.worker-rtx3060
+          - infra/hosts/worker-rtx3060/docker-compose.yml
+          - infra/hosts/worker-rtx3060/docker-compose.worker.yml # base worker services
+          - infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml # Ollama :11434, LiteLLM :4000
+          - infra/hosts/worker-rtx3060/docker-compose.gpu.yml
+          - infra/hosts/worker-rtx3060/docker-compose.voice.yml
+          - infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
+          - infra/hosts/worker-rtx3060/docker-compose.clawteam.yml
+          - infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
+          - infra/hosts/worker-rtx3060/docker-compose.observability.yml
+          - infra/hosts/worker-rtx3060/docker-compose.openclaw.yml
+          - infra/hosts/worker-rtx3060/docker-compose.picoclaw.yml
+          - infra/hosts/worker-rtx3060/docker-compose.utility.yml
+        persistent_compose: infra/hosts/worker-rtx3060/docker-compose.persistent.yml
+
   oracle-vps:
     owner: cloud
+    tailscale_ip: 100.64.0.3
+    hostname: oracle.trex-fiordland.ts.net
     compose_files:
-      - infra/oracle/docker-compose.oracle.yml
-  homeassistant:
-    owner: home-lab-ops
-    dashboard_files:
-      - infra/hosts/homeassistant/config/dashboards/nyra-ops-ui-links.yaml
-    package_files:
-      - infra/hosts/homeassistant/config/packages/nyra-stack-recommendations.yaml
+      - infra/hosts/oracle-vps/docker-compose.yml # core: postgres, redis, litellm :4000, letta :8283, n8n, CRM, cloudflared
+      - infra/hosts/oracle-vps/docker-compose.oracle.yml # SearXNG, Browserless
+      - infra/hosts/oracle-vps/docker-compose.memory.yml # Letta + mem0 + FalkorDB + Qdrant (canonical memory plane)
+      - infra/hosts/oracle-vps/docker-compose.apps.yml # Next.js webapp + Nexus UI :3016
+      - infra/hosts/oracle-vps/docker-compose.gitea.yml # Gitea :3000 + DB + runner
+      - infra/hosts/oracle-vps/docker-compose.letta-mcp.yml # Letta MCP bridge
+      - infra/hosts/oracle-vps/docker-compose.clawteam.yml # ClawTeam oracle node
+      - infra/hosts/oracle-vps/docker-compose.activepieces-mcp.yml # ActivePieces MCP
+    optional_overlays:
+      - infra/hosts/oracle-vps/docker-compose.memory-extra.yml # optional memory companions (memos, claudemem)
+      - infra/hosts/oracle-vps/docker-compose.gastown.yml # Gastown workspace manager
+      - infra/hosts/oracle-vps/docker-compose.restoration.yml # restoration: llxprt-bridge, activepieces-mcp
+      - infra/hosts/oracle-vps/docker-compose.superset.yml # Apache Superset analytics (optional)
+    persistent_compose: infra/hosts/oracle-vps/docker-compose.persistent.yml
+    env_files:
+      - infra/hosts/oracle-vps/.env

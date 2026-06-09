@@ -1,9 +1,27 @@
+## Unreleased
+
+
+### Bug Fixes
+
+* **ci:** stabilize current CI gates, repo-scoped tooling checks, and Docker matrix follow-ups ([#395](https://github.com/ellisapotheosis/Project-Nyra/pull/395)) ([#396](https://github.com/ellisapotheosis/Project-Nyra/pull/396)) ([#397](https://github.com/ellisapotheosis/Project-Nyra/pull/397)) ([#401](https://github.com/ellisapotheosis/Project-Nyra/pull/401)) ([#405](https://github.com/ellisapotheosis/Project-Nyra/pull/405)) ([#406](https://github.com/ellisapotheosis/Project-Nyra/pull/406)) ([#407](https://github.com/ellisapotheosis/Project-Nyra/pull/407))
+* **oracle:** stabilize the Cloudflare tunnel stack ([#392](https://github.com/ellisapotheosis/Project-Nyra/pull/392)) ([597214c](https://github.com/ellisapotheosis/Project-Nyra/commit/597214c07955d83d668013c8374efac1386a3614))
+* fix Letta MCP routing ([#391](https://github.com/ellisapotheosis/Project-Nyra/pull/391)) ([124d83b](https://github.com/ellisapotheosis/Project-Nyra/commit/124d83b2abb27addaca3d3da9649862fb6877489))
+
+
+### Features
+
+* **infra:** complete the Nyra foundation cleanup and runtime asset reorganization ([#394](https://github.com/ellisapotheosis/Project-Nyra/pull/394)) ([#400](https://github.com/ellisapotheosis/Project-Nyra/pull/400)) ([#403](https://github.com/ellisapotheosis/Project-Nyra/pull/403)) ([#408](https://github.com/ellisapotheosis/Project-Nyra/pull/408))
+* **nyra-admin:** keep broker webapp service calls server-side and unify the mortgage CRM command center ([#398](https://github.com/ellisapotheosis/Project-Nyra/pull/398)) ([#404](https://github.com/ellisapotheosis/Project-Nyra/pull/404))
+* **landing:** finalize lead capture integration, attribution, and audit logging ([67d142f](https://github.com/ellisapotheosis/Project-Nyra/commit/67d142f924b18af459926e86439eb270a0e4717c))
+* **webapp:** complete Campaign Builder and Quote Desk updates, including channel previews and source attribution ([e5ee598](https://github.com/ellisapotheosis/Project-Nyra/commit/e5ee5980fce362898811d0b975eb56b3311a127a)) ([eee7f7d](https://github.com/ellisapotheosis/Project-Nyra/commit/eee7f7d6f22c7c6d8c69fbdc18d83ca88f5b0bb0)) ([f1cb8a4](https://github.com/ellisapotheosis/Project-Nyra/commit/f1cb8a48780f989af39a6ad0ee2349f83eb26559))
+* **infra:** restore cluster deployment pieces for Activepieces MCP and llxprt bridge ([9041281](https://github.com/ellisapotheosis/Project-Nyra/commit/904128167d3477219d52f6019c70e5c9fc2a3b49))
+
 # [1.2.0](https://github.com/ellisapotheosis/Project-Nyra/compare/v1.1.0...v1.2.0) (2026-03-11)
 
 
 ### Features
 
-* add infra/dev-stack ruflo + dashboard runtime stack ([#175](https://github.com/ellisapotheosis/Project-Nyra/issues/175)) ([5e04dd6](https://github.com/ellisapotheosis/Project-Nyra/commit/5e04dd6f731d43dec4c67e921a8864bb8264a350))
+* add infra/dev-stack dashboard runtime stack ([#175](https://github.com/ellisapotheosis/Project-Nyra/issues/175)) ([5e04dd6](https://github.com/ellisapotheosis/Project-Nyra/commit/5e04dd6f731d43dec4c67e921a8864bb8264a350))
 
 # [1.1.0](https://github.com/ellisapotheosis/Project-Nyra/compare/v1.0.2...v1.1.0) (2026-03-11)
 
@@ -49,13 +67,11 @@
 * **landing:** make Cloudflare Pages build non-interactive ([#111](https://github.com/ellisapotheosis/Project-Nyra/issues/111)) ([228c484](https://github.com/ellisapotheosis/Project-Nyra/commit/228c4847056fe8e056a84c83e7dbf5d2e79f995a))
 * make helper scripts executable ([e613244](https://github.com/ellisapotheosis/Project-Nyra/commit/e613244eb6f03e64c5cf7beaa45926ab38e22a1f))
 * Remove broken git submodules causing Cloudflare build failures ([cf8b1b5](https://github.com/ellisapotheosis/Project-Nyra/commit/cf8b1b5d2afa12122f0bd58e9c463c9495594f79))
-* repair archon-os.config.json V3 schema validation ([c0bd2dc](https://github.com/ellisapotheosis/Project-Nyra/commit/c0bd2dcb3defe5e64f7220c3d7b28c01230ab9c3))
 * Resolve Claude Code startup hang and optimize system configuration ([dde551c](https://github.com/ellisapotheosis/Project-Nyra/commit/dde551c7a90cb4f580ddcd7fe8ad84c1b61a5cf4))
 * resolve doctor errors and add Infisical machine configs ([6d6ada5](https://github.com/ellisapotheosis/Project-Nyra/commit/6d6ada53d7e30069823be87805e49aae09c69aa0))
 * resolve PR review issues for infrastructure PRs ([b503ed9](https://github.com/ellisapotheosis/Project-Nyra/commit/b503ed9862998d91d995576a9ff3424da8908cb0)), closes [#117](https://github.com/ellisapotheosis/Project-Nyra/issues/117) [#116](https://github.com/ellisapotheosis/Project-Nyra/issues/116)
 * resolve stop hook npm errors and configure Volta/pnpm environment ([13ce60f](https://github.com/ellisapotheosis/Project-Nyra/commit/13ce60f6ef2c9cadaedfd28c9731f8a4d33d7b38))
 * **review:** remove dynamic port range mapping and require absolute Claude path; update env example ([00d2a72](https://github.com/ellisapotheosis/Project-Nyra/commit/00d2a7204c5004a08010f3e698fcf471533874e4))
-* Update archon-os config path in docker-compose ([c94c850](https://github.com/ellisapotheosis/Project-Nyra/commit/c94c850d0ff6e707b6253d6acea0d1ffcb49638c))
 
 
 ### Features
@@ -69,10 +85,7 @@
 * Add observability stack, deployment scripts, and environment configuration ([9b46918](https://github.com/ellisapotheosis/Project-Nyra/commit/9b469180977c915b1dd2a78e4c99c392945af000))
 * add performance optimization and networking infrastructure ([9f2f227](https://github.com/ellisapotheosis/Project-Nyra/commit/9f2f22742346e6a00e56bc2822340b4f774618c8))
 * Add RateHunter Next.js 15 frontend application ([571b600](https://github.com/ellisapotheosis/Project-Nyra/commit/571b600d23292d4fa6967330bbd9ec4ec5b1b391))
-* add standalone Archon OS and Open WebUI tool stacks ([3789730](https://github.com/ellisapotheosis/Project-Nyra/commit/378973051f5f2d9050d1d6cd12cb32e6fa373da7))
 * Add unified bootstrap script for 4-PC cluster ([130595c](https://github.com/ellisapotheosis/Project-Nyra/commit/130595cf3c5d23db923e0780c5e686ad846239ef))
-* **archon:** cherry-pick Archon OS implementation from feature/archon-os-consolidation ([38d7cf4](https://github.com/ellisapotheosis/Project-Nyra/commit/38d7cf46c28f0627a297edad187ca90cbb26aa17))
-* **archon:** consolidate Archon OS implementation into main infra ([d62f49d](https://github.com/ellisapotheosis/Project-Nyra/commit/d62f49dbd74dd021247e0aecb9676e5b951e43fd))
 * **claude:** add Claude helpers and dual-mode agents ([0dd8ef3](https://github.com/ellisapotheosis/Project-Nyra/commit/0dd8ef31098a4b8c24e0008043cc93280fc3c6ba))
 * Complete admin dashboard, n8n workflows, and API documentation ([e7b32a6](https://github.com/ellisapotheosis/Project-Nyra/commit/e7b32a6e2ead4eb7dbeec1f5c71baebb8712f7ec))
 * Complete bootstrap consolidation and React GUI installer ([e0027c2](https://github.com/ellisapotheosis/Project-Nyra/commit/e0027c22e13e5bead6dd7aaca43f4c4467820654))
@@ -90,17 +103,13 @@
 * Configure RateHunter landing for Cloudflare Pages and fix git submodules ([a94188b](https://github.com/ellisapotheosis/Project-Nyra/commit/a94188b779080b5e689b9d8ca511e6f8e5f9ea15))
 * Consolidate n8n and TwentyCRM integrations into organized apps structure ([ea0f0d8](https://github.com/ellisapotheosis/Project-Nyra/commit/ea0f0d86c81f65ff65263a82c4e15a53e051c908))
 * Consolidate n8n and TwentyCRM integrations into organized apps structure ([#146](https://github.com/ellisapotheosis/Project-Nyra/issues/146)) ([4d85f6d](https://github.com/ellisapotheosis/Project-Nyra/commit/4d85f6dde2ade0bbbb007fc5e6be7a85c198556e))
-* **dual-orchestrator:** Complete Claude Flow + Archon OS harmony setup ([b0f5d82](https://github.com/ellisapotheosis/Project-Nyra/commit/b0f5d829cd0ef0df3228a9ee8a26cb8bfc366ec2))
 * **hive-mind:** Deploy 20+ agent swarm for full-stack development ([24187af](https://github.com/ellisapotheosis/Project-Nyra/commit/24187afafde84cdcba24b7749c2efb5ac3d5e259))
 * **hive-swarm:** Agents generating 13.5M+ tokens of code ([b306dfa](https://github.com/ellisapotheosis/Project-Nyra/commit/b306dfa877947eb5c67dff080e151475f662e151))
 * **infra:** Add Claude Flow Brain + CI/CD containers, remove legacy services ([8fe95a0](https://github.com/ellisapotheosis/Project-Nyra/commit/8fe95a084df086137c77bbab2fa5b2af3a1939cf))
-* **infra:** add dedicated Archon compose and Infisical + Nexus integration ([#120](https://github.com/ellisapotheosis/Project-Nyra/issues/120)) ([ad4d01f](https://github.com/ellisapotheosis/Project-Nyra/commit/ad4d01f9744e01054a303f530c46a2207b58ada8))
-* **infra:** add dedicated Archon compose and Infisical + Nexus integration ([#121](https://github.com/ellisapotheosis/Project-Nyra/issues/121)) ([0d1c5a9](https://github.com/ellisapotheosis/Project-Nyra/commit/0d1c5a94fcf50704f07ca71cf07ce16e8fce7f62))
 * **infra:** add MCP servers compose stack (context-light vs hungry vs always-on) ([6089258](https://github.com/ellisapotheosis/Project-Nyra/commit/6089258b05931df9abc24fee6c0a7671a89ca453))
 * **infra:** add nyra stack v6.2 integrations ([bf700d6](https://github.com/ellisapotheosis/Project-Nyra/commit/bf700d6a13385fbc919d3ac6c9130a5aedc76129))
 * **infra:** add nyra stack v6.2 integrations ([#16](https://github.com/ellisapotheosis/Project-Nyra/issues/16)) ([3d9d3c3](https://github.com/ellisapotheosis/Project-Nyra/commit/3d9d3c33075d819e039db673f856ef7701d79e6b))
 * **infra:** add worker GPU models, vLLM/LMCache, and Cloudflare tunnel ([d169ee1](https://github.com/ellisapotheosis/Project-Nyra/commit/d169ee11f21796f86ef14f429e40acb4b9ca205d))
-* **infra:** cherry-pick archon-os infrastructure from infra/archon-os-brain-cicd ([53445ca](https://github.com/ellisapotheosis/Project-Nyra/commit/53445ca016d796dfce4307bd7a8ed83ca6b54feb))
 * **ingestion:** add basic cleaners stub ([33e2a0a](https://github.com/ellisapotheosis/Project-Nyra/commit/33e2a0a5123c3f740451b4aefee7908ef1ebd1c1))
 * **ingestion:** add default pipeline definition ([2ed6dc0](https://github.com/ellisapotheosis/Project-Nyra/commit/2ed6dc0aa6e8faa73d6c6b2f1cf3cbb5e453082d))
 * **ingestion:** add minimal ingestion runner ([89591c6](https://github.com/ellisapotheosis/Project-Nyra/commit/89591c6294e4e116c7a7929e5038cb6659dc0eb0))
@@ -113,4 +122,3 @@
 * **memory:** Replace Zep with letta MCP + FalkorDB (496x faster) ([b2758d7](https://github.com/ellisapotheosis/Project-Nyra/commit/b2758d7a6a5b8bcea3374a749b9e4ce5e792efd6))
 * Nexus Router with fuzzy tool search + complete deployment setup ([9c44c6f](https://github.com/ellisapotheosis/Project-Nyra/commit/9c44c6f575b1ba4137ba3ee6d6821934349d886e))
 * Project Nyra - clean repo with essential files and configs ([7988994](https://github.com/ellisapotheosis/Project-Nyra/commit/79889947ffe2cc07416bfeaf6e7275ec1736201c))
-* **services:** add archon-os brain service infrastructure ([54d8542](https://github.com/ellisapotheosis/Project-Nyra/commit/54d8542cfe90a4dc86f47ba050138a4408b2d3ee))

@@ -1,0 +1,54 @@
+# infra/hosts/worker-rtx3060/docker-compose.utility.yml
+# 🚀 Project Nyra - RTX 3060 Utility Node
+# Embeddings (nomic-embed-text) | TTS (Kyutai Unmute)
+
+version: '3.8'
+
+services:
+  # ── Vector & Embedding Server (Ollama) ──────────────────────
+  # Dedicated to offloading embedding tasks from the primary reasoning nodes.
+  embeddings:
+    image: ollama/ollama:latest
+    container_name: worker-3060-embeddings
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_storage:/root/.ollama
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ── Kyutai Unmute (Sub-400ms Real-Time TTS Voice) ──────────
+  # Provides instantaneous voice responses for Nerve UI.
+  voice-tts:
+    build:
+      context: ../../../external/pocket-tts-openai
+    container_name: worker-3060-voice
+    restart: unless-stopped
+    ports:
+      - "5050:5000"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks: [worker-network]
+
+networks:
+  worker-network:
+    external: true
+
+volumes:
+  ollama_storage:

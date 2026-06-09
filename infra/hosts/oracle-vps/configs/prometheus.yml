@@ -9,20 +9,99 @@ alerting:
 scrape_configs:
   - job_name: prometheus
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
+
+  # ============================================================================
+  # Oracle VPS Local Services
+  # ============================================================================
 
   # Container resource metrics (CPU, RAM, net, disk per container)
   - job_name: cadvisor
     static_configs:
-      - targets: ['nyra-cadvisor:8080']
+      - targets: ["nyra-cadvisor:8080"]
+    scrape_interval: 30s
+
+  # Host system metrics
+  - job_name: node-exporter-oracle
+    static_configs:
+      - targets: ["nyra-node-exporter:9100"]
     scrape_interval: 30s
 
   # n8n (exposes /metrics when N8N_METRICS=true)
   - job_name: n8n
     static_configs:
-      - targets: ['nyra-n8n:5678']
+      - targets: ["nyra-n8n:5678"]
     metrics_path: /metrics
     scrape_interval: 30s
 
-  # Activepieces does not expose Prometheus metrics natively — skip
-  # TwentyCRM does not expose metrics — skip
+  # ============================================================================
+  # Remote GPU Workers (via Tailscale IPs)
+  # ============================================================================
+
+  # Worker-rtx3090ti — Host system metrics
+  - job_name: node-exporter-worker-3090
+    static_configs:
+      - targets: ["worker-rtx3090ti.trex-fiordland.ts.net:9100"]
+        labels:
+          worker: worker-rtx3090ti
+          gpu: rtx-3090-ti
+          vram: 24gb
+    scrape_interval: 30s
+
+  # Worker-rtx3090ti — NVIDIA GPU metrics
+  - job_name: nvidia-gpu-exporter-worker-3090
+    static_configs:
+      - targets: ["worker-rtx3090ti.trex-fiordland.ts.net:9835"]
+        labels:
+          worker: worker-rtx3090ti
+          gpu: rtx-3090-ti
+          vram: 24gb
+    scrape_interval: 30s
+
+  # Worker-rtx3060 — Host system metrics
+  - job_name: node-exporter-worker-3060
+    static_configs:
+      - targets: ["worker-rtx3060.trex-fiordland.ts.net:9100"]
+        labels:
+          worker: worker-rtx3060
+          gpu: rtx-3060
+          vram: 12gb
+    scrape_interval: 30s
+
+  # Worker-rtx3060 — NVIDIA GPU metrics
+  - job_name: nvidia-gpu-exporter-worker-3060
+    static_configs:
+      - targets: ["worker-rtx3060.trex-fiordland.ts.net:9835"]
+        labels:
+          worker: worker-rtx3060
+          gpu: rtx-3060
+          vram: 12gb
+    scrape_interval: 30s
+
+  # Worker-rtx5090 — Host system metrics
+  - job_name: node-exporter-worker-5090
+    static_configs:
+      - targets: ["worker-rtx5090.trex-fiordland.ts.net:9100"]
+        labels:
+          worker: worker-rtx5090
+          gpu: rtx-5090
+          vram: 48gb
+    scrape_interval: 30s
+
+  # Worker-rtx5090 — NVIDIA GPU metrics
+  - job_name: nvidia-gpu-exporter-worker-5090
+    static_configs:
+      - targets: ["worker-rtx5090.trex-fiordland.ts.net:9835"]
+        labels:
+          worker: worker-rtx5090
+          gpu: rtx-5090
+          vram: 48gb
+    scrape_interval: 30s
+
+  # ============================================================================
+  # Notes
+  # ============================================================================
+  # - Activepieces does not expose Prometheus metrics natively — skip
+  # - TwentyCRM does not expose metrics natively — skip
+  # - vLLM metrics: add /metrics endpoint on vLLM port 8000 if needed
+  # - Prometheus reload: curl -X POST http://127.0.0.1:9090/-/reload

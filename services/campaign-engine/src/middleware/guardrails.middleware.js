@@ -43,10 +43,6 @@ export class GuardrailMiddleware {
    * Check message content for compliance
    */
   static validateContent(content) {
-    if (!config.compliance.enableGuardrails) {
-      return { valid: true, warnings: [] };
-    }
-
     const warnings = [];
     const errors = [];
 
@@ -144,16 +140,37 @@ export class GuardrailMiddleware {
    */
   static async checkDNC(contact) {
     if (!config.compliance.dncCheckEnabled) {
-      return { allowed: true };
+      return { allowed: true, checked: false };
     }
 
-    // TODO: Implement actual DNC check against database/service
-    // For now, return allowed
-    logger.info('DNC check performed', { contactId: contact.id });
+    const dncMarkers = [
+      contact?.onDncList,
+      contact?.doNotContact,
+      contact?.do_not_contact,
+      contact?.dnc,
+      contact?.isDnc,
+      contact?.optedOut,
+      contact?.smsOptOut,
+      contact?.emailOptOut,
+      contact?.voiceOptOut
+    ];
+    const suppressionStatus = String(
+      contact?.complianceStatus || contact?.status || contact?.suppressionStatus || ''
+    ).toLowerCase();
+    const blockedByStatus = ['dnc', 'do_not_contact', 'do-not-contact', 'suppressed', 'opted_out', 'opted-out']
+      .includes(suppressionStatus);
+    const blocked = dncMarkers.some(Boolean) || blockedByStatus;
+
+    logger.info('DNC check performed', {
+      contactId: contact?.id,
+      allowed: !blocked,
+      reason: blocked ? 'contact_suppressed' : undefined
+    });
 
     return {
-      allowed: true,
-      checked: true
+      allowed: !blocked,
+      checked: true,
+      reason: blocked ? 'Contact is marked do-not-contact or suppressed' : undefined
     };
   }
 
@@ -162,20 +179,38 @@ export class GuardrailMiddleware {
    */
   static async checkConsent(contact, channel) {
     if (!config.compliance.consentRequired) {
-      return { hasConsent: true };
+      return { hasConsent: true, channel, checked: false };
     }
 
-    // TODO: Implement actual consent check
-    // Check if contact has given consent for specific channel
+    const normalizedChannel = String(channel || '').toLowerCase();
+    const consentFieldsByChannel = {
+      email: ['consentEmail', 'consent_email', 'emailConsent', 'hasEmailConsent'],
+      sms: ['consentSms', 'consent_sms', 'smsConsent', 'hasSmsConsent', 'tcpaConsent'],
+      voicemail: ['consentVoice', 'consent_voice', 'voiceConsent', 'hasVoiceConsent', 'tcpaConsent'],
+      voice: ['consentVoice', 'consent_voice', 'voiceConsent', 'hasVoiceConsent', 'tcpaConsent']
+    };
+    const channelFields = consentFieldsByChannel[normalizedChannel] || [];
+    const explicitChannelConsent = channelFields.some(field => contact?.[field] === true);
+    const generalConsent = contact?.hasConsent === true || contact?.consent === true;
+    const hasConsentTimestamp = Boolean(
+      contact?.consentTimestamp ||
+      contact?.consent_timestamp ||
+      contact?.tcpaConsentTimestamp ||
+      contact?.tcpa_consent_timestamp
+    );
+    const hasConsent = explicitChannelConsent || (generalConsent && hasConsentTimestamp);
+
     logger.info('Consent check performed', {
-      contactId: contact.id,
-      channel
+      contactId: contact?.id,
+      channel: normalizedChannel,
+      hasConsent
     });
 
     return {
-      hasConsent: true,
-      channel,
-      checked: true
+      hasConsent,
+      channel: normalizedChannel,
+      checked: true,
+      reason: hasConsent ? undefined : `Missing consent for ${normalizedChannel || 'requested'} channel`
     };
   }
 

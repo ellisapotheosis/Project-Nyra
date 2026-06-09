@@ -1,0 +1,62 @@
+# ============================================================================
+# GitHub <-> Gitea Sync Configuration Template
+# ============================================================================
+
+# Service configuration
+service:
+  name: "github-gitea-sync"
+  version: "1.0.0"
+  port: 8080
+  health_endpoint: "/health"
+  metrics_endpoint: "/metrics"
+
+# Gitea configuration
+gitea:
+  url: "${GITEA_URL}"
+  token: "${GITEA_TOKEN}"
+  owner: "${GITEA_OWNER:-admin}"
+  repo: "${GITEA_REPO}"
+
+# GitHub configuration
+github:
+  token: "${GITHUB_TOKEN}"
+  repo: "${GITHUB_REPO}"
+  branch: "${GITHUB_BRANCH:-main}"
+
+# Sync configuration
+sync:
+  interval: ${SYNC_INTERVAL:-300}  # seconds
+  direction: "${SYNC_DIRECTION:-bidirectional}"  # bidirectional, github_to_gitea, gitea_to_github
+  conflict_resolution: "${CONFLICT_RESOLUTION:-gitea_wins}"  # gitea_wins, github_wins, manual
+  batch_size: 50
+  max_retries: 3
+  retry_delay: 30
+
+# Filtering
+filters:
+  branches:
+    include: ["main", "develop", "release/*"]
+    exclude: ["temp/*", "experimental/*"]
+  files:
+    exclude: [".DS_Store", "*.tmp", "node_modules/*", ".git/*"]
+  max_file_size: "50MB"
+
+# Logging
+logging:
+  level: "${LOG_LEVEL:-info}"
+  format: "json"
+  file: "/logs/sync.log"
+  max_size: "100MB"
+  max_files: 5
+
+# Security
+security:
+  webhook_secret: "${WEBHOOK_SECRET}"
+  rate_limit: 100  # requests per minute
+  timeout: 30  # seconds
+
+# Monitoring
+monitoring:
+  enabled: true
+  prometheus_port: 9090
+  health_check_interval: 30

@@ -1,634 +1,598 @@
-generated_from: infra/hosts/host-layout.yaml
+# host-service-plan.yaml
+# Operational service plan for Project Nyra cluster.
+# Source of truth for: per-host service inventory, running status, cloudflared tunnel/subdomain plan.
+# Layout spec: infra/hosts/host-layout.yaml
+# Cloudflare IaC: infra/cloudflare/desired-state/exposure-matrix.yml
+# Last updated: 2026-05-24
+#
+# Status values:
+#   running   — confirmed healthy on latest audit
+#   deployed  — compose/config exists; not verified live
+#   pending   — not yet deployed; needs action
+#   unknown   — host sleeping or not recently audited
+#   disabled  — intentionally not running
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLOUDFLARED TUNNELS + SUBDOMAIN ROUTING
+# ─────────────────────────────────────────────────────────────────────────────
+
+cloudflared:
+  domain: projectnyra.com
+  management_mode: api_managed_tunnels_with_docker_connectors
+  iac_source: infra/cloudflare/desired-state/exposure-matrix.yml
+
+  tunnels:
+    oracle:
+      token_env: ORACLE_TUNNEL_TOKEN
+      token_id_env: ORACLE_TUNNEL_ID
+      infisical_path: /machines/oracle-vps
+      known_tunnel_id: "" # set via Cloudflare Zero Trust dashboard; store in Infisical
+      compose_service: cloudflared # service in infra/hosts/oracle-vps/docker-compose.yml
+      config_source: infra/hosts/oracle-vps/cloudflared-config.yml
+      status: deployed # container defined; verify ORACLE_TUNNEL_TOKEN in oracle .env
+
+    orchestrator:
+      token_env: ORCHESTRATOR_TUNNEL_TOKEN
+      token_id_env: ORCHESTRATOR_TUNNEL_ID
+      infisical_path: /machines/orchestrator
+      known_tunnel_id: ae0bd53a-f22e-4414-8593-5b765dcd044b
+      compose_file: infra/hosts/orchestrator/docker-compose.cloudflared.yml
+      config_source: infra/hosts/orchestrator/cloudflared-config.yml
+      status: deployed # compose ready; uses Infisical secrets-init + custom wrapper image
+
+  # Each route maps a public hostname to a private service.
+  # access policy: public_auth=Cloudflare Access email gate | owner_only=owner email only |
+  #                public_service_token=machine-to-machine token | public=no gate
+  routes:
+    # ── Oracle tunnel ──────────────────────────────────────────────────────
+    - hostname: app.projectnyra.com
+      tunnel: oracle
+      origin: http://webapp:3001
+      access: public_auth
+      status: pending
+
+    - hostname: api.projectnyra.com
+      tunnel: oracle
+      origin: http://supabase-kong:8000
+      access: public_supabase_gateway
+      notes: Do not block Supabase Auth endpoints with interactive Access
+      status: pending
+
+    - hostname: hooks.projectnyra.com
+      tunnel: oracle
+      origin: http://n8n:5678
+      access: public_service_token
+      notes: Use provider allowlists and signed webhook paths
+      status: running
+
+    - hostname: twenty.projectnyra.com
+      tunnel: oracle
+      origin: http://twenty:3000
+      access: public_auth
+      status: running
+
+    - hostname: crm.projectnyra.com
+      tunnel: oracle
+      origin: http://twenty:3000
+      access: public_auth
+      notes: Alias for twenty.projectnyra.com
+      status: running
+
+    - hostname: n8n.projectnyra.com
+      tunnel: oracle
+      origin: http://n8n:5678
+      access: public_auth
+      status: running
+
+    - hostname: gitea.projectnyra.com
+      tunnel: oracle
+      origin: http://gitea:3000
+      access: public_auth
+      status: running # Gitea confirmed healthy; 3+ hours uptime
+
+    - hostname: activepieces.projectnyra.com
+      tunnel: oracle
+      origin: http://activepieces:80
+      access: public_auth
+      status: running
+
+    - hostname: grafana.projectnyra.com
+      tunnel: oracle
+      origin: http://grafana:3000
+      access: public_auth
+      status: running
+
+    - hostname: prometheus.projectnyra.com
+      tunnel: oracle
+      origin: http://prometheus:9090
+      access: owner_only_public_auth
+      status: running
+
+    - hostname: cadvisor.projectnyra.com
+      tunnel: oracle
+      origin: http://cadvisor:8080
+      access: owner_only_public_auth
+      status: running
+
+    - hostname: openwebui.projectnyra.com
+      tunnel: oracle
+      origin: http://openwebui:8080
+      access: public_auth
+      status: running
+
+    - hostname: nexus.projectnyra.com
+      tunnel: oracle
+      origin: http://nexus-ui:3016
+      access: public_auth
+      notes: Human UI for Nexus router
+      status: running # Nexus confirmed healthy; 45+ hours uptime
+
+    - hostname: nexus-router.projectnyra.com
+      tunnel: oracle
+      origin: http://nexus:3000
+      access: public_service_token
+      notes: Machine/API entrypoint. Prefer Tailscale internal URL for agent-to-agent traffic.
+      status: running
+
+    - hostname: litellm.projectnyra.com
+      tunnel: oracle
+      origin: http://litellm:4000
+      access: owner_only_public_auth
+      status: running
+
+    - hostname: gastown.projectnyra.com
+      tunnel: oracle
+      origin: http://gastown:8080
+      access: public_auth
+      status: running
+
+    - hostname: clawteam.projectnyra.com
+      tunnel: oracle
+      origin: http://clawteam:8080
+      access: public_auth
+      notes: Requires docker-compose.clawteam.yml overlay to be running
+      status: unknown
+
+    - hostname: letta.projectnyra.com
+      tunnel: oracle
+      origin: http://oracle.trex-fiordland.ts.net:8283
+      access: public_auth
+      status: running # Letta running on oracle port 8283
+
+    - hostname: portainer-oracle.projectnyra.com
+      tunnel: oracle
+      origin: https://portainer:9443
+      access: owner_only_public_auth
+      origin_tls_verify: false
+      status: running
+
+    - hostname: git-ssh.projectnyra.com
+      tunnel: oracle
+      origin: ssh://gitea:2222
+      access: owner_only_cloudflared_access_ssh
+      notes: Optional SSH flow; requires cloudflared access ssh client
+      status: configured
+
+    # ── Orchestrator tunnel ────────────────────────────────────────────────
+    - hostname: links.projectnyra.com
+      tunnel: orchestrator
+      origin: http://100.64.0.2:3007
+      access: public_auth
+      notes: Linkwarden/Starwarden. Origin timed out in smoke test — verify service running.
+      status: unknown
+
+    - hostname: linkwarden.projectnyra.com
+      tunnel: orchestrator
+      origin: http://100.64.0.2:3007
+      access: public_auth
+      notes: Legacy alias for links.projectnyra.com
+      status: unknown
+
+    - hostname: openclaw-gateway.projectnyra.com
+      tunnel: orchestrator
+      origin: http://nyra-openclaw-gateway:8001
+      access: public_auth
+      status: unknown
+
+    - hostname: portainer.projectnyra.com
+      tunnel: orchestrator
+      origin: https://nyra-portainer:9443
+      access: owner_only_public_auth
+      origin_tls_verify: false
+      status: unknown
+
+  mcp_routes:
+    policy: nexus_first
+    preferred_external_entrypoint: https://nexus-router.projectnyra.com/mcp
+    notes: Direct MCP hostnames require service-token auth. Route external agents through Nexus.
+    direct_candidates:
+      - hostname: openmemory-mcp.projectnyra.com
+        origin: http://openmemory-mcp:8765
+      - hostname: twenty-mcp.projectnyra.com
+        origin: http://twenty-mcp:8400
+      - hostname: infisical-mcp.projectnyra.com
+        origin: http://infisical-mcp:8766
+      - hostname: mempalace-mcp.projectnyra.com
+        origin: http://mempalace-mcp:8000
+      - hostname: gitea-mcp.projectnyra.com
+        origin: http://gitea-mcp:3101
+      - hostname: git-mcp.projectnyra.com
+        origin: http://git-mcp:8773
+
+  deployment_checklist:
+    - "Obtain ORACLE_TUNNEL_TOKEN from Cloudflare Zero Trust → Tunnels → oracle tunnel"
+    - "Obtain ORACLE_TUNNEL_ID from same dashboard"
+    - "Store ORACLE_TUNNEL_TOKEN + ORACLE_TUNNEL_ID in Infisical at /machines/oracle-vps"
+    - "Add ORACLE_TUNNEL_TOKEN to infra/hosts/oracle-vps/.env"
+    - "Restart cloudflared on oracle: ssh oracle 'cd ~/repos/project-nyra && docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d cloudflared'"
+    - "Verify ORCHESTRATOR_TUNNEL_TOKEN is in Infisical at /machines/orchestrator"
+    - "Deploy cloudflared on orchestrator: docker compose -f infra/hosts/orchestrator/docker-compose.cloudflared.yml up -d"
+    - "In Cloudflare Zero Trust UI: add Public Hostname for each route in exposure-matrix.yml"
+    - "Set Cloudflare Access policies: email allowlist for owner-only routes; email OTP for public_auth"
+    - "Test each active hostname in browser"
+    - "Verify git-ssh.projectnyra.com via: cloudflared access ssh --hostname git-ssh.projectnyra.com"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PER-HOST SERVICE INVENTORY
+# ─────────────────────────────────────────────────────────────────────────────
+
 hosts:
-  orchestrator:
-    compose_files:
-    - infra/docker-compose.yml
-    - infra/compose/overrides/docker-compose.orchestrator.override.yml
-    env_files:
-    - infra/env/.env.orchestrator
-    services:
-      postgres:
-        profiles: []
-        ports:
-        - 0.0.0.0:${POSTGRES_PORT:-5432}:5432
-        category: data
-      redis:
-        profiles: []
-        ports:
-        - 0.0.0.0:${REDIS_PORT:-6379}:6379
-        category: data
-      mongo:
-        profiles: []
-        ports:
-        - 0.0.0.0:${MONGO_PORT:-27017}:27017
-        category: data
-      litellm:
-        profiles:
-        - gateway
-        - orchestrator
-        - all
-        ports:
-        - ${LITELLM_PORT:-4000}:4000
-        category: platform
-      nexus-router:
-        profiles:
-        - gateway
-        - orchestrator
-        - all
-        ports:
-        - ${NEXUS_ROUTER_PORT:-7000}:7000
-        - ${NEXUS_MCP_PORT:-8080}:8080
-        - ${NEXUS_METRICS_PORT:-9091}:9091
-        category: platform
-      nyra-mcp:
-        profiles:
-        - mcp
-        - orchestrator
-        - all
-        ports:
-        - ${NYRA_MCP_PORT:-3333}:8081
-        category: mcp-server
-      n8n:
-        profiles: []
-        ports:
-        - 0.0.0.0:${N8N_PORT:-5678}:5678
-        category: platform
-      activepieces:
-        profiles: []
-        ports:
-        - 0.0.0.0:${ACTIVEPIECES_PORT:-8082}:80
-        category: platform
-      twenty-postgres:
-        profiles:
-        - crm
-        - orchestrator
-        - oracle
-        - all
-        ports: []
-        category: data
-      twentycrm:
-        profiles:
-        - crm
-        - orchestrator
-        - oracle
-        - all
-        ports:
-        - ${TWENTYCRM_PORT:-3000}:3000
-        category: app-ui
-      twentycrm-mcp:
-        profiles:
-        - crm
-        - orchestrator
-        - oracle
-        - all
-        ports:
-        - ${TWENTYCRM_MCP_PORT:-8182}:8082
-        category: mcp-server
-      moltbot-web:
-        profiles:
-        - apps
-        - oracle
-        - all
-        ports:
-        - ${MOLTBOT_WEB_PORT:-3030}:3030
-        category: app-ui
-      openwebui:
-        profiles:
-        - apps
-        - oracle
-        - all
-        ports:
-        - ${OPENWEBUI_PORT:-8088}:8080
-        category: app-ui
-      prometheus:
-        profiles: []
-        ports:
-        - 0.0.0.0:${PROMETHEUS_PORT:-9090}:9090
-        category: observability
-      loki:
-        profiles: []
-        ports:
-        - 0.0.0.0:${LOKI_PORT:-3100}:3100
-        category: observability
-      grafana:
-        profiles: []
-        ports:
-        - 0.0.0.0:${GRAFANA_PORT:-3003}:3000
-        category: observability
-      cloudflared:
-        profiles: []
-        ports: []
-        category: service
-      infisical-agent:
-        profiles:
-        - secrets
-        - oracle
-        - all
-        ports: []
-        category: service
-      infisical-cli:
-        profiles:
-        - secrets
-        - all
-        ports: []
-        category: service
-      infisical:
-        profiles: []
-        ports:
-        - 0.0.0.0:${INFISICAL_PORT:-8086}:8080
-        category: service
-      docker-mcp-toolkit:
-        profiles:
-        - mcp
-        - devtools
-        - all
-        ports:
-        - ${DOCKER_MCP_PORT:-8811}:8811
-        category: mcp-server
-      git-mcp:
-        profiles:
-        - mcp
-        - devtools
-        - all
-        ports:
-        - ${GIT_MCP_PORT:-8812}:8812
-        category: mcp-server
-      github-mcp:
-        profiles:
-        - mcp
-        - devtools
-        - all
-        ports:
-        - ${GITHUB_MCP_PORT:-8813}:8813
-        category: mcp-server
-      bitwarden-mcp:
-        profiles:
-        - mcp
-        - secrets
-        - all
-        ports:
-        - ${BITWARDEN_MCP_PORT:-8814}:8814
-        category: mcp-server
-      infisical-mcp:
-        profiles:
-        - mcp
-        - secrets
-        - all
-        ports:
-        - ${INFISICAL_MCP_PORT:-8815}:8815
-        category: mcp-server
-      cadvisor:
-        profiles: []
-        ports:
-        - 0.0.0.0:${CADVISOR_PORT:-8081}:8080
-        category: service
-      worker-3060-ollama:
-        profiles:
-        - worker-3060
-        ports:
-        - ${WORKER_3060_OLLAMA_PORT:-11434}:11434
-        category: service
-      worker-3090ti-vllm:
-        profiles:
-        - worker-3090ti
-        ports:
-        - ${WORKER_3090TI_VLLM_PORT:-8000}:8000
-        category: service
-      worker-5090-vllm:
-        profiles:
-        - worker-5090
-        ports:
-        - ${WORKER_5090_VLLM_PORT:-8001}:8000
-        category: service
-  worker-hosts:
-    nodes:
-      worker-rtx5090:
-        compose_files:
-        - infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
-        env_files:
-        - infra/env/.env.worker-rtx5090
-        services:
-          postgres:
-            profiles: []
-            ports:
-            - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
-            category: data
-          redis:
-            profiles: []
-            ports:
-            - 127.0.0.1:${REDIS_PORT:-6379}:6379
-            category: data
-          mongo:
-            profiles: []
-            ports:
-            - 127.0.0.1:${MONGO_PORT:-27017}:27017
-            category: data
-          n8n:
-            profiles: []
-            ports:
-            - 127.0.0.1:${N8N_PORT:-5678}:5678
-            category: platform
-          grafana:
-            profiles: []
-            ports:
-            - 127.0.0.1:${GRAFANA_PORT:-3003}:3000
-            category: observability
-          prometheus:
-            profiles: []
-            ports:
-            - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
-            category: observability
-          loki:
-            profiles: []
-            ports:
-            - 127.0.0.1:${LOKI_PORT:-3100}:3100
-            category: observability
-          cadvisor:
-            profiles: []
-            ports:
-            - 127.0.0.1:${CADVISOR_PORT:-8081}:8080
-            category: service
-          cloudflared:
-            profiles:
-            - _disabled
-            ports: []
-            category: service
-      worker-rtx3090ti:
-        compose_files:
-        - infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
-        env_files:
-        - infra/env/.env.worker-rtx3090ti
-        services:
-          postgres:
-            profiles: []
-            ports:
-            - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
-            category: data
-          redis:
-            profiles: []
-            ports:
-            - 127.0.0.1:${REDIS_PORT:-6379}:6379
-            category: data
-          mongo:
-            profiles: []
-            ports:
-            - 127.0.0.1:${MONGO_PORT:-27017}:27017
-            category: data
-          n8n:
-            profiles: []
-            ports:
-            - 127.0.0.1:${N8N_PORT:-5678}:5678
-            category: platform
-          grafana:
-            profiles: []
-            ports:
-            - 127.0.0.1:${GRAFANA_PORT:-3003}:3000
-            category: observability
-          prometheus:
-            profiles: []
-            ports:
-            - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
-            category: observability
-          loki:
-            profiles: []
-            ports:
-            - 127.0.0.1:${LOKI_PORT:-3100}:3100
-            category: observability
-          cadvisor:
-            profiles: []
-            ports:
-            - 127.0.0.1:${CADVISOR_PORT:-8081}:8080
-            category: service
-          cloudflared:
-            profiles:
-            - _disabled
-            ports: []
-            category: service
-      worker-rtx3060:
-        compose_files:
-        - infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
-        - infra/compose/overrides/docker-compose.worker-rtx3060.override.yml
-        env_files:
-        - infra/env/.env.worker-rtx3060
-        services:
-          worker-rtx3060:
-            profiles: []
-            ports: []
-            category: service
-          postgres:
-            profiles: []
-            ports:
-            - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
-            category: data
-          redis:
-            profiles: []
-            ports:
-            - 127.0.0.1:${REDIS_PORT:-6379}:6379
-            category: data
-          mongo:
-            profiles: []
-            ports:
-            - 127.0.0.1:${MONGO_PORT:-27017}:27017
-            category: data
-          n8n:
-            profiles: []
-            ports:
-            - 127.0.0.1:${N8N_PORT:-5678}:5678
-            category: platform
-          grafana:
-            profiles: []
-            ports:
-            - 127.0.0.1:${GRAFANA_PORT:-3003}:3000
-            category: observability
-          prometheus:
-            profiles: []
-            ports:
-            - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
-            category: observability
-          loki:
-            profiles: []
-            ports:
-            - 127.0.0.1:${LOKI_PORT:-3100}:3100
-            category: observability
-          cadvisor:
-            profiles: []
-            ports:
-            - 127.0.0.1:${CADVISOR_PORT:-8081}:8080
-            category: service
-          cloudflared:
-            profiles:
-            - _disabled
-            ports: []
-            category: service
+  # ── ORACLE VPS ─────────────────────────────────────────────────────────────
   oracle-vps:
-    compose_files:
-    - infra/oracle/docker-compose.oracle.yml
-    env_files: []
+    tailscale_ip: 100.64.0.3
+    hostname: oracle.trex-fiordland.ts.net
+    runtime_status: "70+ containers running (audited 2026-05-24)"
+    env_file: infra/hosts/oracle-vps/.env
+    primary_compose: infra/hosts/oracle-vps/docker-compose.yml
+    overlay_compose_files:
+      - infra/hosts/oracle-vps/docker-compose.oracle.yml
+      - infra/hosts/oracle-vps/docker-compose.memory.yml
+      - infra/hosts/oracle-vps/docker-compose.apps.yml
+      - infra/hosts/oracle-vps/docker-compose.gitea.yml
+      - infra/hosts/oracle-vps/docker-compose.letta-mcp.yml
+      - infra/hosts/oracle-vps/docker-compose.clawteam.yml
+      - infra/hosts/oracle-vps/docker-compose.activepieces-mcp.yml
+    optional_overlays:
+      - infra/hosts/oracle-vps/docker-compose.memory-extra.yml
+      - infra/hosts/oracle-vps/docker-compose.gastown.yml
+      - infra/hosts/oracle-vps/docker-compose.restoration.yml
+      - infra/hosts/oracle-vps/docker-compose.superset.yml
+    persistent_compose: infra/hosts/oracle-vps/docker-compose.persistent.yml
     services:
-      postgres:
-        profiles: []
-        ports: []
-        category: data
-      redis-cache:
-        profiles: []
-        ports: []
-        category: data
+      # Data
+      postgres: { port: 5432, category: data, status: running }
+      redis-cache: { port: 6379, category: data, status: running }
       falkordb:
-        profiles: []
-        ports: []
-        category: data
-      letta-mcp:
-        profiles: []
-        ports: []
-        category: mcp-server
-      twenty:
-        profiles: []
-        ports:
-        - 3000:3000
-        category: app-ui
-      activepieces:
-        profiles: []
-        ports:
-        - 8080:80
+        {
+          category: data,
+          status: running,
+          notes: "graph DB for mem0; custom community plugin — do NOT swap backend",
+        }
+      qdrant:
+        {
+          category: data,
+          status: running,
+          notes: "vector store for Letta embeddings (768-dim nomic)",
+        }
+      # Memory plane (docker-compose.memory.yml)
+      letta:
+        port: 8283
+        category: memory
+        status: running
+        notes: "nyra-stack-orchestrator agent deployed (agent-516e2d8a-742e-4970-8d1b-2870b56ba804); LLM=local/llama3.2-3b via litellm"
+      mem0: { category: memory, status: running }
+      # AI infrastructure
+      litellm:
+        port: 4000
         category: platform
-      n8n:
-        profiles: []
-        ports:
-        - 5678:5678
-        category: platform
-      moltbot:
-        profiles: []
-        ports:
-        - 18789:18789
-        - 18790:18790
-        category: service
-      quote-api:
-        profiles: []
-        ports:
-        - 7070:7070
-        category: service
+        status: running
+        notes: "Oracle LiteLLM proxy; routes local/* to worker LiteLLMs, subscription/* to llxprt-bridge :8091"
+      # CRM
+      twenty: { port: 3000, category: app-ui, status: running }
+      twenty-postgres: { category: data, status: running }
+      # Automation
+      n8n: { port: 5678, category: platform, status: running }
+      activepieces: { port: 8080, category: platform, status: running }
+      # Dev
+      gitea:
+        port: 3000
+        category: devops
+        status: running
+        notes: "nyra-gitea + nyra-gitea-db + nyra-gitea-runner; 3+ hours uptime confirmed"
+      # UI
+      openwebui: { port: 8088, category: app-ui, status: running }
+      gastown:
+        {
+          port: 8080,
+          category: app-ui,
+          status: running,
+          notes: "primary agent coordination surface",
+        }
+      nexus:
+        {
+          port: 6000,
+          category: platform,
+          status: running,
+          notes: "Grafbase Nexus — MCP/LLM aggregator; 45+ hours uptime",
+        }
+      nexus-ui: { port: 3016, category: app-ui, status: running }
+      # Observability
+      grafana: { port: 3003, category: observability, status: running }
+      prometheus: { port: 9090, category: observability, status: running }
+      cadvisor: { port: 8081, category: observability, status: running }
+      # Tunnel
       cloudflared:
-        profiles:
-        - cloudflared
-        ports: []
-        category: service
-  homeassistant:
-    compose_files: []
-    env_files: []
-    services: {}
-capacity:
+        category: tunnel
+        status: deployed
+        notes: "token via ORACLE_TUNNEL_TOKEN in .env; config: infra/hosts/oracle-vps/cloudflared-config.yml"
+      # Persistent (docker-compose.persistent.yml)
+      portainer-ce:
+        {
+          port: "9000/9443",
+          category: management,
+          status: running,
+          notes: "persistent — never stop",
+        }
+      portainer-agent:
+        { category: management, status: running, notes: "persistent" }
+      syncthing: { category: sync, status: running, notes: "persistent" }
+
+  # ── ORCHESTRATOR ──────────────────────────────────────────────────────────
   orchestrator:
-    cpu: 8
-    ram_gb: 16
-    storage_gb: 1000
-    notes: Low-latency LAN host. Keep interactive and latency-sensitive services here.
-  oracle-vps:
-    cpu: 4
-    ram_gb: 24
-    storage_gb: 200
-    notes: Cloud host for internet-facing and durable/stateful services.
-recommended_placement:
-  orchestrator:
-  - service: activepieces
-    recommended_host: orchestrator
-    category: platform
-  - service: bitwarden-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: cadvisor
-    recommended_host: orchestrator
-    category: service
-  - service: cloudflared
-    recommended_host: orchestrator
-    category: service
-  - service: docker-mcp-toolkit
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: git-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: github-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: grafana
-    recommended_host: orchestrator
-    category: observability
-  - service: infisical
-    recommended_host: orchestrator
-    category: service
-  - service: infisical-agent
-    recommended_host: orchestrator
-    category: service
-  - service: infisical-cli
-    recommended_host: orchestrator
-    category: service
-  - service: infisical-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: litellm
-    recommended_host: orchestrator
-    category: platform
-  - service: loki
-    recommended_host: orchestrator
-    category: observability
-  - service: moltbot-web
-    recommended_host: orchestrator
-    category: app-ui
-  - service: mongo
-    recommended_host: orchestrator
-    category: data
-  - service: n8n
-    recommended_host: orchestrator
-    category: platform
-  - service: nexus-router
-    recommended_host: orchestrator
-    category: platform
-  - service: nyra-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: openwebui
-    recommended_host: orchestrator
-    category: app-ui
-  - service: prometheus
-    recommended_host: orchestrator
-    category: observability
-  - service: redis
-    recommended_host: orchestrator
-    category: data
-  - service: worker-3060-ollama
-    recommended_host: orchestrator
-    category: service
-  - service: worker-3090ti-vllm
-    recommended_host: orchestrator
-    category: service
-  - service: worker-5090-vllm
-    recommended_host: orchestrator
-    category: service
-  oracle-vps:
-  - service: postgres
-    recommended_host: oracle-vps
-    category: data
-  - service: twenty-postgres
-    recommended_host: oracle-vps
-    category: data
-  - service: twentycrm
-    recommended_host: oracle-vps
-    category: app-ui
-  - service: twentycrm-mcp
-    recommended_host: oracle-vps
-    category: mcp-server
-  - service: activepieces
-    recommended_host: oracle-vps
-    category: platform
-  - service: cloudflared
-    recommended_host: oracle-vps
-    category: service
-  - service: falkordb
-    recommended_host: oracle-vps
-    category: data
-  - service: letta-mcp
-    recommended_host: oracle-vps
-    category: mcp-server
-  - service: moltbot
-    recommended_host: oracle-vps
-    category: service
-  - service: n8n
-    recommended_host: oracle-vps
-    category: platform
-  - service: postgres
-    recommended_host: oracle-vps
-    category: data
-  - service: quote-api
-    recommended_host: oracle-vps
-    category: service
-  - service: redis-cache
-    recommended_host: oracle-vps
-    category: data
-  - service: twenty
-    recommended_host: oracle-vps
-    category: app-ui
-  worker-hosts:
-  - service: cadvisor
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: cloudflared
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: grafana
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: loki
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: mongo
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: n8n
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: postgres
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: prometheus
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: redis
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: cadvisor
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: cloudflared
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: grafana
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: loki
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: mongo
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: n8n
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: postgres
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: prometheus
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: redis
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: cadvisor
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: cloudflared
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: grafana
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: loki
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: mongo
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: n8n
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: postgres
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: prometheus
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: redis
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: worker-rtx3060
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
+    tailscale_ip: 100.64.0.2
+    hostname: orchestrator.trex-fiordland.ts.net
+    env_file: infra/hosts/orchestrator/.env
+    primary_compose: infra/hosts/orchestrator/docker-compose.yml
+    overlay_compose_files:
+      - infra/hosts/orchestrator/docker-compose.cloudflared.yml
+      - infra/hosts/orchestrator/docker-compose.voice.yml
+      - infra/hosts/orchestrator/docker-compose.observability.yml
+      - infra/hosts/orchestrator/docker-compose.clawteam.yml
+      - infra/hosts/orchestrator/docker-compose.llxprt.yml
+      - infra/hosts/orchestrator/docker-compose.bitnet.yml
+      - infra/hosts/orchestrator/docker-compose.status-bridge.yml
+    persistent_compose: infra/hosts/orchestrator/docker-compose.persistent.yml
+    services:
+      # Core platform
+      redis: { port: 6379, category: data, status: running }
+      openclaw-gateway: { port: 8001, category: platform, status: unknown }
+      # LLM infrastructure
+      llxprt-bridge:
+        port: 8091
+        category: llm-bridge
+        status: deployed
+        notes: "subscription/* LLMs (claude, gemini, codex) via LLXPRT_BRIDGE_API_KEY"
+      llxprt-jefe: { category: llm-client, status: deployed }
+      llxprt-code: { category: llm-client, status: deployed }
+      bitnet:
+        {
+          category: llm,
+          status: unknown,
+          notes: "bitnet.cpp CPU LLM for orchestrator-local inference",
+        }
+      # Observability
+      prometheus: { port: 9090, category: observability, status: unknown }
+      grafana: { port: 3003, category: observability, status: unknown }
+      loki: { port: 3100, category: observability, status: unknown }
+      # Tunnel
+      cloudflared:
+        category: tunnel
+        status: deployed
+        notes: "docker-compose.cloudflared.yml; token via Infisical /machines/orchestrator; tunnel ID ae0bd53a"
+      # Persistent (docker-compose.persistent.yml)
+      portainer-edge-agent:
+        { category: management, status: running, notes: "persistent" }
+      syncthing: { category: sync, status: running, notes: "persistent" }
+      # PENDING
+      power-management-api:
+        port: 8765
+        category: automation
+        status: pending
+        priority: HIGH
+        notes: >
+          FastAPI service for Letta WoL tools (nyra_wake_gpu_worker, nyra_sleep_gpu_worker,
+          nyra_cluster_power_status). Implements /wake/{worker}, /sleep/{worker}, /status.
+          Calls wakeonlan CLI + SSH sleep. Until deployed, all Letta power management tools timeout.
+
+  # ── WORKER RTX3060 ────────────────────────────────────────────────────────
+  worker-rtx3060:
+    tailscale_ip: 100.64.0.5
+    hostname: worker-rtx3060.trex-fiordland.ts.net
+    mac: "04:7C:16:AA:D8:34"
+    vram_gb: 12
+    role: ollama-inference + distributed-voice-stt
+    env_file: infra/hosts/worker-rtx3060/.env
+    primary_compose: infra/hosts/worker-rtx3060/docker-compose.yml
+    overlay_compose_files:
+      - infra/hosts/worker-rtx3060/docker-compose.worker.yml
+      - infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
+      - infra/hosts/worker-rtx3060/docker-compose.gpu.yml
+      - infra/hosts/worker-rtx3060/docker-compose.voice.yml
+      - infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
+      - infra/hosts/worker-rtx3060/docker-compose.clawteam.yml
+      - infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
+      - infra/hosts/worker-rtx3060/docker-compose.observability.yml
+      - infra/hosts/worker-rtx3060/docker-compose.openclaw.yml
+      - infra/hosts/worker-rtx3060/docker-compose.picoclaw.yml
+      - infra/hosts/worker-rtx3060/docker-compose.utility.yml
+    persistent_compose: infra/hosts/worker-rtx3060/docker-compose.persistent.yml
+    notes: >
+      Docker commands must be run via WSL on Windows: ssh worker-rtx3060 'wsl -u ellisapotheosis bash -c "docker ..."'
+      Windows Firewall blocks Ollama :11434 externally — oracle LiteLLM routes via worker LiteLLM :4000 instead.
+    services:
+      ollama:
+        port: 11434
+        category: inference
+        status: running
+        notes: "models: llama3.2:3b, nomic-embed-text, mistral:7b-instruct-v0.3-q4_K_M, codellama:7b-q4"
+      litellm:
+        port: 4000
+        category: platform
+        status: running
+        notes: "no master_key (open mode — security via Tailscale ACLs); exposes worker-3060-* model names"
+      llxprt-code: { category: llm-client, status: deployed }
+      llxprt-bridge: { port: 8091, category: llm-bridge, status: deployed }
+      portainer-edge-agent:
+        { category: management, status: running, notes: "persistent" }
+      syncthing: { category: sync, status: running, notes: "persistent" }
+
+  # ── WORKER RTX3090TI ──────────────────────────────────────────────────────
+  worker-rtx3090ti:
+    tailscale_ip: 100.64.0.6
+    hostname: worker-rtx3090ti.trex-fiordland.ts.net
+    mac: "B4:2E:99:F0:1A:7C"
+    vram_gb: 24
+    role: secondary-vllm + distributed-voice-tts
+    env_file: infra/hosts/worker-rtx3090ti/.env
+    primary_compose: infra/hosts/worker-rtx3090ti/docker-compose.yml
+    overlay_compose_files:
+      - infra/hosts/worker-rtx3090ti/docker-compose.worker.yml
+      - infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
+      - infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml
+      - infra/hosts/worker-rtx3090ti/docker-compose.voice.yml
+      - infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
+      - infra/hosts/worker-rtx3090ti/docker-compose.clawteam.yml
+      - infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
+      - infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
+      - infra/hosts/worker-rtx3090ti/docker-compose.assistant.yml
+    persistent_compose: infra/hosts/worker-rtx3090ti/docker-compose.persistent.yml
+    services:
+      vllm:
+        port: 8000
+        category: inference
+        status: unknown
+        notes: "serving Qwen/Qwen2.5-Coder-32B-Instruct; oracle routes local/qwen-coder-32b here directly (not via worker LiteLLM)"
+      llxprt-code: { category: llm-client, status: deployed }
+      llxprt-bridge: { port: 8091, category: llm-bridge, status: deployed }
+      portainer-edge-agent:
+        {
+          category: management,
+          status: unknown,
+          notes: "persistent; worker may be sleeping",
+        }
+      syncthing: { category: sync, status: unknown, notes: "persistent" }
+
+  # ── WORKER RTX5090 ────────────────────────────────────────────────────────
+  worker-rtx5090:
+    tailscale_ip: 100.64.0.7
+    hostname: worker-rtx5090.trex-fiordland.ts.net
+    mac: "A8:A1:59:D4:3B:88"
+    vram_gb: 32
+    role: primary-vllm + distributed-voice-llm
+    env_file: infra/hosts/worker-rtx5090/.env
+    primary_compose: infra/hosts/worker-rtx5090/docker-compose.yml
+    overlay_compose_files:
+      - infra/hosts/worker-rtx5090/docker-compose.worker.yml
+      - infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
+      - infra/hosts/worker-rtx5090/docker-compose.gpu.yml
+      - infra/hosts/worker-rtx5090/docker-compose.voice.yml
+      - infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
+      - infra/hosts/worker-rtx5090/docker-compose.clawteam.yml
+      - infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
+      - infra/hosts/worker-rtx5090/docker-compose.nerve.yml
+      - infra/hosts/worker-rtx5090/docker-compose.assistant.yml
+      - infra/hosts/worker-rtx5090/docker-compose.model-switcher.yml
+    persistent_compose: infra/hosts/worker-rtx5090/docker-compose.persistent.yml
+    notes: "WSL/Docker Desktop instability incident on 2026-05-24; verify WSL status before deploying"
+    services:
+      vllm:
+        port: 8000
+        category: inference
+        status: unknown
+        notes: "serving google/gemma-4-26B-A4B-it; oracle routes local/gemma-4 and local/vybestack-jefe here"
+      llxprt-code: { category: llm-client, status: deployed }
+      llxprt-bridge: { port: 8091, category: llm-bridge, status: deployed }
+      portainer-edge-agent:
+        {
+          category: management,
+          status: unknown,
+          notes: "persistent; WSL issues may affect Docker",
+        }
+      syncthing: { category: sync, status: unknown, notes: "persistent" }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECRETS REQUIREMENTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+secrets:
+  # Status: set=confirmed in env/Infisical | pending=needs to be created/stored
+  - name: ORACLE_TUNNEL_TOKEN
+    host: oracle-vps
+    infisical_path: /machines/oracle-vps
+    status: pending # obtain from Cloudflare Zero Trust dashboard
+  - name: ORACLE_TUNNEL_ID
+    host: oracle-vps
+    infisical_path: /machines/oracle-vps
+    status: pending
+  - name: ORCHESTRATOR_TUNNEL_TOKEN
+    host: orchestrator
+    infisical_path: /machines/orchestrator
+    status: set # compose reads via Infisical secrets-init (known tunnel ID: ae0bd53a)
+  - name: ORCHESTRATOR_TUNNEL_ID
+    host: orchestrator
+    infisical_path: /machines/orchestrator
+    status: set
+  - name: LITELLM_MASTER_KEY
+    host: oracle-vps
+    infisical_path: /machines/oracle-vps
+    status: set
+  - name: LITELLM_DATABASE_URL
+    host: oracle-vps
+    infisical_path: /machines/oracle-vps
+    status: set
+    notes: "postgresql://nyra:...@postgres:5432/litellm"
+  - name: LETTA_OPENAI_API_KEY
+    host: oracle-vps
+    status: set
+    notes: "Set to LiteLLM master key; persisted in oracle .env"
+  - name: LETTA_OPENAI_API_BASE
+    host: oracle-vps
+    status: set
+    notes: "http://litellm:4000/v1; persisted in oracle .env"
+  - name: LLXPRT_BRIDGE_API_KEY
+    host: all
+    infisical_path: /machines/*
+    status: set
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PENDING DEPLOYMENTS (ordered by priority)
+# ─────────────────────────────────────────────────────────────────────────────
+
+pending_deployments:
+  - name: power-management-api
+    host: orchestrator
+    port: 8765
+    priority: 1-high
+    description: >
+      FastAPI service implementing /wake/{worker}, /sleep/{worker}, /status for Nyra WoL.
+      Calls `wakeonlan -i 192.168.1.255 <MAC>` (wake) and SSH `sudo systemctl suspend` (sleep).
+      Letta agent tools (nyra_wake_gpu_worker, nyra_sleep_gpu_worker, nyra_cluster_power_status)
+      call http://orchestrator.trex-fiordland.ts.net:8765 and timeout without this service.
+    actions:
+      - Write FastAPI app under infra/hosts/orchestrator/power-api/ or images/power-api/
+      - Add service to orchestrator docker-compose.yml or new docker-compose.power-api.yml
+      - Worker names must map to: worker-rtx5090, worker-rtx3090ti, worker-rtx3060, all
+      - Wake uses wakeonlan CLI installed on orchestrator LAN
+      - Sleep uses SSH into worker then sudo systemctl suspend or sudo shutdown -h now
+
+  - name: cloudflared-oracle-tunnel
+    host: oracle-vps
+    priority: 2-medium
+    description: Verify oracle cloudflared tunnel is active and routing all subdomains
+    actions:
+      - Obtain ORACLE_TUNNEL_TOKEN from Cloudflare Zero Trust → Tunnels
+      - Store in infra/hosts/oracle-vps/.env as ORACLE_TUNNEL_TOKEN
+      - "Run: ssh oracle 'cd ~/repos/project-nyra && docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d cloudflared'"
+      - Verify each route in cloudflared-config.yml resolves
+
+  - name: gpu-worker-vllm-verification
+    host: worker-rtx5090 + worker-rtx3090ti
+    priority: 3-medium
+    description: >
+      Confirm vLLM services start cleanly when workers are woken and that oracle LiteLLM
+      successfully routes local/gemma-4 and local/qwen-coder-32b end-to-end.
+    actions:
+      - Wake workers via WoL (or power-management-api once deployed)
+      - Verify Docker services auto-start on Windows boot (check Docker Desktop startup config)
+      - Test oracle LiteLLM routing: POST http://oracle.trex-fiordland.ts.net:4000/v1/chat/completions model=local/gemma-4
+      - Fix WSL/Docker Desktop instability on worker-rtx5090 if still present (see project memory)

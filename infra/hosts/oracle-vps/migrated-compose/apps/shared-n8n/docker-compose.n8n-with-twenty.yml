@@ -1,0 +1,190 @@
+# n8n with TwentyCRM Community Nodes Integration
+# Enhanced configuration for Nyra mortgage platform
+
+version: "3.8"
+
+networks:
+  nexus-network:
+    external: true
+    name: nexus-network
+
+services:
+  n8n:
+    build:
+      context: .
+      dockerfile: Dockerfile.n8n
+      args:
+        # Install TwentyCRM community nodes
+        N8N_EXTRA_PACKAGES: "@linkedpromo/n8n-nodes-twenty @n8n-nodes/n8n-nodes-activepieces"
+        # Alternative: Install from git (if needed)
+        # N8N_TWENTY_NODES_GIT: "https://github.com/linkedpromo/n8n-nodes-twenty.git"
+    container_name: nyra-n8n
+    restart: unless-stopped
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+    # Environment Configuration
+    environment:
+      # Basic n8n Configuration
+      N8N_PORT: "5678"
+      N8N_HOST: "${N8N_HOST:-0.0.0.0}"
+      N8N_PROTOCOL: "${N8N_PROTOCOL:-http}"
+      WEBHOOK_URL: "${N8N_WEBHOOK_URL:-http://localhost:5678/webhook/}"
+
+      # Timezone & Localization
+      GENERIC_TIMEZONE: "${TIMEZONE:-America/New_York}"
+
+      # Database Configuration (PostgreSQL)
+      DB_TYPE: "postgresdb"
+      DB_POSTGRESDB_HOST: "${N8N_DB_HOST:-postgres}"
+      DB_POSTGRESDB_PORT: "${N8N_DB_PORT:-5432}"
+      DB_POSTGRESDB_DATABASE: "${N8N_DB_NAME:-nyra}"
+      DB_POSTGRESDB_USER: "${N8N_DB_USER:-nyra}"
+      DB_POSTGRESDB_PASSWORD: "${N8N_DB_PASSWORD:-}"
+
+      # Security & Encryption
+      N8N_ENCRYPTION_KEY: "${N8N_ENCRYPTION_KEY:-}"
+      N8N_BASIC_AUTH_ACTIVE: "${N8N_BASIC_AUTH_ACTIVE:-true}"
+      N8N_BASIC_AUTH_USER: "${N8N_BASIC_AUTH_USER:-admin}"
+      N8N_BASIC_AUTH_PASSWORD: "${N8N_BASIC_AUTH_PASSWORD:?N8N_BASIC_AUTH_PASSWORD is required}"
+
+      # Editor Configuration
+      N8N_EDITOR_BASE_URL: "${N8N_EDITOR_BASE_URL:-http://localhost:5678}"
+      N8N_DISABLE_UI: "${N8N_DISABLE_UI:-false}"
+
+      # Community Nodes
+      N8N_COMMUNITY_PACKAGES_ENABLED: "true"
+
+      # Nyra Platform Integration
+      NEXUS_ROUTER_URL: "${NEXUS_ROUTER_URL:-http://nexus-router:6000}"
+      NEXUS_MCP_URL: "${NEXUS_MCP_URL:-http://nexus-router:8080}"
+
+      # TwentyCRM Integration
+      TWENTY_CRM_URL: "${TWENTY_CRM_URL:-http://twenty-crm:3020}"
+      TWENTY_CRM_API_KEY: "${TWENTY_CRM_API_KEY:-}"
+      TWENTY_CRM_WORKSPACE_ID: "${TWENTY_CRM_WORKSPACE_ID:-default}"
+
+      # External Service URLs
+      QUOTE_ENGINE_URL: "${QUOTE_ENGINE_URL:-http://quote-engine:8001}"
+      CAMPAIGN_ENGINE_URL: "${CAMPAIGN_ENGINE_URL:-http://campaign-engine:8002}"
+      LEAD_CAPTURE_URL: "${LEAD_CAPTURE_URL:-http://lead-capture-api:8003}"
+
+      # Email Configuration
+      SMTP_HOST: "${SMTP_HOST:-smtp.sendgrid.net}"
+      SMTP_PORT: "${SMTP_PORT:-587}"
+      SMTP_USER: "${SMTP_USER:-apikey}"
+      SMTP_PASSWORD: "${SMTP_PASSWORD:-}"
+
+      # SMS Configuration (Twilio)
+      TWILIO_ACCOUNT_SID: "${TWILIO_ACCOUNT_SID:-}"
+      TWILIO_AUTH_TOKEN: "${TWILIO_AUTH_TOKEN:-}"
+      TWILIO_PHONE_NUMBER: "${TWILIO_PHONE_NUMBER:-}"
+
+      # Performance & Limits
+      EXECUTIONS_TIMEOUT: "${N8N_EXECUTIONS_TIMEOUT:-3600}"
+      EXECUTIONS_TIMEOUT_MAX: "${N8N_EXECUTIONS_TIMEOUT_MAX:-7200}"
+      EXECUTIONS_DATA_MAX_AGE: "${N8N_EXECUTIONS_DATA_MAX_AGE:-168}"
+
+      # Logging
+      N8N_LOG_LEVEL: "${N8N_LOG_LEVEL:-info}"
+      N8N_LOG_OUTPUT: "${N8N_LOG_OUTPUT:-console}"
+
+    # Port Mapping
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+
+    # Volume Configuration
+    volumes:
+      # ✅ Primary data volume (persistent across container restarts)
+      - n8n_data:/home/node/.n8n
+
+      # ✅ Workflow templates (read-only)
+      - ../../workflows:/opt/nyra/workflows:ro
+
+      # ✅ Custom nodes (if any local development)
+      - ./custom-nodes:/home/node/.n8n/custom:rw
+
+      # ✅ Backup directory (optional)
+      - ./backups:/backups:rw
+
+    # Network Configuration
+    networks:
+      - nexus-network
+
+    # Resource Limits (production recommended)
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "1.0"
+        reservations:
+          memory: 512M
+          cpus: "0.5"
+
+    # Logging Configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Dependencies
+    depends_on:
+      - postgres
+
+  # PostgreSQL Database (if not using external)
+  postgres:
+    image: postgres:16-alpine
+    container_name: nyra-n8n-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: "${N8N_DB_NAME:-nyra}"
+      POSTGRES_USER: "${N8N_DB_USER:-nyra}"
+      POSTGRES_PASSWORD: "${N8N_DB_PASSWORD:?N8N_DB_PASSWORD is required}"
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+    volumes:
+      - n8n_postgres_data:/var/lib/postgresql/data/pgdata
+
+    ports:
+      - "${N8N_DB_PORT:-5432}:5432"
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${N8N_DB_USER:-nyra} -d ${N8N_DB_NAME:-nyra}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - nexus-network
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+# Named volumes
+volumes:
+  n8n_data:
+    driver: local
+    labels:
+      - "nyra.service=n8n"
+      - "nyra.component=data"
+
+  n8n_postgres_data:
+    driver: local
+    labels:
+      - "nyra.service=n8n"
+      - "nyra.component=database"

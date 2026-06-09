@@ -12,16 +12,16 @@ Comprehensive validation of Project Nyra's infrastructure consolidation reveals 
 
 ### Overall Assessment
 
-| Category | Status | Risk Level | Action Required |
-|----------|--------|------------|-----------------|
-| File Structure | ✅ Pass | Low | None |
-| Docker Organization | ✅ Pass | Low | None |
-| Git History | ✅ Pass | Low | None |
-| Archive Integrity | ✅ Pass | Low | None |
-| API Key Security | ❌ **FAIL** | **CRITICAL** | **IMMEDIATE** |
-| Environment Config | ⚠️ Warning | Medium | Review |
-| Symlinks | ✅ Pass | Low | None |
-| Disk Space | ✅ Pass | Low | None |
+| Category            | Status      | Risk Level   | Action Required |
+| ------------------- | ----------- | ------------ | --------------- |
+| File Structure      | ✅ Pass     | Low          | None            |
+| Docker Organization | ✅ Pass     | Low          | None            |
+| Git History         | ✅ Pass     | Low          | None            |
+| Archive Integrity   | ✅ Pass     | Low          | None            |
+| API Key Security    | ❌ **FAIL** | **CRITICAL** | **IMMEDIATE**   |
+| Environment Config  | ⚠️ Warning  | Medium       | Review          |
+| Symlinks            | ✅ Pass     | Low          | None            |
+| Disk Space          | ✅ Pass     | Low          | None            |
 
 ---
 
@@ -32,23 +32,27 @@ Comprehensive validation of Project Nyra's infrastructure consolidation reveals 
 **Issue**: Real Anthropic API keys found in tracked .env files
 
 **Affected Files**:
+
 ```
 ./.env
 ./configs/claude-configs/.env
 ```
 
 **Exposed Key Pattern**:
+
 ```
-ANTHROPIC_API_KEY=sk-ant-api03-oWxuN1lVFmiAXPZ9lrKsmfioxPk-[REDACTED]
+ANTHROPIC_API_KEY=<redacted-anthropic-api-key>
 ```
 
 **Risk Assessment**:
+
 - **Severity**: CRITICAL
 - **Exposure**: High (files present in working directory)
 - **Git Status**: ✅ Files ARE in .gitignore (not committed to git)
 - **Potential Impact**: Unauthorized API usage, cost implications, data exposure
 
 **Immediate Actions Required**:
+
 1. ⚠️ **ROTATE API KEY IMMEDIATELY** at https://console.anthropic.com
 2. Remove `.env` files from working directory
 3. Copy `.env.example` to `.env` with placeholder values
@@ -56,6 +60,7 @@ ANTHROPIC_API_KEY=sk-ant-api03-oWxuN1lVFmiAXPZ9lrKsmfioxPk-[REDACTED]
 5. Never commit real API keys to any .env file
 
 **Verification Commands**:
+
 ```bash
 # Check if files are staged for commit
 git status .env configs/claude-configs/.env
@@ -73,6 +78,7 @@ mv configs/claude-configs/.env configs/claude-configs/.env.local.backup
 **Issue**: Default passwords found in Docker Compose files using environment variable fallbacks
 
 **Examples Found**:
+
 ```yaml
 # docker-compose.addons.yml
 N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
@@ -86,12 +92,14 @@ GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
 ```
 
 **Risk Assessment**:
+
 - **Severity**: MEDIUM
 - **Scope**: Development environments
 - **Mitigation**: Using environment variables is correct pattern
 - **Recommendation**: Ensure production .env files override all defaults
 
 **Actions Required**:
+
 1. Document all default passwords in security audit
 2. Ensure production .env overrides ALL default values
 3. Use Infisical for production password management
@@ -106,6 +114,7 @@ GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
 **Status**: **COMPLETE** (January 15, 2026)
 
 **Validation Results**:
+
 - ✅ Materials unified into `bootstrap/installer/`
 - ✅ Documentation consolidated to v4.0.0
 - ✅ Redundant folders removed (windows/, wsl/, configs/, docker/)
@@ -125,6 +134,7 @@ GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
 **Status**: **COMPLETE** (January 17-18, 2026)
 
 **Validation Results**:
+
 - ✅ 202 Docker Compose files organized by function
 - ✅ Primary configs in `infra/docker/` (17 files)
 - ✅ Bootstrap configs in `bootstrap/installer/docker/` (17 files)
@@ -134,6 +144,7 @@ GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
 - ⚠️ **Note**: `bootstrap/docker/` does NOT exist (expected post-consolidation)
 
 **Docker File Distribution**:
+
 ```
 Total: 202 Docker Compose files
 
@@ -149,6 +160,7 @@ Staging/Temporary:
 ```
 
 **Key Docker Files Verified**:
+
 ```
 ✅ infra/docker/docker-compose.yml
 ✅ infra/docker/docker-compose.orchestration.yml
@@ -170,6 +182,7 @@ Staging/Temporary:
 **Status**: **COMPLETE** (January 18, 2026)
 
 **Validation Results**:
+
 - ✅ 306 lines of standardized environment configuration
 - ✅ Master template: `.env.example` (properly documented)
 - ✅ 27 service categories defined
@@ -177,6 +190,7 @@ Staging/Temporary:
 - ⚠️ PC-specific templates need validation
 
 **Environment Files Found**:
+
 ```
 Configuration Files:
 ├── .env.example                     ✅ Master template
@@ -198,17 +212,18 @@ Archived/Backup:
 **Expected State**: Post-consolidation structure
 **Actual State**: ✅ Matches expected post-consolidation state
 
-| File Path | Expected | Actual | Status |
-|-----------|----------|--------|--------|
-| `bootstrap/docker/docker-compose.yml` | Not exist (consolidated) | Not exist | ✅ Expected |
-| `bootstrap/installer/docker/` | Exists | Exists (17 files) | ✅ Pass |
-| `infra/docker/docker-compose.yml` | Exists | Exists | ✅ Pass |
-| `infra/scripts/consolidate-docker-configs.sh` | Exists | Exists | ✅ Pass |
-| `infra/scripts/validate-consolidation.sh` | Exists | Exists | ✅ Pass |
-| `.env.example` | Exists | Exists | ✅ Pass |
-| `docker-compose.infisical.yml` | Exists | Exists | ✅ Pass |
+| File Path                                     | Expected                 | Actual            | Status      |
+| --------------------------------------------- | ------------------------ | ----------------- | ----------- |
+| `bootstrap/docker/docker-compose.yml`         | Not exist (consolidated) | Not exist         | ✅ Expected |
+| `bootstrap/installer/docker/`                 | Exists                   | Exists (17 files) | ✅ Pass     |
+| `infra/docker/docker-compose.yml`             | Exists                   | Exists            | ✅ Pass     |
+| `infra/scripts/consolidate-docker-configs.sh` | Exists                   | Exists            | ✅ Pass     |
+| `infra/scripts/validate-consolidation.sh`     | Exists                   | Exists            | ✅ Pass     |
+| `.env.example`                                | Exists                   | Exists            | ✅ Pass     |
+| `docker-compose.infisical.yml`                | Exists                   | Exists            | ✅ Pass     |
 
 **Finding**: The validation script checks for `bootstrap/docker/docker-compose.yml` which is expected to NOT exist post-consolidation. Docker files have been correctly moved to:
+
 - `infra/docker/` (primary infrastructure)
 - `bootstrap/installer/docker/` (bootstrap tooling)
 
@@ -216,16 +231,17 @@ Archived/Backup:
 
 **Archive Locations Verified**:
 
-| Archive | Purpose | Size | Status | Documentation |
-|---------|---------|------|--------|---------------|
-| `_archive/` | Recent consolidation | Variable | ✅ Pass | README found |
-| `_archived/` | Historical (not found) | N/A | ⚠️ Warning | May use different name |
-| `_backup/` | Timestamped backups | ~200 MB | ⚠️ Warning | Not found in expected location |
-| `_archive/backups-consolidated-2026-01-18/` | Consolidated backups | Variable | ✅ Pass | Found |
-| `_archive/reports-2026-q1/` | Quarterly reports | ~50 KB | ✅ Pass | Found |
-| `_archive/ingestion-historical-2026-01-18/` | Historical ingestion | ~2 GB | ✅ Pass | Found |
+| Archive                                     | Purpose                | Size     | Status     | Documentation                  |
+| ------------------------------------------- | ---------------------- | -------- | ---------- | ------------------------------ |
+| `_archive/`                                 | Recent consolidation   | Variable | ✅ Pass    | README found                   |
+| `_archived/`                                | Historical (not found) | N/A      | ⚠️ Warning | May use different name         |
+| `_backup/`                                  | Timestamped backups    | ~200 MB  | ⚠️ Warning | Not found in expected location |
+| `_archive/backups-consolidated-2026-01-18/` | Consolidated backups   | Variable | ✅ Pass    | Found                          |
+| `_archive/reports-2026-q1/`                 | Quarterly reports      | ~50 KB   | ✅ Pass    | Found                          |
+| `_archive/ingestion-historical-2026-01-18/` | Historical ingestion   | ~2 GB    | ✅ Pass    | Found                          |
 
 **Archive Contents**:
+
 ```
 _archive/
 ├── backups-consolidated-2026-01-18/
@@ -243,6 +259,7 @@ _archive/
 ```
 
 **Findings**:
+
 - ✅ Recent archives properly organized
 - ✅ Reports moved to quarterly structure
 - ✅ Phase backups preserved
@@ -251,6 +268,7 @@ _archive/
 ### 3. Secret Scanning Results
 
 **Scan Methodology**:
+
 - Pattern matching for common secret types
 - File system search for sensitive files
 - Git history inspection
@@ -258,15 +276,16 @@ _archive/
 
 **Findings**:
 
-| Secret Type | Status | Risk | Location |
-|-------------|--------|------|----------|
+| Secret Type          | Status         | Risk         | Location                              |
+| -------------------- | -------------- | ------------ | ------------------------------------- |
 | API Keys (Anthropic) | ❌ **EXPOSED** | **CRITICAL** | `.env`, `configs/claude-configs/.env` |
-| Database Passwords | ✅ Safe | Low | Using env vars with defaults |
-| JWT Secrets | ✅ Not found | Low | Proper configuration |
-| SSH Keys | ✅ Not found | Low | N/A |
-| SSL Certificates | ✅ Not found | Low | N/A |
+| Database Passwords   | ✅ Safe        | Low          | Using env vars with defaults          |
+| JWT Secrets          | ✅ Not found   | Low          | Proper configuration                  |
+| SSH Keys             | ✅ Not found   | Low          | N/A                                   |
+| SSL Certificates     | ✅ Not found   | Low          | N/A                                   |
 
 **Git History Check**:
+
 ```bash
 # Verified .env files were NEVER committed to git
 git log --all --full-history -- ".env"
@@ -274,6 +293,7 @@ git log --all --full-history -- ".env"
 ```
 
 **Gitignore Verification**:
+
 ```bash
 # Verified .env files ARE properly ignored
 .gitignore:34:.env    .env
@@ -287,6 +307,7 @@ git log --all --full-history -- ".env"
 **Status**: ✅ **PASS**
 
 **Verification Results**:
+
 - ✅ `.gitignore` exists and properly configured
 - ✅ `_archive/` is in .gitignore (archive contents excluded)
 - ✅ `_backup/` is in .gitignore
@@ -296,6 +317,7 @@ git log --all --full-history -- ".env"
 - ✅ Build artifacts properly ignored
 
 **Git Status**:
+
 ```
 Current Status:
 - Modified files: 3 tracked files
@@ -305,6 +327,7 @@ Current Status:
 ```
 
 **Git Snapshot**:
+
 ```
 Latest relevant commits:
 - aea29204: Pre-consolidation snapshot
@@ -319,11 +342,13 @@ Latest relevant commits:
 **Status**: ✅ **PASS**
 
 **Docker Installation**:
+
 - ✅ Docker version: 29.1.4 (build 0e6fee6)
 - ✅ Docker Compose version: v5.0.0-desktop.1
 - ⚠️ Docker daemon status: Not verified (requires running daemon)
 
 **Docker Compose Validation**:
+
 ```bash
 # Sample validation commands (to be run with Docker running):
 docker-compose -f infra/docker/docker-compose.yml config
@@ -337,11 +362,13 @@ docker-compose -f docker-compose.infisical.yml config
 **Status**: ✅ **PASS**
 
 **Findings**:
+
 - ✅ No broken symlinks found outside node_modules
 - ✅ Node module symlinks are expected (pnpm workspace links)
 - ✅ No critical broken links affecting infrastructure
 
 **Scanned Locations**:
+
 - Bootstrap directories
 - Infrastructure directories
 - Configuration directories
@@ -352,11 +379,13 @@ docker-compose -f docker-compose.infisical.yml config
 **Status**: ✅ **PASS**
 
 **Current Usage**:
+
 - Repository size: ~4.2 GB (up from ~3.5 GB pre-consolidation)
 - Archive overhead: ~700 MB (acceptable for rollback capability)
 - Available space: Sufficient for continued operations
 
 **Recommendations**:
+
 - Monitor `ingestion/` directory size (~2 GB)
 - Consider periodic cleanup of temporary staging areas
 - Archive older backups to external storage if needed
@@ -367,23 +396,23 @@ docker-compose -f docker-compose.infisical.yml config
 
 ### File Organization Metrics
 
-| Category | Before | After | Status |
-|----------|--------|-------|--------|
-| **Docker Compose Files** | 202 (scattered) | 202 (organized) | ✅ Organized |
-| **Bootstrap Root Files** | 25+ | 8 | ✅ -68% |
-| **Environment Files** | ~50 duplicates | 1 master + variants | ✅ -90% |
-| **Documentation Files** | ~100 scattered | ~40 categorized | ✅ Consolidated |
-| **Archive Size** | 0 | ~700 MB | ✅ Safe rollback |
+| Category                 | Before          | After               | Status           |
+| ------------------------ | --------------- | ------------------- | ---------------- |
+| **Docker Compose Files** | 202 (scattered) | 202 (organized)     | ✅ Organized     |
+| **Bootstrap Root Files** | 25+             | 8                   | ✅ -68%          |
+| **Environment Files**    | ~50 duplicates  | 1 master + variants | ✅ -90%          |
+| **Documentation Files**  | ~100 scattered  | ~40 categorized     | ✅ Consolidated  |
+| **Archive Size**         | 0               | ~700 MB             | ✅ Safe rollback |
 
 ### Quality Metrics
 
-| Metric | Status | Notes |
-|--------|--------|-------|
-| **File Duplication** | ✅ Eliminated | Docker configs deduplicated |
-| **Configuration Clarity** | ✅ Improved | Clear service organization |
-| **Documentation Completeness** | ✅ Complete | All phases documented |
-| **Rollback Capability** | ✅ Available | Full archives in place |
-| **Security Posture** | ❌ **At Risk** | API keys need rotation |
+| Metric                         | Status         | Notes                       |
+| ------------------------------ | -------------- | --------------------------- |
+| **File Duplication**           | ✅ Eliminated  | Docker configs deduplicated |
+| **Configuration Clarity**      | ✅ Improved    | Clear service organization  |
+| **Documentation Completeness** | ✅ Complete    | All phases documented       |
+| **Rollback Capability**        | ✅ Available   | Full archives in place      |
+| **Security Posture**           | ❌ **At Risk** | API keys need rotation      |
 
 ---
 
@@ -392,6 +421,7 @@ docker-compose -f docker-compose.infisical.yml config
 ### Priority 1: CRITICAL (Within 24 Hours)
 
 1. **Rotate Exposed API Keys** ⚠️ URGENT
+
    ```bash
    # 1. Generate new Anthropic API key at console.anthropic.com
    # 2. Update Infisical with new key
@@ -407,6 +437,7 @@ docker-compose -f docker-compose.infisical.yml config
    ```
 
 2. **Verify API Key Rotation**
+
    ```bash
    # Check that old key no longer works
    curl -H "x-api-key: OLD_KEY" https://api.anthropic.com/v1/messages
@@ -464,6 +495,7 @@ docker-compose -f docker-compose.infisical.yml config
 ### Short-term Improvements
 
 1. **Secret Detection Automation**
+
    ```bash
    # Add to .git/hooks/pre-commit
    #!/bin/bash
@@ -514,17 +546,17 @@ docker-compose -f docker-compose.infisical.yml config
 
 ### Pass/Fail Breakdown
 
-| Category | Tests | Passed | Failed | Warnings |
-|----------|-------|--------|--------|----------|
-| File Structure | 7 | 7 | 0 | 0 |
-| Docker Organization | 13 | 13 | 0 | 0 |
-| Git Configuration | 6 | 6 | 0 | 0 |
-| Archive Integrity | 6 | 4 | 0 | 2 |
-| Security Scanning | 5 | 3 | 2 | 0 |
-| Environment Config | 4 | 2 | 0 | 2 |
-| Symlinks | 3 | 3 | 0 | 0 |
-| Disk Space | 2 | 2 | 0 | 0 |
-| **TOTAL** | **46** | **40** | **2** | **4** |
+| Category            | Tests  | Passed | Failed | Warnings |
+| ------------------- | ------ | ------ | ------ | -------- |
+| File Structure      | 7      | 7      | 0      | 0        |
+| Docker Organization | 13     | 13     | 0      | 0        |
+| Git Configuration   | 6      | 6      | 0      | 0        |
+| Archive Integrity   | 6      | 4      | 0      | 2        |
+| Security Scanning   | 5      | 3      | 2      | 0        |
+| Environment Config  | 4      | 2      | 0      | 2        |
+| Symlinks            | 3      | 3      | 0      | 0        |
+| Disk Space          | 2      | 2      | 0      | 0        |
+| **TOTAL**           | **46** | **40** | **2**  | **4**    |
 
 ### Overall Assessment
 
@@ -533,10 +565,12 @@ docker-compose -f docker-compose.infisical.yml config
 The infrastructure consolidation is technically complete and successful. However, critical security issues must be addressed immediately before production deployment.
 
 **Blockers for Production**:
+
 1. ❌ Exposed API keys (MUST rotate immediately)
 2. ⚠️ Missing secrets management integration (Infisical setup)
 
 **Safe to Proceed With**:
+
 1. ✅ Development and testing environments
 2. ✅ Further consolidation work
 3. ✅ Documentation updates
@@ -547,18 +581,21 @@ The infrastructure consolidation is technically complete and successful. However
 ## 📞 NEXT STEPS
 
 ### Immediate (Today)
+
 1. [ ] Rotate Anthropic API key
 2. [ ] Remove .env files with real keys
 3. [ ] Update team on security incident
 4. [ ] Review this validation report
 
 ### This Week
+
 1. [ ] Complete Infisical integration
 2. [ ] Test all Docker profiles
 3. [ ] Document security procedures
 4. [ ] Implement secret scanning
 
 ### This Month
+
 1. [ ] Complete security hardening
 2. [ ] Validate all PC deployments
 3. [ ] Update all documentation
@@ -569,16 +606,19 @@ The infrastructure consolidation is technically complete and successful. However
 ## 📚 REFERENCES
 
 ### Related Documentation
+
 - [Infrastructure Consolidation Complete](./CONSOLIDATION-COMPLETE.md)
 - [Bootstrap Consolidation](../../bootstrap/CONSOLIDATION-COMPLETE.md)
 - [Environment Variables Guide](./ENV-VARIABLE-GUIDE.md)
 - [4-PC Architecture](../architecture/4PC-DISTRIBUTED-ARCHITECTURE.md)
 
 ### Validation Scripts
+
 - `infra/scripts/validate-consolidation.sh` - Main validation script
 - `infra/scripts/consolidate-docker-configs.sh` - Docker consolidation script
 
 ### Archive Locations
+
 - `_archive/` - Recent consolidation materials
 - `bootstrap/docs/_archive/` - Bootstrap historical docs
 
@@ -597,4 +637,4 @@ The infrastructure consolidation is technically complete and successful. However
 
 ---
 
-*This validation report was generated as part of Project Nyra's comprehensive infrastructure consolidation safety verification process.*
+_This validation report was generated as part of Project Nyra's comprehensive infrastructure consolidation safety verification process._

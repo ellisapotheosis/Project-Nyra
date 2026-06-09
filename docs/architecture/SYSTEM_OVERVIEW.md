@@ -25,16 +25,19 @@ This repository preserves that split and treats worker nodes as stateless infere
 ## Runtime Responsibilities
 
 ### Oracle
+
 - Core persistence and business logic services.
 - CRM/workflow and quote-serving APIs.
 - No dependency on worker-local state.
 
 ### Orchestrator
+
 - Request routing and model dispatch orchestration.
 - Coordination across internal services and worker inference endpoints.
 - Operational dashboards and management services.
 
 ### Workers
+
 - Model serving only (vLLM/Ollama-compatible endpoints).
 - No databases or stateful business services.
 - Exposed only to orchestrator/internal mesh.
@@ -44,12 +47,12 @@ This repository preserves that split and treats worker nodes as stateless infere
 - `apps/`: borrower/operator web surfaces.
 - `services/`: domain services and adapters.
 - `packages/`: shared UI, schemas, clients.
-- `infra/`: Oracle, orchestrator, workers, cloudflared, tailscale deployment assets.
+- `infra/`: per-host Oracle, orchestrator, worker, Cloudflared, and Tailscale deployment assets.
 - `workflows/`: Activepieces (primary) and n8n (optional/internal-only).
 - `archive/`: time-stamped preservation of legacy/duplicate assets.
 
 ## Consolidation Baseline (April 8, 2026)
 
-- Canonical infra compose files exist under `infra/oracle`, `infra/orchestrator`, and `infra/workers/*`.
+- Canonical infra compose files exist under `infra/hosts/oracle-vps`, `infra/hosts/orchestrator`, and `infra/hosts/worker-*`.
 - Canonical env and port references live under `docs/infra`.
 - Legacy/alternate stack variants remain in-tree for traceability and are candidates for staged archival, not deletion.

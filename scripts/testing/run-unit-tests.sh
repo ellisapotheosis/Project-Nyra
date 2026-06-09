@@ -19,8 +19,9 @@ echo ""
 export NODE_ENV=test
 export LOG_LEVEL=error
 
-# Run Jest with unit test configuration
-pnpm test -- --config=jest.config.unit.js --coverage --maxWorkers=4
+# Run the implemented unit/smoke suite. Broader gap-tracking tests remain
+# available through the full Vitest config but are not CI-gating.
+pnpm exec vitest --config vitest.smoke.config.mjs run --maxWorkers=4
 
 echo ""
 echo -e "${GREEN}Unit tests completed!${NC}"

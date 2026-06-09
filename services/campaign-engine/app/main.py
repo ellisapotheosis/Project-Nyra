@@ -17,6 +17,7 @@ import os
 import logging
 from jinja2 import Template
 import json
+from app.privacy import redact_sensitive
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -30,7 +31,7 @@ TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
-SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "noreply@ratehunter.net")
+SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "noreply@ratehunter.com")
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -307,17 +308,17 @@ async def send_sms(to_number: str, message: str, borrower_id: str) -> bool:
             metadata={"twilio_sid": message_obj.sid}
         )
 
-        logger.info(f"SMS sent to {to_number}, SID: {message_obj.sid}")
+        logger.info(f"SMS sent to [REDACTED_PHONE], SID: {message_obj.sid}")
         return True
 
     except Exception as e:
-        logger.error(f"Failed to send SMS: {str(e)}")
+        logger.error(f"Failed to send SMS: {redact_sensitive(e)}")
         await log_message_sent(
             borrower_id=borrower_id,
             channel="sms",
             content=message,
             status="failed",
-            metadata={"error": str(e)}
+            metadata={"error": redact_sensitive(e)}
         )
         return False
 
@@ -336,22 +337,22 @@ async def initiate_voice_call(to_number: str, message_url: str, borrower_id: str
         await log_message_sent(
             borrower_id=borrower_id,
             channel="voice",
-            content=f"Voice call to {to_number}",
+            content="Voice call requested",
             status="initiated",
             metadata={"twilio_sid": call.sid}
         )
 
-        logger.info(f"Voice call initiated to {to_number}, SID: {call.sid}")
+        logger.info(f"Voice call initiated to [REDACTED_PHONE], SID: {call.sid}")
         return True
 
     except Exception as e:
-        logger.error(f"Failed to initiate voice call: {str(e)}")
+        logger.error(f"Failed to initiate voice call: {redact_sensitive(e)}")
         await log_message_sent(
             borrower_id=borrower_id,
             channel="voice",
-            content=f"Voice call to {to_number}",
+            content="Voice call requested",
             status="failed",
-            metadata={"error": str(e)}
+            metadata={"error": redact_sensitive(e)}
         )
         return False
 
@@ -392,17 +393,17 @@ async def send_email(to_email: str, subject: str, content: str, borrower_id: str
                 metadata={"subject": subject, "to": to_email}
             )
 
-            logger.info(f"Email sent to {to_email}")
+            logger.info("Email sent to [REDACTED_EMAIL]")
             return True
 
     except Exception as e:
-        logger.error(f"Failed to send email: {str(e)}")
+        logger.error(f"Failed to send email: {redact_sensitive(e)}")
         await log_message_sent(
             borrower_id=borrower_id,
             channel="email",
             content=content,
             status="failed",
-            metadata={"error": str(e), "subject": subject}
+            metadata={"error": redact_sensitive(e), "subject": subject}
         )
         return False
 
@@ -418,8 +419,8 @@ async def render_template(template_content: str, borrower_data: Dict) -> str:
         rendered = template.render(**borrower_data)
         return rendered
     except Exception as e:
-        logger.error(f"Template rendering failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Template rendering failed: {str(e)}")
+        logger.error(f"Template rendering failed: {redact_sensitive(e)}")
+        raise HTTPException(status_code=500, detail="Template rendering failed")
 
 
 # ============================================================================
@@ -436,7 +437,6 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Close database pool on shutdown"""
-    global db_pool
     if db_pool:
         await db_pool.close()
     logger.info("Campaign Engine shutdown")

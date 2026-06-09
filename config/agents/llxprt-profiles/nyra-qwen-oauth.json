@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "provider": "qwen",
+  "model": "qwen3-coder-plus",
+  "auth": {
+    "type": "oauth",
+    "buckets": ["default"]
+  },
+  "ephemeralSettings": {
+    "context-limit": 128000,
+    "compression-threshold": 0.75,
+    "max-prompt-tokens": 110000,
+    "tool-output-max-items": 35,
+    "tool-output-max-tokens": 30000,
+    "tool-output-truncate-mode": "warn",
+    "shell-default-timeout-seconds": 120,
+    "shell-max-timeout-seconds": 900,
+    "task-default-timeout-seconds": 900,
+    "task-max-timeout-seconds": 2400
+  }
+}
