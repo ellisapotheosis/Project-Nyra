@@ -1,8 +1,8 @@
 services:
   wol-manager:
     build:
-      context: ../../..
-      dockerfile: services/wol-manager/Dockerfile
+      context: ../../../services/wol-manager
+      dockerfile: Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-wol-manager
     restart: unless-stopped
     ports:
