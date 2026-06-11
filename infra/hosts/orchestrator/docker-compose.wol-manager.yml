@@ -25,8 +25,6 @@ services:
       POLICY_INTERVAL_SECONDS: ${POLICY_INTERVAL_SECONDS:-60}
     volumes:
       - ${SSH_CLUSTER_KEY_PATH:-/home/ellisapotheosis/.ssh/cluster_key}:/run/secrets/cluster_ssh_key:ro
-    networks:
-      - nyra-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8095/health"]
       interval: 30s
@@ -42,7 +40,3 @@ services:
           memory: 256m
         reservations:
           memory: 64m
-
-networks:
-  nyra-network:
-    external: true
