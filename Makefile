@@ -90,9 +90,9 @@ nyra_load_infisical_env = if [ -z "$${INFISICAL_TOKEN:-}" ] && [ -f "$(INFISICAL
 
 define nyra_host_compose
 case "$(1)" in \
-  "$(ORCHESTRATOR_INFISICAL_PATH)") env_file="infra/hosts/orchestrator/.env"; compose_project_name="nyra-network";; \
-  "$(ORACLE_INFISICAL_PATH)") env_file="infra/hosts/oracle-vps/.env"; compose_project_name="nyra-network";; \
-  "$(WORKER_5090_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="nyra-network";; \
+  "$(ORCHESTRATOR_INFISICAL_PATH)") env_file="infra/hosts/orchestrator/.env"; compose_project_name="orchestrator";; \
+  "$(ORACLE_INFISICAL_PATH)") env_file="infra/hosts/oracle-vps/.env"; compose_project_name="oracle-vps";; \
+  "$(WORKER_5090_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="worker-rtx5090";; \
   "$(WORKER_3090TI_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3090ti/.env"; compose_project_name="worker-rtx3090ti";; \
   "$(WORKER_3060_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3060/.env"; compose_project_name="worker-rtx3060";; \
   *) echo "Unknown Infisical path '$(1)' for local env fallback." >&2; exit 64;; \
@@ -108,9 +108,9 @@ endef
 
 define nyra_node_shell
 case "$(NODE)" in \
-  orchestrator) host_path="$(ORCHESTRATOR_INFISICAL_PATH)"; ctx="$(ORCHESTRATOR_CONTEXT)"; compose_files="-f $(ORCHESTRATOR_COMPOSE)"; env_file="infra/hosts/orchestrator/.env"; compose_project_name="nyra-network"; nyra_vllm_model="";; \
-  oracle|oracle-vps) host_path="$(ORACLE_INFISICAL_PATH)"; ctx="$(ORACLE_CONTEXT)"; compose_files="-f $(ORACLE_COMPOSE)"; env_file="infra/hosts/oracle-vps/.env"; compose_project_name="nyra-network"; nyra_vllm_model="";; \
-  worker-rtx5090) host_path="$(WORKER_5090_INFISICAL_PATH)"; ctx="$(WORKER_5090_CONTEXT)"; compose_files="-f $(WORKER_5090_COMPOSE)"; env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="nyra-network"; nyra_vllm_model="$(WORKER_5090_DEFAULT_MODEL)";; \
+  orchestrator) host_path="$(ORCHESTRATOR_INFISICAL_PATH)"; ctx="$(ORCHESTRATOR_CONTEXT)"; compose_files="-f $(ORCHESTRATOR_COMPOSE)"; env_file="infra/hosts/orchestrator/.env"; compose_project_name="orchestrator"; nyra_vllm_model="";; \
+  oracle|oracle-vps) host_path="$(ORACLE_INFISICAL_PATH)"; ctx="$(ORACLE_CONTEXT)"; compose_files="-f $(ORACLE_COMPOSE)"; env_file="infra/hosts/oracle-vps/.env"; compose_project_name="oracle-vps"; nyra_vllm_model="";; \
+  worker-rtx5090) host_path="$(WORKER_5090_INFISICAL_PATH)"; ctx="$(WORKER_5090_CONTEXT)"; compose_files="-f $(WORKER_5090_COMPOSE)"; env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="worker-rtx5090"; nyra_vllm_model="$(WORKER_5090_DEFAULT_MODEL)";; \
   worker-rtx3090ti) host_path="$(WORKER_3090TI_INFISICAL_PATH)"; ctx="$(WORKER_3090TI_CONTEXT)"; compose_files="-f $(WORKER_3090TI_COMPOSE)"; env_file="infra/hosts/worker-rtx3090ti/.env"; compose_project_name="worker-rtx3090ti"; nyra_vllm_model="$(WORKER_3090TI_DEFAULT_MODEL)";; \
   worker-rtx3060) host_path="$(WORKER_3060_INFISICAL_PATH)"; ctx="$(WORKER_3060_CONTEXT)"; compose_files="-f $(WORKER_3060_COMPOSE)"; env_file="infra/hosts/worker-rtx3060/.env"; compose_project_name="worker-rtx3060"; nyra_vllm_model="";; \
   *) echo "Unknown NODE='$(NODE)'. Expected orchestrator, oracle, worker-rtx5090, worker-rtx3090ti, or worker-rtx3060." >&2; exit 64;; \
@@ -1333,7 +1333,7 @@ oracle-portainer-sync:
 	@PORTAINER_TLS_ARG=""; \
 	if [ "$${PORTAINER_INSECURE_TLS:-1}" = "1" ]; then PORTAINER_TLS_ARG="--insecure-tls"; fi; \
 	$(nyra_load_infisical_env) \
-	  COMPOSE_PROJECT_NAME="nyra-network" \
+	  COMPOSE_PROJECT_NAME="oracle-vps" \
 	  INFISICAL_TOKEN="$${INFISICAL_TOKEN:?$(NYRA_INFISICAL_TOKEN_HINT)}" \
 	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=$(ORACLE_INFISICAL_PATH) -- \
 	  python3 infra/scripts/portainer-sync-stack.py \

@@ -1,5 +1,6 @@
 # docker-compose.persistent.yml — Oracle VPS
 # =============================================================================
+name: persistent
 # NEVER include this in make down, make stack-down, or any teardown target.
 # Oracle is the Portainer CE host — the central management UI for all environments.
 # restart: always ensures Docker daemon re-launches these after reboot.
