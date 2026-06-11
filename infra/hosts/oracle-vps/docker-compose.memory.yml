@@ -40,7 +40,7 @@ services:
       mem0:
         condition: service_healthy
     ports:
-      - ${ORACLE_TAILSCALE_IP:-127.0.0.1}:${LETTA_HOST_PORT:-8283}:8283
+      - 127.0.0.1:${LETTA_HOST_PORT:-8283}:8283
     volumes:
       - letta_state:/root/.letta
     networks:
@@ -223,6 +223,10 @@ networks:
 
 volumes:
   letta_postgres:
+    name: nyra-memory_letta_postgres
   letta_state:
+    name: nyra-memory_letta_state
   qdrant_data:
+    name: nyra-memory_qdrant_data
   falkordb_data:
+    name: nyra-memory_falkordb_data
