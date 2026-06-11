@@ -807,6 +807,7 @@ services:
 
 networks:
   nyra_net:
+    name: nyra_net
 
 volumes:
   postgres_data:
