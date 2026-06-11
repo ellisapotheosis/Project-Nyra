@@ -47,6 +47,7 @@ services:
     volumes:
       - memos_data:/data
     networks:
+      memory_private: {}
       memory_edge: {}
       nyra_net:
         aliases:
@@ -81,6 +82,7 @@ services:
     volumes:
       - memos_data:/data
     networks:
+      memory_private: {}
       memory_edge: {}
       nyra_net:
         aliases:
@@ -97,6 +99,9 @@ services:
       retries: 3
 
 networks:
+  memory_private:
+    external: true
+    name: nyra_memory_private
   memory_edge:
     external: true
     name: nyra_memory_edge
