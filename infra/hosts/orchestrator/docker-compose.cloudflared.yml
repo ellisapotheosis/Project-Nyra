@@ -1,4 +1,4 @@
-name: cd-tunnel-orchestrator
+name: cf-tunnel-orchestrator
 
 # Standalone cloudflared tunnel for the Orchestrator PC.
 # Run separately from the main orchestrator stack so it can be stopped/started
@@ -14,7 +14,7 @@ services:
   secrets-init:
     build:
       context: ../../images/infisical-secrets-init
-    container_name: cd-tunnel-orchestrator-cf-secrets-init
+    container_name: cf-tunnel-orchestrator-cf-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
@@ -33,7 +33,7 @@ services:
   infisical-agent:
     build:
       context: ../../images/infisical-secrets-init
-    container_name: cd-tunnel-orchestrator-cf-infisical-agent
+    container_name: cf-tunnel-orchestrator-cf-infisical-agent
     restart: unless-stopped
     entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
     depends_on:
@@ -57,7 +57,7 @@ services:
       context: .
       dockerfile: Dockerfile.cloudflared-wrapper
     image: nyra/cloudflared-wrapper:latest
-    container_name: cd-tunnel-orchestrator
+    container_name: cf-tunnel-orchestrator
     restart: unless-stopped
     command:
       - |
