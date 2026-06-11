@@ -3,7 +3,7 @@ services:
     build:
       context: ../../../../twenty-mcp-jezweb
       dockerfile: Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-twenty-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-twenty-mcp
     restart: unless-stopped
     environment:
       - TWENTY_API_KEY=${TWENTY_API_KEY}

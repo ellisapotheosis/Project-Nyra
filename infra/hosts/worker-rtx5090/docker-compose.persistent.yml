@@ -1,10 +1,10 @@
 # Persistent services for worker-rtx5090 — Portainer edge agent + Syncthing
-name: nyra-persistent
+name: persistent
 
 services:
   portainer-edge-agent:
     image: portainer/agent:2.27.9
-    container_name: nyra-persistent-worker-5090-portainer-agent
+    container_name: persistent-worker-5090-portainer-agent
     restart: always
     environment:
       EDGE: "1"
@@ -21,7 +21,7 @@ services:
 
   syncthing:
     image: syncthing/syncthing:latest
-    container_name: nyra-persistent-worker-5090-syncthing
+    container_name: persistent-worker-5090-syncthing
     restart: always
     network_mode: host
     volumes:

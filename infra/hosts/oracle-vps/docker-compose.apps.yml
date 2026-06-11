@@ -7,7 +7,7 @@ services:
       args:
         APP_PATH: apps/projectnyra
         APP_NAME: projectnyra
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-webapp
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-webapp
     restart: unless-stopped
     command: ["node", "server.js"]
     environment:
@@ -49,7 +49,7 @@ services:
       args:
         APP_PATH: apps/nexusUI
         APP_NAME: "@nyra/nexus-ui"
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nexus-ui
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-nexus-ui
     restart: "no"
     command: ["node", "/app/node_modules/next/dist/bin/next", "start"]
     environment:

@@ -1,12 +1,12 @@
 # Grafbase Gateway pilot for app/business API facade experiments.
 # Nexus Router remains the canonical agent/MCP control plane.
 
-name: nyra-grafbase-pilot
+name: oracle-vps-grafbase-pilot
 
 services:
   grafbase-gateway:
     image: ${GRAFBASE_GATEWAY_IMAGE:-ghcr.io/grafbase/gateway:latest}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-grafbase-gateway
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-grafbase-gateway
     restart: unless-stopped
     command:
       - "--config"

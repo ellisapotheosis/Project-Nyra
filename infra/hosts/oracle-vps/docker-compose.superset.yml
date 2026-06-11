@@ -1,10 +1,10 @@
-name: nyra-network
+name: oracle-vps-superset
 
 services:
   superset:
     profiles: ["superset"]
     image: apache/superset:${SUPERSET_IMAGE_TAG:-latest}
-    container_name: nyra-network-nyra-superset
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-superset
     restart: unless-stopped
     environment:
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?set SUPERSET_SECRET_KEY via Infisical or an ignored host env file}

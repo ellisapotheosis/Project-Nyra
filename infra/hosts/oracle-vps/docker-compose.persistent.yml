@@ -16,7 +16,7 @@
 services:
   portainer:
     image: portainer/portainer-ce:2.27.9
-    container_name: nyra-persistent-oracle-portainer-ce
+    container_name: persistent-oracle-portainer-ce
     restart: always
     ports:
       - "8050:8000"
@@ -28,7 +28,7 @@ services:
 
   portainer-agent:
     image: portainer/agent:2.27.9
-    container_name: nyra-persistent-oracle-portainer-agent
+    container_name: persistent-oracle-portainer-agent
     restart: always
     ports:
       - "9001:9001"

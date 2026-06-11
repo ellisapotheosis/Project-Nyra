@@ -9,7 +9,7 @@ services:
       args:
         GASTOWN_REF: ${GASTOWN_REF:-main}
     image: ${GASTOWN_IMAGE:-nyra-gastown:latest}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-gastown
     restart: unless-stopped
     environment:
       IS_SANDBOX: "1"
@@ -48,11 +48,11 @@ services:
 
 volumes:
   gastown_agent_home:
-    name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown-agent-home
+    name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-gastown-agent-home
   gastown_workspace:
-    name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown-workspace
+    name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-gastown-workspace
   gastown_dolt_data:
-    name: ${COMPOSE_PROJECT_NAME:-nyra}-gastown-dolt-data
+    name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-gastown-dolt-data
 
 networks:
   nyra_net:

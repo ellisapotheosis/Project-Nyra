@@ -3,7 +3,7 @@ services:
     build:
       context: ../../../services/openclaw
       dockerfile: Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-openclaw-gateway
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-openclaw-gateway
     profiles: ["apps"]
     ports:
       - "8001:18789"
@@ -39,7 +39,7 @@ services:
 
   # docker-mcp-toolkit:
   #   image: docker/mcp-toolkit:latest
-  #   container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-docker-toolkit
+  #   container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-nyra-docker-toolkit
   #   profiles: ["apps"]
   #   ports:
   #     - "8811:8811"
@@ -67,7 +67,7 @@ services:
     # Debug-only psql client. This is not an orchestrator Postgres server:
     # it has no data volume, no host port, and sleeps until an operator execs in.
     image: postgres:16-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-postgres-client
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-nyra-postgres-client
     profiles: ["debug"]
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD:-}
@@ -85,7 +85,7 @@ services:
   # The central UI/API for managing every Docker host through agents.
   portainer:
     image: portainer/portainer-ce:2.27.9
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-nyra-portainer
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -114,7 +114,7 @@ services:
     # only to avoid starting a second host-networked instance on the same box.
     profiles: ["legacy-sync"]
     image: syncthing/syncthing:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-nyra-syncthing
     network_mode: host
     environment:
       - PUID=1000

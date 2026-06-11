@@ -3,7 +3,7 @@
 services:
   model-switcher:
     image: python:3.11-slim
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-model-switcher
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-model-switcher
     restart: unless-stopped
     ports:
       - "${MODEL_SWITCHER_PORT:-8099}:8099"

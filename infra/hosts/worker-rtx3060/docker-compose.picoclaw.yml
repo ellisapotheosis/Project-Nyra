@@ -4,7 +4,7 @@
 services:
   picoclaw:
     image: ${PICOCLAW_IMAGE:-ghcr.io/project-nyra/picoclaw:latest}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-picoclaw
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-picoclaw
     restart: unless-stopped
     environment:
       PICOCLAW_ROLE: ${PICOCLAW_ROLE:-worker}

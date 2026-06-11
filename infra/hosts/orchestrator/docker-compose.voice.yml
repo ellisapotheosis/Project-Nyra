@@ -3,7 +3,7 @@ services:
     build:
       context: ../../../services/pockettts
       dockerfile: Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-orchestrator-pocket-tts
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-orchestrator-pocket-tts
     restart: unless-stopped
     ports:
       - "8080:8000"

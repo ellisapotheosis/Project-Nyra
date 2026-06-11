@@ -12,7 +12,7 @@ services:
   secrets-init:
     build:
       context: ../../images/infisical-secrets-init
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
@@ -31,7 +31,7 @@ services:
   # ── Ollama Service ──────────────────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-ollama
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-ollama
     restart: unless-stopped
     ports:
       - "11434:11434"
@@ -66,7 +66,7 @@ services:
   # ── Model Preloader ───────────────────────────────────────────────────────
   ollama-model-init:
     image: ollama/ollama:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-model-init
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-model-init
     restart: "no"
     environment:
       - OLLAMA_HOST=http://ollama:11434
@@ -83,7 +83,7 @@ services:
   # ── LiteLLM Proxy ───────────────────────────────────────────────────────
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-litellm
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-litellm
     hostname: worker-3060-litellm
     restart: unless-stopped
     ports:
@@ -102,7 +102,7 @@ services:
   # ── Model Switcher ──────────────────────────────────────────────────────
   model-switcher:
     image: python:3.11-slim
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-switcher
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-switcher
     hostname: worker-3060-switcher
     restart: unless-stopped
     volumes:
@@ -123,7 +123,7 @@ services:
   # ── Monitoring ──────────────────────────────────────────────────────────
   promtail:
     image: grafana/promtail:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-promtail
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-promtail
     restart: unless-stopped
     network_mode: host
     volumes:
@@ -137,7 +137,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-node-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-node-exporter
     restart: unless-stopped
     ports:
       - "9100:9100"
@@ -150,7 +150,7 @@ services:
 
   gpu-exporter:
     image: utkuozdemir/nvidia_gpu_exporter:1.4.1
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-gpu-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-gpu-exporter
     restart: unless-stopped
     ports:
       - "9835:9835"
@@ -166,7 +166,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-cadvisor
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-cadvisor
     restart: unless-stopped
     privileged: true
     ports:
@@ -182,7 +182,7 @@ services:
 
   health-monitor:
     image: curlimages/curl:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-health
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-3060-health
     restart: unless-stopped
     depends_on:
       - ollama

@@ -1,7 +1,7 @@
 # Oracle VPS async agent utilities.
 # Public access should terminate at Cloudflare Access or an equivalent edge gate.
 
-name: nyra-oracle-agent-utils
+name: oracle-vps-oracle-agent-utils
 
 x-common: &common
   restart: unless-stopped
@@ -21,7 +21,7 @@ services:
   searxng:
     <<: *common
     image: searxng/searxng:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-searxng
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-searxng
     environment:
       SEARXNG_BASE_URL: ${SEARXNG_BASE_URL:-https://search.projectnyra.com}
       SEARXNG_SECRET: ${SEARXNG_SECRET:?set SEARXNG_SECRET}
@@ -51,7 +51,7 @@ services:
   searxng-redis:
     <<: *common
     image: redis:7-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-searxng-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-searxng-redis
     command: ["redis-server", "--save", "", "--appendonly", "no"]
     networks:
       oracle_private: {}
@@ -64,7 +64,7 @@ services:
   browserless:
     <<: *common
     image: ghcr.io/browserless/chromium:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-browserless
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-browserless
     shm_size: 2gb
     environment:
       TOKEN: ${BROWSERLESS_TOKEN:?set BROWSERLESS_TOKEN}

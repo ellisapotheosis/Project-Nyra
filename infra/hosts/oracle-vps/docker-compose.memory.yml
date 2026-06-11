@@ -2,7 +2,7 @@
 # Letta owns long-lived agent state, mem0 owns selected runtime memory,
 # Qdrant is the vector substrate, and FalkorDB is the graph substrate.
 
-name: nyra-memory
+name: oracle-vps-memory
 
 x-common: &common
   restart: unless-stopped
@@ -18,7 +18,7 @@ services:
   letta:
     <<: *common
     image: ${LETTA_IMAGE:-letta/letta:latest}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-letta
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-letta
     environment:
       # Prefer an explicitly encoded URI when the database password contains
       # URL-significant characters.
@@ -59,7 +59,7 @@ services:
   letta-postgres:
     <<: *common
     image: pgvector/pgvector:pg16
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-letta-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-letta-postgres
     environment:
       POSTGRES_USER: ${LETTA_DB_USER:-letta}
       POSTGRES_PASSWORD: ${LETTA_DB_PASSWORD:?set LETTA_DB_PASSWORD}
@@ -96,7 +96,7 @@ services:
       context: ../../../services/mem0
       dockerfile: Dockerfile
     image: ${MEM0_IMAGE:-nyra/mem0-rest:local}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mem0
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-mem0
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY:?set OPENAI_API_KEY}
       OPENAI_API_BASE: ${OPENAI_API_BASE:-${OPENAI_BASE_URL:-}}
@@ -133,7 +133,7 @@ services:
   qdrant:
     <<: *common
     image: qdrant/qdrant:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-qdrant-memory
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-qdrant-memory
     environment:
       QDRANT__SERVICE__HTTP_PORT: 6333
       QDRANT__SERVICE__GRPC_PORT: 6334
@@ -143,11 +143,7 @@ services:
     networks:
       memory_private: {}
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "bash -c '</dev/tcp/127.0.0.1/6333'",
-        ]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/6333'"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -155,7 +151,7 @@ services:
   falkordb:
     <<: *common
     image: falkordb/falkordb:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-falkordb
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-falkordb
     environment:
       FALKORDB_ARGS: >-
         THREAD_COUNT ${FALKORDB_THREADS:-4}
@@ -181,7 +177,7 @@ services:
       context: ../../..
       dockerfile: services/openmemory-mcp/Dockerfile
     image: ${OPENMEMORY_MCP_IMAGE:-nyra/openmemory-mcp:local}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openmemory-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-openmemory-mcp
     environment:
       USER: ${OPENMEMORY_USER:-nyra}
       MEM0_API_URL: http://mem0:5000

@@ -1,7 +1,7 @@
 services:
   llxprt-code:
     image: node:20-slim
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-llxprt-code
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-llxprt-code
     restart: unless-stopped
     environment:
       HOME: /tmp
@@ -17,7 +17,7 @@ services:
   llxprt-bridge:
     build:
       context: ../../../services/llxprt-bridge
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-llxprt-bridge
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-llxprt-bridge
     restart: unless-stopped
     environment:
       LLXPRT_BRIDGE_PORT: 8090

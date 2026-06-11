@@ -3,7 +3,7 @@ services:
   llxprt-bridge:
     build:
       context: ../../../services/llxprt-bridge
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-restoration-llxprt-bridge
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-restoration-llxprt-bridge
     restart: unless-stopped
     environment:
       LLXPRT_BRIDGE_API_KEY: ${LLXPRT_BRIDGE_API_KEY:-}
@@ -17,7 +17,7 @@ services:
   activepieces-mcp:
     build:
       context: ../../../services/nyra-mcp
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-restoration-activepieces-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-restoration-activepieces-mcp
     restart: unless-stopped
     environment:
       NYRA_MCP_PORT: 3333

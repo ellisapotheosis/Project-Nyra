@@ -3,7 +3,7 @@ services:
     build:
       context: ../../..
       dockerfile: services/wol-manager/Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-wol-manager
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-wol-manager
     restart: unless-stopped
     ports:
       - "8095:8095"

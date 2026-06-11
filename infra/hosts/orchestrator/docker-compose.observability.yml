@@ -5,7 +5,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-prometheus
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -34,7 +34,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-grafana
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-grafana
     ports:
       - "3003:3000"
     environment:
@@ -66,7 +66,7 @@ services:
 
   loki:
     image: grafana/loki:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-loki
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-loki
     ports:
       - "3100:3100"
     volumes:
@@ -92,7 +92,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cadvisor
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-cadvisor
     ports:
       - "8081:8080"
     volumes:
@@ -119,7 +119,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-node-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-node-exporter
     ports:
       - "9100:9100"
     command:

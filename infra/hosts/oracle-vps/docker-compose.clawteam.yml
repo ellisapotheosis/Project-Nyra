@@ -6,7 +6,7 @@ services:
     build:
       context: ../../images/clawteam
       dockerfile: Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-clawteam-primary
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-clawteam-primary
     environment:
       - CLAWTEAM_ROLE=primary
       - CLAWTEAM_HOST=oracle-vps
@@ -35,4 +35,4 @@ services:
 
 volumes:
   clawteam_state:
-    name: ${COMPOSE_PROJECT_NAME:-nyra}-clawteam-state
+    name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-clawteam-state

@@ -3,7 +3,7 @@ services:
     build:
       context: ../../..
       dockerfile: services/status-bridge/Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-status-bridge
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-status-bridge
     restart: unless-stopped
     environment:
       NYRA_STATUS_BRIDGE_INTERNAL_PORT: ${NYRA_STATUS_BRIDGE_INTERNAL_PORT:-8787}

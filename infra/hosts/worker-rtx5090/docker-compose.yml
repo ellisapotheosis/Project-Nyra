@@ -12,7 +12,7 @@ services:
   secrets-init:
     build:
       context: ../../images/infisical-secrets-init
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
@@ -31,7 +31,7 @@ services:
   # ── Redis Cache (for LMCache and LiteLLM) ───────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-redis
     hostname: worker-5090-redis
     restart: unless-stopped
     ports:
@@ -50,7 +50,7 @@ services:
   # ── vLLM Server ─────────────────────────────────────────────────────────
   vllm:
     image: vllm/vllm-openai:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-vllm
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-vllm
     hostname: worker-5090-vllm
     restart: unless-stopped
     ports:
@@ -94,7 +94,7 @@ services:
   # ── LiteLLM Proxy ───────────────────────────────────────────────────────
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-litellm
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-litellm
     hostname: worker-5090-litellm
     restart: unless-stopped
     ports:
@@ -112,7 +112,7 @@ services:
 
   model-switcher:
     image: python:3.11-slim
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-switcher
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-switcher
     hostname: worker-5090-switcher
     restart: unless-stopped
     volumes:
@@ -133,7 +133,7 @@ services:
   # ── Monitoring ──────────────────────────────────────────────────────────
   promtail:
     image: grafana/promtail:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-promtail
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-promtail
     restart: unless-stopped
     network_mode: host
     volumes:
@@ -147,7 +147,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-node-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-node-exporter
     restart: unless-stopped
     ports:
       - "9100:9100"
@@ -160,7 +160,7 @@ services:
 
   gpu-exporter:
     image: utkuozdemir/nvidia_gpu_exporter:1.4.1
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-gpu-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-gpu-exporter
     restart: unless-stopped
     ports:
       - "9835:9835"
@@ -176,7 +176,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-cadvisor
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-cadvisor
     restart: unless-stopped
     privileged: true
     ports:
@@ -192,7 +192,7 @@ services:
 
   health-monitor:
     image: curlimages/curl:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-health
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-5090-health
     restart: unless-stopped
     depends_on:
       - vllm

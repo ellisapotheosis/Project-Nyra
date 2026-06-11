@@ -1,10 +1,10 @@
 # Persistent services for worker-rtx3060 — Portainer edge agent + Syncthing
-name: nyra-persistent
+name: persistent
 
 services:
   portainer-edge-agent:
     image: portainer/agent:2.27.9
-    container_name: nyra-persistent-worker-3060-portainer-agent
+    container_name: persistent-worker-3060-portainer-agent
     restart: always
     environment:
       EDGE: "1"
@@ -21,7 +21,7 @@ services:
 
   syncthing:
     image: syncthing/syncthing:latest
-    container_name: nyra-persistent-worker-3060-syncthing
+    container_name: persistent-worker-3060-syncthing
     restart: always
     network_mode: host
     volumes:

@@ -10,7 +10,7 @@
 # Caddy handles automatic HTTPS on the Tailscale mesh.
 # Admin API available at http://127.0.0.1:2019 (loopback only).
 
-name: nyra-caddy
+name: oracle-vps-caddy
 
 networks:
   nyra-network:
@@ -26,7 +26,7 @@ volumes:
 services:
   caddy:
     image: caddy:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-caddy
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-caddy
     restart: unless-stopped
     networks: [nyra-network]
     environment:
@@ -51,7 +51,15 @@ services:
       # Admin API on loopback (local diagnostics)
       - "127.0.0.1:2019:2019"
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:2019/config/"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:2019/config/",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3

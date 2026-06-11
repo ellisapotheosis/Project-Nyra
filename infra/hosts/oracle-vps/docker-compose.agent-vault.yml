@@ -5,32 +5,32 @@
 services:
   agent-vault:
     image: infisical/agent-vault:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-agent-vault
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-agent-vault
     restart: unless-stopped
     environment:
       # Master password for the local encrypted credential store
       # Can be overridden by INFISICAL_URL + INFISICAL_TOKEN for remote Infisical backend
       AGENT_VAULT_MASTER_PASSWORD: ${AGENT_VAULT_MASTER_PASSWORD?err}
-      
+
       # Public URL for the Agent Vault instance
       # Used for Secure flag on session cookies and links in emails
       AGENT_VAULT_ADDR: https://agent-vault.trex-fiordland.ts.net
-      
+
       # Trusted proxy CIDR (Caddy reverse proxy on oracle-vps)
       AGENT_VAULT_TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
-      
+
       # Optional: Use Infisical as credential store backend
       # If set, vaults created with --credential-store=infisical will fetch from Infisical
       INFISICAL_URL: https://infisical.trex-fiordland.ts.net
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      
+
       # Request logging level
       LOG_LEVEL: info
-    
+
     volumes:
       # Persistent storage for locally encrypted credentials
       - agent-vault-data:/data
-    
+
     networks:
       - nyra-network
 

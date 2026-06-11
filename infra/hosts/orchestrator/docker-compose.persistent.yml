@@ -1,11 +1,11 @@
 # Persistent services for orchestrator — Portainer edge agent + Syncthing
-# Deployed with: docker compose -p nyra-persistent -f this-file --env-file .env up -d
-name: nyra-persistent
+# Deployed with: docker compose -p persistent -f this-file --env-file .env up -d
+name: persistent
 
 services:
   portainer-edge-agent:
     image: portainer/agent:2.27.9
-    container_name: nyra-persistent-orchestrator-portainer-agent
+    container_name: persistent-orchestrator-portainer-agent
     restart: always
     environment:
       EDGE: "1"
@@ -25,7 +25,7 @@ services:
     # Keep this stale ZANXEPD Docker identity opt-in to avoid lock conflicts.
     profiles: ["stale-docker-sync"]
     image: syncthing/syncthing:latest
-    container_name: nyra-persistent-orchestrator-syncthing
+    container_name: persistent-orchestrator-syncthing
     restart: "no"
     network_mode: host
     environment:

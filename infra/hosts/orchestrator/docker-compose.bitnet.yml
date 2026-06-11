@@ -1,10 +1,10 @@
-name: nyra-orchestrator-bitnet
+name: orchestrator-bitnet
 
 services:
   bitnet:
     build:
       context: ./bitnet
-    container_name: ${BITNET_CONTAINER_NAME:-nyra-bitnet}
+    container_name: ${BITNET_CONTAINER_NAME:-orchestrator-bitnet}
     restart: unless-stopped
     environment:
       BITNET_MODEL_DIR: /models/BitNet-b1.58-2B-4T

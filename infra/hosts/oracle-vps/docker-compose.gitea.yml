@@ -1,4 +1,4 @@
-name: nyra-gitea
+name: oracle-vps-gitea
 
 services:
   gitea-db:

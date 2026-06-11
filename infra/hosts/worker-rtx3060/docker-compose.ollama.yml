@@ -17,7 +17,7 @@
 #   - Embeddings: encode text for Qdrant semantic search
 #   - Fallback inference: when cloud APIs are slow/unavailable
 
-name: nyra-ollama-3060
+name: worker-rtx3060-ollama
 
 networks:
   nyra-network:
@@ -53,14 +53,14 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-ollama-3060
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-ollama-3060
     restart: unless-stopped
     networks: [nyra-network]
 
     environment:
       # GPU/CUDA Configuration
-      OLLAMA_GPU: "1"  # Enable GPU acceleration
-      OLLAMA_MAX_LOADED_SEQUENCES: "1"  # Single sequence at a time (memory saving)
+      OLLAMA_GPU: "1" # Enable GPU acceleration
+      OLLAMA_MAX_LOADED_SEQUENCES: "1" # Single sequence at a time (memory saving)
 
     volumes:
       # Persistent model storage (downloaded models cached here)

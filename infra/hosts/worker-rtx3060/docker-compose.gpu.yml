@@ -1,15 +1,15 @@
 services:
   ollama-server:
     image: ollama/ollama:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3060-ollama
-    profiles: ['gpu']
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-rtx3060-ollama
+    profiles: ["gpu"]
     environment:
       - OLLAMA_HOST=${OLLAMA_HOST:-0.0.0.0}
       - OLLAMA_PORT=${OLLAMA_PORT:-11434}
       - OLLAMA_MODELS=${OLLAMA_MODELS:-/root/.ollama/models}
       - NVIDIA_VISIBLE_DEVICES=all
     ports:
-      - "0.0.0.0:11434:11434"  # Expose on all interfaces for Tailscale
+      - "0.0.0.0:11434:11434" # Expose on all interfaces for Tailscale
     volumes:
       - ollama_models:/root/.ollama/models
       - /root/.ollama:/root/.ollama
@@ -29,8 +29,8 @@ services:
 
   ollama-model-loader:
     image: ollama/ollama:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3060-model-loader
-    profiles: ['setup']
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3060}-worker-rtx3060-model-loader
+    profiles: ["setup"]
     depends_on:
       - ollama-server
     environment:

@@ -4,7 +4,7 @@
 services:
   memos-api:
     image: ${MEMOS_IMAGE:-nyra/memorytensor-memos:local}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-memos-api
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-memos-api
     restart: unless-stopped
     command:
       - /bin/sh
@@ -54,17 +54,14 @@ services:
           - memory-memos-api
     healthcheck:
       test:
-        [
-          "CMD-SHELL",
-          "curl -fsS http://127.0.0.1:8001/health >/dev/null 2>&1",
-        ]
+        ["CMD-SHELL", "curl -fsS http://127.0.0.1:8001/health >/dev/null 2>&1"]
       interval: 30s
       timeout: 10s
       retries: 3
 
   memos-mcp:
     image: ${MEMOS_IMAGE:-nyra/memorytensor-memos:local}
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-memos-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-memos-mcp
     restart: unless-stopped
     command:
       - /bin/sh
@@ -93,7 +90,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "python -c 'import socket; s=socket.create_connection((\"127.0.0.1\", 8085), 5); s.close()'",
+          'python -c ''import socket; s=socket.create_connection(("127.0.0.1", 8085), 5); s.close()''',
         ]
       interval: 30s
       timeout: 10s

@@ -15,7 +15,7 @@
 # Note: This is the **canonical graph backend** for mem0.
 # Do NOT use other graph databases (Neo4j, etc.) as primary store.
 
-name: nyra-falkordb
+name: oracle-vps-falkordb
 
 networks:
   nyra-network:
@@ -49,7 +49,7 @@ services:
   # ────────────────────────────────────────────────────────────────────────────
   falkordb:
     image: falkordb/falkordb:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-falkordb
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-falkordb
     restart: unless-stopped
     networks: [nyra-network]
 
@@ -57,7 +57,7 @@ services:
       # FalkorDB runs on Redis protocol
       # No special configuration needed; defaults are sensible for most workloads
       # For large graphs, may need to tune memory settings (see volumes section)
-      FALKORDB_SAVE_MODE: "rdb"  # RDB snapshots for persistence
+      FALKORDB_SAVE_MODE: "rdb" # RDB snapshots for persistence
 
     volumes:
       # Persistent graph data (RDB snapshots)

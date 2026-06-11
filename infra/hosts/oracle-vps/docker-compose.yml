@@ -1,4 +1,4 @@
-name: nyra-network
+name: oracle-vps
 
 services:
   # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
@@ -7,7 +7,7 @@ services:
   secrets-init:
     build:
       context: ../../images/infisical-secrets-init
-    container_name: nyra-network-nyra-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
@@ -27,7 +27,7 @@ services:
   infisical-agent:
     build:
       context: ../../images/infisical-secrets-init
-    container_name: nyra-network-nyra-infisical-agent
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-infisical-agent
     restart: unless-stopped
     entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
     depends_on:
@@ -50,7 +50,7 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: nyra-network-nyra-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-nyra}
@@ -78,7 +78,7 @@ services:
 
   redis-cache:
     image: redis:7-alpine
-    container_name: nyra-network-nyra-redis-cache
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-redis-cache
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
@@ -98,7 +98,7 @@ services:
 
   twenty-db:
     image: postgres:15
-    container_name: nyra-network-nyra-twenty-db
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-twenty-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${TWENTY_DB_USER:-twenty}
@@ -125,7 +125,7 @@ services:
 
   twenty:
     image: twentycrm/twenty:latest
-    container_name: nyra-network-nyra-twenty
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-twenty
     restart: unless-stopped
     depends_on:
       twenty-db:
@@ -160,7 +160,7 @@ services:
 
   twenty-worker:
     image: twentycrm/twenty:latest
-    container_name: nyra-network-nyra-twenty-worker
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-twenty-worker
     restart: unless-stopped
     command: ["yarn", "worker:prod"]
     depends_on:
@@ -182,7 +182,7 @@ services:
 
   twenty-mcp:
     image: ${TWENTY_MCP_IMAGE:-nyra-network-twenty-mcp:latest}
-    container_name: nyra-network-nyra-twenty-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-twenty-mcp
     restart: unless-stopped
     ports:
       - "8400:8400"
@@ -199,7 +199,7 @@ services:
 
   activepieces:
     image: activepieces/activepieces:latest
-    container_name: nyra-network-nyra-activepieces
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-activepieces
     restart: unless-stopped
     depends_on:
       postgres:
@@ -238,7 +238,7 @@ services:
       args:
         N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
         N8N_EXTRA_PACKAGES: ${N8N_EXTRA_PACKAGES:-@linkedpromo/n8n-nodes-twenty}
-    container_name: nyra-network-nyra-n8n
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-n8n
     restart: unless-stopped
     depends_on:
       postgres:
@@ -290,7 +290,7 @@ services:
   quote-api:
     build:
       context: ../../../services/quote-api
-    container_name: nyra-network-nyra-quote-api
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-quote-api
     restart: unless-stopped
     environment:
       PORT: ${QUOTE_API_PORT:-7070}
@@ -310,7 +310,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:latest
-    container_name: nyra-network-nyra-cloudflared
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-cloudflared
     restart: unless-stopped
     command: ["tunnel", "--no-autoupdate", "--protocol", "http2", "run"]
     environment:
@@ -329,7 +329,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: nyra-network-nyra-prometheus
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-prometheus
     restart: unless-stopped
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -354,7 +354,7 @@ services:
 
   loki:
     image: grafana/loki:3.4.3
-    container_name: nyra-network-nyra-loki
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-loki
     restart: unless-stopped
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
@@ -376,7 +376,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: nyra-network-nyra-grafana
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-grafana
     restart: unless-stopped
     depends_on:
       - prometheus
@@ -405,7 +405,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: nyra-network-nyra-cadvisor
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-cadvisor
     restart: unless-stopped
     privileged: true
     volumes:
@@ -422,7 +422,7 @@ services:
   # behind Cloudflare Access; OTLP ports are bound to Tailscale by default.
   openlit-clickhouse:
     image: clickhouse/clickhouse-server:24.4.1
-    container_name: nyra-network-nyra-openlit-clickhouse
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-openlit-clickhouse
     restart: unless-stopped
     environment:
       CLICKHOUSE_USER: ${OPENLIT_DB_USER:-default}
@@ -450,7 +450,7 @@ services:
 
   openlit:
     image: ghcr.io/openlit/openlit:latest
-    container_name: nyra-network-nyra-openlit
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-openlit
     restart: unless-stopped
     depends_on:
       secrets-init:
@@ -507,7 +507,7 @@ services:
 
   openwebui:
     image: ghcr.io/open-webui/open-webui:main
-    container_name: nyra-network-nyra-openwebui
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-openwebui
     restart: unless-stopped
     environment:
       OPENAI_API_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
@@ -537,7 +537,7 @@ services:
     build:
       context: ../../../services/quote-engine
       dockerfile: Dockerfile
-    container_name: nyra-network-nyra-quote-engine
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-quote-engine
     restart: unless-stopped
     ports:
       - "8089:5000"
@@ -547,7 +547,7 @@ services:
     build:
       context: ../../../
       dockerfile: services/crm-api/Dockerfile
-    container_name: nyra-network-nyra-crm-api
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-crm-api
     restart: unless-stopped
     depends_on:
       twenty:
@@ -580,7 +580,7 @@ services:
     build:
       context: ../../../services/campaign-engine
       dockerfile: Dockerfile
-    container_name: nyra-network-nyra-campaign-engine
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-campaign-engine
     restart: unless-stopped
     ports:
       - "8020:8020"
@@ -600,7 +600,7 @@ services:
   # Long-lived execution container for registry installs into the Project Nyra app.
   nyra-ui-engine:
     image: node:20-alpine
-    container_name: nyra-network-nyra-ui-engine
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-ui-engine
     restart: unless-stopped
     working_dir: /app
     environment:
@@ -623,7 +623,7 @@ services:
   # ── Supabase Stack ────────────────────────────────────────────────────────
   supabase-db:
     image: supabase/postgres:15.1.1.78
-    container_name: nyra-network-nyra-supabase-db
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-supabase-db
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}
@@ -643,7 +643,7 @@ services:
 
   supabase-auth:
     image: supabase/gotrue:v2.132.3
-    container_name: nyra-network-nyra-supabase-auth
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-supabase-auth
     restart: unless-stopped
     depends_on:
       supabase-db:
@@ -662,7 +662,7 @@ services:
 
   supabase-rest:
     image: postgrest/postgrest:v10.1.1
-    container_name: nyra-network-nyra-supabase-rest
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-supabase-rest
     restart: unless-stopped
     depends_on:
       supabase-db:
@@ -676,7 +676,7 @@ services:
 
   supabase-kong:
     image: kong:2.8.1
-    container_name: nyra-network-nyra-supabase-kong
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-supabase-kong
     restart: unless-stopped
     depends_on:
       supabase-auth:
@@ -697,7 +697,7 @@ services:
   # Moved from orchestrator: co-located with Nexus to eliminate Tailscale hop.
   llxprt-bridge-proxy:
     image: alpine/socat:1.8.0.3
-    container_name: nyra-network-nyra-llxprt-bridge-proxy
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-llxprt-bridge-proxy
     restart: unless-stopped
     network_mode: host
     command:
@@ -708,7 +708,7 @@ services:
 
   litellm:
     image: ghcr.io/berriai/litellm:main-stable
-    container_name: nyra-network-nyra-litellm
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-litellm
     restart: unless-stopped
     command: ["--config", "/app/config/config.yaml", "--port", "4000"]
     ports:
@@ -752,7 +752,7 @@ services:
   # THE single entrypoint: MCP tool aggregation + LLM proxy
   ha-mcp:
     image: ${HA_MCP_IMAGE:-ghcr.io/homeassistant-ai/ha-mcp:7.4.0}
-    container_name: nyra-network-nyra-ha-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-ha-mcp
     restart: unless-stopped
     command: ["ha-mcp-web"]
     environment:
@@ -772,7 +772,7 @@ services:
 
   nexus:
     image: ghcr.io/grafbase/nexus:stable
-    container_name: nyra-network-nyra-nexus
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-nexus
     restart: unless-stopped
     ports:
       - "127.0.0.1:6000:3000"

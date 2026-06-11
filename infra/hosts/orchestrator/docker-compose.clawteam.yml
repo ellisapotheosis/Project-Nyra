@@ -6,7 +6,7 @@ services:
     build:
       context: ../../images/clawteam
       dockerfile: Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-clawteam-primary
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-clawteam-primary
     environment:
       - CLAWTEAM_ROLE=primary
       - CLAWTEAM_HOST=orchestrator

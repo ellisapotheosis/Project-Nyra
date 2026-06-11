@@ -10,7 +10,7 @@
 # It does NOT share the postgres:15 instance used by Twenty/N8N/Activepieces.
 # Secrets manager blast radius MUST stay separate from web-facing CRUD apps.
 
-name: nyra-infisical   # COMPOSE_PROJECT_NAME — keeps containers in their own namespace
+name: oracle-vps-infisical # COMPOSE_PROJECT_NAME — keeps containers in their own namespace
 
 networks:
   # Internal bridge — backend, db, redis, gateway only.
@@ -25,9 +25,9 @@ volumes:
   infisical_redis_data:
     name: nyra_infisical_redis_data
   infisical_pki_material:
-    name: nyra_infisical_pki_material   # Root CA wrap, scanner workspace
+    name: nyra_infisical_pki_material # Root CA wrap, scanner workspace
   infisical_audit_logs:
-    name: nyra_infisical_audit_logs     # Long-retention audit trail
+    name: nyra_infisical_audit_logs # Long-retention audit trail
 
 services:
   # -------------------------------------------------------------------
@@ -38,7 +38,7 @@ services:
   # -------------------------------------------------------------------
   infisical-postgres:
     image: postgres:16-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-infisical-postgres
     restart: unless-stopped
     networks: [nyra-infisical-net]
     environment:
@@ -53,13 +53,17 @@ services:
       # Loopback ONLY — backups/psql via SSH tunnel, never mesh
       - "127.0.0.1:5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${INFISICAL_DB_USER:-infisical} -d ${INFISICAL_DB_NAME:-infisical}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${INFISICAL_DB_USER:-infisical} -d ${INFISICAL_DB_NAME:-infisical}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
     logging:
       driver: json-file
-      options: {max-size: "10m", max-file: "5"}
+      options: { max-size: "10m", max-file: "5" }
 
   # -------------------------------------------------------------------
   # Dedicated Redis 7. Session cache + secret rotation queue.
@@ -67,7 +71,7 @@ services:
   # -------------------------------------------------------------------
   infisical-redis:
     image: redis:7-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-infisical-redis
     restart: unless-stopped
     networks: [nyra-infisical-net]
     command:
@@ -83,7 +87,7 @@ services:
     volumes:
       - infisical_redis_data:/data
     ports:
-      - "127.0.0.1:6380:6379"   # loopback for ops, not mesh
+      - "127.0.0.1:6380:6379" # loopback for ops, not mesh
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${INFISICAL_REDIS_PASSWORD}", "ping"]
       interval: 10s
@@ -100,7 +104,7 @@ services:
   # -------------------------------------------------------------------
   infisical-backend:
     image: infisical/infisical:latest-postgres
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-backend
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-infisical-backend
     restart: unless-stopped
     networks: [nyra-infisical-net]
     depends_on:
@@ -111,7 +115,7 @@ services:
     environment:
       # --- Core ---
       NODE_ENV: production
-      HOST: 0.0.0.0           # listen inside container; Tailscale binding is at port-mapping level
+      HOST: 0.0.0.0 # listen inside container; Tailscale binding is at port-mapping level
       PORT: 8080
       # SITE_URL is the public-facing URL Infisical advertises (for email links, OAuth callbacks).
       # Use Tailscale MagicDNS so mobile + workstation see the same URL.
@@ -121,7 +125,7 @@ services:
       # --- Crypto (CRITICAL — back these up offline) ---
       # 32-byte hex; rotating this breaks all existing encrypted secrets
       ENCRYPTION_KEY: ${INFISICAL_ENCRYPTION_KEY:?32-byte hex required}
-      AUTH_SECRET:    ${INFISICAL_AUTH_SECRET:?base64 32-byte required}
+      AUTH_SECRET: ${INFISICAL_AUTH_SECRET:?base64 32-byte required}
 
       # --- Database ---
       DB_CONNECTION_URI: postgres://${INFISICAL_DB_USER:-infisical}:${INFISICAL_DB_PASSWORD}@infisical-postgres:5432/${INFISICAL_DB_NAME:-infisical}?sslmode=disable
@@ -170,14 +174,22 @@ services:
       # 100.64.0.3 is the oracle-vps Tailscale IP.
       - "100.64.0.3:8200:8080"
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/status"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080/api/status",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
     logging:
       driver: json-file
-      options: {max-size: "20m", max-file: "10"}
+      options: { max-size: "20m", max-file: "10" }
 
   # -------------------------------------------------------------------
   # PAM Gateway — separate image. Acts as the egress relay for
@@ -187,7 +199,7 @@ services:
   # -------------------------------------------------------------------
   infisical-gateway:
     image: infisical/gateway:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-gateway
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-infisical-gateway
     restart: unless-stopped
     networks: [nyra-infisical-net]
     depends_on:
@@ -200,9 +212,9 @@ services:
       INFISICAL_API_URL: http://infisical-backend:8080
       INFISICAL_GATEWAY_NAME: oracle-vps-gateway
     cap_add:
-      - NET_ADMIN   # required for tun device when proxying TCP sessions
+      - NET_ADMIN # required for tun device when proxying TCP sessions
     devices:
       - /dev/net/tun:/dev/net/tun
     logging:
       driver: json-file
-      options: {max-size: "10m", max-file: "5"}
+      options: { max-size: "10m", max-file: "5" }

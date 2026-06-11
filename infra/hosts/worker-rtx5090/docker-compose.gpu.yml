@@ -1,8 +1,8 @@
 services:
   vllm-server:
     image: vllm/vllm-openai:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx5090-vllm
-    profiles: ['gpu']
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-rtx5090-vllm
+    profiles: ["gpu"]
     environment:
       - MODEL_NAME=${VLLM_MODEL:-google/gemma-2-27b-it}
       - VLLM_HOST=${VLLM_HOST:-0.0.0.0}
@@ -16,7 +16,7 @@ services:
       - LMCACHE_REDIS_HOST=redis-cache
       - LMCACHE_REDIS_PORT=6379
     ports:
-      - "0.0.0.0:8000:8000"  # Expose on all interfaces for Tailscale
+      - "0.0.0.0:8000:8000" # Expose on all interfaces for Tailscale
     volumes:
       - /root/.cache/huggingface:/root/.cache/huggingface
       - vllm_models:/models
@@ -46,8 +46,8 @@ services:
 
   lmcache-server:
     image: lmcache/lmcache-server:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx5090-lmcache
-    profiles: ['gpu']
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-rtx5090-lmcache
+    profiles: ["gpu"]
     environment:
       - LMCACHE_STORAGE_BACKEND=local
       - LMCACHE_LOCAL_DEVICE=cuda
@@ -60,8 +60,8 @@ services:
 
   redis-cache:
     image: redis:7-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx5090-redis
-    profiles: ['gpu']
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-worker-rtx5090-redis
+    profiles: ["gpu"]
     ports:
       - "127.0.0.1:6379:6379"
     volumes:
