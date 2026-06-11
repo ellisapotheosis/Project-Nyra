@@ -9,8 +9,8 @@ services:
       - "8095:8095"
     environment:
       # MAC addresses for WoL magic packets
-      WORKER_3060_MAC: ${WORKER_3060_MAC:?set WORKER_3060_MAC}
-      WORKER_3090TI_MAC: ${WORKER_3090TI_MAC:?set WORKER_3090TI_MAC}
+      WORKER_3060_MAC: ${WORKER_3060_MAC:-}
+      WORKER_3090TI_MAC: ${WORKER_3090TI_MAC:-}
       WORKER_5090_MAC: ${WORKER_5090_MAC:-}
       # SSH config for shutdown commands
       SSH_CLUSTER_KEY_PATH: ${SSH_CLUSTER_KEY_PATH:-/run/secrets/cluster_ssh_key}
