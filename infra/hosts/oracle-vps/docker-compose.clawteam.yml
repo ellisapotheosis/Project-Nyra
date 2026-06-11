@@ -36,3 +36,8 @@ services:
 volumes:
   clawteam_state:
     name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-clawteam-state
+
+networks:
+  nyra_net:
+    external: true
+    name: nyra-network_nyra_net
