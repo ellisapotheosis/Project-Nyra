@@ -487,9 +487,9 @@ services:
       - ./configs/openlit/otel-collector-config.yaml:/etc/otel/otel-collector-config.yaml:ro
       - nyra_secrets:/run/nyra-secrets:ro
     ports:
-      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_HOST_PORT:-3004}:3000"
-      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_OTLP_GRPC_PORT:-4317}:4317"
-      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:${OPENLIT_OTLP_HTTP_PORT:-4318}:4318"
+      - "127.0.0.1:${OPENLIT_HOST_PORT:-3004}:3000"
+      - "127.0.0.1:${OPENLIT_OTLP_GRPC_PORT:-4317}:4317"
+      - "127.0.0.1:${OPENLIT_OTLP_HTTP_PORT:-4318}:4318"
     networks: [nyra_net]
     healthcheck:
       test:
