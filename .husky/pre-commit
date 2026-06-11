@@ -1,2 +1,2 @@
-./node_modules/.bin/lint-staged
-pnpm run test
+#!/bin/sh
+lint-staged
