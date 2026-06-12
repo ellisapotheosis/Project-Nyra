@@ -15,14 +15,14 @@ services:
       - WORKER_NODES=["worker-rtx5090", "worker-rtx3090ti", "worker-rtx3060"]
       - NERVE_UI_ENABLED=false
     ports:
-      - "8085:8080"
+      - "8085:9000"
     volumes:
       - clawteam_state:/root/.clawteam
     networks:
       - nyra_net
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
       interval: 10s
       timeout: 3s
       retries: 3

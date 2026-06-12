@@ -70,14 +70,14 @@ services:
       - LMCACHE_REDIS_PORT=${LMCACHE_REDIS_PORT:-6379}
     command: >
       --model ${VLLM_MODEL:-QuantTrio/Qwen3.6-27B-AWQ}
-      --quantization awq
       --host 0.0.0.0
       --port 8000
       --tensor-parallel-size 1
-      --gpu-memory-utilization ${VLLM_GPU_MEMORY_UTILIZATION:-0.90}
-      --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
+      --gpu-memory-utilization 0.945
+      --max-model-len 4096
       --enable-prefix-caching
       --trust-remote-code
+      --enforce-eager
     deploy:
       resources:
         reservations:
@@ -90,10 +90,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 180s
     networks:
       - worker-network
 
-  # ── LiteLLM Proxy (Local entrypoint) ────────────────────────────────────
+  # ── LiteLLM Proxy (Local entrypoint)────────────────────────────────────
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
     container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-litellm

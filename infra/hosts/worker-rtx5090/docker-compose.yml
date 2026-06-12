@@ -69,13 +69,12 @@ services:
       - LMCACHE_REDIS_PORT=${LMCACHE_REDIS_PORT:-6379}
     command: >
       --model ${VLLM_MODEL:-QuantTrio/Qwen3.6-27B-AWQ}
-      --quantization awq
       --host 0.0.0.0
       --port 8000
-      --gpu-memory-utilization ${VLLM_GPU_MEMORY_UTILIZATION:-0.85}
-      --max-model-len ${VLLM_MAX_MODEL_LEN:-32768}
-      --enable-prefix-caching
+      --gpu-memory-utilization 0.945
+      --max-model-len 3072
       --trust-remote-code
+      --enforce-eager
     deploy:
       resources:
         reservations:
@@ -88,6 +87,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 180s
     networks:
       - worker-network
 
@@ -137,7 +137,7 @@ services:
     restart: unless-stopped
     network_mode: host
     volumes:
-      - ./promtail-config.yml:/etc/promtail/config.yml:ro
+      - ./promtail:/etc/promtail:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
