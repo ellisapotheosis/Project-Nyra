@@ -17,7 +17,7 @@ API_TOKEN="$(clean "${CLOUDFLARE_API_TOKEN:-${CF_API_TOKEN:-}}")"
 : "${ACCOUNT_ID:?missing CF_ACCOUNT_ID/CLOUDFLARE_ACCOUNT_ID}"
 if [[ -z "$API_TOKEN" ]]; then
   : "${EMAIL:?missing CLOUDFLARE_EMAIL/CF_EMAIL when CLOUDFLARE_API_TOKEN/CF_API_TOKEN is not set}"
-  : "${API_KEY:?missing CLOUDFLARE_API_KEY/CF_API_KEY when CLOUDFLARE_API_TOKEN/CF_API_TOKEN is not set}"
+  : "${API_KEY:?missing CLOUDFLARE_API_KEY/CF_KEY when CLOUDFLARE_API_TOKEN/CF_API_TOKEN is not set}"
 fi
 
 api() {
@@ -45,92 +45,63 @@ api() {
 make_payload() {
   local name="$1"
   local domain="$2"
-  local policy_name="$3"
-  local profile="$4"
+  local profile="$3"
+  local group_id
 
   if [[ "$profile" == "owner" ]]; then
-    jq -n \
-      --arg name "$name" \
-      --arg domain "$domain" \
-      --arg policy "$policy_name" \
-      '{
-        name: $name,
-        domain: $domain,
-        type: "self_hosted",
-        session_duration: "24h",
-        auto_redirect_to_identity: false,
-        allowed_idps: [],
-        policies: [{
-          name: $policy,
-          decision: "allow",
-          precedence: 1,
-          include: [
-            {email: {email: "ellisandersen@ratehunter.com"}},
-            {email: {email: "apotheosis@ratehunter.com"}},
-            {email: {email: "edaneandersen@gmail.com"}}
-          ],
-          exclude: [],
-          require: []
-        }]
-      }'
+    group_id="6290c676-cb4b-4482-a87e-fe048d4cab8a"
+  elif [[ "$profile" == "agent" ]]; then
+    group_id="04f027b4-5377-4a95-821c-fc76ed97e177"
   else
-    jq -n \
-      --arg name "$name" \
-      --arg domain "$domain" \
-      --arg policy "$policy_name" \
-      '{
-        name: $name,
-        domain: $domain,
-        type: "self_hosted",
-        session_duration: "24h",
-        auto_redirect_to_identity: false,
-        allowed_idps: [],
-        policies: [{
-          name: $policy,
-          decision: "allow",
-          precedence: 1,
-          include: [
-            {email_domain: {domain: "ratehunter.com"}},
-            {email_domain: {domain: "westcaplending.com"}},
-            {email_domain: {domain: "westcapitallending.com"}},
-            {email: {email: "edaneandersen@gmail.com"}}
-          ],
-          exclude: [],
-          require: []
-        }]
-      }'
+    group_id="0e6f3dd6-61ac-4bc1-aa94-044d21215128"
   fi
+
+  jq -n \
+    --arg name "$name" \
+    --arg domain "$domain" \
+    --arg gid "$group_id" \
+    --arg policy "Nyra ${profile} access policy" \
+    '{
+      name: $name,
+      domain: $domain,
+      type: "self_hosted",
+      session_duration: "24h",
+      auto_redirect_to_identity: false,
+      allowed_idps: [],
+      policies: [{
+        name: $policy,
+        decision: "allow",
+        precedence: 1,
+        include: [
+          {group: {id: $gid}}
+        ],
+        exclude: [],
+        require: []
+      }]
+    }'
 }
 
-cat > "$RESULTS_DIR/access-desired.tsv" <<'EOF'
-Nyra Twenty CRM	twenty.projectnyra.com	team
-Nyra CRM Alias	crm.projectnyra.com	team
-Nyra Gitea	gitea.projectnyra.com	team
-Nyra n8n	n8n.projectnyra.com	team
-Nyra Activepieces	activepieces.projectnyra.com	team
-Nyra Grafana	grafana.projectnyra.com	owner
-Nyra Prometheus	prometheus.projectnyra.com	owner
-Nyra cAdvisor	cadvisor.projectnyra.com	owner
-Nyra Open WebUI	openwebui.projectnyra.com	team
-Nyra Nexus UI	nexus.projectnyra.com	team
-Nyra LiteLLM	litellm.projectnyra.com	owner
-Nyra Gastown	gastown.projectnyra.com	team
-Nyra ClawTeam	clawteam.projectnyra.com	team
-Nyra Oracle Portainer	portainer-oracle.projectnyra.com	owner
-Nyra Links	links.projectnyra.com	team
-Nyra Linkwarden Alias	linkwarden.projectnyra.com	team
-Nyra OpenClaw Gateway	openclaw-gateway.projectnyra.com	team
+# Mapping: Subdomain, Hostname, Access Group Role (CSV)
+# roles: owner (Group 1), agent (Group 2), family (Group 3)
+cat > "$RESULTS_DIR/access-desired.csv" <<'EOF'
+Nyra Unified WebApp,app.projectnyra.com,family
+Nyra CRM Gateway,crm.projectnyra.com,family
+Nyra Nexus UI,nexus-ui.projectnyra.com,owner
+Nyra Gitea,gitea.projectnyra.com,owner
+Nyra Activepieces,activepieces.projectnyra.com,owner
+Nyra Linkwarden,linkwarden.projectnyra.com,family
+Nyra Composio Gateway,composio.projectnyra.com,agent
 EOF
 
 current="$(api GET "/accounts/${ACCOUNT_ID}/access/apps?per_page=500")"
 printf '%s' "$current" > "$RESULTS_DIR/access-apps-before-upsert.json"
 
 : > "$RESULTS_DIR/access-upsert.ndjson"
-while IFS=$'\t' read -r name domain profile; do
+while IFS=',' read -r name domain profile; do
   [[ -z "${name:-}" ]] && continue
   id="$(jq -r --arg domain "$domain" '.result[]? | select(.domain == $domain and .type == "self_hosted") | .id' <<<"$current" | head -n 1)"
   payload="$(mktemp)"
-  make_payload "$name" "$domain" "Nyra ${profile} access" "$profile" > "$payload"
+  make_payload "$name" "$domain" "$profile" > "$payload"
   if [[ -n "$id" ]]; then
     result="$(api PUT "/accounts/${ACCOUNT_ID}/access/apps/${id}" "$payload")"
     action="updated"
@@ -142,6 +113,6 @@ while IFS=$'\t' read -r name domain profile; do
   jq -c --arg action "$action" --arg domain "$domain" \
     '{domain: $domain, action: $action, success, errors}' <<<"$result" \
     >> "$RESULTS_DIR/access-upsert.ndjson"
-done < "$RESULTS_DIR/access-desired.tsv"
+done < "$RESULTS_DIR/access-desired.csv"
 
 jq -s '{access_total: length, access_successes: map(select(.success == true)) | length, access_failures: map(select(.success != true))}' "$RESULTS_DIR/access-upsert.ndjson"

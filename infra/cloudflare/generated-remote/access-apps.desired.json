@@ -5,48 +5,54 @@
   "service_token_policy": "allow only named Cloudflare Access service tokens for API/MCP machine access",
   "applications": [
     {
-      "name": "Nyra Webapp",
-      "hostnames": ["app.projectnyra.com"],
-      "type": "self_hosted",
-      "policy": "public_auth_until_supabase_auth_ready"
-    },
-    {
-      "name": "Nyra Admin UIs",
-      "hostnames": [
-        "twenty.projectnyra.com",
-        "crm.projectnyra.com",
-        "n8n.projectnyra.com",
-        "gitea.projectnyra.com",
-        "activepieces.projectnyra.com",
-        "openwebui.projectnyra.com",
-        "nexus.projectnyra.com",
-        "gastown.projectnyra.com",
-        "clawteam.projectnyra.com",
-        "links.projectnyra.com",
-        "linkwarden.projectnyra.com",
-        "openclaw-gateway.projectnyra.com"
-      ],
-      "type": "self_hosted",
-      "policy": "public_auth"
-    },
-    {
       "name": "Nyra Owner Only Infra",
       "hostnames": [
-        "grafana.projectnyra.com",
-        "prometheus.projectnyra.com",
-        "cadvisor.projectnyra.com",
-        "litellm.projectnyra.com",
-        "portainer-oracle.projectnyra.com"
+        "nexus-ui.projectnyra.com",
+        "gitea.projectnyra.com",
+        "activepieces.projectnyra.com"
       ],
       "type": "self_hosted",
-      "policy": "owner_only_public_auth"
+      "policy_group_id": "6290c676-cb4b-4482-a87e-fe048d4cab8a",
+      "notes": "Group 1: Personal Admin. 2FA Required."
     },
     {
       "name": "Nyra Service APIs",
-      "hostnames": ["nexus-router.projectnyra.com", "hooks.projectnyra.com"],
+      "hostnames": ["composio.projectnyra.com"],
       "type": "self_hosted",
-      "policy": "service_token_or_signed_request"
+      "policy_group_id": "04f027b4-5377-4a95-821c-fc76ed97e177",
+      "notes": "Group 2: Machine/Agent Service Token Access."
+    },
+    {
+      "name": "Nyra Client Surface",
+      "hostnames": [
+        "app.projectnyra.com",
+        "crm.projectnyra.com",
+        "linkwarden.projectnyra.com"
+      ],
+      "type": "self_hosted",
+      "policy_group_id": "0e6f3dd6-61ac-4bc1-aa94-044d21215128",
+      "notes": "Group 3: Friends, Family & Subscribers."
     }
   ],
-  "excluded_from_access": ["api.projectnyra.com"]
+  "excluded_from_access": [
+    "supabase.projectnyra.com",
+    "nexus.projectnyra.com",
+    "openmemory.projectnyra.com",
+    "openwebui.projectnyra.com",
+    "wol.projectnyra.com",
+    "portainer-oracle.projectnyra.com",
+    "portainer.projectnyra.com",
+    "portainer-5090.projectnyra.com",
+    "portainer-3090.projectnyra.com",
+    "portainer-3060.projectnyra.com",
+    "syncthing-orchestrator.projectnyra.com",
+    "syncthing-5090.projectnyra.com",
+    "syncthing-3090.projectnyra.com",
+    "syncthing-3060.projectnyra.com",
+    "infisical-mcp.projectnyra.com",
+    "gitea-mcp.projectnyra.com",
+    "letta-mcp.projectnyra.com",
+    "activepieces-mcp.projectnyra.com",
+    "memos-mcp.projectnyra.com"
+  ]
 }

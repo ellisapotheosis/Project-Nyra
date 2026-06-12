@@ -1,7 +1,5 @@
 # Project Nyra Cloudflare exposure matrix.
-# Source: project-nyra-cloudflare-final-prompt-pack plus current repo compose files.
 # Policy:
-# - ratehunter.net is Cloudflare Pages only.
 # - UI/admin/dashboard routes require Cloudflare Access.
 # - API/MCP routes require service-token or signed-request controls unless noted.
 # - raw databases, caches, vector stores, worker model ports, and Docker sockets are not tunneled.
@@ -29,147 +27,75 @@ routes:
   - hostname: app.projectnyra.com
     tunnel: oracle
     origin: http://webapp:3001
-    exposure: public_auth
-    notes: Broker/customer webapp. Keep Access until Supabase/app auth is production-ready.
-  - hostname: api.projectnyra.com
+    exposure: public_auth_group_3
+    notes: Broker/customer webapp. Protected by Supabase Auth and Access Group 3.
+  - hostname: supabase.projectnyra.com
     tunnel: oracle
     origin: http://supabase-kong:8000
     exposure: public_supabase_gateway
-    notes: Browser auth/API gateway for self-hosted Supabase; do not block Auth with interactive Access.
-  - hostname: hooks.projectnyra.com
-    tunnel: oracle
-    origin: http://n8n:5678
-    exposure: public_service_token_or_signed_webhook
-    notes: Prefer provider allowlists and signed webhook paths.
-  - hostname: twenty.projectnyra.com
-    tunnel: oracle
-    origin: http://twenty:3000
-    exposure: public_auth
+    notes: Public API gateway (Kong) for client Auth and DB REST. No Access gate.
   - hostname: crm.projectnyra.com
     tunnel: oracle
     origin: http://twenty:3000
-    exposure: public_auth
-    notes: Alias for Twenty CRM.
-  - hostname: n8n.projectnyra.com
+    exposure: public_auth_group_3
+    notes: Public multi-tenant CRM gateway.
+  - hostname: nexus-ui.projectnyra.com
     tunnel: oracle
-    origin: http://n8n:5678
-    exposure: public_auth
+    origin: http://nexus-ui:3016
+    exposure: public_auth_group_1
+    notes: Human control interface for Nexus.
   - hostname: gitea.projectnyra.com
     tunnel: oracle
     origin: http://gitea:3000
-    exposure: public_auth
+    exposure: public_auth_group_1
   - hostname: activepieces.projectnyra.com
     tunnel: oracle
     origin: http://activepieces:80
-    exposure: public_auth
-  - hostname: grafana.projectnyra.com
-    tunnel: oracle
-    origin: http://grafana:3000
-    exposure: public_auth
-  - hostname: prometheus.projectnyra.com
-    tunnel: oracle
-    origin: http://prometheus:9090
-    exposure: owner_only_public_auth
-  - hostname: cadvisor.projectnyra.com
-    tunnel: oracle
-    origin: http://cadvisor:8080
-    exposure: owner_only_public_auth
-  - hostname: openwebui.projectnyra.com
-    tunnel: oracle
-    origin: http://openwebui:8080
-    exposure: public_auth
-  - hostname: nexus.projectnyra.com
-    tunnel: oracle
-    origin: http://nexus-ui:3016
-    exposure: public_auth
-    notes: Human UI for Nexus.
-  - hostname: nexus-router.projectnyra.com
-    tunnel: oracle
-    origin: http://nexus:3000
-    exposure: public_service_token
-    notes: Machine/API entrypoint; prefer agents use Tailscale/private URL unless external access is needed.
-  - hostname: litellm.projectnyra.com
-    tunnel: oracle
-    origin: http://litellm:4000
-    exposure: owner_only_public_auth
-  - hostname: gastown.projectnyra.com
-    tunnel: oracle
-    origin: http://gastown:8080
-    exposure: public_auth
-  - hostname: clawteam.projectnyra.com
-    tunnel: oracle
-    origin: http://clawteam:8080
-    exposure: public_auth
-    notes: Requires optional clawteam compose overlay to be running.
-  - hostname: portainer-oracle.projectnyra.com
-    tunnel: oracle
-    origin: https://portainer:9443
-    exposure: owner_only_public_auth
-    origin_tls_verify: false
-  - hostname: git-ssh.projectnyra.com
-    tunnel: oracle
-    origin: ssh://gitea:2222
-    exposure: owner_only_cloudflared_access_ssh
-    notes: Optional. Requires cloudflared access ssh client flow.
-  - hostname: links.projectnyra.com
-    tunnel: orchestrator
-    origin: http://100.64.0.2:3007
-    exposure: public_auth
-    notes: Preferred Linkwarden/Starwarden hostname. Origin timed out in current smoke test.
+    exposure: public_auth_group_1
   - hostname: linkwarden.projectnyra.com
     tunnel: orchestrator
     origin: http://100.64.0.2:3007
-    exposure: public_auth
-    notes: Existing dashboard route; keep temporarily or redirect to links.projectnyra.com.
-  - hostname: openclaw-gateway.projectnyra.com
-    tunnel: orchestrator
-    origin: http://nyra-openclaw-gateway:8001
-    exposure: public_auth
+    exposure: public_auth_group_3
+  - hostname: composio.projectnyra.com
+    tunnel: oracle
+    origin: http://localhost:2700
+    exposure: public_service_token_group_2
+    notes: Machine gateway for AI Agent tool invocation. Only allows Service Tokens.
 
-mcp_policy:
-  default: nexus_first
-  direct_public_hostnames: service_token_only
-  preferred_external_entrypoint: https://nexus-router.projectnyra.com/mcp
-  direct_candidates:
-    - hostname: openmemory-mcp.projectnyra.com
-      origin: http://openmemory-mcp:8765
-    - hostname: twenty-mcp.projectnyra.com
-      origin: http://twenty-mcp:8400
-    - hostname: infisical-mcp.projectnyra.com
-      origin: http://infisical-mcp:8766
-    - hostname: gitea-mcp.projectnyra.com
-      origin: http://gitea-mcp:3101
-    - hostname: git-mcp.projectnyra.com
-      origin: http://git-mcp:8773
-    - hostname: magicui-mcp.projectnyra.com
-      origin: http://magicui-mcp:8768
-    - hostname: shadcn-mcp.projectnyra.com
-      origin: http://shadcn-mcp:8769
-    - hostname: sequential-thinking-mcp.projectnyra.com
-      origin: http://sequential-thinking-mcp:8770
-    - hostname: playwright-mcp.projectnyra.com
-      origin: http://playwright-mcp:8771
-    - hostname: firecrawl-mcp.projectnyra.com
-      origin: http://firecrawl-mcp:8772
-    - hostname: next-devtools-mcp.projectnyra.com
-      origin: http://next-devtools-mcp:8774
-    - hostname: tavily-mcp.projectnyra.com
-      origin: http://tavily-mcp:8775
-    - hostname: wcgw-mcp.projectnyra.com
-      origin: http://wcgw-mcp:8776
-    - hostname: gitingest-mcp.projectnyra.com
-      origin: http://gitingest-mcp:8777
-    - hostname: codebase-index-mcp.projectnyra.com
-      origin: http://codebase-index-mcp:8778
-
-not_tunneled:
-  - postgres
-  - twenty-db
-  - supabase-db
-  - redis-cache
-  - falkordb
-  - qdrant
-  - loki
-  - worker-vllm
-  - worker-ollama
-  - docker-socket
+tailscale_routes:
+  - hostname: nexus.projectnyra.com
+    target: 100.64.0.3:6000
+  - hostname: openmemory.projectnyra.com
+    target: 100.64.0.3:8765
+  - hostname: openwebui.projectnyra.com
+    target: 100.64.0.3:8088
+  - hostname: wol.projectnyra.com
+    target: 100.64.0.2:8765
+  - hostname: portainer-oracle.projectnyra.com
+    target: 100.64.0.3:9443
+  - hostname: portainer.projectnyra.com
+    target: 100.64.0.2:9443
+  - hostname: portainer-5090.projectnyra.com
+    target: 100.64.0.7:9443
+  - hostname: portainer-3090.projectnyra.com
+    target: 100.64.0.6:9443
+  - hostname: portainer-3060.projectnyra.com
+    target: 100.64.0.5:9443
+  - hostname: syncthing-orchestrator.projectnyra.com
+    target: 100.64.0.2:8384
+  - hostname: syncthing-5090.projectnyra.com
+    target: 100.64.0.7:8384
+  - hostname: syncthing-3090.projectnyra.com
+    target: 100.64.0.6:8384
+  - hostname: syncthing-3060.projectnyra.com
+    target: 100.64.0.5:8384
+  - hostname: infisical-mcp.projectnyra.com
+    target: 100.64.0.3:8766
+  - hostname: gitea-mcp.projectnyra.com
+    target: 100.64.0.3:3101
+  - hostname: letta-mcp.projectnyra.com
+    target: 100.64.0.3:8284
+  - hostname: activepieces-mcp.projectnyra.com
+    target: 100.64.0.3:8779
+  - hostname: memos-mcp.projectnyra.com
+    target: 100.64.0.3:8095
