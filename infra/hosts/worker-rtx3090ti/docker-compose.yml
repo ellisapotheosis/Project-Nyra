@@ -12,7 +12,7 @@ services:
   secrets-init:
     build:
       context: ../../images/infisical-secrets-init
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
@@ -31,7 +31,7 @@ services:
   # ── Redis Cache (for LMCache and LiteLLM) ───────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-redis
     hostname: worker-3090-redis
     restart: unless-stopped
     ports:
@@ -50,7 +50,7 @@ services:
   # ── vLLM Server (24GB VRAM optimized) ───────────────────────────────────
   vllm:
     image: vllm/vllm-openai:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-vllm
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-vllm
     hostname: worker-3090-vllm
     restart: unless-stopped
     ports:
@@ -97,7 +97,7 @@ services:
   # ── LiteLLM Proxy (Local entrypoint)────────────────────────────────────
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-litellm
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-litellm
     hostname: worker-3090-litellm
     restart: unless-stopped
     ports:
@@ -117,7 +117,7 @@ services:
   # ── Model Switcher ──────────────────────────────────────────────────────
   model-switcher:
     image: python:3.11-slim
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-switcher
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-switcher
     hostname: worker-3090-switcher
     restart: unless-stopped
     volumes:
@@ -137,7 +137,7 @@ services:
   # ── Monitoring (Promtail, Node Exporter, GPU Exporter, Health) ──────────
   promtail:
     image: grafana/promtail:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-promtail
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-promtail
     restart: unless-stopped
     network_mode: host
     volumes:
@@ -151,7 +151,7 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-node-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-node-exporter
     restart: unless-stopped
     ports:
       - "9100:9100"
@@ -168,7 +168,7 @@ services:
 
   gpu-exporter:
     image: utkuozdemir/nvidia_gpu_exporter:1.4.1
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-gpu-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-gpu-exporter
     restart: unless-stopped
     ports:
       - "9835:9835"
@@ -184,7 +184,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-cadvisor
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-cadvisor
     restart: unless-stopped
     privileged: true
     ports:
@@ -200,7 +200,7 @@ services:
 
   health-monitor:
     image: curlimages/curl:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-worker-3090-health
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-health
     restart: unless-stopped
     depends_on:
       - vllm

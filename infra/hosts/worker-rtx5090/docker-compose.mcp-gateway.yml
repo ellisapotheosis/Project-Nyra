@@ -1,0 +1,124 @@
+# ============================================================================
+# Worker RTX 5090 — Docker MCP Gateway (Primary Dev Workstation)
+# ============================================================================
+# Aggregates MCP servers (fetch, filesystem, git, desktop-commander) into a
+# single SSE endpoint. Provides LOCAL filesystem + terminal access to Claude
+# Code running on this machine without SSH round-trips.
+#
+# Nexus Router treats this as OPTIONAL (mobile device — may be offline).
+#
+# Start:
+#   make worker-5090-mcp-gw-up
+# Or directly:
+#   COMPOSE_PROJECT_NAME=worker-rtx5090 \
+#   docker --context worker-rtx5090 compose \
+#     -f infra/hosts/worker-rtx5090/docker-compose.mcp-gateway.yml up -d
+#
+# Local endpoint (when on this machine):
+#   http://localhost:8811/sse
+# Remote endpoint via Tailscale (optional Nexus downstream):
+#   http://worker-rtx5090.trex-fiordland.ts.net:8811/sse
+# ============================================================================
+
+services:
+  # ── Infisical Agent ───────────────────────────────────────────────────────
+  infisical-agent:
+    image: infisical/cli:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-mcp-gw-infisical-agent
+    restart: unless-stopped
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/machines/worker-rtx5090}
+      INFISICAL_EXPORT_INTERVAL_SECONDS: ${INFISICAL_EXPORT_INTERVAL_SECONDS:-300}
+    volumes:
+      - mcp_gw_secrets:/run/nyra-secrets
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /run/nyra-secrets
+        while true; do
+          auth_token=""
+          if [ -n "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] && [ -n "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
+            auth_token="$$(infisical login --method universal-auth --client-id "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" --client-secret "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" --plain --silent 2>/dev/null || true)"
+          fi
+          if [ -z "$$auth_token" ] && [ -n "$$INFISICAL_TOKEN" ]; then
+            auth_token="$$INFISICAL_TOKEN"
+          fi
+          if [ -n "$$auth_token" ]; then
+            infisical export \
+              --token "$$auth_token" \
+              --projectId "$$INFISICAL_PROJECT_ID" \
+              --env "$$INFISICAL_ENV" \
+              --path "$$INFISICAL_PATH" \
+              --format dotenv > /run/nyra-secrets/runtime.env.tmp &&
+              mv /run/nyra-secrets/runtime.env.tmp /run/nyra-secrets/runtime.env
+          else
+            : > /run/nyra-secrets/runtime.env
+          fi
+          sleep "$$INFISICAL_EXPORT_INTERVAL_SECONDS"
+        done
+    networks:
+      - worker-network
+
+  # ── Infisical Sidecar ─────────────────────────────────────────────────────
+  infisical-sidecar:
+    image: alpine:3.20
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-mcp-gw-infisical-sidecar
+    restart: unless-stopped
+    depends_on:
+      - infisical-agent
+    volumes:
+      - mcp_gw_secrets:/run/nyra-secrets:ro
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        while true; do
+          test -f /run/nyra-secrets/runtime.env && wc -l /run/nyra-secrets/runtime.env || true
+          sleep 300
+        done
+    networks:
+      - worker-network
+
+  # ── Docker MCP Gateway ────────────────────────────────────────────────────
+  # Full read-write access — this is the primary dev workstation.
+  # mcp-servers.json enables desktop-commander for terminal execution.
+  mcp-gateway:
+    image: docker/mcp-gateway:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx5090}-mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "${MCP_GATEWAY_PORT:-8811}:8811"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./mcp-servers.json:/root/.docker/mcp.json:ro
+      - ${REPOS_PATH:-/home/ellisapotheosis/repos}:/repos:rw
+      - ${HOME_PATH:-/home/ellisapotheosis}:/home/user:rw
+    environment:
+      MCP_GATEWAY_PORT: 8811
+      LOG_LEVEL: ${MCP_GATEWAY_LOG_LEVEL:-info}
+    depends_on:
+      - infisical-agent
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8811/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - worker-network
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  mcp_gw_secrets:
+
+networks:
+  worker-network:
+    external: true
+    name: nyra-worker-5090

@@ -23,6 +23,8 @@ ORCHESTRATOR_PORTAINER_EDGE_COMPOSE := infra/hosts/orchestrator/portainer-mesh/d
 WORKER_3060_LLXPRT_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
 WORKER_3090TI_LLXPRT_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
 WORKER_5090_LLXPRT_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
+WORKER_3090TI_MCP_GW_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.mcp-gateway.yml
+WORKER_5090_MCP_GW_COMPOSE   := infra/hosts/worker-rtx5090/docker-compose.mcp-gateway.yml
 ORACLE_ACTIVEPIECES_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.activepieces-mcp.yml
 
 # Canonical Host Composes
@@ -176,6 +178,19 @@ restoration-up: oracle-mcp-tools-up oracle-memory-full-up
 	@echo "🐾 Starting ActivePieces MCP on Oracle..."
 	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d)
 	@echo "✅ Full Restoration Stack is LIVE."
+
+worker-mcp-gw-up: ## Start Docker MCP Gateway on worker-rtx3090ti and worker-rtx5090
+	@echo "Starting Docker MCP Gateway on worker-rtx3090ti..."
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_MCP_GW_COMPOSE) up -d) || echo "[WARN] worker-rtx3090ti MCP gateway failed"
+	@echo "Starting Docker MCP Gateway on worker-rtx5090 (mobile — may be offline)..."
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_MCP_GW_COMPOSE) up -d) || echo "[WARN] worker-rtx5090 MCP gateway skipped (offline)"
+	@echo "Test endpoints:"
+	@echo "  http://worker-rtx3090ti.trex-fiordland.ts.net:8811/health"
+	@echo "  http://worker-rtx5090.trex-fiordland.ts.net:8811/health"
+
+worker-mcp-gw-down: ## Stop Docker MCP Gateway on both workers
+	@docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WORKER_3090TI_MCP_GW_COMPOSE) down || true
+	@docker --context $(WORKER_5090_CONTEXT) compose -f $(WORKER_5090_MCP_GW_COMPOSE) down || true
 
 .DEFAULT_GOAL := help
 

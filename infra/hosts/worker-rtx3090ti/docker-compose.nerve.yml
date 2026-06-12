@@ -3,7 +3,7 @@ services:
     build:
       context: ../../../services/openclaw
       dockerfile: Dockerfile
-    container_name: worker-3090-openclaw
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-openclaw
     restart: unless-stopped
     ports:
       - "8002:18789"
@@ -26,12 +26,12 @@ services:
     build:
       context: ../../images/nerve-ui
       dockerfile: Dockerfile
-    container_name: worker-3090-nerve-ui
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-nerve-ui
     restart: unless-stopped
     ports:
       - "18790:18789"
     environment:
-      OPENCLAW_URL: http://worker-3090-openclaw:18789
+      OPENCLAW_URL: http://openclaw:18789
       WORKER_NAME: worker-rtx3090ti
     networks:
       - worker-network

@@ -59,3 +59,24 @@ path = "/mcp"
 
 # Add additional MCP downstreams here only after they pass an initialize smoke
 # check from inside the nyra-network_nyra_net Docker network.
+
+# ── Worker MCP Gateways (docker/mcp-gateway on each worker) ─────────────────
+# Start with: make worker-mcp-gw-up
+# Smoke-test health before enabling:
+#   curl --max-time 5 http://worker-rtx3090ti.trex-fiordland.ts.net:8811/health
+#   curl --max-time 5 http://worker-rtx5090.trex-fiordland.ts.net:8811/health
+#
+# Then test SSE initialize from inside the oracle container network:
+#   docker --context oracle exec -it oracle-vps-nexus \
+#     curl http://worker-rtx3090ti.trex-fiordland.ts.net:8811/sse
+#
+# Once confirmed, uncomment to add as Nexus MCP sources:
+#
+# [[mcp.sources]]
+# name = "worker-3090ti-mcp"
+# url = "http://worker-rtx3090ti.trex-fiordland.ts.net:8811/sse"
+#
+# [[mcp.sources]]
+# name = "worker-5090-mcp"
+# url = "http://worker-rtx5090.trex-fiordland.ts.net:8811/sse"
+# # 5090 is mobile — only add if consistently online

@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "fetch": {
+      "image": "mcp/fetch"
+    },
+    "filesystem": {
+      "image": "mcp/filesystem",
+      "args": ["/repos"],
+      "volumes": ["/home/ellisapotheosis/repos:/repos:ro"]
+    },
+    "git": {
+      "image": "mcp/git",
+      "volumes": ["/home/ellisapotheosis/repos:/repos:rw"]
+    },
+    "time": {
+      "image": "mcp/time"
+    }
+  }
+}

@@ -1,0 +1,120 @@
+# ============================================================================
+# Worker RTX 3090 Ti — Docker MCP Gateway
+# ============================================================================
+# Aggregates MCP servers (fetch, filesystem, git) into a single SSE endpoint.
+# Nexus Router on oracle-vps proxies this as an upstream MCP source.
+#
+# Start:
+#   make worker-3090ti-mcp-gw-up
+# Or directly:
+#   COMPOSE_PROJECT_NAME=worker-rtx3090ti \
+#   docker --context worker-rtx3090ti compose \
+#     -f infra/hosts/worker-rtx3090ti/docker-compose.mcp-gateway.yml up -d
+#
+# Endpoint exposed to Nexus:
+#   http://worker-rtx3090ti.trex-fiordland.ts.net:8811/sse
+# ============================================================================
+
+services:
+  # ── Infisical Agent (polls secrets every 5 min, writes to shared volume) ──
+  infisical-agent:
+    image: infisical/cli:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-mcp-gw-infisical-agent
+    restart: unless-stopped
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${NYRA_INFISICAL_PATH:-/machines/worker-rtx3090ti}
+      INFISICAL_EXPORT_INTERVAL_SECONDS: ${INFISICAL_EXPORT_INTERVAL_SECONDS:-300}
+    volumes:
+      - mcp_gw_secrets:/run/nyra-secrets
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        mkdir -p /run/nyra-secrets
+        while true; do
+          auth_token=""
+          if [ -n "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" ] && [ -n "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" ]; then
+            auth_token="$$(infisical login --method universal-auth --client-id "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" --client-secret "$$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" --plain --silent 2>/dev/null || true)"
+          fi
+          if [ -z "$$auth_token" ] && [ -n "$$INFISICAL_TOKEN" ]; then
+            auth_token="$$INFISICAL_TOKEN"
+          fi
+          if [ -n "$$auth_token" ]; then
+            infisical export \
+              --token "$$auth_token" \
+              --projectId "$$INFISICAL_PROJECT_ID" \
+              --env "$$INFISICAL_ENV" \
+              --path "$$INFISICAL_PATH" \
+              --format dotenv > /run/nyra-secrets/runtime.env.tmp &&
+              mv /run/nyra-secrets/runtime.env.tmp /run/nyra-secrets/runtime.env
+          else
+            : > /run/nyra-secrets/runtime.env
+          fi
+          sleep "$$INFISICAL_EXPORT_INTERVAL_SECONDS"
+        done
+    networks:
+      - worker-network
+
+  # ── Infisical Sidecar (monitors the secrets file, logs line count) ────────
+  infisical-sidecar:
+    image: alpine:3.20
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-mcp-gw-infisical-sidecar
+    restart: unless-stopped
+    depends_on:
+      - infisical-agent
+    volumes:
+      - mcp_gw_secrets:/run/nyra-secrets:ro
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        while true; do
+          test -f /run/nyra-secrets/runtime.env && wc -l /run/nyra-secrets/runtime.env || true
+          sleep 300
+        done
+    networks:
+      - worker-network
+
+  # ── Docker MCP Gateway ────────────────────────────────────────────────────
+  # Aggregates MCP servers defined in mcp-servers.json.
+  # Exposes unified SSE endpoint on port 8811 for Nexus Router.
+  mcp-gateway:
+    image: docker/mcp-gateway:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-rtx3090ti}-mcp-gateway
+    restart: unless-stopped
+    ports:
+      - "${MCP_GATEWAY_PORT:-8811}:8811"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./mcp-servers.json:/root/.docker/mcp.json:ro
+      - ${REPOS_PATH:-/home/ellisapotheosis/repos}:/repos:ro
+    environment:
+      MCP_GATEWAY_PORT: 8811
+      LOG_LEVEL: ${MCP_GATEWAY_LOG_LEVEL:-info}
+    depends_on:
+      - infisical-agent
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8811/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - worker-network
+    # Gateway needs Docker socket to spawn MCP server containers on demand.
+    # No privileged mode required — socket mount is sufficient.
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  mcp_gw_secrets:
+
+networks:
+  worker-network:
+    external: true
+    name: nyra-worker-3090
