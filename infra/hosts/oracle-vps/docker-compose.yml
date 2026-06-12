@@ -309,14 +309,14 @@ services:
       retries: 5
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    image: cloudflare/cloudflared:2026.6.0
     container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-cloudflared
     restart: unless-stopped
     command: ["tunnel", "--no-autoupdate", "--protocol", "http2", "run"]
     environment:
       TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN}
       ORACLE_TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN}
-    networks: [nyra_net]
+    networks: [nyra_net, nyra_persistent]
     healthcheck:
       test: ["CMD", "cloudflared", "--version"]
       interval: 60s
@@ -808,6 +808,9 @@ services:
 networks:
   nyra_net:
     name: nyra_net
+  nyra_persistent:
+    external: true
+    name: nyra-persistent_default
 
 volumes:
   postgres_data:

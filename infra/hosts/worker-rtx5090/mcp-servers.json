@@ -5,10 +5,12 @@
     },
     "filesystem": {
       "image": "mcp/filesystem",
-      "args": ["/repos", "/home/user"],
+      "args": ["/repos", "/home/user", "/x", "/z"],
       "volumes": [
         "/home/ellisapotheosis/repos:/repos:rw",
-        "/home/ellisapotheosis:/home/user:rw"
+        "/home/ellisapotheosis:/home/user:rw",
+        "/run/desktop/mnt/host/x:/x:rw",
+        "/run/desktop/mnt/host/z:/z:rw"
       ]
     },
     "git": {
