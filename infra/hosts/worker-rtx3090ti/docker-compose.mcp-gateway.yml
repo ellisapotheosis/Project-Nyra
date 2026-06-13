@@ -92,7 +92,11 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./mcp-servers.json:/root/.docker/mcp.json:ro
+      - /home/ellisapotheosis/repos/project-nyra:/home/ellisapotheosis/repos/project-nyra:ro
+      - /home/ellisapotheosis/repos:/home/ellisapotheosis/repos:ro
       - ${REPOS_PATH:-/home/ellisapotheosis/repos}:/repos:ro
+      - /run/desktop/mnt/host/x:/x:ro
+      - /run/desktop/mnt/host/z:/z:ro
     environment:
       MCP_GATEWAY_PORT: 8811
       LOG_LEVEL: ${MCP_GATEWAY_LOG_LEVEL:-info}

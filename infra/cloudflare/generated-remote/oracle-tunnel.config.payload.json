@@ -1,18 +1,6 @@
 {
   "config": {
     "ingress": [
-      {
-        "hostname": "portainer.projectnyra.com",
-        "service": "http://portainer:9000"
-      },
-      {
-        "hostname": "portainer-edge.projectnyra.com",
-        "service": "http://portainer:9000"
-      },
-      {
-        "hostname": "portainer-tunnel.projectnyra.com",
-        "service": "http://portainer:8000"
-      },
       { "hostname": "app.projectnyra.com", "service": "http://webapp:3001" },
       {
         "hostname": "supabase.projectnyra.com",
@@ -27,6 +15,10 @@
       {
         "hostname": "activepieces.projectnyra.com",
         "service": "http://activepieces:80"
+      },
+      {
+        "hostname": "openlit.projectnyra.com",
+        "service": "http://openlit:3000"
       },
       {
         "hostname": "composio.projectnyra.com",

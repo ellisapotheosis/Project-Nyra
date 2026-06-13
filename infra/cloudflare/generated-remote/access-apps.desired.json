@@ -9,7 +9,9 @@
       "hostnames": [
         "nexus-ui.projectnyra.com",
         "gitea.projectnyra.com",
-        "activepieces.projectnyra.com"
+        "activepieces.projectnyra.com",
+        "openlit.projectnyra.com",
+        "picoclaw-3060.projectnyra.com"
       ],
       "type": "self_hosted",
       "policy_group_id": "6290c676-cb4b-4482-a87e-fe048d4cab8a",
@@ -40,6 +42,8 @@
     "openmemory.projectnyra.com",
     "openwebui.projectnyra.com",
     "wol.projectnyra.com",
+    "voice.projectnyra.com",
+    "status-bridge.projectnyra.com",
     "portainer-oracle.projectnyra.com",
     "portainer.projectnyra.com",
     "portainer-5090.projectnyra.com",
@@ -49,6 +53,10 @@
     "syncthing-5090.projectnyra.com",
     "syncthing-3090.projectnyra.com",
     "syncthing-3060.projectnyra.com",
+    "nerve-5090.projectnyra.com",
+    "claw-5090.projectnyra.com",
+    "nerve-3090.projectnyra.com",
+    "claw-3090.projectnyra.com",
     "infisical-mcp.projectnyra.com",
     "gitea-mcp.projectnyra.com",
     "letta-mcp.projectnyra.com",

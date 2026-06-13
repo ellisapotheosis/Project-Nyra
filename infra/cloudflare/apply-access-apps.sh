@@ -89,6 +89,8 @@ Nyra CRM Gateway,crm.projectnyra.com,family
 Nyra Nexus UI,nexus-ui.projectnyra.com,owner
 Nyra Gitea,gitea.projectnyra.com,owner
 Nyra Activepieces,activepieces.projectnyra.com,owner
+Nyra OpenLit,openlit.projectnyra.com,owner
+Nyra PicoClaw 3060,picoclaw-3060.projectnyra.com,owner
 Nyra Linkwarden,linkwarden.projectnyra.com,family
 Nyra Composio Gateway,composio.projectnyra.com,agent
 EOF

@@ -39,6 +39,12 @@
       "proxied": true
     },
     {
+      "name": "openlit",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+    {
       "name": "composio",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
@@ -49,6 +55,49 @@
       "type": "CNAME",
       "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
+    },
+    {
+      "name": "picoclaw-3060",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true
+    },
+
+    {
+      "name": "orchestrator",
+      "type": "A",
+      "content": "100.64.0.2",
+      "proxied": false
+    },
+    {
+      "name": "oracle-vps",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "homeassistant",
+      "type": "A",
+      "content": "100.64.0.4",
+      "proxied": false
+    },
+    {
+      "name": "worker-rtx3060",
+      "type": "A",
+      "content": "100.64.0.12",
+      "proxied": false
+    },
+    {
+      "name": "worker-rtx3090ti",
+      "type": "A",
+      "content": "100.64.0.13",
+      "proxied": false
+    },
+    {
+      "name": "worker-rtx5090",
+      "type": "A",
+      "content": "100.64.0.11",
+      "proxied": false
     },
 
     { "name": "nexus", "type": "A", "content": "100.64.0.3", "proxied": false },
@@ -65,6 +114,13 @@
       "proxied": false
     },
     { "name": "wol", "type": "A", "content": "100.64.0.2", "proxied": false },
+    { "name": "voice", "type": "A", "content": "100.64.0.2", "proxied": false },
+    {
+      "name": "status-bridge",
+      "type": "A",
+      "content": "100.64.0.2",
+      "proxied": false
+    },
 
     {
       "name": "portainer-oracle",
@@ -81,19 +137,19 @@
     {
       "name": "portainer-5090",
       "type": "A",
-      "content": "100.64.0.7",
+      "content": "100.64.0.11",
       "proxied": false
     },
     {
       "name": "portainer-3090",
       "type": "A",
-      "content": "100.64.0.6",
+      "content": "100.64.0.13",
       "proxied": false
     },
     {
       "name": "portainer-3060",
       "type": "A",
-      "content": "100.64.0.5",
+      "content": "100.64.0.12",
       "proxied": false
     },
 
@@ -106,19 +162,44 @@
     {
       "name": "syncthing-5090",
       "type": "A",
-      "content": "100.64.0.7",
+      "content": "100.64.0.11",
       "proxied": false
     },
     {
       "name": "syncthing-3090",
       "type": "A",
-      "content": "100.64.0.6",
+      "content": "100.64.0.13",
       "proxied": false
     },
     {
       "name": "syncthing-3060",
       "type": "A",
-      "content": "100.64.0.5",
+      "content": "100.64.0.12",
+      "proxied": false
+    },
+
+    {
+      "name": "nerve-5090",
+      "type": "A",
+      "content": "100.64.0.11",
+      "proxied": false
+    },
+    {
+      "name": "claw-5090",
+      "type": "A",
+      "content": "100.64.0.11",
+      "proxied": false
+    },
+    {
+      "name": "nerve-3090",
+      "type": "A",
+      "content": "100.64.0.13",
+      "proxied": false
+    },
+    {
+      "name": "claw-3090",
+      "type": "A",
+      "content": "100.64.0.13",
       "proxied": false
     },
 
@@ -150,6 +231,113 @@
       "name": "memos-mcp",
       "type": "A",
       "content": "100.64.0.3",
+      "proxied": false
+    },
+
+    {
+      "name": "searxng",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "browserless",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "superset",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    { "name": "letta", "type": "A", "content": "100.64.0.3", "proxied": false },
+    { "name": "mem0", "type": "A", "content": "100.64.0.3", "proxied": false },
+    { "name": "memos", "type": "A", "content": "100.64.0.3", "proxied": false },
+    {
+      "name": "gastown",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "agent-vault",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "quote-api",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "quote-engine",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "crm-api",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "campaign-engine",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "twenty-mcp",
+      "type": "A",
+      "content": "100.64.0.3",
+      "proxied": false
+    },
+    {
+      "name": "ollama-3060",
+      "type": "A",
+      "content": "100.64.0.12",
+      "proxied": false
+    },
+    {
+      "name": "vllm-3090",
+      "type": "A",
+      "content": "100.64.0.13",
+      "proxied": false
+    },
+    {
+      "name": "vllm-5090",
+      "type": "A",
+      "content": "100.64.0.11",
+      "proxied": false
+    },
+    {
+      "name": "bitnet",
+      "type": "A",
+      "content": "100.64.0.2",
+      "proxied": false
+    },
+    {
+      "name": "pockettts",
+      "type": "A",
+      "content": "100.64.0.2",
+      "proxied": false
+    },
+
+    {
+      "name": "mcp-gateway-3090",
+      "type": "A",
+      "content": "100.64.0.13",
+      "proxied": false
+    },
+    {
+      "name": "mcp-gateway-5090",
+      "type": "A",
+      "content": "100.64.0.11",
       "proxied": false
     }
   ]

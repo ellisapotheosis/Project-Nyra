@@ -52,6 +52,9 @@ WORKER_3060_OPENCLAW_COMPOSE       := infra/hosts/worker-rtx3060/docker-compose.
 WORKER_3060_CLAWTEAM_COMPOSE       := infra/hosts/worker-rtx3060/docker-compose.clawteam.yml
 WORKER_3060_PICOCLAW_COMPOSE      := infra/hosts/worker-rtx3060/docker-compose.picoclaw.yml
 ORCHESTRATOR_BITNET_COMPOSE       := infra/hosts/orchestrator/docker-compose.bitnet.yml
+ORCHESTRATOR_POCKETTTS_COMPOSE    := infra/hosts/orchestrator/docker-compose.pockettts.yml
+WORKER_3060_BITNET_COMPOSE        := infra/hosts/worker-rtx3060/docker-compose.bitnet.yml
+ORACLE_HIVE_GATEWAY_COMPOSE       := infra/hosts/oracle-vps/docker-compose.hive-gateway.yml
 ORCHESTRATOR_WOL_MANAGER_COMPOSE  := infra/hosts/orchestrator/docker-compose.wol-manager.yml
 ORACLE_PERSISTENT_COMPOSE          := infra/hosts/oracle-vps/docker-compose.persistent.yml
 ORCHESTRATOR_PERSISTENT_COMPOSE    := infra/hosts/orchestrator/docker-compose.persistent.yml
@@ -155,7 +158,7 @@ DEFAULT_PROFILES ?= apps,sync,debug
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
   gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
-  voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed \
+  voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed pockettts-up pockettts-down \
   cf-orch-up cf-orch-down cf-orch-logs \
   oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
   oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
@@ -164,6 +167,7 @@ DEFAULT_PROFILES ?= apps,sync,debug
   sync-env sync-env-all \
   up-all down-all cluster-status \
   oracle-gastown-up oracle-gastown-down oracle-gastown-ps \
+  hive-gateway-up hive-gateway-down hive-gateway-logs \
   persistent-up persistent-oracle-up persistent-orchestrator-up \
   persistent-worker-5090-up persistent-worker-3090ti-up persistent-worker-3060-up \
   orchestrator-control-up orchestrator-control-down orchestrator-control-ps \
@@ -262,6 +266,9 @@ help:
 	@echo "make oracle-portainer-up  Start Oracle Portainer CE + local agent"
 	@echo "make oracle-portainer-sync Sync the Oracle stack bundle into Portainer"
 	@echo "make oracle-gastown-up    Start Gastown workspace manager on Oracle VPS"
+	@echo "make hive-gateway-up      Start Hive GraphQL Federation Gateway on Oracle VPS (replaces grafbase/router)"
+	@echo "make hive-gateway-down    Stop Hive Gateway"
+	@echo "make hive-gateway-logs    Tail Hive Gateway logs"
 	@echo
 	@echo "--- DEFAULT CLUSTER STACK ---"
 	@echo "make orchestrator-control-up Start BitNet CPU fallback + WoL manager"
@@ -507,6 +514,12 @@ voice-3090ti:
 
 voice-orch:
 	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(VOICE_ORCHESTRATOR_COMPOSE) up -d)
+
+pockettts-up:
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_POCKETTTS_COMPOSE) up -d)
+
+pockettts-down:
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_POCKETTTS_COMPOSE) down)
 
 voice-distributed:
 	$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(DIST_VOICE_3060) up -d)
@@ -1413,6 +1426,22 @@ oracle-gastown-ps:
 	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_GASTOWN_COMPOSE) ps gastown)
 
 # ════════════════════════════════════════════════════════════════════════════
+# 🐝 HIVE GATEWAY — GraphQL federation gateway (replaces deprecated grafbase/router)
+# Private subdomain: hive.projectnyra.com → 100.64.0.3:4002
+# ════════════════════════════════════════════════════════════════════════════
+
+hive-gateway-up:
+	@echo "Starting Hive GraphQL Federation Gateway on Oracle VPS..."
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_HIVE_GATEWAY_COMPOSE) up -d hive-gateway)
+	@echo "Hive Gateway: https://hive.projectnyra.com (Tailscale private)"
+
+hive-gateway-down:
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_HIVE_GATEWAY_COMPOSE) stop hive-gateway)
+
+hive-gateway-logs:
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_HIVE_GATEWAY_COMPOSE) logs -f --tail=100 hive-gateway)
+
+# ════════════════════════════════════════════════════════════════════════════
 # 🔒 PERSISTENT SERVICES — Portainer + Syncthing (restart:always, NEVER stop)
 # Run once after a host is first provisioned or rebuilt.
 # Uses direct docker commands (no Infisical) — these are the pre-secrets layer.
@@ -1448,7 +1477,7 @@ persistent-up: persistent-oracle-up persistent-orchestrator-up persistent-worker
 # Role assignments:
 #   oracle-vps       → core services + memory plane + Gastown + ClawTeam
 #   worker-rtx3090ti → vLLM + OpenClaw (primary, 24/7) + Nerve UI (primary, 24/7)
-#   worker-rtx3060   → Ollama/embeddings + OpenClaw/Nerve UI + monitoring (PicoClaw override available)
+#   worker-rtx3060   → Ollama/embeddings + PicoClaw + BitNet (memory LLM) + monitoring
 #   worker-rtx5090   → vLLM + OpenClaw/Nerve UI + monitoring
 #
 # To add paperclip: make oracle-paperclip-up
@@ -1476,8 +1505,8 @@ default-stack-up:
 	@echo "[4/6] Worker RTX3090Ti — vLLM + OpenClaw (primary) + Nerve UI (primary)..."
 	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3090TI_LLXPRT_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) up -d redis vllm litellm model-switcher promtail node-exporter gpu-exporter cadvisor health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3006,$(WORKER_3090TI_DEFAULT_MODEL)) || echo "[WARN] Step [4/6] worker-rtx3090ti had failures — host may be offline"
 	@echo ""
-	@echo "[5/6] Worker RTX3060 — Ollama memory lane + OpenClaw/Nerve UI + monitoring..."
-	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3060_LLXPRT_COMPOSE) -f $(WORKER_3060_OPENCLAW_COMPOSE) up -d ollama ollama-model-init litellm model-switcher promtail node-exporter gpu-exporter cadvisor health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3007) || echo "[WARN] Step [5/6] worker-rtx3060 had failures — host may be offline"
+	@echo "[5/6] Worker RTX3060 — Ollama memory lane + PicoClaw + BitNet memory LLM + monitoring..."
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3060_LLXPRT_COMPOSE) -f $(WORKER_3060_PICOCLAW_COMPOSE) -f $(WORKER_3060_BITNET_COMPOSE) up -d ollama ollama-model-init litellm model-switcher promtail node-exporter gpu-exporter cadvisor health-monitor grafana picoclaw infisical-agent infisical-sidecar llxprt-code llxprt-bridge bitnet,WORKER_GRAFANA_PORT=3007) || echo "[WARN] Step [5/6] worker-rtx3060 had failures — host may be offline"
 	@echo ""
 	@echo "[6/6] Worker RTX5090 — vLLM + OpenClaw (primary) + Nerve UI (primary)..."
 	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_5090_LLXPRT_COMPOSE) -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) -f $(WORKER_5090_NERVE_COMPOSE) up -d redis vllm litellm model-switcher promtail node-exporter gpu-exporter cadvisor health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3005,$(WORKER_5090_DEFAULT_MODEL)) || echo "[WARN] Step [6/6] worker-rtx5090 had failures — host may be offline"
@@ -1510,8 +1539,8 @@ default-stack-status:
 	@echo "=== [WORKER RTX3090Ti — vLLM + OpenClaw + Nerve UI] ==="
 	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) ps,WORKER_GRAFANA_PORT=3006) 2>/dev/null || true
 	@echo ""
-	@echo "=== [WORKER RTX3060 — Ollama + OpenClaw + Nerve UI] ==="
-	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(WORKER_3060_OPENCLAW_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) ps,WORKER_GRAFANA_PORT=3007) 2>/dev/null || true
+	@echo "=== [WORKER RTX3060 — Ollama + PicoClaw + BitNet] ==="
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(WORKER_3060_PICOCLAW_COMPOSE) -f $(WORKER_3060_BITNET_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) ps,WORKER_GRAFANA_PORT=3007) 2>/dev/null || true
 	@echo ""
 	@echo "=== [WORKER RTX5090 — vLLM + OpenClaw + Nerve UI] ==="
 	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) ps,WORKER_GRAFANA_PORT=3005) 2>/dev/null || true

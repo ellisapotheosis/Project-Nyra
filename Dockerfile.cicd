@@ -1,0 +1,89 @@
+# ==========================================
+# Claude Flow CI/CD - Headless Worker
+# ==========================================
+FROM node:22-alpine AS base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    git \
+    bash \
+    python3 \
+    make \
+    g++ \
+    docker-cli
+
+WORKDIR /app
+
+# ==========================================
+# Dependencies Layer
+# ==========================================
+FROM base AS deps
+
+COPY package.json pnpm-lock.yaml* ./
+RUN corepack enable pnpm && \
+    pnpm install --frozen-lockfile
+
+# ==========================================
+# Builder Layer
+# ==========================================
+FROM base AS builder
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Build any TypeScript/monorepo packages
+RUN corepack enable pnpm && \
+    pnpm run build || true
+
+# ==========================================
+# Runtime Layer
+# ==========================================
+FROM base
+
+# Install archon-os CLI globally
+RUN npm install -g @archon-os/cli@latest
+
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/.archon-os ./.archon-os
+
+# Copy CI/CD scripts
+COPY <<'EOF' /app/start-cicd.sh
+#!/bin/sh
+set -e
+
+echo "🤖 Initializing Claude Flow CI/CD Worker..."
+
+# Check if Brain MCP server is available
+if [ -n "$MCP_SERVER_URL" ]; then
+  echo "Connecting to Brain at $MCP_SERVER_URL..."
+  until curl -f "$MCP_SERVER_URL/health" > /dev/null 2>&1; do
+    echo "Waiting for Brain..."
+    sleep 5
+  done
+  echo "✅ Connected to Brain"
+fi
+
+# Initialize memory (local or remote)
+if [ "$CLAUDE_FLOW_NON_INTERACTIVE" = "true" ]; then
+  export CLAUDE_FLOW_HEADLESS=true
+fi
+
+# Run CI tasks
+echo "🚀 CI/CD Worker ready for tasks"
+
+# Keep container running for CI commands
+tail -f /dev/null
+EOF
+
+RUN chmod +x /app/start-cicd.sh
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD npx @archon-os/cli@latest status || exit 1
+
+# Start the CI/CD worker
+CMD ["/app/start-cicd.sh"]

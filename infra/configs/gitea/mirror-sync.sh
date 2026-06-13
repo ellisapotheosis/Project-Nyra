@@ -55,10 +55,10 @@ cd repo.git
 echo "Adding GitHub remote..."
 git remote add github "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git"
 
-# Push all branches and tags
+# Push all branches and tags (no --force: GitHub is a read mirror of Gitea)
 echo "Pushing to GitHub..."
-git push github --all --force
-git push github --tags --force
+git push github --all
+git push github --tags
 
 echo "=== Sync Complete ==="
 

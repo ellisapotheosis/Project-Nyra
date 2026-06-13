@@ -1,0 +1,190 @@
+# Project Nyra - Docker MCP Gateway (Secondary Endpoint)
+#
+# Lightweight alternative MCP gateway for:
+# - Local development and testing of new MCPs
+# - Testing before Nexus integration
+# - Fallback when Nexus requires maintenance
+# - Direct Claude Desktop integration via stdio bridge
+# - Worker PC deployment as lightweight MCP aggregator
+#
+# OVERLAY: Run with main compose: docker-compose -f docker-compose.yml -f docker-compose.mcp-gateway.yml up -d
+#
+# PRIMARY: Nexus Router (port 6000) - production MCP gateway
+# SECONDARY: Docker MCP Gateway (port 8888) - dev/fallback gateway
+#
+# Coordinate before editing. Changes affect all dependent services.
+
+name: oracle-vps-mcp-gateway
+
+services:
+  # ── Docker MCP Gateway ────────────────────────────────────────────
+  # Lightweight MCP gateway built with Node.js + TypeScript
+  # Provides stdio MCP protocol for Claude Desktop + REST API for management
+  #
+  # Features:
+  # - Central MCP protocol handler (stdio-based)
+  # - Docker container orchestration
+  # - REST API for dynamic MCP server management
+  # - Health monitoring and metrics
+  # - Graceful shutdown with SIGTERM handling
+  #
+  # API Endpoints:
+  # - GET  /health → Health check
+  # - GET  /api/health → API health status
+  # - GET  /api/servers → List active servers
+  # - POST /api/servers → Add new server
+  # - GET  /api/servers/{name} → Server status
+  # - POST /api/servers/{name}/restart → Restart server
+  # - DELETE /api/servers/{name} → Stop/remove server
+  #
+  # MCP Tools Available:
+  # - gateway_health, gateway_metrics
+  # - list_servers, start_server, stop_server, restart_server, get_server_status
+  # - Plus all tools from downstream MCP servers
+  #
+  # Log Level: GATEWAY_LOG_LEVEL=debug|info|warn|error
+  # Port: localhost:8888 (internal 8888)
+  # Network: nyra_net (shared with oracle-vps stack)
+
+  mcp-gateway:
+    build:
+      context: ../../../../LAN-MCP-Gateway-Docker-Stack/infra/docker/mcp-gateway
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-mcp-gateway
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: ${GATEWAY_LOG_LEVEL:-info}
+      GATEWAY_PORT: 8888
+      DOCKER_HOST: unix:///var/run/docker.sock
+      NEXUS_ROUTER_URL: http://nexus:3000
+      ENABLE_REST_API: "true"
+      ENABLE_HEALTH_CHECK: "true"
+      STARTUP_WAIT_TIME: 5000
+      MAX_CONCURRENT_SERVERS: 20
+      SERVER_STARTUP_TIMEOUT: 30000
+    ports:
+      - "127.0.0.1:8888:8888"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - gateway_logs:/var/log/mcp-gateway
+      - gateway_cache:/app/cache
+      - gateway_config:/app/config
+      - ./mcp-gateway-servers.json:/app/config/mcp-servers.json:ro
+    networks:
+      - nyra_net
+    depends_on:
+      nexus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 512m
+
+  # ── Prometheus Metrics (Optional - monitoring) ───────────────────
+  # Scrapes metrics from Docker MCP Gateway
+  # Access at: http://localhost:9091
+  # Metrics:
+  # - gateway_requests_total
+  # - gateway_request_duration_seconds
+  # - gateway_errors_total
+  # - gateway_active_servers
+  # - gateway_server_health_status
+
+  prometheus-mcp-gateway:
+    image: prom/prometheus:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-prometheus-mcp-gateway
+    restart: unless-stopped
+    profiles: ["monitoring"]
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+    volumes:
+      - ./configs/prometheus-mcp-gateway.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_mcp_gateway_data:/prometheus
+    ports:
+      - "127.0.0.1:9091:9090"
+    networks:
+      - nyra_net
+    depends_on:
+      - mcp-gateway
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+        reservations:
+          memory: 256m
+
+  # ── Grafana Dashboard (Optional - visualization) ────────────────
+  # Visualizes MCP Gateway metrics
+  # Access at: http://localhost:3010
+  # Default login: admin/admin (change in production!)
+  # Datasource: Prometheus at http://prometheus-mcp-gateway:9090
+
+  grafana-mcp-gateway:
+    image: grafana/grafana:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-grafana-mcp-gateway
+    restart: unless-stopped
+    profiles: ["monitoring"]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_MCP_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_MCP_ADMIN_PASSWORD:-admin}
+      GF_SERVER_ROOT_URL: http://localhost:3010
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana_mcp_gateway_data:/var/lib/grafana
+      - ./configs/grafana-mcp-gateway-datasources.json:/etc/grafana/provisioning/datasources/datasources.json:ro
+    ports:
+      - "127.0.0.1:3010:3000"
+    networks:
+      - nyra_net
+    depends_on:
+      - prometheus-mcp-gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+        reservations:
+          memory: 256m
+
+networks:
+  nyra_net:
+    name: nyra-network_nyra_net
+    external: true
+
+volumes:
+  gateway_logs:
+    driver: local
+  gateway_cache:
+    driver: local
+  gateway_config:
+    driver: local
+  prometheus_mcp_gateway_data:
+    driver: local
+  grafana_mcp_gateway_data:
+    driver: local

@@ -1,0 +1,8 @@
+{
+  "nexus_router": {
+    "url": "https://nexus.projectnyra.com/mcp",
+    "headers": {
+      "CF-Access-Service-Token": "${CLOUDFLARE_SERVICE_TOKEN}"
+    }
+  }
+}

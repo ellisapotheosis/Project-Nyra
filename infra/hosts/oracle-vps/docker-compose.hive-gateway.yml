@@ -1,0 +1,27 @@
+services:
+  hive-gateway:
+    image: ghcr.io/graphql-hive/gateway:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-hive-gateway
+    restart: unless-stopped
+    ports:
+      - "${HIVE_GATEWAY_HOST_PORT:-4002}:4000"
+    environment:
+      PORT: "4000"
+      # Hive CDN (SaaS) — set these via Infisical /machines/oracle-vps for cloud schema polling
+      HIVE_CDN_ENDPOINT: ${HIVE_CDN_ENDPOINT:-}
+      HIVE_CDN_KEY: ${HIVE_CDN_KEY:-}
+    volumes:
+      - ./configs/hive-gateway/gateway.config.yaml:/gateway.config.yaml:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:4000/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - nyra_net
+
+networks:
+  nyra_net:
+    external: true
+    name: nyra-network_nyra_net

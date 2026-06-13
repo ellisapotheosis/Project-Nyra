@@ -1,0 +1,38 @@
+# ============================================================================
+# Grafana Provisioning — Datasources
+# ============================================================================
+# Auto-provisioned on startup. No manual datasource configuration needed.
+# Documentation: https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus (Nyra)
+    type: prometheus
+    access: proxy
+    url: http://nyra-prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: 15s
+      httpMethod: POST
+      manageAlerts: true
+      alertmanagerUid: prometheus-alertmanager
+    secureJsonData: {}
+
+  - name: Loki (Nyra)
+    type: loki
+    access: proxy
+    url: http://nyra-loki:3100
+    isDefault: false
+    editable: false
+    jsonData:
+      maxLines: 1000
+      derivedFields:
+        - name: worker
+          matcherRegex: 'worker_id="([^"]+)"'
+          url: ""
+        - name: container
+          matcherRegex: 'container_name="([^"]+)"'
+          url: ""
+    secureJsonData: {}

@@ -5,6 +5,10 @@
         "hostname": "linkwarden.projectnyra.com",
         "service": "http://100.64.0.2:3007"
       },
+      {
+        "hostname": "picoclaw-3060.projectnyra.com",
+        "service": "http://100.64.0.5:18792"
+      },
       { "service": "http_status:404" }
     ],
     "warp-routing": {

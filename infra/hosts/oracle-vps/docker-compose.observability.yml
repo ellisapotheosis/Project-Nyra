@@ -1,0 +1,174 @@
+# ============================================================================
+# Oracle VPS Observability Stack (Prometheus, Grafana, Loki)
+# ============================================================================
+# Purpose: Central metrics and log aggregation for all Nyra infrastructure
+# Location: oracle-vps (100.64.0.3)
+#
+# Endpoints (via Caddy/Tailscale):
+#   prometheus-oracle.trex-fiordland.ts.net  -> :9090
+#   grafana-oracle.trex-fiordland.ts.net     -> :3003
+#   loki-oracle.trex-fiordland.ts.net        -> :3100
+#
+# Deployment:
+#   docker --context oracle-vps compose \
+#     -f infra/hosts/oracle-vps/docker-compose.observability.yml \
+#     up -d
+# ============================================================================
+
+name: oracle-vps-observability
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  # ============================================================================
+  # Prometheus — Time-series metrics collector
+  # ============================================================================
+  prometheus:
+    <<: *common
+    image: prom/prometheus:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
+    networks:
+      - nyra_net
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "wget -qO- http://127.0.0.1:9090/-/healthy >/dev/null 2>&1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # Grafana — Visualization & dashboards
+  # ============================================================================
+  grafana:
+    <<: *common
+    image: grafana/grafana:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-grafana
+    ports:
+      - "127.0.0.1:3003:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-lokiexplore-app
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+    networks:
+      - nyra_net
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "wget -qO- http://127.0.0.1:3000/api/health >/dev/null 2>&1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # Loki — Log aggregation backend
+  # ============================================================================
+  loki:
+    <<: *common
+    image: grafana/loki:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-loki
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      - ./configs/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - nyra_net
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "wget -qO- http://127.0.0.1:3100/ready >/dev/null 2>&1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # cAdvisor — Container resource metrics
+  # ============================================================================
+  cadvisor:
+    <<: *common
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-cadvisor
+    ports:
+      - "127.0.0.1:8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - nyra_net
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "wget -qO- http://127.0.0.1:8080/healthz >/dev/null 2>&1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================================
+  # Node Exporter — Host system metrics
+  # ============================================================================
+  node-exporter:
+    <<: *common
+    image: prom/node-exporter:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-node-exporter
+    ports:
+      - "127.0.0.1:9100:9100"
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - nyra_net
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "wget -qO- http://127.0.0.1:9100/metrics >/dev/null 2>&1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+
+networks:
+  nyra_net:
+    name: nyra-network_nyra_net
+    external: true

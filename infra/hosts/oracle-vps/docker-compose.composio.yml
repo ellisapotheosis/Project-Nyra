@@ -1,0 +1,59 @@
+# Project Nyra - Composio MCP Bridge (oracle-vps)
+#
+# Runs a local composio serve gateway on port 2700 that proxies tool calls
+# to the Composio cloud API (connect.composio.dev).
+#
+# Exposed via cloudflared as composio.projectnyra.com (Tailscale-only).
+#
+# Secrets: infisical path /clients/composio (prod)
+#
+# Start: docker compose -f docker-compose.composio.yml up -d
+
+name: oracle-vps-composio
+
+services:
+  composio-mcp:
+    build:
+      context: ../../images/composio-mcp
+      dockerfile: Dockerfile
+    image: nyra/composio-mcp:local
+    container_name: ${COMPOSE_PROJECT_NAME:-oracle-vps}-composio-mcp
+    restart: unless-stopped
+    environment:
+      COMPOSIO_API_KEY: ${COMPOSIO_API_KEY:?set COMPOSIO_API_KEY}
+      COMPOSIO_BASE_URL: ${COMPOSIO_BASE_URL:-https://backend.composio.dev}
+      COMPOSIO_DEFAULT_USER_ID: ${COMPOSIO_DEFAULT_USER_ID:-nyra-system}
+      COMPOSIO_MCP_TRANSPORT: ${COMPOSIO_MCP_TRANSPORT:-streamable-http}
+      COMPOSIO_MCP_SERVER_NAME: ${COMPOSIO_MCP_SERVER_NAME:-composio}
+      COMPOSIO_ORG_ID: ${COMPOSIO_ORG_ID}
+      COMPOSIO_ORG_ACCESS_TOKEN: ${COMPOSIO_ORG_ACCESS_TOKEN}
+      COMPOSIO_PROJECT_ID: ${COMPOSIO_PROJECT_ID}
+      COMPOSIO_EXECUTION_POLICY: ${COMPOSIO_EXECUTION_POLICY:-require-user-bound-connection}
+      COMPOSIO_TOOLKITS_ALLOW: ${COMPOSIO_TOOLKITS_ALLOW:-}
+    ports:
+      - "127.0.0.1:${COMPOSIO_MCP_HOST_PORT:-2700}:2700"
+    networks:
+      - nyra_net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'python -c ''import socket; s=socket.create_connection(("127.0.0.1", 2700), 5); s.close()''',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+        reservations:
+          memory: 128m
+
+networks:
+  nyra_net:
+    external: true
+    name: nyra-network_nyra_net

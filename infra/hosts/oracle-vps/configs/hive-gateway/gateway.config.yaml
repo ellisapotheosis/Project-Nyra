@@ -1,0 +1,29 @@
+# Hive Gateway — Project Nyra
+# Self-hosted GraphQL federation gateway (The Guild)
+# Replaces deprecated grafbase/router (ghcr.io/grafbase/gateway:latest, port 5050)
+#
+# SETUP CHOICES:
+#   Option A — Hive Cloud CDN (recommended):
+#     1. Create a Hive project at app.graphql-hive.com
+#     2. Set HIVE_CDN_ENDPOINT and HIVE_CDN_KEY in Infisical /machines/oracle-vps
+#
+#   Option B — Local supergraph SDL (offline):
+#     1. Install: npm install -g @graphql-hive/cli
+#     2. Compose: hive-cli compose --config hive.yml > supergraph.graphql
+#     3. Mount the file and uncomment 'supergraph' below
+
+serve:
+  port: 4000
+  hostname: "0.0.0.0"
+  healthCheckEndpoint: /healthcheck
+
+# Active subgraph definitions (federation v2)
+# Each entry must expose Apollo Federation v2 directives.
+subgraphs:
+  - name: twenty_crm
+    url: "http://twenty:3000/api/graphql"
+    # schema:
+    #   poll: 60  # re-introspect every 60s
+
+# Uncomment to serve from a pre-composed local SDL instead of live introspection:
+# supergraph: /gateway/supergraph.graphql

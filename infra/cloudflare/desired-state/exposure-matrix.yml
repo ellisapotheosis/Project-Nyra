@@ -52,6 +52,11 @@ routes:
     tunnel: oracle
     origin: http://activepieces:80
     exposure: public_auth_group_1
+  - hostname: openlit.projectnyra.com
+    tunnel: oracle
+    origin: http://openlit:3000
+    exposure: public_auth_group_1
+    notes: OpenLit AI Observability dashboard. Gated under Group 1.
   - hostname: linkwarden.projectnyra.com
     tunnel: orchestrator
     origin: http://100.64.0.2:3007
@@ -71,6 +76,10 @@ tailscale_routes:
     target: 100.64.0.3:8088
   - hostname: wol.projectnyra.com
     target: 100.64.0.2:8765
+  - hostname: voice.projectnyra.com
+    target: 100.64.0.2:5000
+  - hostname: status-bridge.projectnyra.com
+    target: 100.64.0.2:8080
   - hostname: portainer-oracle.projectnyra.com
     target: 100.64.0.3:9443
   - hostname: portainer.projectnyra.com
@@ -89,6 +98,16 @@ tailscale_routes:
     target: 100.64.0.6:8384
   - hostname: syncthing-3060.projectnyra.com
     target: 100.64.0.5:8384
+  - hostname: picoclaw-3060.projectnyra.com
+    target: 100.64.0.5:18792
+  - hostname: nerve-5090.projectnyra.com
+    target: 100.64.0.7:7860
+  - hostname: claw-5090.projectnyra.com
+    target: 100.64.0.7:3000
+  - hostname: nerve-3090.projectnyra.com
+    target: 100.64.0.6:7860
+  - hostname: claw-3090.projectnyra.com
+    target: 100.64.0.6:3000
   - hostname: infisical-mcp.projectnyra.com
     target: 100.64.0.3:8766
   - hostname: gitea-mcp.projectnyra.com

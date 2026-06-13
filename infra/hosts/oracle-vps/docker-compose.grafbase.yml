@@ -1,5 +1,7 @@
-# Grafbase Gateway pilot for app/business API facade experiments.
-# Nexus Router remains the canonical agent/MCP control plane.
+# DEPRECATED — grafbase/router (ghcr.io/grafbase/gateway) is sunsetted by Grafbase.
+# This file is preserved for rollback reference ONLY. Do not start it.
+# Replacement: docker-compose.hive-gateway.yml (ghcr.io/graphql-hive/gateway, port 4002)
+# Nexus Router (grafbase/nexus, port 6000) is unaffected and stays.
 
 name: oracle-vps-grafbase-pilot
 

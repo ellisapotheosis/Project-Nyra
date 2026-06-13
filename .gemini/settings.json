@@ -60,6 +60,11 @@
     "modelSteering": true,
     "autoMemory": true,
     "generalistProfile": true,
-    "contextManagement": true
+    "contextManagement": true,
+    "worktrees": true,
+    "directWebFetch": true
+  },
+  "model": {
+    "name": ""
   }
 }

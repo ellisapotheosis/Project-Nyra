@@ -57,6 +57,28 @@ model_list:
       supports_function_calling: true
       supports_vision: false
 
+  - model_name: worker-3060-picoclaw
+    litellm_params:
+      model: openai/picoclaw
+      api_base: http://picoclaw:8001/v1
+      api_key: "not-needed"
+      timeout: 120
+    model_info:
+      mode: chat
+      supports_function_calling: true
+      supports_vision: false
+
+  - model_name: worker-3060-bitnet
+    litellm_params:
+      model: openai/bitnet
+      api_base: http://bitnet:8080/v1
+      api_key: "not-needed"
+      timeout: 60
+    model_info:
+      mode: chat
+      supports_function_calling: false
+      supports_vision: false
+
 general_settings:
   master_key: ${LITELLM_MASTER_KEY}
   drop_params: true

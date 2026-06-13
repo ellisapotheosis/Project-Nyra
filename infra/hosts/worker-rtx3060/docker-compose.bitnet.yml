@@ -1,0 +1,28 @@
+services:
+  bitnet:
+    build:
+      context: ../orchestrator/bitnet
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-bitnet
+    restart: unless-stopped
+    environment:
+      BITNET_MODEL_DIR: /models/BitNet-b1.58-2B-4T
+      BITNET_THREADS: ${BITNET_THREADS:-16}
+      BITNET_CTX_SIZE: ${BITNET_CTX_SIZE:-2048}
+      BITNET_PORT: 8080
+    ports:
+      - "${BITNET_HOST_PORT:-8087}:8080"
+    volumes:
+      - bitnet-models:/models
+    cpus: "${BITNET_CPUS:-16}"
+    mem_limit: ${BITNET_MEM_LIMIT:-14g}
+    networks:
+      - worker-network
+
+volumes:
+  bitnet-models:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-bitnet-models
+
+networks:
+  worker-network:
+    external: true
+    name: nyra-worker-3060

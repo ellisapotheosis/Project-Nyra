@@ -1,0 +1,88 @@
+// Project Nyra Oracle VPS Tailscale Services approval snippet.
+//
+// The oracle-vps node is tagged `tag:prod`. These auto-approvers let that
+// node advertise the browser-useful svc:* endpoints configured by:
+//   infra/hosts/oracle-vps/scripts/configure-tailscale-services.sh
+//
+// Add this into the tailnet policy file's existing autoApprovers/grants
+// sections, merging with any existing keys instead of replacing them.
+{
+  "autoApprovers": {
+    "services": {
+      "svc:activepieces": ["tag:prod"],
+      "svc:cadvisor": ["tag:prod"],
+      "svc:campaign-engine": ["tag:prod"],
+      "svc:clawteam": ["tag:prod"],
+      "svc:crm-api": ["tag:prod"],
+      "svc:gastown": ["tag:prod"],
+      "svc:gitea": ["tag:prod"],
+      "svc:grafana-oracle": ["tag:prod"],
+      "svc:infisical": ["tag:prod"],
+      "svc:letta": ["tag:prod"],
+      "svc:litellm": ["tag:prod"],
+      "svc:loki-oracle": ["tag:prod"],
+      "svc:mem0": ["tag:prod"],
+      "svc:memos": ["tag:prod"],
+      "svc:n8n": ["tag:prod"],
+      "svc:nexus": ["tag:prod"],
+      "svc:nexus-ui": ["tag:prod"],
+      "svc:openlit": ["tag:prod"],
+      "svc:openmemory-mcp": ["tag:prod"],
+      "svc:openwebui": ["tag:prod"],
+      "svc:paperclip": ["tag:prod"],
+      "svc:portainer": ["tag:prod"],
+      "svc:portainer-secure": ["tag:prod"],
+      "svc:projectnyra": ["tag:prod"],
+      "svc:prometheus-oracle": ["tag:prod"],
+      "svc:quote-api": ["tag:prod"],
+      "svc:quote-engine": ["tag:prod"],
+      "svc:supabase-kong": ["tag:prod"],
+      "svc:twenty-crm": ["tag:prod"],
+      "svc:webapp": ["tag:prod"]
+    }
+  },
+  "grants": [
+    {
+      "src": ["autogroup:member"],
+      "dst": [
+        "svc:activepieces",
+        "svc:gitea",
+        "svc:grafana-oracle",
+        "svc:infisical",
+        "svc:letta",
+        "svc:litellm",
+        "svc:mem0",
+        "svc:memos",
+        "svc:n8n",
+        "svc:nexus",
+        "svc:nexus-ui",
+        "svc:openlit",
+        "svc:openmemory-mcp",
+        "svc:openwebui",
+        "svc:paperclip",
+        "svc:portainer",
+        "svc:portainer-secure",
+        "svc:projectnyra",
+        "svc:prometheus-oracle",
+        "svc:twenty-crm",
+        "svc:webapp"
+      ],
+      "ip": ["443"]
+    },
+    {
+      "src": ["autogroup:member"],
+      "dst": [
+        "svc:cadvisor",
+        "svc:campaign-engine",
+        "svc:clawteam",
+        "svc:crm-api",
+        "svc:gastown",
+        "svc:loki-oracle",
+        "svc:quote-api",
+        "svc:quote-engine",
+        "svc:supabase-kong"
+      ],
+      "ip": ["443"]
+    }
+  ]
+}

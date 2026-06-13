@@ -1,4 +1,4 @@
-name: oracle-vps-gitea
+name: nyra-gitea
 
 services:
   gitea-db:
@@ -73,6 +73,9 @@ services:
       nyra_net:
         aliases:
           - gitea
+      nyra_cloudflared_net:
+        aliases:
+          - gitea
 
   gitea-runner:
     image: gitea/act_runner:latest
@@ -98,6 +101,7 @@ services:
   github-mirror-sync:
     image: alpine:3.20
     container_name: ${GITEA_CONTAINER_PREFIX:-nyra}-github-mirror
+    profiles: [mirror-sync]
     hostname: github-mirror
     restart: unless-stopped
     depends_on:
@@ -129,6 +133,9 @@ networks:
   nyra_net:
     external: true
     name: nyra-network_nyra_net
+  nyra_cloudflared_net:
+    external: true
+    name: nyra_net
 
 volumes:
   gitea_db_data:
