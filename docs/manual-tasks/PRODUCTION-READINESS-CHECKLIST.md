@@ -24,15 +24,16 @@
 **Dependencies**: Domain budget, Cloudflare account access
 **Team**: DevOps, Network Engineers
 
-### 1. Purchase Domain Name (ratehunter.net)
+### 1. Purchase Domain Name (ratehunter.com)
 
 **Time Estimate**: 2-4 hours
 **Cost**: $12-50/year
 **Prerequisites**: Budget approval, payment method
 
 #### Steps:
+
 - [ ] **Research domain availability**
-  - Check ratehunter.net on multiple registrars (Namecheap, GoDaddy, Cloudflare)
+  - Check ratehunter.com on multiple registrars (Namecheap, GoDaddy, Cloudflare)
   - Verify WHOIS information
   - Check trademark conflicts
   - Time: 30 minutes
@@ -69,6 +70,7 @@
 **Prerequisites**: Domain name, email access, payment method
 
 #### Steps:
+
 - [ ] **Create Cloudflare account**
   - Sign up at cloudflare.com
   - Verify email address
@@ -78,7 +80,7 @@
 
 - [ ] **Add site to Cloudflare**
   - Click "Add Site" in dashboard
-  - Enter ratehunter.net
+  - Enter ratehunter.com
   - Select plan (Pro recommended for advanced DDoS)
   - Time: 15 minutes
 
@@ -91,7 +93,7 @@
 
 - [ ] **Wait for DNS propagation**
   - Monitor Cloudflare dashboard for activation
-  - Use `dig ratehunter.net NS` to verify
+  - Use `dig ratehunter.com NS` to verify
   - Test from multiple locations
   - Time: 2-48 hours (mostly waiting)
 
@@ -120,7 +122,8 @@
   - Time: 1 hour
 
 **Validation**:
-- DNS propagation complete (`nslookup ratehunter.net`)
+
+- DNS propagation complete (`nslookup ratehunter.com`)
 - SSL certificate issued and active
 - Security score A+ on Cloudflare dashboard
 
@@ -133,6 +136,7 @@
 **Dependencies**: Completed DNS configuration
 
 #### Steps:
+
 - [ ] **Connect GitHub repository**
   - Navigate to Pages in Cloudflare dashboard
   - Click "Create a project"
@@ -150,13 +154,13 @@
 
 - [ ] **Set environment variables**
   - Add production API keys
-  - Configure PUBLIC_* variables for client-side
+  - Configure PUBLIC\_\* variables for client-side
   - Set ANTHROPIC_API_KEY, OPENAI_API_KEY, etc.
   - Store secrets in Infisical, reference in Cloudflare
   - Time: 1 hour
 
 - [ ] **Configure custom domain**
-  - Add ratehunter.net as custom domain
+  - Add ratehunter.com as custom domain
   - Verify DNS records (auto-configured if using Cloudflare DNS)
   - Enable "Always Use HTTPS"
   - Wait for SSL certificate provisioning (1-5 minutes)
@@ -183,7 +187,8 @@
   - Time: 30 minutes
 
 **Validation**:
-- Site accessible at ratehunter.net
+
+- Site accessible at ratehunter.com
 - SSL certificate valid (check with ssllabs.com)
 - Build logs show no errors
 - Preview deployments working
@@ -199,6 +204,7 @@
 #### Steps (Per PC):
 
 ##### PC #1: Compute-01 (Coordinator - RTX 5090)
+
 - [ ] **Install cloudflared**
   - Download from https://github.com/cloudflare/cloudflared/releases
   - Windows: Install MSI package
@@ -209,7 +215,7 @@
 - [ ] **Authenticate cloudflared**
   - Run: `cloudflared tunnel login`
   - Browser opens for Cloudflare authentication
-  - Select domain (ratehunter.net)
+  - Select domain (ratehunter.com)
   - Save cert to `~/.cloudflared/cert.pem`
   - Time: 10 minutes
 
@@ -221,21 +227,23 @@
 
 - [ ] **Configure tunnel routing**
   - Create config file: `~/.cloudflared/config.yml`
+
   ```yaml
   tunnel: <TUNNEL_UUID>
   credentials-file: /path/to/<TUNNEL_UUID>.json
 
   ingress:
-    - hostname: compute-01.ratehunter.net
+    - hostname: compute-01.projectnyra.com
       service: http://localhost:8080
-    - hostname: api.ratehunter.net
+    - hostname: api.projectnyra.com
       service: http://localhost:3000
     - service: http_status:404
   ```
+
   - Time: 20 minutes
 
 - [ ] **Create DNS records**
-  - Run: `cloudflared tunnel route dns compute-01 compute-01.ratehunter.net`
+  - Run: `cloudflared tunnel route dns compute-01 compute-01.projectnyra.com`
   - Verify CNAME record created in Cloudflare DNS
   - Time: 10 minutes
 
@@ -248,7 +256,7 @@
 
 - [ ] **Test tunnel connectivity**
   - Start local service on port 8080
-  - Access via https://compute-01.ratehunter.net
+  - Access via https://compute-01.projectnyra.com
   - Check tunnel status: `cloudflared tunnel info compute-01`
   - Monitor logs: `cloudflared tunnel logs compute-01`
   - Time: 20 minutes
@@ -260,24 +268,28 @@
   - Time: 15 minutes
 
 ##### PC #2: Worker-01 (RTX 3090)
+
 - [ ] Repeat above steps with tunnel name `worker-01`
-- [ ] Configure hostname: `worker-01.ratehunter.net`
+- [ ] Configure hostname: `worker-01.projectnyra.com`
 - [ ] Set service port: `http://localhost:8081`
 - [ ] Time: 2 hours
 
 ##### PC #3: Worker-02 (RTX 3060)
+
 - [ ] Repeat above steps with tunnel name `worker-02`
-- [ ] Configure hostname: `worker-02.ratehunter.net`
+- [ ] Configure hostname: `worker-02.projectnyra.com`
 - [ ] Set service port: `http://localhost:8082`
 - [ ] Time: 2 hours
 
 ##### PC #4: Worker-03 (Additional if available)
+
 - [ ] Repeat above steps with tunnel name `worker-03`
-- [ ] Configure hostname: `worker-03.ratehunter.net`
+- [ ] Configure hostname: `worker-03.projectnyra.com`
 - [ ] Set service port: `http://localhost:8083`
 - [ ] Time: 2 hours
 
 **Validation**:
+
 - All tunnels show "Registered" status in Cloudflare dashboard
 - Each PC accessible via dedicated subdomain
 - No direct IP exposure (test with port scanners)
@@ -364,6 +376,7 @@
   - Time: 1 hour (optional)
 
 **Validation**:
+
 - All workers can be woken remotely
 - WoL works from local network
 - WoL works through VPN/Tailscale
@@ -404,10 +417,10 @@
 - [ ] **Configure device naming**
   - Tailscale admin → Machines
   - Rename devices:
-    - `compute-01.nyra.ts.net`
-    - `worker-01.nyra.ts.net`
-    - `worker-02.nyra.ts.net`
-    - `worker-03.nyra.ts.net`
+    - `compute-01.nyra.ts.com`
+    - `worker-01.nyra.ts.com`
+    - `worker-02.nyra.ts.com`
+    - `worker-03.nyra.ts.com`
   - Time: 15 minutes
 
 - [ ] **Enable MagicDNS**
@@ -474,6 +487,7 @@
   - Time: 15 minutes
 
 **Validation**:
+
 - All PCs can ping each other via Tailscale IPs
 - Hostnames resolve via MagicDNS
 - ACLs enforced (test unauthorized access)
@@ -492,7 +506,7 @@
 #### Steps:
 
 - [ ] **Determine certificate requirements**
-  - Cloudflare provides free Universal SSL (covers *.ratehunter.net)
+  - Cloudflare provides free Universal SSL (covers \*.ratehunter.com)
   - Consider EV (Extended Validation) if trust bar needed
   - Check compliance requirements (HIPAA may require specific certs)
   - Time: 30 minutes
@@ -513,6 +527,7 @@
   - Time: 30 minutes
 
 **Validation**:
+
 - SSL Labs test shows A+ rating
 - Certificate chain complete
 - No mixed content warnings
@@ -524,12 +539,14 @@
 
 **Total Time**: 2-3 weeks
 **Critical Path Items**:
+
 1. Domain purchase and DNS configuration (Week 1)
 2. Cloudflare setup and Pages deployment (Week 1)
 3. Tunnel configuration and testing (Week 2)
 4. Network mesh and WoL setup (Week 2-3)
 
 **Key Deliverables**:
+
 - ✓ Domain registered and DNS active
 - ✓ Cloudflare configured with security features
 - ✓ All PCs accessible via secure tunnels
@@ -556,6 +573,7 @@
 #### Steps (Per PC):
 
 ##### PC #1: Compute-01 (RTX 5090 Installation)
+
 - [ ] **Pre-installation preparation**
   - Verify GPU compatibility with motherboard
   - Check PSU wattage (RTX 5090 requires 450W+, recommend 1000W total)
@@ -610,18 +628,21 @@
   - Time: 15 minutes
 
 ##### PC #2: Worker-01 (RTX 3090 Installation)
+
 - [ ] Repeat above steps for RTX 3090
 - [ ] Note: RTX 3090 requires 350W+, recommend 850W PSU
 - [ ] Power connectors: 2x 8-pin PCIe
 - [ ] Time: 2-3 hours
 
 ##### PC #3: Worker-02 (RTX 3060 Installation)
+
 - [ ] Repeat above steps for RTX 3060
 - [ ] Note: RTX 3060 requires 170W+, recommend 550W PSU
 - [ ] Power connectors: 1x 8-pin PCIe
 - [ ] Time: 2-3 hours
 
 **Validation**:
+
 - All GPUs detected in Device Manager / `lspci`
 - No hardware errors in system logs
 - GPU temperatures at idle < 50°C
@@ -691,6 +712,7 @@
   - Time: 5 minutes
 
 **Validation**:
+
 - PCIe devices running at expected speeds (`GPU-Z` or `lspci -vv`)
 - Re-Size BAR enabled (check in `nvidia-smi` or GPU-Z)
 - No POST errors
@@ -763,6 +785,7 @@
   - Time: 30 minutes (if implemented)
 
 **Validation**:
+
 - All PCs have consistent IPs after reboot
 - Inter-PC ping successful (<1ms latency on LAN)
 - Internet connectivity stable
@@ -780,6 +803,7 @@
 #### Steps (Per PC):
 
 ##### Windows Installation
+
 - [ ] **Uninstall old drivers (if upgrading)**
   - Use DDU (Display Driver Uninstaller) in Safe Mode
   - Reboot into Safe Mode (Windows Recovery → Troubleshoot)
@@ -827,29 +851,36 @@
   - Time: 20 minutes
 
 ##### Linux Installation (Ubuntu/Debian)
+
 - [ ] **Add NVIDIA repository**
+
   ```bash
   sudo apt update
   sudo apt install -y software-properties-common
   sudo add-apt-repository ppa:graphics-drivers/ppa
   sudo apt update
   ```
+
   - Time: 10 minutes
 
 - [ ] **Install NVIDIA drivers**
+
   ```bash
   sudo apt install -y nvidia-driver-545  # or latest version
   sudo reboot
   ```
+
   - Time: 20 minutes
 
 - [ ] **Install CUDA Toolkit**
+
   ```bash
   wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
   sudo dpkg -i cuda-keyring_1.1-1_all.deb
   sudo apt update
   sudo apt install -y cuda
   ```
+
   - Add to `~/.bashrc`:
     ```bash
     export PATH=/usr/local/cuda/bin:$PATH
@@ -861,9 +892,11 @@
   ```bash
   sudo apt install -y libcudnn8 libcudnn8-dev
   ```
+
   - Time: 10 minutes
 
 ##### Verification (All Platforms)
+
 - [ ] **Verify driver installation**
   - Run: `nvidia-smi`
   - Expected output: Driver version, CUDA version, GPU list
@@ -911,6 +944,7 @@
   - Time: 30 minutes
 
 **Validation**:
+
 - `nvidia-smi` shows all GPUs
 - CUDA samples pass
 - Framework GPU test successful
@@ -950,7 +984,7 @@
     - <50°C: 30% fan speed (quiet)
     - 50-70°C: Linear ramp to 60%
     - 70-80°C: Linear ramp to 85%
-    - >80°C: 100% fan speed
+    - > 80°C: 100% fan speed
   - Apply and test
   - Time: 30 minutes
 
@@ -991,6 +1025,7 @@
   - Time: 75 minutes
 
 **Validation**:
+
 - Idle temps: GPU <50°C, CPU <45°C
 - Load temps: GPU <80°C, CPU <75°C
 - No thermal throttling under sustained load
@@ -1003,11 +1038,13 @@
 
 **Total Time**: 1-2 weeks
 **Critical Path Items**:
+
 1. GPU installation and driver setup (Week 1)
 2. BIOS configuration and network setup (Week 1)
 3. Thermal testing and optimization (Week 2)
 
 **Key Deliverables**:
+
 - ✓ All GPUs installed and operational
 - ✓ BIOS optimized for stability and performance
 - ✓ Network configured with static IPs
@@ -1040,6 +1077,7 @@
   - Time: 15 minutes
 
 ##### Option A: Self-Hosted Installation
+
 - [ ] **Set up Infisical server**
   - Deploy via Docker Compose on Compute-01:
     ```bash
@@ -1049,10 +1087,11 @@
     # Edit .env with database credentials, JWT secrets
     docker-compose up -d
     ```
-  - Access at `https://compute-01.ratehunter.net:8080`
+  - Access at `https://compute-01.projectnyra.com:8080`
   - Time: 45 minutes
 
 ##### Option B: Cloud Setup
+
 - [ ] **Sign up for Infisical Cloud**
   - Visit app.infisical.com
   - Create account with organizational email
@@ -1061,6 +1100,7 @@
   - Time: 15 minutes
 
 ##### Common Steps (Both Options)
+
 - [ ] **Create organization**
   - Organization name: "RateHunter"
   - Invite team members
@@ -1114,6 +1154,7 @@
   - Time: 30 minutes
 
 **Validation**:
+
 - All team members can access appropriate projects
 - Secrets retrievable via CLI
 - Audit log shows all secret access
@@ -1206,6 +1247,7 @@
   - Time: 30 minutes
 
 **Validation**:
+
 - All repositories created and accessible
 - Branch protection working (test by attempting direct push to main)
 - GitHub Actions workflows running
@@ -1224,6 +1266,7 @@
 #### Steps:
 
 ##### OpenRouter (Multi-Model API)
+
 - [ ] **Create OpenRouter account**
   - Visit openrouter.ai
   - Sign up with email
@@ -1252,6 +1295,7 @@
   - Time: 20 minutes
 
 ##### Anthropic Claude API (Direct)
+
 - [ ] **Create Anthropic account**
   - Visit console.anthropic.com
   - Sign up with organizational email
@@ -1292,6 +1336,7 @@
   - Time: 15 minutes
 
 ##### OpenAI API (for GPT models)
+
 - [ ] **Create OpenAI account**
   - Visit platform.openai.com
   - Sign up with email
@@ -1319,6 +1364,7 @@
   - Time: 15 minutes
 
 ##### Upstash Redis (for rate limiting/caching)
+
 - [ ] **Create Upstash account**
   - Visit upstash.com
   - Sign up with email or GitHub
@@ -1340,6 +1386,7 @@
   - Time: 5 minutes
 
 ##### Sentry (Error Tracking)
+
 - [ ] **Create Sentry account**
   - Visit sentry.io
   - Sign up with email
@@ -1360,6 +1407,7 @@
   - Time: 30 minutes
 
 **Validation**:
+
 - All API keys stored in Infisical
 - Test requests successful for each service
 - Billing alerts configured
@@ -1378,18 +1426,21 @@
 #### Choose Email Provider:
 
 **Option A: SendGrid (Recommended)**
+
 - High deliverability
 - 100 emails/day free tier
 - Cost: $15/month for 40K emails
 - Good API and documentation
 
 **Option B: Mailgun**
+
 - Developer-friendly
 - 5,000 emails/month free
 - Cost: $35/month for 50K emails
 - Flexible pricing
 
 **Option C: AWS SES**
+
 - Most cost-effective ($0.10/1000 emails)
 - Requires AWS account setup
 - Steeper learning curve
@@ -1406,11 +1457,11 @@
 - [ ] **Verify domain**
   - Navigate to Settings → Sender Authentication
   - Click "Authenticate Your Domain"
-  - Enter domain: ratehunter.net
+  - Enter domain: ratehunter.com
   - Add DNS records provided by SendGrid:
-    - CNAME: `em1234.ratehunter.net` → `u1234.wl.sendgrid.net`
-    - CNAME: `s1._domainkey.ratehunter.net` → `s1.domainkey.u1234.wl.sendgrid.net`
-    - CNAME: `s2._domainkey.ratehunter.net` → `s2.domainkey.u1234.wl.sendgrid.net`
+    - CNAME: `em1234.projectnyra.com` → `u1234.wl.sendgrid.com`
+    - CNAME: `s1._domainkey.ratehunter.com` → `s1.domainkey.u1234.wl.sendgrid.com`
+    - CNAME: `s2._domainkey.ratehunter.com` → `s2.domainkey.u1234.wl.sendgrid.com`
   - Wait for verification (5-30 minutes)
   - Time: 45 minutes
 
@@ -1422,9 +1473,9 @@
   - Time: 10 minutes
 
 - [ ] **Configure sender identity**
-  - From email: `noreply@ratehunter.net`
+  - From email: `noreply@ratehunter.com`
   - From name: "RateHunter"
-  - Reply-to: `support@ratehunter.net`
+  - Reply-to: `support@ratehunter.com`
   - Time: 10 minutes
 
 - [ ] **Set up email templates**
@@ -1440,7 +1491,7 @@
 
 - [ ] **Configure webhooks (optional)**
   - Navigate to Settings → Mail Settings → Event Webhook
-  - Webhook URL: `https://api.ratehunter.net/webhooks/sendgrid`
+  - Webhook URL: `https://api.projectnyra.com/webhooks/sendgrid`
   - Select events: delivered, opened, clicked, bounced, spam_report
   - Implement webhook handler in API
   - Time: 45 minutes
@@ -1453,7 +1504,7 @@
       -H "Content-Type: application/json" \
       -d '{
         "personalizations": [{"to": [{"email": "test@example.com"}]}],
-        "from": {"email": "noreply@ratehunter.net"},
+        "from": {"email": "noreply@ratehunter.com"},
         "subject": "Test Email",
         "content": [{"type": "text/plain", "value": "Test message"}]
       }'
@@ -1463,6 +1514,7 @@
   - Time: 30 minutes
 
 **Validation**:
+
 - Domain verified in SendGrid
 - Test emails delivered successfully
 - Templates rendering correctly
@@ -1531,8 +1583,8 @@
   - Navigate to Phone Numbers → Manage → Active Numbers
   - Select your number
   - Configure webhooks:
-    - Messaging webhook: `https://api.ratehunter.net/webhooks/twilio`
-    - Status callback: `https://api.ratehunter.net/webhooks/twilio/status`
+    - Messaging webhook: `https://api.projectnyra.com/webhooks/twilio`
+    - Status callback: `https://api.projectnyra.com/webhooks/twilio/status`
   - Implement webhook handlers in API
   - Time: 45 minutes
 
@@ -1564,6 +1616,7 @@
   - Time: 30 minutes
 
 **Validation**:
+
 - Test SMS received successfully
 - Opt-out keywords working
 - Webhooks receiving delivery status
@@ -1591,7 +1644,7 @@
 - [ ] **Create stack**
   - Stack name: "ratehunter-production"
   - Region: US-East (closest to infrastructure)
-  - Stack URL: `https://ratehunter.grafana.net`
+  - Stack URL: `https://ratehunter.grafana.com`
   - Time: 10 minutes
 
 - [ ] **Set up Prometheus data source**
@@ -1605,7 +1658,7 @@
 - [ ] **Set up Loki for logs**
   - Navigate to Connections → Data sources
   - Add Loki
-  - Get Loki endpoint: `https://logs-prod-us-central1.grafana.net`
+  - Get Loki endpoint: `https://logs-prod-us-central1.grafana.com`
   - Copy credentials
   - Store in Infisical: `GRAFANA_LOKI_USER`, `GRAFANA_LOKI_KEY`
   - Time: 20 minutes
@@ -1613,6 +1666,7 @@
 - [ ] **Install Grafana Agent on each PC**
   - Download agent from grafana.com/docs/agent
   - Configure agent.yaml:
+
     ```yaml
     server:
       log_level: info
@@ -1621,24 +1675,25 @@
       configs:
         - name: default
           remote_write:
-            - url: https://prometheus-prod-xx.grafana.net/api/prom/push
+            - url: https://prometheus-prod-xx.grafana.com/api/prom/push
               basic_auth:
                 username: xxx
                 password: xxx
           scrape_configs:
-            - job_name: 'node'
+            - job_name: "node"
               static_configs:
-                - targets: ['localhost:9100']
+                - targets: ["localhost:9100"]
 
     loki:
       configs:
         - name: default
           clients:
-            - url: https://logs-prod-xx.grafana.net/loki/api/v1/push
+            - url: https://logs-prod-xx.grafana.com/loki/api/v1/push
               basic_auth:
                 username: xxx
                 password: xxx
     ```
+
   - Start agent as service
   - Time: 30 minutes per PC (2 hours total)
 
@@ -1686,6 +1741,7 @@
   - Time: 45 minutes
 
 **Validation**:
+
 - All PCs reporting metrics to Grafana Cloud
 - Dashboards showing real-time data
 - Alerts triggering correctly (test with intentional threshold breach)
@@ -1698,12 +1754,14 @@
 
 **Total Time**: 1-2 weeks
 **Critical Path Items**:
+
 1. Secrets management with Infisical (Week 1 - Day 1-2)
 2. API key procurement and testing (Week 1 - Day 3-5)
 3. Communication services setup (Week 2 - Day 1-3)
 4. Monitoring infrastructure (Week 2 - Day 4-5)
 
 **Key Deliverables**:
+
 - ✓ All secrets centralized in Infisical
 - ✓ API keys obtained and tested for all services
 - ✓ Email and SMS providers configured
@@ -1711,6 +1769,7 @@
 - ✓ All credentials documented and secured
 
 **Estimated Monthly Costs**:
+
 - Infisical Cloud: $18/user (or $0 self-hosted)
 - AI APIs: $100-500 (usage-based)
 - SendGrid: $15 (or $0 on free tier)
@@ -1793,6 +1852,7 @@
   - Time: 1 hour
 
 **Validation**:
+
 - All PHI-touching services have executed BAAs
 - Copies stored securely
 - Renewal calendar set
@@ -1810,6 +1870,7 @@
 #### Steps:
 
 ##### Database Encryption
+
 - [ ] **Enable PostgreSQL encryption**
   - If using managed service (AWS RDS, Google Cloud SQL):
     - Navigate to database settings
@@ -1833,6 +1894,7 @@
   - Time: 15 minutes
 
 ##### Redis Encryption
+
 - [ ] **Configure Redis encryption**
   - Upstash: Encryption enabled by default (AES-256)
   - Self-hosted: Configure Redis with TLS
@@ -1847,6 +1909,7 @@
   - Time: 30 minutes
 
 ##### File Storage Encryption
+
 - [ ] **Enable Cloudflare R2 encryption (if using)**
   - Navigate to R2 bucket settings
   - Enable server-side encryption
@@ -1865,6 +1928,7 @@
   - Time: 1 hour per PC (4 hours total)
 
 ##### Secrets Encryption
+
 - [ ] **Verify Infisical encryption**
   - Infisical uses AES-256-GCM by default
   - Master key stored in KMS (AWS/GCP) if self-hosted
@@ -1878,13 +1942,17 @@
     ```
   - Encrypt before database storage:
     ```javascript
-    const CryptoJS = require('crypto-js');
-    const encryptedSSN = CryptoJS.AES.encrypt(ssn, process.env.ENCRYPTION_KEY).toString();
+    const CryptoJS = require("crypto-js");
+    const encryptedSSN = CryptoJS.AES.encrypt(
+      ssn,
+      process.env.ENCRYPTION_KEY
+    ).toString();
     ```
   - Decrypt when retrieved
   - Time: 2-3 hours (implementation)
 
 **Validation**:
+
 - All databases showing encryption enabled
 - Disk encryption active on all PCs
 - Encryption keys documented and backed up
@@ -1902,6 +1970,7 @@
 #### Steps:
 
 ##### Application Audit Logging
+
 - [ ] **Implement audit log middleware**
   - Create audit log service:
     ```javascript
@@ -1916,10 +1985,10 @@
           result, // success/failure
           ip: metadata.ip,
           userAgent: metadata.userAgent,
-          sessionId: metadata.sessionId
+          sessionId: metadata.sessionId,
         };
         // Send to Loki or database
-        logger.info('AUDIT', entry);
+        logger.info("AUDIT", entry);
       }
     }
     ```
@@ -1944,6 +2013,7 @@
   - Time: 2 hours
 
 ##### Infrastructure Audit Logging
+
 - [ ] **Enable Cloudflare audit logs**
   - Navigate to Account → Audit Log
   - Review events automatically logged:
@@ -1975,6 +2045,7 @@
   - Time: 1 hour
 
 ##### Centralize and Retain Logs
+
 - [ ] **Configure log retention**
   - Grafana Loki: Free tier = 14 days, upgrade for longer
   - For compliance, retain audit logs for 7 years:
@@ -1987,7 +2058,7 @@
     # Monthly archive to S3
     DATE=$(date +%Y-%m)
     curl -u "$LOKI_USER:$LOKI_KEY" \
-      "https://logs.grafana.net/loki/api/v1/query_range?query={job=\"audit\"}&start=..." \
+      "https://logs.grafana.com/loki/api/v1/query_range?query={job=\"audit\"}&start=..." \
       | gzip > audit-$DATE.json.gz
     aws s3 cp audit-$DATE.json.gz s3://ratehunter-audit-logs/
     ```
@@ -2001,12 +2072,13 @@
     - Admin actions timeline
     - Anomalous activity (e.g., bulk exports)
   - Set up alerts:
-    - >5 failed logins from same IP in 5 minutes
+    - > 5 failed logins from same IP in 5 minutes
     - Access to PHI outside business hours
     - Unusual data export volume
   - Time: 3 hours
 
 **Validation**:
+
 - Audit events logging correctly
 - Logs visible in Grafana Loki
 - Retention policy configured
@@ -2072,7 +2144,7 @@
     - Notify prominent media outlets in affected regions
     - Within 60 days
   - **HHS notification**:
-    - >500 affected: Within 60 days
+    - > 500 affected: Within 60 days
     - <500 affected: Annual report
   - Document templates for each
   - Time: 4 hours
@@ -2106,6 +2178,7 @@
   - Cost: $500-2000
 
 **Validation**:
+
 - Response plan documented and approved
 - Team trained on procedures
 - Tabletop exercise completed
@@ -2158,23 +2231,27 @@
     - Roles and responsibilities
     - Review frequency (annual)
   - Template:
+
     ```markdown
     # Data Retention Policy
 
     ## Retention Schedule
-    | Data Type | Retention Period | Deletion Method | Regulatory Basis |
-    |-----------|-----------------|-----------------|------------------|
-    | User PII | 90 days post-delete | Secure erasure | GDPR |
-    | Mortgage quotes | 7 years | Archive then purge | GLBA |
-    | Audit logs | 7 years | Long-term storage | HIPAA |
+
+    | Data Type       | Retention Period    | Deletion Method    | Regulatory Basis |
+    | --------------- | ------------------- | ------------------ | ---------------- |
+    | User PII        | 90 days post-delete | Secure erasure     | GDPR             |
+    | Mortgage quotes | 7 years             | Archive then purge | GLBA             |
+    | Audit logs      | 7 years             | Long-term storage  | HIPAA            |
     ```
+
   - Time: 4 hours
 
 - [ ] **Implement automated data purging**
   - Create scheduled job for data deletion:
+
     ```javascript
     // Run daily at 2 AM
-    cron.schedule('0 2 * * *', async () => {
+    cron.schedule("0 2 * * *", async () => {
       // Delete soft-deleted users older than 90 days
       await db.query(`
         DELETE FROM users
@@ -2187,14 +2264,16 @@
       // Clean up temp files
       await cleanupTempFiles();
 
-      logger.info('Data retention job completed');
+      logger.info("Data retention job completed");
     });
     ```
+
   - Test in staging first
   - Time: 4 hours
 
 - [ ] **Implement backup rotation**
   - Configure backup tool (e.g., pg_dump, restic):
+
     ```bash
     #!/bin/bash
     # Daily backup
@@ -2205,6 +2284,7 @@
     find /backups/weekly -mtime +28 -delete  # Keep 4 weeks
     find /backups/monthly -mtime +365 -delete  # Keep 12 months
     ```
+
   - Schedule via cron
   - Test restoration procedure
   - Time: 3 hours
@@ -2213,13 +2293,13 @@
   - Create export API endpoint:
     ```javascript
     // GET /api/users/me/export
-    router.get('/export', auth, async (req, res) => {
+    router.get("/export", auth, async (req, res) => {
       const userData = await getUserData(req.user.id);
       res.json({
         user: userData,
         quotes: await getUserQuotes(req.user.id),
         preferences: await getUserPreferences(req.user.id),
-        exportDate: new Date().toISOString()
+        exportDate: new Date().toISOString(),
       });
     });
     ```
@@ -2230,11 +2310,11 @@
   - Create deletion endpoint:
     ```javascript
     // DELETE /api/users/me
-    router.delete('/', auth, async (req, res) => {
+    router.delete("/", auth, async (req, res) => {
       await softDeleteUser(req.user.id);
       // Soft delete: mark deleted_at timestamp
       // Hard delete after 90 days via scheduled job
-      res.json({ message: 'Account scheduled for deletion' });
+      res.json({ message: "Account scheduled for deletion" });
     });
     ```
   - Notify user of 90-day grace period
@@ -2247,6 +2327,7 @@
   - Cost: $500
 
 **Validation**:
+
 - Retention policy documented and approved
 - Automated purging tested
 - Backup rotation functional
@@ -2265,6 +2346,7 @@
 #### Steps:
 
 ##### Database Backups
+
 - [ ] **Set up automated PostgreSQL backups**
   - If using managed service:
     - Enable automated backups (usually default)
@@ -2273,6 +2355,7 @@
   - If self-hosted:
     - Install backup tool: `pg_dump`, `pgBackRest`, or `Barman`
     - Create backup script:
+
       ```bash
       #!/bin/bash
       BACKUP_DIR=/var/backups/postgresql
@@ -2292,7 +2375,9 @@
       # Clean up local backups older than 2 days
       find $BACKUP_DIR/full -mtime +2 -delete
       ```
+
     - Schedule via cron: `0 1 * * * /path/to/backup.sh`
+
   - Time: 2 hours
 
 - [ ] **Test database restoration**
@@ -2306,12 +2391,14 @@
   - Time: 1 hour
 
 ##### Application Backup
+
 - [ ] **Set up code/config backups**
   - Code: Already in GitHub (no additional backup needed)
   - Configuration files:
     - Backup `.env`, config files (encrypted)
     - Store in Infisical or encrypted S3 bucket
     - Script:
+
       ```bash
       #!/bin/bash
       tar -czf configs-$(date +%Y%m%d).tar.gz \
@@ -2320,12 +2407,14 @@
         ~/.cloudflared/
 
       # Encrypt before upload
-      gpg --encrypt --recipient backups@ratehunter.net configs-*.tar.gz
+      gpg --encrypt --recipient backups@ratehunter.com configs-*.tar.gz
       aws s3 cp configs-*.tar.gz.gpg s3://ratehunter-backups/configs/
       ```
+
   - Time: 1 hour
 
 ##### File Storage Backup
+
 - [ ] **Configure Cloudflare R2 versioning (if using)**
   - Enable object versioning
   - Set lifecycle rule: Keep 30 versions per object
@@ -2341,6 +2430,7 @@
   - Time: 1 hour
 
 ##### Secrets Backup
+
 - [ ] **Backup Infisical**
   - If self-hosted:
     - Backup Infisical database (PostgreSQL/MongoDB)
@@ -2357,8 +2447,10 @@
   - Time: 1 hour
 
 ##### Monitoring Backup Failures
+
 - [ ] **Set up backup monitoring**
   - Create health check script:
+
     ```bash
     #!/bin/bash
     # Check if backup completed today
@@ -2371,6 +2463,7 @@
       exit 1
     fi
     ```
+
   - Schedule check: `0 12 * * * /path/to/check-backup.sh`
   - Time: 1 hour
 
@@ -2387,6 +2480,7 @@
   - Time: 4 hours
 
 **Validation**:
+
 - Automated backups running successfully
 - Restoration tested and documented
 - Backup monitoring alerts configured
@@ -2419,24 +2513,29 @@
     - Failover steps
     - Rollback procedure (if needed)
   - Example (PC failure):
+
     ```markdown
     ## PC Failure Response
 
     ### Detection
+
     - Grafana alert: Host unreachable for >5 minutes
     - Manual report from monitoring
 
     ### Immediate Actions
+
     1. Verify failure (ping, SSH attempt)
     2. Check Tailscale status
     3. Assess workload impact
 
     ### Failover
+
     1. Redistribute workload to remaining PCs
     2. Update load balancer configuration
     3. Scale up remaining workers
 
     ### Recovery
+
     1. Diagnose hardware issue
     2. Replace/repair failed component
     3. Restore PC to cluster
@@ -2444,6 +2543,7 @@
 
     RTO: 2 hours
     ```
+
   - Time: 8 hours
 
 - [ ] **Implement multi-region strategy (optional)**
@@ -2486,6 +2586,7 @@
   - Time: 4-8 hours
 
 **Validation**:
+
 - DR plan documented and accessible
 - Failover procedures tested
 - RTO/RPO achievable
@@ -2498,11 +2599,13 @@
 
 **Total Time**: 2-3 weeks
 **Critical Path Items**:
+
 1. BAA execution (Week 1-2, mostly waiting)
 2. Encryption and audit logging (Week 2)
 3. Incident response and DR planning (Week 3)
 
 **Key Deliverables**:
+
 - ✓ BAAs executed for all PHI-touching services
 - ✓ Encryption at rest enabled everywhere
 - ✓ Audit logging comprehensive and retained
@@ -2512,6 +2615,7 @@
 - ✓ Disaster recovery plan documented
 
 **Compliance Checklist**:
+
 - ✓ HIPAA: BAAs, encryption, audit logs, breach procedures
 - ✓ GLBA: Data retention, security controls
 - ✓ GDPR: Right to erasure, right to data portability
@@ -2566,19 +2670,20 @@
 
 - [ ] **Create load test scripts**
   - Example k6 script:
+
     ```javascript
-    import http from 'k6/http';
-    import { check, sleep } from 'k6';
+    import http from "k6/http";
+    import { check, sleep } from "k6";
 
     export let options = {
       stages: [
-        { duration: '2m', target: 100 }, // Ramp-up
-        { duration: '5m', target: 100 }, // Steady state
-        { duration: '2m', target: 0 },   // Ramp-down
+        { duration: "2m", target: 100 }, // Ramp-up
+        { duration: "5m", target: 100 }, // Steady state
+        { duration: "2m", target: 0 }, // Ramp-down
       ],
       thresholds: {
-        http_req_duration: ['p(95)<500'], // 95% under 500ms
-        http_req_failed: ['rate<0.01'],   // <1% failures
+        http_req_duration: ["p(95)<500"], // 95% under 500ms
+        http_req_failed: ["rate<0.01"], // <1% failures
       },
     };
 
@@ -2586,28 +2691,33 @@
       const payload = JSON.stringify({
         loanAmount: 300000,
         creditScore: 720,
-        propertyType: 'single-family',
-        state: 'CA',
+        propertyType: "single-family",
+        state: "CA",
       });
 
       const params = {
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${__ENV.API_KEY}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${__ENV.API_KEY}`,
         },
       };
 
-      const res = http.post('https://api.ratehunter.net/rates/quote', payload, params);
+      const res = http.post(
+        "https://api.projectnyra.com/rates/quote",
+        payload,
+        params
+      );
 
       check(res, {
-        'status is 200': (r) => r.status === 200,
-        'response time < 500ms': (r) => r.timings.duration < 500,
-        'has rates': (r) => JSON.parse(r.body).rates.length > 0,
+        "status is 200": (r) => r.status === 200,
+        "response time < 500ms": (r) => r.timings.duration < 500,
+        "has rates": (r) => JSON.parse(r.body).rates.length > 0,
       });
 
       sleep(1);
     }
     ```
+
   - Time: 8 hours
 
 - [ ] **Execute load tests**
@@ -2627,21 +2737,25 @@
   - Identify slow queries, endpoints
   - Profile GPU-intensive operations
   - Document findings:
+
     ```markdown
     ## Bottleneck Analysis
 
     ### Issue: Rate calculation endpoint slow under load
+
     - P95 latency: 850ms (target: <500ms)
     - Root cause: Sequential AI model calls
     - Solution: Implement parallel processing
     - Priority: High
 
     ### Issue: Database connection pool exhausted
+
     - Occurred at: 600 concurrent users
     - Root cause: Max connections set to 20
     - Solution: Increase to 100, implement connection pooling
     - Priority: Critical
     ```
+
   - Time: 8 hours
 
 - [ ] **Optimize and re-test**
@@ -2652,6 +2766,7 @@
   - Time: 24 hours (varies)
 
 **Validation**:
+
 - System handles peak load (500 concurrent users)
 - API latency p95 < 500ms
 - Error rate < 1%
@@ -2670,6 +2785,7 @@
 #### Steps:
 
 ##### Option A: Professional Pen Test (Recommended)
+
 - [ ] **Select pen testing firm**
   - Research reputable firms (OWASP, SANS certified)
   - Request quotes from 3+ vendors
@@ -2679,8 +2795,8 @@
 
 - [ ] **Define scope**
   - In-scope:
-    - Web application (ratehunter.net)
-    - API endpoints (api.ratehunter.net)
+    - Web application (ratehunter.com)
+    - API endpoints (api.projectnyra.com)
     - Infrastructure (Cloudflare, worker PCs)
   - Out-of-scope:
     - Third-party services (Anthropic, SendGrid)
@@ -2705,6 +2821,7 @@
   - Time: 4 hours
 
 ##### Option B: Self-Service Testing
+
 - [ ] **Automated scanning**
   - Use OWASP ZAP or Burp Suite
   - Configure scanner with API endpoints
@@ -2728,6 +2845,7 @@
   - Time: 24 hours
 
 ##### Common Steps (Both Options)
+
 - [ ] **Remediate findings**
   - Fix critical and high severity issues immediately
   - Schedule medium/low for next sprint
@@ -2749,6 +2867,7 @@
   - Time: 1 hour
 
 **Validation**:
+
 - All critical/high vulnerabilities fixed
 - Pen test report shows acceptable risk level
 - Security controls validated
@@ -2815,6 +2934,7 @@
   - Time: 2 hours
 
 **Validation**:
+
 - Audit completed with no major deficiencies
 - All minor issues remediated
 - Attestation letter received
@@ -2903,6 +3023,7 @@
   - Time: 8-16 hours
 
 **Validation**:
+
 - No P0 issues remaining
 - Average usability rating >4/5
 - NPS score >30 (good for new product)
@@ -2948,7 +3069,7 @@
     # Test rate quote endpoint
     for i in {1..1000}; do
       curl -w "%{time_total}\n" -o /dev/null -s \
-        -X POST https://api.ratehunter.net/rates/quote \
+        -X POST https://api.projectnyra.com/rates/quote \
         -H "Content-Type: application/json" \
         -d '{"loanAmount":300000,"creditScore":720}'
     done | awk '{sum+=$1; sumsq+=$1*$1} END {print "Avg:",sum/NR,"StdDev:",sqrt(sumsq/NR - (sum/NR)**2)}'
@@ -2959,29 +3080,36 @@
 
 - [ ] **Document baseline**
   - Create benchmark report:
+
     ```markdown
     # Baseline Performance Metrics
+
     Date: 2026-01-21
 
     ## API Performance
+
     - Rate quote endpoint: 245ms (p50), 420ms (p95), 680ms (p99)
     - Search endpoint: 180ms (p50), 350ms (p95), 550ms (p99)
     - User registration: 320ms (p50), 580ms (p95), 850ms (p99)
 
     ## Frontend Performance
+
     - Page load time: 1.8s (3G), 0.9s (4G)
     - Time to interactive: 2.4s (3G), 1.2s (4G)
     - Lighthouse score: 92/100
 
     ## Infrastructure
+
     - Compute-01: CPU 35%, Memory 6.2GB/32GB, GPU 45%
     - Worker-01: CPU 28%, Memory 4.8GB/16GB, GPU 60%
     - Worker-02: CPU 22%, Memory 3.9GB/16GB, GPU 40%
 
     ## Business Metrics
+
     - Quotes/hour: 1,200
     - Rate alerts/hour: 85
     ```
+
   - Time: 4 hours
 
 - [ ] **Set performance budgets**
@@ -3003,6 +3131,7 @@
   - Time: 4 hours
 
 **Validation**:
+
 - Baseline metrics documented
 - Performance budgets set
 - Dashboard operational
@@ -3042,13 +3171,15 @@
     - No user-facing errors
     - Performance degrades gracefully (higher latency acceptable)
   - Execute and observe:
+
     ```bash
     # Shutdown Worker-01
     ssh worker-01 "sudo shutdown now"
 
     # Monitor from Compute-01
-    watch -n 5 'curl -s https://api.ratehunter.net/health | jq'
+    watch -n 5 'curl -s https://api.projectnyra.com/health | jq'
     ```
+
   - Verify behavior matches expectations
   - Bring Worker-01 back online
   - Verify workload rebalances
@@ -3100,6 +3231,7 @@
   - Time: 4 hours
 
 **Validation**:
+
 - System survives single points of failure
 - RTO <30 minutes for most scenarios
 - No data loss
@@ -3112,11 +3244,13 @@
 
 **Total Time**: 2-3 weeks
 **Critical Path Items**:
+
 1. Load testing and optimization (Week 1)
 2. Security pen test and UAT (Week 2)
 3. Compliance audit and failover testing (Week 3)
 
 **Key Deliverables**:
+
 - ✓ Load testing completed, performance targets met
 - ✓ Security vulnerabilities identified and remediated
 - ✓ Compliance audit passed
@@ -3125,6 +3259,7 @@
 - ✓ Failover scenarios validated
 
 **Go/No-Go Criteria**:
+
 - ✓ System handles 500 concurrent users
 - ✓ No critical security vulnerabilities
 - ✓ Compliance audit passed
@@ -3188,24 +3323,28 @@
     - Log location
     - Common issues
   - Example:
+
     ```markdown
     ## Rate Quote API
 
     **Description**: Generates mortgage rate quotes using AI models
     **Owner**: Backend Team (backend-oncall@company.com)
     **Dependencies**: PostgreSQL, Redis, Anthropic API, OpenRouter
-    **Health Check**: https://api.ratehunter.net/health
-    **Dashboard**: https://ratehunter.grafana.net/d/api-metrics
+    **Health Check**: https://api.projectnyra.com/health
+    **Dashboard**: https://ratehunter.grafana.com/d/api-metrics
     **Logs**: Grafana Loki, query: {service="rate-api"}
 
     **Common Issues**:
+
     - High latency: Check AI API rate limits, scale workers
     - 500 errors: Check database connections, review error logs
     ```
+
   - Time: 8 hours
 
 - [ ] **Document operational procedures**
   - Daily checks:
+
     ```markdown
     ## Daily Operations Checklist
 
@@ -3216,6 +3355,7 @@
     - [ ] Review security alerts (Cloudflare, Sentry)
     - [ ] Verify all PCs online (Tailscale dashboard)
     ```
+
   - Weekly tasks:
     - Review performance trends
     - Check for pending security updates
@@ -3230,18 +3370,21 @@
 
 - [ ] **Create troubleshooting guides**
   - For common scenarios:
+
     ```markdown
     ## Scenario: API Latency Spike
 
     **Symptoms**: P95 latency >1000ms, users reporting slow quotes
 
     **Diagnosis**:
+
     1. Check Grafana: Which endpoint is slow?
     2. Check worker GPU utilization: >95%?
     3. Check external API status: Anthropic/OpenRouter down?
     4. Check database: Slow queries?
 
     **Resolution**:
+
     - If GPU saturated: Scale workers horizontally
     - If external API slow: Implement caching, reduce calls
     - If database slow: Optimize queries, add indexes
@@ -3249,6 +3392,7 @@
 
     **Prevention**: Set up alerts for p95 >500ms
     ```
+
   - Cover top 10 failure scenarios
   - Time: 8 hours
 
@@ -3263,21 +3407,24 @@
 
 - [ ] **Add emergency contacts**
   - Create contact matrix:
+
     ```markdown
     ## Emergency Contacts
 
-    | Role | Name | Phone | Email | Backup |
-    |------|------|-------|-------|--------|
+    | Role               | Name   | Phone   | Email   | Backup   |
+    | ------------------ | ------ | ------- | ------- | -------- |
     | Incident Commander | [Name] | [Phone] | [Email] | [Backup] |
-    | Technical Lead | [Name] | [Phone] | [Email] | [Backup] |
-    | Database Admin | [Name] | [Phone] | [Email] | [Backup] |
-    | Security Lead | [Name] | [Phone] | [Email] | [Backup] |
+    | Technical Lead     | [Name] | [Phone] | [Email] | [Backup] |
+    | Database Admin     | [Name] | [Phone] | [Email] | [Backup] |
+    | Security Lead      | [Name] | [Phone] | [Email] | [Backup] |
 
     ## External Vendors
+
     - Cloudflare Support: support.cloudflare.com (Enterprise: phone support)
     - Anthropic Support: support@anthropic.com
     - AWS Support: [Account-specific]
     ```
+
   - Time: 2 hours
 
 - [ ] **Add appendices**
@@ -3289,6 +3436,7 @@
   - Time: 2 hours
 
 **Validation**:
+
 - Runbook covers all major scenarios
 - Accessible to entire team
 - Tested by having someone follow procedures
@@ -3362,6 +3510,7 @@
   - Time: 2 hours
 
 **Validation**:
+
 - All on-call engineers trained
 - Tabletop exercises completed successfully
 - Participants confident in procedures
@@ -3443,6 +3592,7 @@
   - Time: 3 weeks (low time commitment)
 
 **Validation**:
+
 - On-call schedule populated for next 3 months
 - All participants acknowledge understanding
 - Test pages successfully delivered
@@ -3513,8 +3663,8 @@
   - Use Pingdom or UptimeRobot for external checks
   - Monitor from multiple locations (US-East, US-West, EU)
   - Check:
-    - Website uptime (ratehunter.net)
-    - API health endpoint (api.ratehunter.net/health)
+    - Website uptime (ratehunter.com)
+    - API health endpoint (api.projectnyra.com/health)
   - Alert if down from 2+ locations
   - Time: 2 hours
 
@@ -3538,6 +3688,7 @@
   - Time: 4 hours
 
 **Validation**:
+
 - All critical alerts configured and tested
 - Notification channels working
 - Alert fatigue minimized
@@ -3639,6 +3790,7 @@
   - Time: 2 hours
 
 **Validation**:
+
 - Go-live date selected and communicated
 - Go/no-go criteria clear
 - Team aligned on timeline
@@ -3686,6 +3838,7 @@
 
 - [ ] **Create rollback checklist**
   - For each scenario:
+
     ```markdown
     ## Frontend Rollback Checklist
 
@@ -3698,6 +3851,7 @@
     - [ ] Update status page
     - [ ] Document issue for post-mortem
     ```
+
   - Time: 2 hours
 
 - [ ] **Establish decision criteria**
@@ -3726,15 +3880,15 @@
     ```html
     <!DOCTYPE html>
     <html>
-    <head>
-      <title>RateHunter - Maintenance</title>
-    </head>
-    <body>
-      <h1>We'll be right back</h1>
-      <p>RateHunter is currently undergoing maintenance.</p>
-      <p>We expect to be back online shortly.</p>
-      <p>Thank you for your patience.</p>
-    </body>
+      <head>
+        <title>RateHunter - Maintenance</title>
+      </head>
+      <body>
+        <h1>We'll be right back</h1>
+        <p>RateHunter is currently undergoing maintenance.</p>
+        <p>We expect to be back online shortly.</p>
+        <p>Thank you for your patience.</p>
+      </body>
     </html>
     ```
   - Host on separate infrastructure (GitHub Pages, S3)
@@ -3742,6 +3896,7 @@
   - Time: 2 hours
 
 **Validation**:
+
 - Rollback procedures documented and tested
 - Decision criteria clear
 - Authority assigned
@@ -3754,11 +3909,13 @@
 
 **Total Time**: 1-2 weeks
 **Critical Path Items**:
+
 1. Runbook creation and team training (Week 1)
 2. On-call rotation and alerting (Week 1-2)
 3. Go-live planning and rollback strategy (Week 2)
 
 **Key Deliverables**:
+
 - ✓ Production runbook completed
 - ✓ Operations team trained
 - ✓ On-call rotation established
@@ -3767,6 +3924,7 @@
 - ✓ Rollback strategy prepared
 
 **Final Go/No-Go Checklist**:
+
 - ✓ All infrastructure operational
 - ✓ All external services configured
 - ✓ Security and compliance requirements met
@@ -3776,6 +3934,7 @@
 - ✓ Monitoring and alerting operational
 
 **Launch Day Protocol**:
+
 1. 9:00 AM: Final system checks
 2. 10:00 AM: GO-LIVE (if all checks pass)
 3. 10:00 AM - 5:00 PM: Intensive monitoring
@@ -3789,19 +3948,20 @@
 
 **Total Estimated Time**: 6-8 weeks
 
-| Week | Focus Areas | Key Milestones |
-|------|-------------|----------------|
-| 1-2 | Infrastructure Setup | Domain, Cloudflare, Tunnels configured |
-| 3 | Hardware Configuration | All PCs operational with GPUs |
-| 4-5 | External Services & Security | All services configured, BAAs executed |
-| 6 | Security & Compliance | Encryption, audit logging, policies |
-| 7-8 | Testing & Validation | Load testing, pen testing, UAT |
-| 9 | Go-Live Preparation | Training, on-call, launch |
-| 10 | **GO-LIVE** | Launch and intensive monitoring |
+| Week | Focus Areas                  | Key Milestones                         |
+| ---- | ---------------------------- | -------------------------------------- |
+| 1-2  | Infrastructure Setup         | Domain, Cloudflare, Tunnels configured |
+| 3    | Hardware Configuration       | All PCs operational with GPUs          |
+| 4-5  | External Services & Security | All services configured, BAAs executed |
+| 6    | Security & Compliance        | Encryption, audit logging, policies    |
+| 7-8  | Testing & Validation         | Load testing, pen testing, UAT         |
+| 9    | Go-Live Preparation          | Training, on-call, launch              |
+| 10   | **GO-LIVE**                  | Launch and intensive monitoring        |
 
 ## Total Cost Estimate
 
 ### One-Time Costs
+
 - Hardware/GPUs: $3,000-15,000 (if purchasing)
 - Professional Services:
   - Penetration testing: $2,000-10,000
@@ -3810,6 +3970,7 @@
 - **Total One-Time**: $4,000-33,000
 
 ### Monthly Recurring Costs
+
 - Domain: $1-5
 - Cloudflare: $20-200
 - AI APIs: $100-500
@@ -3823,6 +3984,7 @@
 ### Success Metrics
 
 **Technical**:
+
 - Uptime: 99.9% (8.76 hours downtime/year allowed)
 - API latency p95: <500ms
 - Error rate: <0.5%
@@ -3830,6 +3992,7 @@
 - RPO: <24 hours
 
 **Business**:
+
 - User acquisition rate
 - Quote completion rate
 - Rate alert subscriptions
@@ -3837,6 +4000,7 @@
 - NPS >30
 
 **Security**:
+
 - Zero security breaches
 - Compliance audits passed
 - All vulnerabilities remediated within SLA
@@ -3859,6 +4023,7 @@
 ## Appendices
 
 ### Appendix A: Vendor Contacts
+
 - Cloudflare: support.cloudflare.com
 - Anthropic: support@anthropic.com
 - SendGrid: support.sendgrid.com
@@ -3866,22 +4031,24 @@
 - Grafana: support.grafana.com
 
 ### Appendix B: Regulatory References
+
 - HIPAA Security Rule: hhs.gov/hipaa/for-professionals/security
 - GLBA: ftc.gov/business-guidance/privacy-security/gramm-leach-bliley-act
 - State Breach Notification Laws: [Link to reference]
 
 ### Appendix C: Tool Documentation
+
 - Infisical: docs.infisical.com
 - Cloudflare Tunnels: developers.cloudflare.com/cloudflare-one/connections/connect-apps
 - Tailscale: tailscale.com/kb
 - Grafana: grafana.com/docs
 
 ### Appendix D: Change Log
-| Date | Version | Author | Changes |
-|------|---------|--------|---------|
-| 2026-01-21 | 1.0 | [Name] | Initial checklist creation |
+
+| Date       | Version | Author | Changes                    |
+| ---------- | ------- | ------ | -------------------------- |
+| 2026-01-21 | 1.0     | [Name] | Initial checklist creation |
 
 ---
 
 **END OF DOCUMENT**
-

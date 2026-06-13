@@ -6,10 +6,12 @@ Welcome to the Project Nyra Security Documentation. This directory contains comp
 
 ## Documents Overview
 
-### [HARDENING-GUIDE.md](./HARDENING-GUIDE.md)
-**Comprehensive security hardening guide covering all aspects of Project Nyra infrastructure and application security.**
+### [INFISICAL-SETUP-README.md](./INFISICAL-SETUP-README.md)
+
+**Current Infisical setup notes for host-scoped secret injection and rotation.**
 
 **Contents**:
+
 1. Infrastructure Security (Docker, Network, Secrets, API Auth, Rate Limiting)
 2. Application Security (Input Validation, SQL Injection Prevention, XSS, CSRF, Headers)
 3. MCP Server Security (Authentication, Authorization, Validation, Rate Limiting)
@@ -18,14 +20,17 @@ Welcome to the Project Nyra Security Documentation. This directory contains comp
 6. Incident Response Plan
 7. Compliance Guidelines (PCI-DSS, GDPR)
 
-**Use this document** for detailed implementation instructions, code examples, and configuration snippets.
+**Use this document** before validating host compose stacks or live service
+startup.
 
 ---
 
-### [SECURITY-CHECKLIST.md](./SECURITY-CHECKLIST.md)
-**Quick reference checklist for pre-deployment, deployment, and ongoing security tasks.**
+### [SECRET_ROTATION_GUIDE.md](./SECRET_ROTATION_GUIDE.md)
+
+**Quick reference for secret rotation, generated values, and owner-gated follow-up.**
 
 **Contents**:
+
 - Pre-Deployment Checklist (Infrastructure, Application, MCP, GPU, Monitoring)
 - Deployment Checklist
 - Ongoing Security Tasks (Daily, Weekly, Monthly, Quarterly, Annual)
@@ -33,7 +38,14 @@ Welcome to the Project Nyra Security Documentation. This directory contains comp
 - Incident Response Quick Reference
 - Compliance Quick Check
 
-**Use this document** for daily operations, deployment verification, and security task tracking.
+**Use this document** when rotating or staging provider credentials.
+
+### [agent-infra-infisical-review.md](./agent-infra-infisical-review.md)
+
+**Static review of agent infrastructure secret requirements and Infisical coverage.**
+
+**Use this document** when checking whether a host compose stack has the
+expected secret paths, sidecars, and runtime mounts.
 
 ---
 
@@ -41,25 +53,16 @@ Welcome to the Project Nyra Security Documentation. This directory contains comp
 
 ### For New Deployments
 
-1. Review the [HARDENING-GUIDE.md](./HARDENING-GUIDE.md) thoroughly
-2. Follow the Pre-Deployment Checklist in [SECURITY-CHECKLIST.md](./SECURITY-CHECKLIST.md)
+1. Review the [INFISICAL-SETUP-README.md](./INFISICAL-SETUP-README.md) thoroughly
+2. Follow the current owner gates in [docs/user-todo](../user-todo/README.md)
 3. Run security scripts:
    ```bash
-   # Harden SSH
-   ./scripts/security/harden-ssh.sh
-
-   # Configure firewall
-   ./scripts/security/configure-firewall.sh
-
    # Run security scans
    ./scripts/security/scan.sh
    ```
 4. Deploy with Infisical secrets injection:
    ```bash
-   infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" \
-     --env="production" \
-     --path="/shared" \
-     -- docker compose -f docker-compose.orchestration.yml up -d
+   make agent-infra-validate
    ```
 5. Verify security controls post-deployment
 
@@ -70,7 +73,7 @@ Welcome to the Project Nyra Security Documentation. This directory contains comp
    ./scripts/security/scan.sh
    ```
 2. Review findings and prioritize remediation
-3. Follow the SECURITY-CHECKLIST.md for ongoing tasks
+3. Follow `docs/user-todo/RELEASE-CANDIDATE-MANUAL-GATES.md` for ongoing owner tasks
 4. Schedule quarterly security reviews
 
 ---
@@ -128,36 +131,43 @@ Project Nyra implements multiple layers of security:
 ## Key Security Components
 
 ### 1. Secrets Management (Infisical)
+
 - **Purpose**: Centralized secret storage and injection
 - **Scope**: API keys, database passwords, JWT secrets
-- **Location**: `C:/Dev/Projects/Repos/Project-Nyra/infra/infisical/`
+- **Location**: `infra/hosts/*` compose sidecars, `docs/security/`, and
+  ignored host-local `.env` files when explicitly enabled.
 - **Rotation**: Every 90 days
 
 ### 2. Authentication & Authorization
+
 - **JWT**: Stateless authentication with Redis token revocation
 - **API Keys**: SHA-256 hashed keys for service authentication
 - **RBAC**: Role-based access control (Admin, Developer, Agent, Readonly)
 - **Session Management**: Redis-based session storage
 
 ### 3. Network Security
+
 - **Docker Networks**: Segmented (frontend, backend, database)
 - **Firewall**: UFW with default deny
 - **VPN**: Tailscale for GPU worker communication
 - **TLS**: Let's Encrypt certificates
 
 ### 4. Container Security
+
 - **Base Images**: Alpine (minimal attack surface)
 - **Non-root**: All containers run as non-root users
 - **Scanning**: Trivy for vulnerability detection
 - **Least Privilege**: Dropped capabilities, read-only filesystems
 
 ### 5. MCP Server Security
+
 - **Authentication**: Token-based authentication
 - **Authorization**: Tool-level permissions
 - **Validation**: Zod schemas for all requests
 - **Rate Limiting**: Per-tool rate limits
 
 ### 6. Monitoring & Audit
+
 - **Logging**: Winston with structured JSON
 - **Audit Trail**: PostgreSQL partitioned tables
 - **Scanning**: Trivy, Semgrep, npm audit
@@ -167,15 +177,13 @@ Project Nyra implements multiple layers of security:
 
 ## Security Scripts
 
-Security automation scripts are located in `C:/Dev/Projects/Repos/Project-Nyra/scripts/security/`:
+Security automation scripts are located in `scripts/security/`:
 
-| Script | Purpose |
-|--------|---------|
-| `rotate-secrets.sh` | Rotate all secrets (API keys, passwords) |
-| `harden-ssh.sh` | Configure SSH hardening |
-| `configure-firewall.sh` | Set up UFW firewall rules |
-| `scan.sh` | Run comprehensive security scans |
-| `generate-summary.js` | Generate security scan summary report |
+| Script                  | Purpose                                  |
+| ----------------------- | ---------------------------------------- |
+| `rotate-secrets.sh`     | Rotate all secrets (API keys, passwords) |
+| `scan.sh`               | Run comprehensive security scans         |
+| `view-security-logs.sh` | View local generated security reports    |
 
 ### Running Security Scripts
 
@@ -187,8 +195,8 @@ chmod +x scripts/security/*.sh
 ./scripts/security/scan.sh
 ./scripts/security/rotate-secrets.sh
 
-# Or run all security hardening
-./scripts/security/harden-all.sh
+# View generated reports
+./scripts/security/view-security-logs.sh
 ```
 
 ---
@@ -243,12 +251,12 @@ Project Nyra handles mortgage data, requiring compliance with:
 
 ### Severity Levels
 
-| Level | Description | Response Time | Escalation |
-|-------|-------------|---------------|------------|
-| P0 - Critical | Data breach, system compromise | Immediate | CEO, Legal |
-| P1 - High | Service outage, authentication bypass | 1 hour | CTO, DevOps |
-| P2 - Medium | Performance degradation, minor vulnerabilities | 4 hours | Security Team |
-| P3 - Low | UI bugs, informational findings | 1 business day | Development |
+| Level         | Description                                    | Response Time  | Escalation    |
+| ------------- | ---------------------------------------------- | -------------- | ------------- |
+| P0 - Critical | Data breach, system compromise                 | Immediate      | CEO, Legal    |
+| P1 - High     | Service outage, authentication bypass          | 1 hour         | CTO, DevOps   |
+| P2 - Medium   | Performance degradation, minor vulnerabilities | 4 hours        | Security Team |
+| P3 - Low      | UI bugs, informational findings                | 1 business day | Development   |
 
 ### Contact Information
 

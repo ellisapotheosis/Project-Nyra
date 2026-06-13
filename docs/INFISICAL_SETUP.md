@@ -12,7 +12,7 @@
 
 ```bash
 # Open Ubuntu/WSL terminal (NOT PowerShell)
-cd ~/projects/project-nyra
+cd \\\~/projects/project-nyra
 
 # Login interactively
 infisical login --interactive
@@ -35,20 +35,20 @@ infisical login --interactive
 
 ```bash
 # Add to your .bashrc or .zshrc (already in your .env)
-export INFISICAL_CLIENT_ID="your-client-id"
-export INFISICAL_CLIENT_SECRET="your-client-secret"
+export INFISICAL\\\_CLIENT\\\_ID="your-client-id"
+export INFISICAL\\\_CLIENT\\\_SECRET="your-client-secret"
 
 # Reload shell
-source ~/.zshrc
+source \\\~/.zshrc
 ```
 
 3. **Login with Universal Auth:**
 
 ```bash
-infisical login \
-  --method=universal-auth \
-  --client-id="$INFISICAL_CLIENT_ID" \
-  --client-secret="$INFISICAL_CLIENT_SECRET"
+infisical login \\\\
+  --method=universal-auth \\\\
+  --client-id="$INFISICAL\\\_CLIENT\\\_ID" \\\\
+  --client-secret="$INFISICAL\\\_CLIENT\\\_SECRET"
 ```
 
 4. **Export secrets:**
@@ -84,7 +84,7 @@ We've created a helper script at `scripts/infisical-export.sh`:
 
 ```bash
 # Check login status
-infisical login 2>&1 | grep -i "logged"
+infisical login 2>\\\&1 | grep -i "logged"
 
 # Login again
 infisical login --interactive
@@ -94,7 +94,7 @@ infisical login --interactive
 
 ```bash
 # Clear credentials and re-login
-rm -rf ~/.config/infisical
+rm -rf \\\~/.config/infisical
 infisical login --interactive
 ```
 
@@ -153,8 +153,8 @@ Create a token at: https://github.com/settings/tokens
 1. Login to Infisical: `infisical login --interactive`
 2. Export secrets: `./scripts/infisical-export.sh`
 3. Verify .env was created: `ls -la .env`
-4. Test with: `source .env && echo $ANTHROPIC_API_KEY`
+4. Test with: `source .env \\\&\\\& echo $ANTHROPIC\\\_API\\\_KEY`
 
----
+\---
 
 **Last Updated**: 2026-01-25

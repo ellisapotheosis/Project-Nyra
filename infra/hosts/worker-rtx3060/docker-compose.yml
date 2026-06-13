@@ -5,53 +5,11 @@
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
-version: '3.8'
-
 services:
-  # ── Infisical secrets init ──────────────────────────────────────────────
-  secrets-init:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: worker-3060-secrets-init
-    restart: "no"
-    command: ["/usr/local/bin/secrets-init.sh"]
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3060}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - worker-network
-
-  # ── Infisical agent ─────────────────────────────────────────────────────
-  infisical-agent:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: worker-3060-infisical-agent
-    restart: unless-stopped
-    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3060}
-      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - worker-network
-
-
-
   # ── Portainer Edge Agent ────────────────────────────────────────────────
   portainer-edge-agent:
     image: portainer/agent:2.27.9
-    container_name: worker-3060-portainer-agent
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-portainer-agent
     restart: unless-stopped
     environment:
       EDGE: "1"
@@ -67,7 +25,7 @@ services:
   # ── Ollama Service ──────────────────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
-    container_name: worker-3060-ollama
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-ollama
     restart: unless-stopped
     ports:
       - "11434:11434"
@@ -79,7 +37,6 @@ services:
       - OLLAMA_GPU_OVERHEAD=256
     volumes:
       - ollama_models:/root/.ollama/models
-      - nyra_secrets:/run/nyra-secrets:ro
     deploy:
       resources:
         reservations:
@@ -102,35 +59,50 @@ services:
   # ── LiteLLM Proxy ───────────────────────────────────────────────────────
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: worker-3060-litellm
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-litellm
     hostname: worker-3060-litellm
     restart: unless-stopped
     ports:
       - "${LITELLM_PORT:-4000}:4000"
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:?LITELLM_MASTER_KEY is required}
     volumes:
       - ./litellm:/app/litellm:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     command: --config /app/litellm/config.yaml --port 4000
     depends_on:
       ollama:
         condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:4000/health/readiness'', timeout=8)"',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
     networks:
       - worker-network
 
   # ── Model Switcher ──────────────────────────────────────────────────────
   model-switcher:
     image: python:3.11-slim
-    container_name: worker-3060-switcher
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-switcher
     hostname: worker-3060-switcher
     restart: unless-stopped
     volumes:
       - ./model-switcher:/app
       - ollama_models:/models
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - OLLAMA_URL=http://worker-3060-ollama:11434
-      - AVAILABLE_MODELS=llama3.2:3b,phi3:mini,nomic-embed-text
-      - DEFAULT_MODEL=llama3.2:3b
+      - OLLAMA_URL=http://ollama:11434
+      - AVAILABLE_MODELS=nomic-embed-text,all-minilm:l6-v2,qwen3:4b,llama3.2:3b,gemma4:4b-obliterated
+      - DEFAULT_MODEL=qwen3:4b
+      - DEFAULT_ROLE=bg-llm
+      - ROLE_MAP=embedding=nomic-embed-text,embedding-legacy=nomic-embed-text,rerank=all-minilm:l6-v2,bg-llm=qwen3:4b,picoclaw=qwen3:4b,fallback=llama3.2:3b,uncensored=gemma4:4b-obliterated
+      - MODEL_KEEP_ALIVE=30m
+      - AUTO_PULL_MODELS=true
+      - SPECIALIZATION=embedding,rerank,background-memory,picoclaw
     command: python /app/switcher.py
     depends_on:
       ollama:
@@ -138,16 +110,107 @@ services:
     networks:
       - worker-network
 
+  # ── Dedicated Embedding API ─────────────────────────────────────────────
+  embedding-service:
+    build:
+      context: ./embedding-service
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-embeddings
+    hostname: worker-3060-embeddings
+    restart: unless-stopped
+    ports:
+      - "${WORKER_3060_BIND_IP:-127.0.0.1}:${EMBEDDING_SERVICE_PORT:-8080}:8080"
+    environment:
+      - EMBEDDING_PORT=8080
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-Xenova/all-MiniLM-L6-v2}
+      - EMBEDDING_DEVICE=${EMBEDDING_DEVICE:-cpu}
+      - EMBEDDING_BATCH_SIZE=${EMBEDDING_BATCH_SIZE:-16}
+      - EMBEDDING_MAX_SEQUENCE_LENGTH=${EMBEDDING_MAX_SEQUENCE_LENGTH:-512}
+      - REDIS_ENABLED=${EMBEDDING_REDIS_ENABLED:-false}
+    volumes:
+      - embedding_cache:/cache
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - worker-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
+    labels:
+      - "com.nyra.worker=rtx3060"
+      - "com.nyra.role=embedding"
+      - "com.nyra.embedding.default=nomic-embed-text-via-ollama"
+
+  # ── PicoClaw Standby Agent ──────────────────────────────────────────────
+  picoclaw:
+    build:
+      context: ../../../services/openclaw
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-picoclaw
+    hostname: worker-3060-picoclaw
+    restart: unless-stopped
+    ports:
+      - "${WORKER_3060_BIND_IP:-127.0.0.1}:${PICOCLAW_PORT:-8003}:18789"
+    environment:
+      NODE_ENV: production
+      OPENCLAW_ROLE: picoclaw-standby
+      OPENCLAW_WORKER_NAME: rtx3060
+      OPENCLAW_MODE: ultra-lightweight-backup
+      NEXUS_API_URL: ${NEXUS_API_URL:-http://orchestrator.trex-fiordland.ts.net:6000}
+      OPENCLAW_GATEWAY_URL: ${OPENCLAW_GATEWAY_URL:-http://orchestrator.trex-fiordland.ts.net:8001}
+      LITELLM_API_URL: http://worker-3060-litellm:4000
+      OPENAI_BASE_URL: http://worker-3060-litellm:4000/v1
+      OPENCLAW_AGENT_MODEL: litellm/worker-3060-general
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:-}
+      MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
+      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
+      RATE_QUOTING_ENABLED: "true"
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-local-dev-placeholder-change-me}
+    depends_on:
+      litellm:
+        condition: service_started
+      embedding-service:
+        condition: service_healthy
+    networks:
+      - worker-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "com.nyra.worker=rtx3060"
+      - "com.nyra.role=picoclaw"
+      - "com.nyra.mode=standby-backup-agent"
+
   # ── Monitoring ──────────────────────────────────────────────────────────
   promtail:
     image: grafana/promtail:latest
-    container_name: worker-3060-promtail
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-promtail
     restart: unless-stopped
     volumes:
       - ./promtail:/etc/promtail:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
       - WORKER_ID=worker-3060
@@ -157,10 +220,10 @@ services:
 
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: worker-3060-node-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-node-exporter
     restart: unless-stopped
     ports:
-      - '9100:9100'
+      - "9100:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -170,10 +233,10 @@ services:
 
   gpu-exporter:
     image: utkuozdemir/nvidia_gpu_exporter:1.4.1
-    container_name: worker-3060-gpu-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-gpu-exporter
     restart: unless-stopped
     ports:
-      - '9835:9835'
+      - "9835:9835"
     deploy:
       resources:
         reservations:
@@ -186,20 +249,24 @@ services:
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
+    # Canonical Syncthing runs from docker-compose.persistent.yml as
+    # nyra-persistent-worker-3060-syncthing. Leave this legacy surface opt-in
+    # only to avoid starting a second host-networked instance on the same box.
+    profiles: ["legacy-sync"]
     image: syncthing/syncthing:latest
-    container_name: nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
     network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
     volumes:
       - syncthing_config:/var/syncthing
-      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
+      - /home/ellisapotheosis:/var/syncthing/data/home
     restart: unless-stopped
 
 volumes:
   ollama_models:
-  nyra_secrets:
+  embedding_cache:
   syncthing_config:
   portainer_data:
 

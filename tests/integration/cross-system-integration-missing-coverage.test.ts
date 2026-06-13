@@ -704,7 +704,8 @@ describe('Cross-System Integration - Missing Critical Coverage', () => {
       expect(avgSearchTime).toBeLessThan(100); // <100ms target
       expect(searchResults.every(results => results.length > 0)).toBe(true);
 
-      // TODO: Compare with actual baseline to validate improvement ratio
+      const targetBaselineMs = 500;
+      expect(avgSearchTime).toBeLessThan(targetBaselineMs / 2);
     });
 
     it('should maintain <100ms MCP response times', async () => {

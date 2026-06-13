@@ -145,7 +145,7 @@ function Setup-CloudflaredTunnel {
         'credentials-file' = "C:\Users\$env:USERNAME\.cloudflared\$tunnelName.json"
         ingress = @(
             @{
-                hostname = "$NodeType.nyra.ratehunter.net"
+                hostname = "$NodeType.app.projectnyra.com"
                 service = "http://localhost:8080"
             },
             @{
@@ -333,9 +333,9 @@ CLOUDFLARE_TUNNEL_ID=your_tunnel_id_here
 CLOUDFLARE_API_TOKEN=your_api_token_here
 
 # Worker Node Configuration
-WORKER1_ENDPOINT=http://worker1.nyra.ratehunter.net
-WORKER2_ENDPOINT=http://worker2.nyra.ratehunter.net
-WORKER3_ENDPOINT=http://worker3.nyra.ratehunter.net
+WORKER1_ENDPOINT=http://worker1.app.projectnyra.com
+WORKER2_ENDPOINT=http://worker2.app.projectnyra.com
+WORKER3_ENDPOINT=http://worker3.app.projectnyra.com
 WORKER1_MAC=00:00:00:00:00:01
 WORKER2_MAC=00:00:00:00:00:02
 WORKER3_MAC=00:00:00:00:00:03
@@ -354,7 +354,7 @@ DEBUG_ENABLED=false
 
 # Alert Configuration
 ALERT_WEBHOOK_URL=https://hooks.slack.com/your/webhook/url
-ALERT_EMAIL_RECIPIENTS=admin@ratehunter.net
+ALERT_EMAIL_RECIPIENTS=admin@ratehunter.com
 
 # Backup Configuration
 BACKUP_BUCKET=nyra-backups

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"pwd && rtk ls -la apps/nyra-webapp/src/app/\"}",
+  "error": "Exit code 2\n/home/ellisapotheosis/repos/project-nyra/apps/nyra-webapp/src/app\n/usr/bin/ls: cannot access 'apps/nyra-webapp/src/app/': No such file or directory",
+  "timestamp": "2026-05-13T00:56:14.921Z",
+  "retry_count": 4
+}

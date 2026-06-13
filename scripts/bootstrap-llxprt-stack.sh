@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-CF_APP_DIR="${NYRA_CF_APP_DIR:-${PROJECT_ROOT}/apps/landing/ratehunter-landing}"
+CF_APP_DIR="${NYRA_CF_APP_DIR:-${PROJECT_ROOT}/apps/ratehunter}"
 CF_PROJECT_NAME="${NYRA_CF_PROJECT_NAME:-project-nyra}"
 JEFE_DIR="${NYRA_LLXPRT_JEFE_DIR:-${PROJECT_ROOT}/external/llxprt-jefe}"
 JEFE_REPO_URL="${NYRA_LLXPRT_JEFE_REPO_URL:-https://github.com/vybestack/llxprt-jefe.git}"
@@ -20,6 +20,7 @@ nyra_require_command ssh
 
 cd "${PROJECT_ROOT}"
 nyra_export_llxprt_env "${CF_APP_DIR}" "${CF_PROJECT_NAME}"
+"${SCRIPT_DIR}/setup-wave-configs.sh"
 
 # Clone jefe if directory is missing OR empty (empty dir = aborted/partial clone)
 if [[ ! -d "${JEFE_DIR}" ]] || [[ -z "$(ls -A "${JEFE_DIR}" 2>/dev/null)" ]]; then

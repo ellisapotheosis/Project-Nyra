@@ -1,16 +1,21 @@
 """
 Pytest configuration and fixtures for quote-api tests.
 """
+from pathlib import Path
+import sys
+
 import pytest
 from fastapi.testclient import TestClient
-from datetime import date
+
+QUOTE_API_ROOT = Path(__file__).resolve().parents[3] / "services" / "quote-api"
+sys.path.insert(0, str(QUOTE_API_ROOT))
 
 
 @pytest.fixture
 def test_client():
     """Create FastAPI test client."""
     # Import here to avoid circular imports
-    from bootstrap.services.quote_api.app.main_enhanced import app
+    from app.main_enhanced import app
     return TestClient(app)
 
 
@@ -38,13 +43,13 @@ def base_fha_request():
     """Base request data for FHA loan."""
     return {
         "loan_amount": 300000.0,
-        "property_value": 310776.0,  # 3.5% down
+        "property_value": 310881.0,  # 3.5% down, rounded to whole dollars
         "annual_interest_rate": 0.065,
         "term_years": 30,
         "start_date": "2024-01-01",
         "loan_type": "fha",
         "credit_score": 620,
-        "down_payment": 10776.0,
+        "down_payment": 10881.0,
         "annual_property_tax": 4500.0,
         "annual_home_insurance": 900.0,
         "include_schedule": False,

@@ -17,12 +17,12 @@
 
 Based on CLAUDE.md specifications for worker-rtx3060:
 
-| Model | Size | Quantization | VRAM Usage | Use Case |
-|-------|------|--------------|------------|----------|
-| **CodeLlama 34B** | 34B | Q4_K_M | ~10GB | Code generation, debugging |
-| **Qwen 2.5 32B** | 32B | Q4_K_M | ~9GB | General purpose, reasoning |
-| **DeepSeek-Coder 33B** | 33B | Q4_K_M | ~9.5GB | Code understanding, refactoring |
-| **Gemma 2 27B** | 27B | Q5_K_M | ~8GB | Document processing, embeddings |
+| Model                  | Size | Quantization | VRAM Usage | Use Case                        |
+| ---------------------- | ---- | ------------ | ---------- | ------------------------------- |
+| **CodeLlama 34B**      | 34B  | Q4_K_M       | ~10GB      | Code generation, debugging      |
+| **Qwen 2.5 32B**       | 32B  | Q4_K_M       | ~9GB       | General purpose, reasoning      |
+| **DeepSeek-Coder 33B** | 33B  | Q4_K_M       | ~9.5GB     | Code understanding, refactoring |
+| **Gemma 2 27B**        | 27B  | Q5_K_M       | ~8GB       | Document processing, embeddings |
 
 **Note**: With 32GB system RAM, you can also run larger models with CPU offloading, but inference will be slower.
 
@@ -211,6 +211,7 @@ WORKER_3060_MODELS=codellama:34b-instruct-q4_K_M,qwen2.5:32b-instruct-q4_K_M,dee
 ```
 
 Or if using Docker:
+
 ```bash
 WORKER_3060_URL=http://ollama:11434  # Internal Docker network
 ```
@@ -224,7 +225,7 @@ tunnel: worker-rtx3060
 credentials-file: ~/.cloudflared/33d0dc8b-4a1f-4f31-b482-5309171ffdf8.json
 
 ingress:
-  - hostname: worker-3060.ratehunter.net
+  - hostname: worker-3060.projectnyra.com
     service: http://localhost:11434
     originRequest:
       noTLSVerify: false

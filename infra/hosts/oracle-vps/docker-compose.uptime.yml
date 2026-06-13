@@ -1,0 +1,23 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra-network}-nyra-uptime-kuma
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    volumes:
+      - uptime_kuma_data:/app/data
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+          cpus: "0.5"
+        reservations:
+          memory: 64m
+
+volumes:
+  uptime_kuma_data:
+
+networks:
+  nyra-network:
+    external: true

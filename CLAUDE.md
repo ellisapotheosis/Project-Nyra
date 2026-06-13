@@ -1,31 +1,25 @@
 # CLAUDE.md
 
-Claude Code CLI rules for Project Nyra.
+Claude Code CLI projection for Project Nyra.
 
-Claude must read `AGENTS.md` before making changes.
+`AGENTS.md` is the canonical repo-level operating contract. Claude-specific instructions in this file stay thin: they describe Claude-specific tooling and aliases.
 
 ## Required behavior
-- Follow `AGENTS.md` as the global project contract.
-- Prefer small, verifiable changes.
-- Keep implementation aligned with the current Nyra architecture.
-- If a step requires a human login or MFA, add it to `docs/OWNER_MANUAL_ACTIONS.md` and continue.
+
+- Read `AGENTS.md` before changing files.
+- Document owner login, MFA, and dashboard tasks in `docs/OWNER_MANUAL_ACTIONS.md`.
+- Refer to `docs/MASTER_ARCHITECTURE.md` for deep technical context.
 
 ## Serena MCP
-Recommended environment when using Serena with Claude Code:
+
+Recommended environment for Serena:
 
 ```bash
 export MCP_TIMEOUT=60000
 export ENABLE_TOOL_SEARCH=true
 ```
 
-Recommended Serena registration:
+## RTK (Rust Token Killer)
 
-```bash
-claude mcp add --scope user serena -- \
-  uvx --from git+https://github.com/oraios/serena \
-  serena start-mcp-server --context=claude-code --project-from-cwd
-```
-
-## Config placement
-- Global Serena config: `~/.serena/serena_config.yml`
-- Project Serena config: `<repo>/.serena/project.yml`
+**Always prefix commands with `rtk`** to optimize token usage (Git, GH, Pnpm, Test).
+Example: `rtk git status && rtk pnpm build`

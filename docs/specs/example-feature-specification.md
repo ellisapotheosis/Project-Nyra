@@ -144,8 +144,8 @@ Content-Type: application/json
         "first_name": "John",
         "last_name": "Doe"
     },
-    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+    "access_token": "<ACCESS_TOKEN>",
+    "refresh_token": "<REFRESH_TOKEN>"
 }
 ```
 
@@ -164,8 +164,8 @@ Content-Type: application/json
 ```json
 {
     "success": true,
-    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+    "access_token": "<ACCESS_TOKEN>",
+    "refresh_token": "<REFRESH_TOKEN>"
 }
 ```
 

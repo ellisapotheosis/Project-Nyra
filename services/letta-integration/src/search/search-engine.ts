@@ -3,10 +3,10 @@
  * Advanced semantic search with multiple ranking strategies
  */
 
-import { SearchQuery, SearchResult, Memory, TimeRange } from '../types';
-import { Logger } from '../utils/logger';
-import { LettaClient } from '../client/letta-client';
-import { MemoryStore } from '../memory/memory-store';
+import { SearchQuery, SearchResult, Memory, TimeRange } from "../types";
+import { Logger } from "../utils/logger";
+import { LettaClient } from "../client/letta-client";
+import { MemoryStore } from "../memory/memory-store";
 
 export class SearchEngine {
   private logger: Logger;
@@ -14,14 +14,14 @@ export class SearchEngine {
   private store: MemoryStore;
 
   constructor(client: LettaClient, store: MemoryStore) {
-    this.logger = new Logger('SearchEngine');
+    this.logger = new Logger("SearchEngine");
     this.client = client;
     this.store = store;
   }
 
   async search(query: SearchQuery): Promise<SearchResult[]> {
     try {
-      this.logger.info('Searching memories:', { query: query.query });
+      this.logger.info("Searching memories:", { query: query.query });
 
       // Generate query embedding for semantic search
       const queryEmbedding = await this.client.generateEmbedding(query.query);
@@ -33,20 +33,29 @@ export class SearchEngine {
       const ranked = this.rankMemories(candidates, queryEmbedding, query);
 
       // Apply threshold filter
-      const filtered = ranked.filter(r => r.score >= (query.threshold || 0.5));
+      const filtered = ranked.filter(
+        (r) => r.score >= (query.threshold || 0.5)
+      );
 
       // Apply limit
       const results = filtered.slice(0, query.limit || 10);
 
-      this.logger.info('Search completed:', { results: results.length, total: candidates.length });
+      this.logger.info("Search completed:", {
+        results: results.length,
+        total: candidates.length,
+      });
       return results;
     } catch (error) {
-      this.logger.error('Search failed:', error);
+      this.logger.error("Search failed:", error);
       throw error;
     }
   }
 
-  async semanticSearch(query: string, agentId: string, limit = 10): Promise<SearchResult[]> {
+  async semanticSearch(
+    query: string,
+    agentId: string,
+    limit = 10
+  ): Promise<SearchResult[]> {
     return this.search({
       query,
       agentId,
@@ -55,17 +64,21 @@ export class SearchEngine {
     });
   }
 
-  async searchByTags(agentId: string, tags: string[], limit = 50): Promise<SearchResult[]> {
+  async searchByTags(
+    agentId: string,
+    tags: string[],
+    limit = 50
+  ): Promise<SearchResult[]> {
     try {
       const memories = await this.store.searchByTags(agentId, tags, limit);
 
-      return memories.map(memory => ({
+      return memories.map((memory) => ({
         memory,
         score: 1.0,
         relevance: 1.0,
       }));
     } catch (error) {
-      this.logger.error('Tag search failed:', error);
+      this.logger.error("Tag search failed:", error);
       throw error;
     }
   }
@@ -79,16 +92,18 @@ export class SearchEngine {
       const allMemories = await this.store.getAllMemories(agentId);
 
       const filtered = allMemories.filter(
-        m => m.timestamp >= timeRange.start && m.timestamp <= timeRange.end
+        (memory: Memory) =>
+          memory.timestamp >= timeRange.start &&
+          memory.timestamp <= timeRange.end
       );
 
-      return filtered.slice(0, limit).map(memory => ({
+      return filtered.slice(0, limit).map((memory) => ({
         memory,
         score: 1.0,
         relevance: 1.0,
       }));
     } catch (error) {
-      this.logger.error('Time range search failed:', error);
+      this.logger.error("Time range search failed:", error);
       throw error;
     }
   }
@@ -99,16 +114,26 @@ export class SearchEngine {
       const semanticResults = await this.search(query);
 
       const keywords = query.query.toLowerCase().split(/\s+/);
-      const keywordResults = await this.keywordSearch(query.agentId!, keywords, query.limit);
+      const keywordResults = await this.keywordSearch(
+        query.agentId!,
+        keywords,
+        query.limit
+      );
 
-      const tagResults = query.tags ? await this.searchByTags(query.agentId!, query.tags, query.limit) : [];
+      const tagResults = query.tags
+        ? await this.searchByTags(query.agentId!, query.tags, query.limit)
+        : [];
 
       // Merge and re-rank results
-      const merged = this.mergeResults([semanticResults, keywordResults, tagResults]);
+      const merged = this.mergeResults([
+        semanticResults,
+        keywordResults,
+        tagResults,
+      ]);
 
       return merged.slice(0, query.limit || 10);
     } catch (error) {
-      this.logger.error('Hybrid search failed:', error);
+      this.logger.error("Hybrid search failed:", error);
       throw error;
     }
   }
@@ -116,24 +141,30 @@ export class SearchEngine {
   async findSimilar(memory: Memory, limit = 10): Promise<SearchResult[]> {
     try {
       if (!memory.embedding) {
-        throw new Error('Memory has no embedding');
+        throw new Error("Memory has no embedding");
       }
 
       const allMemories = await this.store.getAllMemories(memory.agentId);
 
       const scored = allMemories
-        .filter(m => m.id !== memory.id && m.embedding)
-        .map(m => ({
-          memory: m,
-          score: this.cosineSimilarity(memory.embedding!, m.embedding!),
-          relevance: this.cosineSimilarity(memory.embedding!, m.embedding!),
+        .filter(
+          (candidate: Memory) =>
+            candidate.id !== memory.id && candidate.embedding
+        )
+        .map((candidate: Memory) => ({
+          memory: candidate,
+          score: this.cosineSimilarity(memory.embedding!, candidate.embedding!),
+          relevance: this.cosineSimilarity(
+            memory.embedding!,
+            candidate.embedding!
+          ),
         }))
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
 
       return scored;
     } catch (error) {
-      this.logger.error('Similar search failed:', error);
+      this.logger.error("Similar search failed:", error);
       throw error;
     }
   }
@@ -168,10 +199,16 @@ export class SearchEngine {
       if (!memory.embedding) continue;
 
       // Calculate semantic similarity
-      const semanticScore = this.cosineSimilarity(queryEmbedding, memory.embedding);
+      const semanticScore = this.cosineSimilarity(
+        queryEmbedding,
+        memory.embedding
+      );
 
       // Calculate keyword score
-      const keywordScore = this.calculateKeywordScore(query.query, memory.content);
+      const keywordScore = this.calculateKeywordScore(
+        query.query,
+        memory.content
+      );
 
       // Calculate recency score
       const recencyScore = this.calculateRecencyScore(memory.timestamp);
@@ -252,17 +289,24 @@ export class SearchEngine {
     return highlights.slice(0, 3);
   }
 
-  private async keywordSearch(agentId: string, keywords: string[], limit?: number): Promise<SearchResult[]> {
+  private async keywordSearch(
+    agentId: string,
+    keywords: string[],
+    limit?: number
+  ): Promise<SearchResult[]> {
     const allMemories = await this.store.getAllMemories(agentId);
 
     const scored = allMemories
-      .map(memory => ({
+      .map((memory: Memory) => ({
         memory,
-        score: this.calculateKeywordScore(keywords.join(' '), memory.content),
-        relevance: this.calculateKeywordScore(keywords.join(' '), memory.content),
+        score: this.calculateKeywordScore(keywords.join(" "), memory.content),
+        relevance: this.calculateKeywordScore(
+          keywords.join(" "),
+          memory.content
+        ),
       }))
-      .filter(r => r.score > 0)
-      .sort((a, b) => b.score - a.score);
+      .filter((result: SearchResult) => result.score > 0)
+      .sort((a: SearchResult, b: SearchResult) => b.score - a.score);
 
     return limit ? scored.slice(0, limit) : scored;
   }

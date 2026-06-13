@@ -209,7 +209,7 @@ Run these SQL migrations before activating workflows:
 ```sql
 -- Compliance checks table
 CREATE TABLE IF NOT EXISTS compliance_checks (
-  id SERIAL PRIMARY KEY,
+  id SERIAL,
   lead_id INTEGER REFERENCES leads(id),
   check_date TIMESTAMP NOT NULL,
   compliant BOOLEAN NOT NULL,
@@ -218,29 +218,32 @@ CREATE TABLE IF NOT EXISTS compliance_checks (
   high_issues INTEGER DEFAULT 0,
   medium_issues INTEGER DEFAULT 0,
   issues_detail JSONB,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (id)
 );
 
 -- Rate alerts table
 CREATE TABLE IF NOT EXISTS rate_alerts (
-  id SERIAL PRIMARY KEY,
+  id SERIAL,
   lead_id INTEGER REFERENCES leads(id),
   old_rate DECIMAL(5,3) NOT NULL,
   new_rate DECIMAL(5,3) NOT NULL,
   savings DECIMAL(5,3) NOT NULL,
   alert_sent_at TIMESTAMP NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (id)
 );
 
 -- Mortgage rates history
 CREATE TABLE IF NOT EXISTS mortgage_rates (
-  id SERIAL PRIMARY KEY,
+  id SERIAL,
   conventional_30yr DECIMAL(5,3),
   conventional_15yr DECIMAL(5,3),
   fha_30yr DECIMAL(5,3),
   va_30yr DECIMAL(5,3),
   timestamp TIMESTAMP NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (id)
 );
 
 -- Lead tracking fields

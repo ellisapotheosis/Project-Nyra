@@ -160,7 +160,7 @@ curl -X POST http://localhost:8010/auth/login \
 **Use Token**:
 ```bash
 curl http://localhost:8010/leads/process \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Bearer <JWT_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{...}'
 ```

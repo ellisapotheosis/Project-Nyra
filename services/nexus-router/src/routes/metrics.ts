@@ -330,6 +330,7 @@ router.patch('/api/metrics/config', (req: Request, res: Response) => {
  */
 export function setupMetricsWebSocket(ws: any): void {
   logger.info('New metrics WebSocket connection established');
+  const unregisterConnection = metricsCollector.registerWebSocketConnection();
 
   // Send initial snapshot
   const initialMetrics = metricsCollector.getSystemMetrics();
@@ -384,11 +385,13 @@ export function setupMetricsWebSocket(ws: any): void {
     logger.info('Metrics WebSocket connection closed');
     metricsCollector.off('metrics', metricsHandler);
     clearInterval(heartbeatInterval);
+    unregisterConnection();
   });
 
   // Handle errors
   ws.on('error', (error: Error) => {
     logger.error('Metrics WebSocket error:', error);
+    unregisterConnection();
   });
 }
 

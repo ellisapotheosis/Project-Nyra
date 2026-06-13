@@ -1,0 +1,183 @@
+name: tailscale-policy-sync
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/tailscale-policy-sync.yml"
+      - "infra/tailscale/**"
+      - "scripts/infra/merge-tailscale-policy.py"
+      - "scripts/infra/sync-tailscale-vip-services.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/tailscale-policy-sync.yml"
+      - "infra/tailscale/**"
+      - "scripts/infra/merge-tailscale-policy.py"
+      - "scripts/infra/sync-tailscale-vip-services.py"
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: "Apply the merged policy to Tailscale"
+        required: true
+        default: false
+        type: boolean
+
+env:
+  TS_TAILNET: ${{ secrets.TS_TAILNET || vars.TS_TAILNET || secrets.TAILSCALE_TAILNET || vars.TAILSCALE_TAILNET || 'trex-fiordland.ts.net' }}
+  TS_API_KEY: ${{ secrets.TS_API_KEY || secrets.TAILSCALE_API_KEY }}
+  TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+  TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+  POLICY_OVERLAY: infra/tailscale/oracle-services-policy.hujson
+  GENERATED_POLICY: generated/tailscale-policy.hujson
+
+jobs:
+  sync-policy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate overlay parser
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            scripts/infra/merge-tailscale-policy.py \
+            scripts/infra/sync-tailscale-vip-services.py
+          mkdir -p generated
+          printf '{}\n' > generated/empty-policy.hujson
+          python3 scripts/infra/merge-tailscale-policy.py \
+            --base generated/empty-policy.hujson \
+            --overlay "$POLICY_OVERLAY" \
+            --output generated/overlay-validation.hujson
+          python3 -m json.tool generated/overlay-validation.hujson >/dev/null
+
+      - name: Fetch current tailnet policy
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${TS_OAUTH_CLIENT_ID:-}" && -n "${TS_OAUTH_SECRET:-}" ]]; then
+            token="$(
+              curl -fsSL \
+                -d grant_type=client_credentials \
+                -d "client_id=${TS_OAUTH_CLIENT_ID}" \
+                -d "client_secret=${TS_OAUTH_SECRET}" \
+                https://api.tailscale.com/api/v2/oauth/token |
+              jq -r '.access_token'
+            )"
+            if [[ -z "$token" || "$token" == "null" ]]; then
+              echo "Tailscale OAuth token exchange did not return an access token." >&2
+              exit 1
+            fi
+            echo "::add-mask::$token"
+            curl -fsSL \
+              -H "Authorization: Bearer ${token}" \
+              "https://api.tailscale.com/api/v2/tailnet/${TS_TAILNET}/acl" \
+              -o generated/current-tailnet-policy.hujson
+          elif [[ -n "${TS_API_KEY:-}" ]]; then
+            curl -fsSL \
+              -u "${TS_API_KEY}:" \
+              "https://api.tailscale.com/api/v2/tailnet/${TS_TAILNET}/acl" \
+              -o generated/current-tailnet-policy.hujson
+          else
+            echo "Missing Tailscale credentials. Configure TS_OAUTH_CLIENT_ID/TS_OAUTH_SECRET or TS_API_KEY." >&2
+            exit 1
+          fi
+
+      - name: Merge Oracle service policy overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/infra/merge-tailscale-policy.py \
+            --base generated/current-tailnet-policy.hujson \
+            --overlay "$POLICY_OVERLAY" \
+            --output "$GENERATED_POLICY"
+          python3 -m json.tool "$GENERATED_POLICY" >/dev/null
+
+      - name: Test merged Tailscale policy with OAuth
+        if: >-
+          github.event_name != 'push' &&
+          !(github.event_name == 'workflow_dispatch' && inputs.apply) &&
+          env.TS_OAUTH_CLIENT_ID != '' &&
+          env.TS_OAUTH_SECRET != ''
+        uses: tailscale/gitops-acl-action@v1
+        with:
+          tailnet: ${{ env.TS_TAILNET }}
+          oauth-client-id: ${{ env.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ env.TS_OAUTH_SECRET }}
+          policy-file: ${{ env.GENERATED_POLICY }}
+          action: test
+
+      - name: Test merged Tailscale policy with API key
+        if: >-
+          github.event_name != 'push' &&
+          !(github.event_name == 'workflow_dispatch' && inputs.apply) &&
+          (env.TS_OAUTH_CLIENT_ID == '' || env.TS_OAUTH_SECRET == '') &&
+          env.TS_API_KEY != ''
+        uses: tailscale/gitops-acl-action@v1
+        with:
+          tailnet: ${{ env.TS_TAILNET }}
+          api-key: ${{ env.TS_API_KEY }}
+          policy-file: ${{ env.GENERATED_POLICY }}
+          action: test
+
+      - name: Apply merged Tailscale policy with OAuth
+        if: >-
+          (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.apply)) &&
+          env.TS_OAUTH_CLIENT_ID != '' &&
+          env.TS_OAUTH_SECRET != ''
+        uses: tailscale/gitops-acl-action@v1
+        with:
+          tailnet: ${{ env.TS_TAILNET }}
+          oauth-client-id: ${{ env.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ env.TS_OAUTH_SECRET }}
+          policy-file: ${{ env.GENERATED_POLICY }}
+          action: apply
+
+      - name: Apply merged Tailscale policy with API key
+        if: >-
+          (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.apply)) &&
+          (env.TS_OAUTH_CLIENT_ID == '' || env.TS_OAUTH_SECRET == '') &&
+          env.TS_API_KEY != ''
+        uses: tailscale/gitops-acl-action@v1
+        with:
+          tailnet: ${{ env.TS_TAILNET }}
+          api-key: ${{ env.TS_API_KEY }}
+          policy-file: ${{ env.GENERATED_POLICY }}
+          action: apply
+
+      - name: Sync Oracle VIP service definitions with OAuth
+        if: >-
+          (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.apply)) &&
+          env.TS_OAUTH_CLIENT_ID != '' &&
+          env.TS_OAUTH_SECRET != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          token="$(
+            curl -fsSL \
+              -d grant_type=client_credentials \
+              -d "client_id=${TS_OAUTH_CLIENT_ID}" \
+              -d "client_secret=${TS_OAUTH_SECRET}" \
+              https://api.tailscale.com/api/v2/oauth/token |
+            jq -r '.access_token'
+          )"
+          if [[ -z "$token" || "$token" == "null" ]]; then
+            echo "Tailscale OAuth token exchange did not return an access token." >&2
+            exit 1
+          fi
+          echo "::add-mask::$token"
+          TS_BEARER_TOKEN="$token" python3 scripts/infra/sync-tailscale-vip-services.py --apply
+
+      - name: Sync Oracle VIP service definitions with API key
+        if: >-
+          (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.apply)) &&
+          (env.TS_OAUTH_CLIENT_ID == '' || env.TS_OAUTH_SECRET == '') &&
+          env.TS_API_KEY != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/infra/sync-tailscale-vip-services.py --apply

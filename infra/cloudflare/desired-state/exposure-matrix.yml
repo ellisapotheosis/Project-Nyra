@@ -1,0 +1,438 @@
+# Project Nyra Cloudflare exposure matrix.
+# Source: project-nyra-cloudflare-final-prompt-pack plus current repo compose files.
+# Policy:
+# - ratehunter.net is Cloudflare Pages only.
+# - UI/admin/dashboard routes require Cloudflare Access.
+# - API/MCP routes require service-token or signed-request controls unless noted.
+# - raw databases, caches, vector stores, worker model ports, and Docker sockets are not tunneled.
+
+domain: projectnyra.com
+management_mode: api_managed_tunnels_with_docker_connectors
+
+tunnels:
+  orchestrator:
+    secret_token: ORCHESTRATOR_TUNNEL_TOKEN
+    secret_id: ORCHESTRATOR_TUNNEL_ID
+    infisical_path: /machines/orchestrator
+    known_active_tunnel_id: ae0bd53a-f22e-4414-8593-5b765dcd044b
+  oracle:
+    secret_token: ORACLE_TUNNEL_TOKEN
+    secret_id: ORACLE_TUNNEL_ID
+    infisical_path: /machines/oracle-vps
+
+pages:
+  - hostname: ratehunter.net
+    target: cloudflare_pages
+    access: public
+
+routes:
+  # ── Public app surfaces ───────────────────────────────────────────────────
+  - hostname: app.projectnyra.com
+    tunnel: oracle
+    origin: http://webapp:3001
+    exposure: public_auth
+    notes: Broker/customer webapp. Keep Access until Supabase/app auth is production-ready.
+
+  - hostname: api.projectnyra.com
+    tunnel: oracle
+    origin: http://supabase-kong:8000
+    exposure: public_supabase_gateway
+    notes: Browser auth/API gateway for self-hosted Supabase; do not block Auth with interactive Access.
+
+  - hostname: hooks.projectnyra.com
+    tunnel: oracle
+    origin: http://n8n:5678
+    exposure: public_service_token_or_signed_webhook
+    notes: Prefer provider allowlists and signed webhook paths.
+
+  # ── Admin portal ──────────────────────────────────────────────────────────
+  - hostname: admin.projectnyra.com
+    tunnel: oracle
+    origin: http://admin:3002
+    exposure: owner_only_public_auth
+
+  # ── CRM & workflows ───────────────────────────────────────────────────────
+  - hostname: twenty.projectnyra.com
+    tunnel: oracle
+    origin: http://twenty:3000
+    exposure: public_auth
+
+  - hostname: crm.projectnyra.com
+    tunnel: oracle
+    origin: http://twenty:3000
+    exposure: public_auth
+    notes: Alias for Twenty CRM.
+
+  - hostname: crm-ui.projectnyra.com
+    tunnel: orchestrator
+    origin: http://oracle.trex-fiordland.ts.net:3000
+    exposure: public_auth
+    notes: Twenty CRM UI via orchestrator→oracle Tailscale proxy.
+
+  - hostname: n8n.projectnyra.com
+    tunnel: oracle
+    origin: http://n8n:5678
+    exposure: public_auth
+
+  - hostname: gitea.projectnyra.com
+    tunnel: oracle
+    origin: http://gitea:3000
+    exposure: public_auth
+
+  - hostname: activepieces.projectnyra.com
+    tunnel: oracle
+    origin: http://activepieces:80
+    exposure: public_auth
+
+  # ── Chat interfaces ────────────────────────────────────────────────────────
+  - hostname: openwebui.projectnyra.com
+    tunnel: oracle
+    origin: http://openwebui:8080
+    exposure: public_auth
+
+  - hostname: chat.projectnyra.com
+    tunnel: oracle
+    origin: http://openwebui:8080
+    exposure: public_auth
+    notes: Alias for openwebui.projectnyra.com.
+
+  # ── Business logic services ────────────────────────────────────────────────
+  - hostname: campaigns.projectnyra.com
+    tunnel: oracle
+    origin: http://campaign_engine:8020
+    exposure: public_auth
+
+  - hostname: quotes.projectnyra.com
+    tunnel: oracle
+    origin: http://quote-api:7070
+    exposure: public_auth
+
+  # ── AI / routing layer ─────────────────────────────────────────────────────
+  - hostname: nexus.projectnyra.com
+    tunnel: oracle
+    origin: http://nexus:3000
+    exposure: public_auth
+    notes: Nexus Router — human UI and API entrypoint.
+
+  - hostname: nexus-router.projectnyra.com
+    tunnel: oracle
+    origin: http://nexus:3000
+    exposure: public_service_token
+    notes: Machine/API entrypoint; prefer agents use Tailscale/private URL unless external access is needed.
+
+  - hostname: litellm.projectnyra.com
+    tunnel: oracle
+    origin: http://litellm:4000
+    exposure: owner_only_public_auth
+
+  # ── Observability ──────────────────────────────────────────────────────────
+  - hostname: grafana.projectnyra.com
+    tunnel: oracle
+    origin: http://grafana:3000
+    exposure: public_auth
+
+  - hostname: openlit.projectnyra.com
+    tunnel: oracle
+    origin: http://openlit:3000
+    exposure: owner_only_public_auth
+
+  - hostname: prometheus.projectnyra.com
+    tunnel: oracle
+    origin: http://prometheus:9090
+    exposure: owner_only_public_auth
+
+  - hostname: cadvisor.projectnyra.com
+    tunnel: oracle
+    origin: http://cadvisor:8080
+    exposure: owner_only_public_auth
+
+  # ── Status / uptime ────────────────────────────────────────────────────────
+  - hostname: uptime.projectnyra.com
+    tunnel: oracle
+    origin: http://nyra-network-nyra-uptime-kuma:3001
+    exposure: public
+
+  - hostname: public-status.projectnyra.com
+    tunnel: oracle
+    origin: http://nyra-network-nyra-uptime-kuma:3001
+    exposure: public
+
+  - hostname: status.projectnyra.com
+    tunnel: oracle
+    origin: http://nyra-network-nyra-uptime-kuma:3001
+    exposure: public
+
+  # ── GasTown / GasTeam ─────────────────────────────────────────────────────
+  - hostname: gastown.projectnyra.com
+    tunnel: oracle
+    origin: http://gastown:8080
+    exposure: public_auth
+    notes: GasTown oracle container (nyra-network-gastown).
+
+  - hostname: gasteam.projectnyra.com
+    tunnel: orchestrator
+    origin: http://nyra-gasteam:7001
+    exposure: public_auth
+    notes: GasTeam on orchestrator — different service from oracle gastown.
+
+  # ── AI routing & data gateway ─────────────────────────────────────────────
+  - hostname: grafbase.projectnyra.com
+    tunnel: oracle
+    origin: http://grafbase:5050
+    exposure: public_service_token
+
+  - hostname: superset.projectnyra.com
+    tunnel: oracle
+    origin: http://superset:8088
+    exposure: owner_only_public_auth
+
+  # ── Infisical secrets manager ─────────────────────────────────────────────
+  - hostname: infisical.projectnyra.com
+    tunnel: oracle
+    origin: http://infisical:8080
+    exposure: owner_only_public_auth
+
+  # ── Agent Vault ───────────────────────────────────────────────────────────
+  - hostname: agent-vault.projectnyra.com
+    tunnel: oracle
+    origin: http://agent-vault:14321
+    exposure: public_auth
+
+  # ── Memory plane ──────────────────────────────────────────────────────────
+  - hostname: letta.projectnyra.com
+    tunnel: oracle
+    origin: http://letta:8283
+    exposure: public_auth
+    notes: Letta memory manager + orchestration. letta-mcp exposes ~30 consolidated tools.
+
+  - hostname: letta-mcp.projectnyra.com
+    tunnel: oracle
+    origin: http://letta-mcp:8284
+    exposure: public_service_token
+
+  - hostname: mem0.projectnyra.com
+    tunnel: oracle
+    origin: http://mem0:5000
+    exposure: public_service_token
+    notes: Primary memory endpoint. FalkorDB = graph backend, Qdrant = vector backend.
+
+  - hostname: memos.projectnyra.com
+    tunnel: oracle
+    origin: http://memos-api:8001
+    exposure: public_auth
+
+  - hostname: openmemory.projectnyra.com
+    tunnel: oracle
+    origin: http://openmemory-mcp:8765
+    exposure: public_auth
+    notes: OpenMemory MCP — memory management UI.
+
+  # ── Search ─────────────────────────────────────────────────────────────────
+  - hostname: searxng.projectnyra.com
+    tunnel: oracle
+    origin: http://searxng:8080
+    exposure: public_auth
+
+  # ── ClawTeam / OpenClaw / PicoClaw ────────────────────────────────────────
+  - hostname: clawteam.projectnyra.com
+    tunnel: oracle
+    origin: http://clawteam:8080
+    exposure: public_auth
+    notes: ClawTeam HKUDS primary node (oracle). OpenClaw agent runs on worker-rtx3090ti.
+
+  - hostname: openclaw-gateway.projectnyra.com
+    tunnel: orchestrator
+    origin: http://nyra-openclaw-gateway:8001
+    exposure: public_auth
+    notes: OpenClaw gateway UI/API. worker-rtx3090ti is the primary OpenClaw agent.
+
+  - hostname: router.openclaw.projectnyra.com
+    tunnel: orchestrator
+    origin: http://nyra-openclaw-gateway:8001
+    exposure: public_service_token
+    notes: OpenClaw protocol router entrypoint.
+
+  # ── Internal tooling ──────────────────────────────────────────────────────
+  - hostname: paperclip.projectnyra.com
+    tunnel: oracle
+    origin: http://paperclip:3100
+    exposure: public_auth
+
+  - hostname: portainer-oracle.projectnyra.com
+    tunnel: oracle
+    origin: https://portainer:9443
+    exposure: owner_only_public_auth
+    origin_tls_verify: false
+
+  - hostname: portainer.projectnyra.com
+    tunnel: orchestrator
+    origin: https://nyra-portainer:9443
+    exposure: owner_only_public_auth
+    origin_tls_verify: false
+    notes: Orchestrator's own Portainer instance.
+
+  # ── SSH (cloudflared access flow) ─────────────────────────────────────────
+  - hostname: git-ssh.projectnyra.com
+    tunnel: oracle
+    origin: ssh://gitea:2222
+    exposure: owner_only_cloudflared_access_ssh
+    notes: Optional. Requires cloudflared access ssh client flow.
+
+  # ── Oracle catch-all ──────────────────────────────────────────────────────
+  - hostname: oracle.projectnyra.com
+    tunnel: oracle
+    origin: http://caddy:80
+    exposure: public_auth
+    notes: Oracle VPS Caddy gateway catch-all.
+
+  # ── Home Assistant ─────────────────────────────────────────────────────────
+  - hostname: ha.projectnyra.com
+    tunnel: orchestrator
+    origin: http://homeassistant.trex-fiordland.ts.net:8123
+    exposure: public_auth
+    notes: HA Green via Tailscale. Use homeassistant.projectnyra.com (Nabu Casa) as backup.
+
+  # ── Linkwarden / bookmarks ─────────────────────────────────────────────────
+  - hostname: links.projectnyra.com
+    tunnel: orchestrator
+    origin: http://100.64.0.2:3007
+    exposure: public_auth
+    notes: Preferred Linkwarden hostname.
+
+  - hostname: linkwarden.projectnyra.com
+    tunnel: orchestrator
+    origin: http://100.64.0.2:3007
+    exposure: public_auth
+    notes: Existing dashboard route; redirect to links.projectnyra.com eventually.
+
+  # ── Borrower chat (pending) ────────────────────────────────────────────────
+  - hostname: borrower-chat.projectnyra.com
+    tunnel: orchestrator
+    origin: http://nyra-borrower-chat:3002
+    exposure: public_auth
+    notes: Dedicated borrower chat surface — service may be offline if not yet deployed.
+
+  # ── Worker inference UIs ──────────────────────────────────────────────────
+  - hostname: nerve-5090.projectnyra.com
+    tunnel: orchestrator
+    origin: http://worker-rtx5090.trex-fiordland.ts.net:7860
+    exposure: owner_only_public_auth
+    notes: Nerve UI on worker-rtx5090 (RTX 5090, 32 GB VRAM, primary vLLM).
+
+  - hostname: claw-5090.projectnyra.com
+    tunnel: orchestrator
+    origin: http://worker-rtx5090.trex-fiordland.ts.net:3000
+    exposure: owner_only_public_auth
+
+  - hostname: nerve-3090.projectnyra.com
+    tunnel: orchestrator
+    origin: http://worker-rtx3090ti.trex-fiordland.ts.net:7860
+    exposure: owner_only_public_auth
+    notes: Nerve UI on worker-rtx3090ti (RTX 3090 Ti, 24 GB VRAM, OpenClaw agent).
+
+  - hostname: claw-3090.projectnyra.com
+    tunnel: orchestrator
+    origin: http://worker-rtx3090ti.trex-fiordland.ts.net:3000
+    exposure: owner_only_public_auth
+
+  - hostname: nerve-3060.projectnyra.com
+    tunnel: orchestrator
+    origin: http://worker-rtx3060.trex-fiordland.ts.net:7860
+    exposure: owner_only_public_auth
+    notes: Nerve UI on worker-rtx3060 (RTX 3060, 12 GB VRAM, Ollama + PicoClaw agent).
+
+  - hostname: picoclaw-3060.projectnyra.com
+    tunnel: orchestrator
+    origin: http://worker-rtx3060.trex-fiordland.ts.net:3000
+    exposure: owner_only_public_auth
+    notes: PicoClaw agent UI on worker-rtx3060.
+
+mcp_policy:
+  default: nexus_first
+  direct_public_hostnames: service_token_only
+  preferred_external_entrypoint: https://nexus-router.projectnyra.com/mcp
+  direct_candidates:
+    - hostname: openmemory-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://openmemory-mcp:8765
+    - hostname: activepieces-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://activepieces-mcp:3333
+    - hostname: tailscale-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://tailscale-mcp:8780
+    - hostname: twenty-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://twenty-mcp:8400
+    - hostname: infisical-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://infisical-mcp:8766
+    - hostname: gitea-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://gitea-mcp:3101
+    - hostname: git-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://git-mcp:8773
+    - hostname: paperclip-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://paperclip-mcp:8767
+    - hostname: magicui-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://magicui-mcp:8768
+    - hostname: shadcn-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://shadcn-mcp:8769
+    - hostname: sequential-thinking-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://sequential-thinking-mcp:8770
+    - hostname: playwright-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://playwright-mcp:8771
+    - hostname: firecrawl-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://firecrawl-mcp:8772
+    - hostname: next-devtools-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://next-devtools-mcp:8774
+    - hostname: tavily-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://tavily-mcp:8775
+    - hostname: wcgw-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://wcgw-mcp:8776
+    - hostname: gitingest-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://gitingest-mcp:8777
+    - hostname: codebase-index-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://codebase-index-mcp:8778
+    - hostname: letta-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://letta-mcp:8284
+      notes: Letta MCP — ~30 consolidated tools wrapping Letta's full 230+ tool surface.
+    - hostname: ha-mcp.projectnyra.com
+      tunnel: oracle
+      origin: http://ha-mcp:8779
+
+not_tunneled:
+  - postgres (supabase-db, infisical-postgres) — Tailscale TCP svc only
+  - twenty-db — internal to oracle-vps
+  - redis-cache — internal to oracle-vps
+  - falkordb — Tailscale TCP svc:falkordb only (mem0 graph backend)
+  - qdrant — Tailscale svc:qdrant only (mem0 vector backend)
+  - loki — Tailscale svc:loki-oracle only
+  - worker-vllm (vLLM on 3090ti/5090) — Tailscale svc:vllm-* only
+  - worker-ollama (Ollama on 3060) — Tailscale svc:ollama-3060 only
+  - worker-litellm (LiteLLM on workers) — Tailscale svc:litellm-3060/3090ti/5090 only
+  - worker-redis (KV cache on 3090ti/5090) — Tailscale internal only
+  - worker-nerve-api (Nerve on workers) — exposed via cloudflared nerve-*.projectnyra.com
+  - openlit-clickhouse-native — Tailscale svc:openlit-clickhouse-native only
+  - openlit-otlp-grpc/http — Tailscale TCP svc only
+  - docker-socket — never exposed
+  - llxprt-bridge — Tailscale svc:llxprt-bridge only
+
+dns_records:
+  txt:
+    - name: "@"
+      content: "cloudflare_dashboard_sso=12e9e7340d465d8521325dfe104254ca"
+      notes: Required for Cloudflare dashboard SSO verification.

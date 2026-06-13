@@ -1,456 +1,185 @@
-name: nyra-oracle
+# Oracle VPS async agent utilities.
+# Public access should terminate at Cloudflare Access or an equivalent edge gate.
+
+name: nyra-oracle-agent-utils
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+  security_opt:
+    - no-new-privileges:true
 
 services:
-  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
-  secrets-init:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: nyra-secrets-init
-    restart: "no"
-    command: ["/usr/local/bin/secrets-init.sh"]
+  paperclip:
+    <<: *common
+    image: ${PAPERCLIP_IMAGE:-ghcr.io/paperclipai/paperclip:latest}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip
     environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
-      # Fallback env vars written to secret files when Infisical is unavailable
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      CLOUDFLARED_TUNNEL_TOKEN: ${CLOUDFLARED_TUNNEL_TOKEN:-}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks: [nyra_net]
-
-  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
-  infisical-agent:
-    build:
-      context: ../../infisical-secrets-init
-    container_name: nyra-infisical-agent
-    restart: unless-stopped
-    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
+      NODE_ENV: production
+      PORT: 3100
+      DATABASE_URL: postgresql://${PAPERCLIP_DB_USER:-paperclip}:${PAPERCLIP_DB_PASSWORD:?set PAPERCLIP_DB_PASSWORD}@paperclip-postgres:5432/${PAPERCLIP_DB_NAME:-paperclip}
+      REDIS_URL: redis://paperclip-redis:6379/0
+      PAPERCLIP_PUBLIC_URL: ${PAPERCLIP_PUBLIC_URL:-https://paperclip.projectnyra.com}
+      PAPERCLIP_AUTH_DISABLE_SIGN_UP: ${PAPERCLIP_AUTH_DISABLE_SIGN_UP:-true}
+      PAPERCLIP_SESSION_SECRET: ${PAPERCLIP_SESSION_SECRET:?set PAPERCLIP_SESSION_SECRET}
+      PAPERCLIP_AGENT_CALLBACK_BASE_URL: ${PAPERCLIP_AGENT_CALLBACK_BASE_URL:-http://paperclip:3100}
     depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
-      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
+      paperclip-postgres:
+        condition: service_healthy
+      paperclip-redis:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:${PAPERCLIP_HOST_PORT:-3111}:3100
     volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks: [nyra_net]
-
-  portainer-edge-agent:
-    image: portainer/agent:2.27.9
-    container_name: nyra-portainer-agent
-    restart: unless-stopped
-    environment:
-      EDGE: "1"
-      EDGE_ID: ${PORTAINER_EDGE_ID}
-      EDGE_KEY: ${PORTAINER_EDGE_KEY}
-      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
-      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
-      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,oracle,edge}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
-    networks: [nyra_net]
-
-  postgres:
-    image: postgres:15
-    container_name: nyra-postgres
-    restart: unless-stopped
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-nyra}
-      POSTGRES_PASSWORD_FILE: /run/nyra-secrets/postgres_password
-      POSTGRES_DB: ${POSTGRES_DB:-nyra}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - /home/ubuntu/project-nyra/infra/hosts/oracle-vps/initdb:/docker-entrypoint-initdb.d:ro
-      - nyra_secrets:/run/nyra-secrets:ro
+      - paperclip_uploads:/app/uploads
+    networks:
+      oracle_private: {}
+      oracle_edge: {}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nyra} -d ${POSTGRES_DB:-nyra}"]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- http://127.0.0.1:3100/health >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:3100/ >/dev/null 2>&1",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+
+  paperclip-postgres:
+    <<: *common
+    image: postgres:16-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-postgres
+    environment:
+      POSTGRES_USER: ${PAPERCLIP_DB_USER:-paperclip}
+      POSTGRES_PASSWORD: ${PAPERCLIP_DB_PASSWORD:?set PAPERCLIP_DB_PASSWORD}
+      POSTGRES_DB: ${PAPERCLIP_DB_NAME:-paperclip}
+    command:
+      - postgres
+      - -c
+      - max_connections=80
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - effective_cache_size=1536MB
+      - -c
+      - wal_compression=on
+    volumes:
+      - paperclip_postgres:/var/lib/postgresql/data
+    networks:
+      oracle_private: {}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${PAPERCLIP_DB_USER:-paperclip} -d ${PAPERCLIP_DB_NAME:-paperclip}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
-    networks: [nyra_net]
 
-  redis-cache:
+  paperclip-redis:
+    <<: *common
     image: redis:7-alpine
-    container_name: nyra-redis-cache
-    restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-redis
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1000"]
     volumes:
-      - redis_cache_data:/data
+      - paperclip_redis:/data
+    networks:
+      oracle_private: {}
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 10
-    networks: [nyra_net]
 
-  twenty:
-    image: twentycrm/twenty:latest
-    container_name: nyra-twenty
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
+  searxng:
+    <<: *common
+    image: searxng/searxng:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-searxng
     environment:
-      NODE_PORT: 3000
-      SERVER_URL: ${TWENTY_SERVER_URL}
-      FRONTEND_URL: ${TWENTY_FRONTEND_URL}
-      APP_SECRET: ${TWENTY_APP_SECRET}
-      PG_DATABASE_URL: ${TWENTY_PG_DATABASE_URL}
-      REDIS_URL: ${TWENTY_REDIS_URL:-redis://nyra-redis-cache:6379}
-      STORAGE_TYPE: local
+      SEARXNG_BASE_URL: ${SEARXNG_BASE_URL:-https://search.projectnyra.com}
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?set SEARXNG_SECRET}
+      SEARXNG_REDIS_URL: redis://searxng-redis:6379/0
+      UWSGI_WORKERS: ${SEARXNG_UWSGI_WORKERS:-4}
+      UWSGI_THREADS: ${SEARXNG_UWSGI_THREADS:-4}
+    depends_on:
+      searxng-redis:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:${SEARXNG_HOST_PORT:-8082}:8080
     volumes:
-      - twenty_local_storage:/app/packages/twenty-server/.local-storage
-      - twenty_docker_data:/app/docker-data
-    networks: [nyra_net]
-    ports:
-      - "3000:3000"
-
-  activepieces:
-    image: activepieces/activepieces:latest
-    container_name: nyra-activepieces
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis-cache:
-        condition: service_healthy
-    environment:
-      AP_DB_TYPE: ${AP_DB_TYPE:-POSTGRES}
-      AP_POSTGRES_HOST: ${AP_POSTGRES_HOST:-nyra-postgres}
-      AP_POSTGRES_PORT: ${AP_POSTGRES_PORT:-5432}
-      AP_POSTGRES_DATABASE: ${AP_POSTGRES_DATABASE:-activepieces}
-      AP_POSTGRES_USERNAME: ${AP_POSTGRES_USERNAME:-nyra}
-      AP_POSTGRES_PASSWORD: ${AP_POSTGRES_PASSWORD}
-      AP_REDIS_HOST: ${AP_REDIS_HOST:-nyra-redis-cache}
-      AP_REDIS_PORT: ${AP_REDIS_PORT:-6379}
-      AP_REDIS_PASSWORD: ${AP_REDIS_PASSWORD:-}
-      AP_ENCRYPTION_KEY: ${AP_ENCRYPTION_KEY}
-      AP_JWT_SECRET: ${AP_JWT_SECRET}
-      AP_FRONTEND_URL: ${AP_FRONTEND_URL}
-      AP_EXECUTION_MODE: ${AP_EXECUTION_MODE:-UNSANDBOXED}
-      AP_TELEMETRY_ENABLED: ${AP_TELEMETRY_ENABLED:-false}
-    networks: [nyra_net]
-    ports:
-      - "8080:80"
-
-  n8n:
-    build:
-      context: ../../../
-      dockerfile: infra/images/n8n/Dockerfile
-      args:
-        N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
-    container_name: nyra-n8n
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      DB_TYPE: postgresdb
-      DB_POSTGRESDB_HOST: ${POSTGRES_HOST:-nyra-postgres}
-      DB_POSTGRESDB_PORT: ${POSTGRES_PORT:-5432}
-      DB_POSTGRESDB_DATABASE: ${N8N_DB:-n8n}
-      DB_POSTGRESDB_USER: ${POSTGRES_USER:-nyra}
-      # DB_POSTGRESDB_PASSWORD handled by secrets-init if app supports _FILE,
-      # but standard n8n doesn't, so we point to the secrets volume if we can
-      # or rely on the fact that we've injected it into the environment if possible.
-      # Actually, let's keep it simple as n8n usually needs the env var.
-      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
-      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
-      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
-      N8N_HOST: ${N8N_HOST}
-      N8N_PORT: ${N8N_PORT:-5678}
-      N8N_PROTOCOL: ${N8N_PROTOCOL:-https}
-      WEBHOOK_URL: ${WEBHOOK_URL}
-      N8N_SKIP_WEBHOOK_DNS_CHECK: ${N8N_SKIP_WEBHOOK_DNS_CHECK:-true}
-    volumes:
-      - n8n_data:/home/node/.n8n
-      - nyra_secrets:/run/nyra-secrets:ro
-    networks: [nyra_net]
-    ports:
-      - "5678:5678"
-
-  openclaw:
-    image: moltbot/moltbot:latest # Still using the moltbot base until they officially rename the registry
-    platform: linux/amd64 # x86-only image, emulated via QEMU on Oracle ARM64
-    container_name: nyra-openclaw
-    restart: unless-stopped
+      - searxng_cache:/var/cache/searxng
     networks:
-      - nyra_net
-    ports:
-      # Exposing to your Oracle host so Tailscale can easily proxy them
-      - "18789:18789" # Backend Gateway API
-      - "18790:18790" # Frontend Web UI
-    environment:
-      # --- 🔒 SECURITY & INFISICAL SECRETS ---
-      # Fed directly from your "clients/openclaw" Infisical folder
-      CLAWDBOT_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
-      CLAWDBOT_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
+      oracle_private: {}
+      oracle_edge: {}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- http://127.0.0.1:8080/healthz >/dev/null 2>&1 || wget -q -O- http://127.0.0.1:8080/ >/dev/null 2>&1",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 20
 
-      # --- 🧠 PROJECT NYRA NEXUS INTEGRATION ---
-      # Hijack the default AI provider and force OpenClaw to use your own Nexus Router (LiteLLM)
-      # Make sure the host matches your actual LiteLLM container name!
-      OPENAI_API_BASE: http://orchestrator.trex-fiordland.ts.net:4000/v1
-      OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
-
-      # --- 🌐 TAILSCALE / CLOUDFLARE ROUTING ---
-      # Tells the app its true identity on your mesh network for proper CORS/Auth callbacks
-      PUBLIC_URL: ${OPENCLAW_PUBLIC_URL:-https://claw.oracle.trex-fiordland.ts.net}
-
-      # --- 🧪 EXPERIMENTAL & DEBUG GOODIES ---
-      DEBUG: "true" # Essential for tracking the prompts it sends to your Nexus Router
-      NODE_ENV: "development" # Keeps logging verbose while you tweak your multi-agent mesh
-
-    volumes:
-      # Standard persistence
-      - openclaw_config:/home/node/.clawdbot
-      - openclaw_workspace:/home/node/clawd
-
-  quote-api:
-    build:
-      context: ../../../services/quote-api
-    container_name: nyra-quote-api
-    restart: unless-stopped
-    environment:
-      PORT: ${QUOTE_API_PORT:-7070}
-      QUOTE_API_SECRET: ${QUOTE_API_SECRET}
-    networks: [nyra_net]
-    ports:
-      - "7070:7070"
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: nyra-cloudflared
-    restart: unless-stopped
-    # cloudflared uses distroless image (no shell) so TUNNEL_TOKEN comes
-    # directly from compose env substitution; secrets-init writes the token
-    # file as well for auditing/future wrapper use.
-    command: ["tunnel", "run"]
-    environment:
-      TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN}
-    # extra_hosts allows cloudflared to reach services NOT on nyra_net (e.g. Gitea
-    # which runs in its own compose network). git.ratehunter.net routes to
-    # http://host.docker.internal:3001 (Gitea's host-mapped port).
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks: [nyra_net]
-
-  # ── Observability ─────────────────────────────────────────────────────────
-  # Metrics, logs, and dashboards run on Oracle (always-on, latency-insensitive).
-  # OpenWebUI points back to orchestrator LiteLLM via Tailscale.
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: nyra-prometheus
-    restart: unless-stopped
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.retention.time=15d'
-    volumes:
-      - prometheus_data:/prometheus
-      - /home/ubuntu/project-nyra/infra/hosts/oracle-vps/configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    ports:
-      - "9090:9090"
-    networks: [nyra_net]
-
-  loki:
-    image: grafana/loki:3.4.3
-    container_name: nyra-loki
-    restart: unless-stopped
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - loki_data:/loki
-    ports:
-      - "3100:3100"
-    networks: [nyra_net]
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: nyra-grafana
-    restart: unless-stopped
-    depends_on:
-      - prometheus
-      - loki
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3003}
-    volumes:
-      - grafana_data:/var/lib/grafana
-    ports:
-      - "3003:3000"
-    networks: [nyra_net]
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: nyra-cadvisor
-    restart: unless-stopped
-    privileged: true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker:/var/lib/docker:ro
-    ports:
-      - "8081:8080"
-    networks: [nyra_net]
-
-  # ── Chat UI ───────────────────────────────────────────────────────────────
-  # OpenWebUI proxies all LLM requests to LiteLLM on the orchestrator
-  # via Tailscale (orchestrator.trex-fiordland.ts.net:4000).
-
-  openwebui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: nyra-openwebui
-    restart: unless-stopped
-    environment:
-      OPENAI_API_BASE_URL: ${LITELLM_BASE_URL:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
-      OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
-      WEBUI_SECRET_KEY: ${OPENWEBUI_SECRET_KEY}
-    volumes:
-      - openwebui_data:/app/backend/data
-    ports:
-      - "8088:8080"
-    networks: [nyra_net]
-
-  # ── Memory System (Mem0 + FalkorDB) ───────────────────────────────────────
-  # Primary memory layer for borrower profiles and cross-session knowledge.
-
-  falkordb:
-    image: falkordb/falkordb:latest
-    container_name: nyra-falkordb
-    restart: unless-stopped
-    ports:
-      - "6381:6379" # Mapped to 6381 to avoid conflict with nyra-redis-cache
-    volumes:
-      - falkordb_data:/data
-    networks: [nyra_net]
+  searxng-redis:
+    <<: *common
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-searxng-redis
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    networks:
+      oracle_private: {}
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
+      timeout: 3s
+      retries: 10
+
+  browserless:
+    <<: *common
+    image: ghcr.io/browserless/chromium:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-browserless
+    shm_size: 2gb
+    environment:
+      TOKEN: ${BROWSERLESS_TOKEN:?set BROWSERLESS_TOKEN}
+      CONCURRENT: ${BROWSERLESS_CONCURRENT:-6}
+      QUEUED: ${BROWSERLESS_QUEUED:-24}
+      TIMEOUT: ${BROWSERLESS_TIMEOUT_MS:-90000}
+      HEALTH: "true"
+      ENABLE_CORS: "false"
+      PREBOOT_CHROME: ${BROWSERLESS_PREBOOT_CHROME:-true}
+      KEEP_ALIVE: ${BROWSERLESS_KEEP_ALIVE:-true}
+      EXIT_ON_HEALTH_FAILURE: "true"
+    ports:
+      - 127.0.0.1:${BROWSERLESS_HOST_PORT:-3004}:3000
+    tmpfs:
+      - /tmp:size=2048m,noexec,nosuid,nodev
+    networks:
+      oracle_private: {}
+      oracle_edge: {}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -q -O- 'http://127.0.0.1:3000/json/version?token=${BROWSERLESS_TOKEN}' >/dev/null 2>&1",
+        ]
+      interval: 15s
       timeout: 5s
-      retries: 5
-
-  mem0-rest:
-    build:
-      context: ../../../services/mem0
-    container_name: nyra-mem0-rest
-    restart: unless-stopped
-    depends_on:
-      falkordb:
-        condition: service_healthy
-      qdrant:
-        condition: service_started
-    environment:
-      QDRANT_HOST: nyra-qdrant
-      QDRANT_PORT: "6333"
-      FALKORDB_URL: redis://nyra-falkordb:6379
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LITELLM_API_URL: ${LITELLM_API_BASE:-http://orchestrator.trex-fiordland.ts.net:4000/v1}
-      LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
-    ports:
-      - "5000:5000"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ── Qdrant (vector store for OpenMemory MCP) ─────────────────────────────
-  # Note: qdrant image is distroless (no curl/wget) — no healthcheck possible.
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: nyra-qdrant
-    restart: unless-stopped
-    volumes:
-      - qdrant_data:/qdrant/storage
-    networks: [nyra_net]
-
-  # ── OpenMemory MCP (self-hosted mem0 MCP server) ─────────────────────────
-  # Built from source: github.com/mem0ai/mem0/tree/main/openmemory/api
-  # No published Docker image exists; Dockerfile sparse-clones the repo at build time.
-  openmemory-mcp:
-    build:
-      context: ../../../services/openmemory-mcp
-    container_name: nyra-openmemory-mcp
-    restart: unless-stopped
-    depends_on:
-      qdrant:
-        condition: service_started
-    environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      QDRANT_HOST: nyra-qdrant
-      QDRANT_PORT: "6333"
-      USER: nyra
-      LLM_PROVIDER: openai
-      LLM_MODEL: gpt-4o-mini
-      EMBEDDER_PROVIDER: openai
-      EMBEDDER_MODEL: text-embedding-3-small
-    ports:
-      - "8765:8765"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8765/docs"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ── Infisical MCP (stdio→SSE bridge via supergateway) ────────────────────
-  # Converts @infisical/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
-  # Exposed on port 8766; Nexus connects at http://100.64.0.3:8766/sse
-  infisical-mcp:
-    image: node:20-alpine
-    container_name: nyra-infisical-mcp
-    restart: unless-stopped
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENVIRONMENT: ${INFISICAL_ENV:-prod}
-      INFISICAL_FOLDER_PATH: ${INFISICAL_PATH:-/shared}
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - "npx -y @infisical/mcp"
-      - --port
-      - "8766"
-    ports:
-      - "8766:8766"
-    networks: [nyra_net]
-
-  # NOTE: Gitea is managed by its own compose file (docker-compose.gitea.yml)
-  # and runs as oracle-gitea on port 3100. Do not define it here to avoid
-  # SSH port 22 conflicts.
+      retries: 20
 
 networks:
-  nyra_net:
+  oracle_edge:
+    name: nyra_oracle_edge
+  oracle_private:
+    name: nyra_oracle_private
+    internal: true
 
 volumes:
-  postgres_data:
-  redis_cache_data:
-  twenty_local_storage:
-  twenty_docker_data:
-  n8n_data:
-  openclaw_config:
-  openclaw_workspace:
-  prometheus_data:
-  loki_data:
-  grafana_data:
-  openwebui_data:
-  falkordb_data:
-  qdrant_data:
-  nyra_secrets:
+  paperclip_postgres:
+  paperclip_redis:
+  paperclip_uploads:
+  searxng_cache:

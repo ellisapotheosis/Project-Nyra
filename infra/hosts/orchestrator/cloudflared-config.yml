@@ -1,0 +1,73 @@
+# Cloudflared source config for the Project Nyra orchestrator tunnel.
+# Replace ORCHESTRATOR_TUNNEL_ID before using this as a locally managed tunnel.
+#
+# Layout:
+#   - Orchestrator-local services: direct Docker container names
+#   - Oracle VPS services:         proxied via oracle.trex-fiordland.ts.net (Tailscale)
+#   - Worker services:             proxied via worker-*.trex-fiordland.ts.net (Tailscale)
+#
+# Note: admin, campaigns, quotes, chat, status are served by the oracle tunnel.
+# Only worker UIs, HA, portainer, and oracle Tailscale proxies live here.
+
+tunnel: ORCHESTRATOR_TUNNEL_ID
+credentials-file: /etc/cloudflared/ORCHESTRATOR_TUNNEL_ID.json
+
+originRequest:
+  connectTimeout: 30s
+  noHappyEyeballs: false
+
+ingress:
+  # ── HA Green / Linkwarden ─────────────────────────────────────────────────
+  - hostname: links.projectnyra.com
+    service: http://100.64.0.2:3007
+
+  - hostname: linkwarden.projectnyra.com
+    service: http://100.64.0.2:3007
+
+  # ── Home Assistant (Nabu Casa relay — ha.projectnyra.com) ─────────────────
+  # homeassistant.trex-fiordland.ts.net resolves to 100.64.0.2 but HA Green
+  # is not responding to Tailscale pings from this host. Use homeassistant.
+  # projectnyra.com (Nabu Casa chain) as the working HA address.
+  - hostname: ha.projectnyra.com
+    service: http://homeassistant.trex-fiordland.ts.net:8123
+
+  # ── Portainer (orchestrator — must stay local) ────────────────────────────
+  - hostname: portainer.projectnyra.com
+    service: https://nyra-portainer:9443
+    originRequest:
+      noTLSVerify: true
+
+  # ── Oracle VPS services via Tailscale ─────────────────────────────────────
+  - hostname: litellm.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:4000
+
+  - hostname: nexus.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:6000
+
+  - hostname: nexus-router.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:6000
+
+  - hostname: letta.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:8283
+
+  - hostname: crm-ui.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:3000
+
+  # ── OpenClaw gateway (orchestrator-local) ────────────────────────────────
+  - hostname: openclaw-gateway.projectnyra.com
+    service: http://nyra-openclaw-gateway:8001
+
+  - hostname: router.openclaw.projectnyra.com
+    service: http://nyra-openclaw-gateway:8001
+
+  # ── GasTown / GasTeam ────────────────────────────────────────────────────
+  # gastown runs on oracle (nyra-network-gastown:8080) — DNS → oracle tunnel
+  - hostname: gasteam.projectnyra.com
+    service: http://nyra-gasteam:7001
+
+  # ── Borrower chat (pending dedicated service) ─────────────────────────────
+  - hostname: borrower-chat.projectnyra.com
+    service: http://nyra-borrower-chat:3002
+
+  # Orchestrator catch-all. Required by cloudflared.
+  - service: http_status:404

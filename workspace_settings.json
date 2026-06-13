@@ -74,27 +74,6 @@
       "unittestEnabled": false
     }
   },
-  "claudeFlow": {
-    "version": "3.0.0",
-    "autoStartDaemon": true,
-    "enableHooks": true,
-    "enableWorkers": true,
-    "memoryBackend": "hybrid",
-    "hnswEnabled": true,
-    "sonaEnabled": true,
-    "flashAttentionEnabled": true,
-    "swarmDefaults": {
-      "topology": "hierarchical",
-      "maxAgents": 8,
-      "strategy": "specialized",
-      "consensus": "raft"
-    },
-    "workerDefaults": {
-      "autoDispatch": true,
-      "priority": "normal",
-      "background": true
-    }
-  },
   "git": {
     "autofetch": true,
     "confirmSync": false,
@@ -109,7 +88,6 @@
         "linux": "/bin/bash"
       },
       "env": {
-        "CLAUDE_FLOW_CONFIG": "${PROJECT_ROOT}/archon-os.config.json",
         "NODE_ENV": "development"
       }
     }
@@ -138,25 +116,6 @@
           "reveal": "always",
           "panel": "new"
         }
-      },
-      {
-        "label": "Start Claude Flow Daemon",
-        "type": "shell",
-        "command": "npx @archon-os/cli@latest daemon start",
-        "problemMatcher": [],
-        "isBackground": true
-      },
-      {
-        "label": "Run System Diagnostics",
-        "type": "shell",
-        "command": "npx @archon-os/cli@latest doctor --fix",
-        "problemMatcher": []
-      },
-      {
-        "label": "Initialize Swarm",
-        "type": "shell",
-        "command": "npx @archon-os/cli@latest swarm init --topology hierarchical --max-agents 8",
-        "problemMatcher": []
       }
     ]
   }
