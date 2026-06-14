@@ -11,7 +11,7 @@ credentials-file: C:\Users\YOUR_USERNAME\.cloudflared\YOUR_TUNNEL_ID.json
 # Ingress rules
 ingress:
   # Ollama API
-  - hostname: worker-5090.ratehunter.net
+  - hostname: worker-5090.projectnyra.com
     service: http://localhost:11434
     originRequest:
       noTLSVerify: false
@@ -20,10 +20,10 @@ ingress:
       tcpKeepAlive: 30s
       keepAliveConnections: 10
       keepAliveTimeout: 90s
-      httpHostHeader: worker-5090.ratehunter.net
+      httpHostHeader: worker-5090.projectnyra.com
 
   # LiteLLM Proxy (OpenAI-compatible API)
-  - hostname: litellm-5090.ratehunter.net
+  - hostname: litellm-5090.projectnyra.com
     service: http://localhost:4000
     originRequest:
       noTLSVerify: false
@@ -32,21 +32,21 @@ ingress:
       tcpKeepAlive: 30s
 
   # Model Manager API
-  - hostname: models-5090.ratehunter.net
+  - hostname: models-5090.projectnyra.com
     service: http://localhost:8080
     originRequest:
       noTLSVerify: false
       connectTimeout: 15s
 
   # Performance Metrics (Prometheus)
-  - hostname: metrics-5090.ratehunter.net
+  - hostname: metrics-5090.projectnyra.com
     service: http://localhost:9090
     originRequest:
       noTLSVerify: false
       connectTimeout: 15s
 
   # Health Check API
-  - hostname: health-5090.ratehunter.net
+  - hostname: health-5090.projectnyra.com
     service: http://localhost:8081
     originRequest:
       noTLSVerify: false

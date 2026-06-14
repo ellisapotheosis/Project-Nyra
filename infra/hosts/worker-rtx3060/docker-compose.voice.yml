@@ -3,7 +3,7 @@ version: '3.9'
 services:
   unmute-standalone:
     image: ghcr.io/kyutai-labs/unmute:latest
-    container_name: worker-3060-unmute
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-unmute
     restart: unless-stopped
     environment:
       - UNMUTE_MODE=standalone

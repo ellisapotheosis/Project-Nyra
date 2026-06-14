@@ -1,0 +1,66 @@
+{
+  "id": "ratehunter-landing-legacy",
+  "displayName": "RateHunter Landing Legacy",
+  "sourceBranch": "v0/ellisapotheosis-f394f4ed",
+  "sourceCommit": "904128167d3477219d52f6019c70e5c9fc2a3b49",
+  "sourcePath": "apps/landing/app",
+  "kind": "monorepo-app-extract",
+  "description": "Marketing landing page shell with brochure sections, lead capture form, and Cloudflare Pages-oriented assets.",
+  "relatedBranches": [
+    {
+      "branch": "v0/ellisapotheosis-b588f19e",
+      "commit": "853386068f384cb753e2466b337845f0f981966d",
+      "note": "Earlier monorepo snapshot with similar landing surface."
+    },
+    {
+      "branch": "v0/ellisapotheosis-ec69b011",
+      "commit": "853386068f384cb753e2466b337845f0f981966d",
+      "note": "Duplicate branch label pointing at the same earlier monorepo commit."
+    }
+  ],
+  "notes": [
+    "Includes legacy landing page deployment files because they directly influence local rendering.",
+    "This is preserved as a review artifact and not proposed as the current production app source."
+  ],
+  "preview": {
+    "dir": "templates/vercel-v0/ratehunter-landing-legacy/preview",
+    "run": "cd templates/vercel-v0/ratehunter-landing-legacy/preview && npm install --ignore-scripts --no-fund --no-audit --legacy-peer-deps && npm exec next dev -- -p 4312",
+    "port": 4312,
+    "url": "http://localhost:4312"
+  },
+  "screenshots": {
+    "dir": "templates/vercel-v0/ratehunter-landing-legacy/screenshots",
+    "status": "captured",
+    "files": [
+      "home.png"
+    ],
+    "note": "Homepage screenshot captured successfully. Preview returned HTTP 200 locally.",
+    "lastAttemptAt": "2026-05-19T15:49:00.000Z"
+  },
+  "extractedTopLevelEntries": [
+    ".cfignore",
+    ".env.example",
+    ".eslintrc.json",
+    ".gitignore",
+    "CLOUDFLARE-DEPLOY.md",
+    "CLOUDFLARE-SETUP.md",
+    "DEPLOYMENT-CHECKLIST.md",
+    "QUICK-START.md",
+    "README.md",
+    "SECRETS-TROUBLESHOOTING.md",
+    "jest.config.js",
+    "jest.setup.js",
+    "next-env.d.ts",
+    "next.config.js",
+    "open-next.config.ts",
+    "package.json",
+    "postcss.config.mjs",
+    "public",
+    "src",
+    "tailwind.config.ts",
+    "tsconfig.json",
+    "wrangler.toml"
+  ],
+  "extractedFileCount": 38,
+  "generatedAt": "2026-05-19T15:49:04.927Z"
+}

@@ -5,7 +5,7 @@
 import path from 'path';
 import { BaseProcessor } from './base';
 import { FileType, ProcessingResult, FileMetadata } from '../types';
-import { copyFile, getFileStats } from '../utils/file-operations';
+import { copyFile, getFileStats, readFileBuffer } from '../utils/file-operations';
 
 /**
  * PDF processor
@@ -33,15 +33,13 @@ export class PdfProcessor extends BaseProcessor {
         };
       }
 
-      // Extract basic metadata
       const stats = await getFileStats(file.sourcePath);
+      const pdfMetadata = await extractPdfMetadata(file.sourcePath);
       file.metadata = {
         filename: path.basename(file.sourcePath),
         fileSize: stats.size,
         lastModified: stats.mtime.toISOString(),
-        // TODO: Extract PDF metadata using pdf-parse or similar library
-        // For now, just include basic file info
-        note: 'Full PDF text extraction requires pdf-parse library'
+        ...pdfMetadata
       };
 
       // Copy file to target (in dry-run, we skip the actual copy)
@@ -71,64 +69,26 @@ export class PdfProcessor extends BaseProcessor {
   }
 }
 
-/**
- * TODO: Enhanced PDF processor with text extraction
- *
- * To add full PDF processing capabilities:
- * 1. Install pdf-parse: pnpm add pdf-parse
- * 2. Uncomment the enhanced processor below
- * 3. Use EnhancedPdfProcessor instead of PdfProcessor
- */
+async function extractPdfMetadata(filePath: string): Promise<Record<string, any>> {
+  const buffer = await readFileBuffer(filePath);
+  const header = buffer.subarray(0, 16).toString('latin1');
+  const text = buffer.toString('latin1');
+  const pageMatches = text.match(/\/Type\s*\/Page\b/g) || [];
 
-/*
-import pdfParse from 'pdf-parse';
-
-export class EnhancedPdfProcessor extends BaseProcessor {
-  getSupportedTypes(): FileType[] {
-    return ['pdf'];
-  }
-
-  async process(file: FileMetadata): Promise<ProcessingResult> {
-    this.logStart(file);
-
-    try {
-      const validation = await this.validateFile(file);
-      if (!validation.valid) {
-        file.status = 'error';
-        file.error = validation.errors.join(', ');
-        return { success: false, file, message: file.error };
-      }
-
-      // Read PDF content
-      const dataBuffer = await readFileBuffer(file.sourcePath);
-      const pdfData = await pdfParse(dataBuffer);
-
-      // Extract metadata
-      file.metadata = {
-        filename: path.basename(file.sourcePath),
-        title: pdfData.info?.Title || path.basename(file.sourcePath, '.pdf'),
-        author: pdfData.info?.Author,
-        pages: pdfData.numpages,
-        textLength: pdfData.text.length,
-        keywords: pdfData.info?.Keywords,
-        createdDate: pdfData.info?.CreationDate,
-        modifiedDate: pdfData.info?.ModDate
-      };
-
-      if (!this.options.config.dryRun) {
-        await copyFile(file.sourcePath, file.targetPath, this.options.logger);
-      }
-
-      file.status = 'success';
-      this.logSuccess(file);
-
-      return { success: true, file, message: 'PDF processed with text extraction' };
-    } catch (error) {
-      file.status = 'error';
-      file.error = error instanceof Error ? error.message : 'Unknown error';
-      this.logError(file, error as Error);
-      return { success: false, file, message: file.error };
-    }
-  }
+  return {
+    format: 'pdf',
+    version: header.startsWith('%PDF-') ? header.slice(5, 8) : undefined,
+    pages: pageMatches.length || undefined,
+    title: getPdfInfoValue(text, 'Title'),
+    author: getPdfInfoValue(text, 'Author'),
+    subject: getPdfInfoValue(text, 'Subject'),
+    keywords: getPdfInfoValue(text, 'Keywords'),
+    createdDate: getPdfInfoValue(text, 'CreationDate'),
+    modifiedDate: getPdfInfoValue(text, 'ModDate')
+  };
 }
-*/
+
+function getPdfInfoValue(pdfText: string, key: string): string | undefined {
+  const match = new RegExp(`/${key}\\s*\\(([^)]*)\\)`).exec(pdfText);
+  return match?.[1]?.replace(/\\([()\\])/g, '$1');
+}

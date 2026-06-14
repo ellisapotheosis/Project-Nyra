@@ -1,0 +1,33 @@
+services:
+  openclaw:
+    build:
+      context: ../../../services/openclaw
+      dockerfile: Dockerfile
+    container_name: worker-3090-openclaw
+    restart: unless-stopped
+    ports:
+      - "8002:8001"
+    environment:
+      NODE_ENV: production
+      NEXUS_API_URL: "http://orchestrator.trex-fiordland.ts.net:6000"
+      OPENCLAW_GATEWAY_URL: "http://orchestrator.trex-fiordland.ts.net:8001"
+      LITELLM_API_URL: "http://worker-3090-litellm:4000"
+      MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      DATABASE_URL: ${DATABASE_URL:-}
+      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
+    depends_on:
+      - litellm
+    networks:
+      - worker-network
+
+  nerve-ui:
+    image: ghcr.io/oraios/nerve-ui:latest
+    container_name: worker-3090-nerve-ui
+    restart: unless-stopped
+    ports:
+      - "18790:18789"
+    environment:
+      OPENCLAW_URL: http://worker-3090-openclaw:8001
+    networks:
+      - worker-network

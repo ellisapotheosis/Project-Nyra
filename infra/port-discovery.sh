@@ -175,83 +175,83 @@ EOF
   - hostname: ratehunter.net
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
-  - hostname: landing.ratehunter.net
+  - hostname: landing.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
-  - hostname: git.ratehunter.net
+  - hostname: git.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             3002)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: app.ratehunter.net
+  - hostname: app.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             3003)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: flow.ratehunter.net
+  - hostname: flow.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             3020)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: crm.ratehunter.net
+  - hostname: crm.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             3333)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: chat.ratehunter.net
+  - hostname: chat.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s, keepAliveTimeout: 90s }
 EOF
                 ;;
             5000)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: flows.ratehunter.net
+  - hostname: flows.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             5678)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: n8n.ratehunter.net
+  - hostname: n8n.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             6000)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: nexus.ratehunter.net
+  - hostname: nexus.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
-  - hostname: api.ratehunter.net
+  - hostname: api.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             8000)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: orchestrator.ratehunter.net
+  - hostname: orchestrator.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             3005)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: grafana.ratehunter.net
+  - hostname: grafana.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
                 ;;
             9090)
                 cat >> "$TUNNEL_CONFIG" <<EOF
-  - hostname: metrics.ratehunter.net
+  - hostname: metrics.projectnyra.com
     service: http://localhost:$port
     originRequest: { noTLSVerify: true, connectTimeout: 30s }
 EOF
@@ -298,12 +298,12 @@ Config: $TUNNEL_CONFIG
 
 Public URLs:
   https://ratehunter.net
-  https://app.ratehunter.net
-  https://crm.ratehunter.net
-  https://chat.ratehunter.net
-  https://nexus.ratehunter.net
-  https://orchestrator.ratehunter.net
-  https://grafana.ratehunter.net
+  https://app.projectnyra.com
+  https://crm.projectnyra.com
+  https://chat.projectnyra.com
+  https://nexus.projectnyra.com
+  https://orchestrator.projectnyra.com
+  https://grafana.projectnyra.com
 
 Start tunnel with:
   cloudflared tunnel --config $TUNNEL_CONFIG run

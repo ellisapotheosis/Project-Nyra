@@ -1,8 +1,0 @@
-{
-  "name": "codanna",
-  "description": "Codanna MCP tools for doc cleaning and code-assist",
-  "includes": [
-    "../always-on.json",
-    "../context-hungry.json"
-  ]
-}

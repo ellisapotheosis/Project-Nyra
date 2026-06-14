@@ -244,7 +244,7 @@ pnpm restart
 1. **Check Authorization header:**
 ```bash
 # Correct format
-curl -H "Authorization: Bearer sk-your-master-key" \
+curl -H "Authorization: Bearer <LITELLM_MASTER_KEY>" \
   http://localhost:4000/v1/models
 ```
 
@@ -782,7 +782,7 @@ curl http://localhost:4000/health > health.json
 3. **Export configuration:**
 ```bash
 # Sanitize sensitive data first!
-cat config/config.yaml | sed 's/api_key:.*/api_key: REDACTED/' > config-sanitized.yaml
+cat config/config.yaml | sed 's/api_key:.*/api_key: <PLACEHOLDER>/' > config-sanitized.yaml
 ```
 
 4. **Check versions:**

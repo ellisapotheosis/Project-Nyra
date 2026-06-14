@@ -1,0 +1,45 @@
+# Cloudflared source config for the Project Nyra orchestrator tunnel.
+# Replace ORCHESTRATOR_TUNNEL_ID before using this as a locally managed tunnel.
+# If the tunnel is dashboard-managed with a token, use this file as the source
+# of truth for Public Hostname entries in the Cloudflare Zero Trust UI.
+
+tunnel: ORCHESTRATOR_TUNNEL_ID
+credentials-file: /etc/cloudflared/ORCHESTRATOR_TUNNEL_ID.json
+
+originRequest:
+  connectTimeout: 30s
+  noHappyEyeballs: false
+
+ingress:
+  # Home Assistant Green / Linkwarden. Protect with Cloudflare Access.
+  # Current dashboard-managed config uses linkwarden.projectnyra.com to the same
+  # origin; prefer links.projectnyra.com going forward.
+  - hostname: links.projectnyra.com
+    service: http://100.64.0.2:3007
+
+  - hostname: linkwarden.projectnyra.com
+    service: http://100.64.0.2:3007
+
+  # Private UIs - protect every hostname in this group with Cloudflare Access.
+  - hostname: litellm.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:4000
+
+  - hostname: nexus.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:6000
+
+  - hostname: nexus-router.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:6000
+
+  - hostname: letta.projectnyra.com
+    service: http://oracle.trex-fiordland.ts.net:8283
+
+  - hostname: openclaw-gateway.projectnyra.com
+    service: http://nyra-openclaw-gateway:8001
+
+  - hostname: portainer.projectnyra.com
+    service: https://nyra-portainer:9443
+    originRequest:
+      noTLSVerify: true
+
+  # Orchestrator catch-all. Required by cloudflared.
+  - service: http_status:404

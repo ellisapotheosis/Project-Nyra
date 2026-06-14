@@ -30,7 +30,7 @@ TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
-SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "noreply@ratehunter.net")
+SMTP_FROM_EMAIL = os.getenv("SMTP_FROM_EMAIL", "noreply@ratehunter.com")
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -436,7 +436,6 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Close database pool on shutdown"""
-    global db_pool
     if db_pool:
         await db_pool.close()
     logger.info("Campaign Engine shutdown")

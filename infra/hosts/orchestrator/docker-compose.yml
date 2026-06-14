@@ -1,125 +1,27 @@
 services:
-  # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
-  secrets-init:
-    build:
-      context: ../../infisical-secrets-init
-
-    container_name: nyra-secrets-init
-    restart: "no"
-    command: ["/usr/local/bin/secrets-init.sh"]
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
-      INFISICAL_PROJECT_ID:
-        ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
-      # Fallback env vars
-      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - nyra-network
-
-  # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
-  infisical-agent:
-    build:
-      context: ../../infisical-secrets-init
-
-    container_name: nyra-infisical-agent
-    restart: unless-stopped
-    entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
-      INFISICAL_PROJECT_ID:
-        ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
-      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/orchestrator}
-      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets
-    networks:
-      - nyra-network
-
-  redis:
-    image: redis:7-alpine
-    container_name: nyra-redis
-    command: ["redis-server", "--save", "60", "1000", "--appendonly", "yes"]
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    restart: unless-stopped
-    networks:
-      - nyra-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  litellm:
-    image: ghcr.io/berriai/litellm:main-stable
-    container_name: nyra-litellm-router
-    command: ["--config", "/app/config.yaml", "--port", "4000"]
-    ports:
-      - "4000:4000"
-    environment:
-      # Secrets are now handled via /run/nyra-secrets files
-      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
-    volumes:
-      - ../../configs/litellm/config.yaml:/app/config.yaml:ro
-      - nyra_secrets:/run/nyra-secrets:ro
-    depends_on:
-      redis:
-        condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
-    restart: unless-stopped
-    networks:
-      - nyra-network
-    healthcheck:
-      test: ["CMD-SHELL", "python -c \"import os, urllib.request; req = urllib.request.Request('http://localhost:4000/v1/models',
-            headers={'Authorization': 'Bearer ' + os.environ['LITELLM_MASTER_KEY']});
-            urllib.request.urlopen(req, timeout=12).read()\""]
-      interval: 15s
-      timeout: 15s
-      retries: 5
-
-  openclaw:
+  openclaw-gateway:
     build:
       context: ../../../services/openclaw
       dockerfile: Dockerfile
-    container_name: nyra-openclaw
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-openclaw-gateway
     profiles: ["apps"]
     ports:
-      - "8001:8001"
+      - "8001:18789"
     environment:
       NODE_ENV: production
       NEXUS_API_URL: "http://oracle.trex-fiordland.ts.net:6000"
-      LITELLM_API_URL: "http://litellm:4000"
+      LITELLM_API_URL: "http://oracle.trex-fiordland.ts.net:4000"
       MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       DATABASE_URL: ${DATABASE_URL:-}
-      QUOTE_ENGINE_URL:
-        ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
-    volumes:
-      - nyra_secrets:/run/nyra-secrets:ro
-    depends_on:
-      litellm:
-        condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
+      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
     restart: unless-stopped
     networks:
       - nyra-network
 
   # docker-mcp-toolkit:
   #   image: docker/mcp-toolkit:latest
-  #   container_name: nyra-docker-toolkit
+  #   container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-docker-toolkit
   #   profiles: ["apps"]
   #   ports:
   #     - "8811:8811"
@@ -137,107 +39,57 @@ services:
   #   networks:
   #     - nyra-network
 
-
   postgres-client:
     image: postgres:16-alpine
-    container_name: nyra-postgres-client
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-postgres-client
     profiles: ["debug"]
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD:-}
     entrypoint: ["sleep", "infinity"]
-    volumes:
-      - nyra_secrets:/run/nyra-secrets:ro
     restart: unless-stopped
     networks:
       - nyra-network
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: nyra-cloudflared-orchestrator
-    restart: unless-stopped
-    command: ["tunnel", "run"]
-    environment:
-      TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN:-}
-    depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-    networks:
-      - nyra-network
+  # NOTE: cloudflared is managed via the standalone overlay
+  # docker-compose.cloudflared.yml (use `make cf-orch-up`). It is intentionally
+  # NOT defined in this main compose so it can be stopped/started without
+  # affecting LiteLLM, Nexus, or Redis.
 
-  # ── Portainer Server (Standalone) ───────────────────────────────────────
+  # ── Portainer CE Server (Central Management) ────────────────────────────
+  # The central UI/API for managing every Docker host through agents.
   portainer:
     image: portainer/portainer-ce:2.27.9
-    container_name: nyra-portainer
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer
     restart: unless-stopped
-    command:
-      - --http-enabled
-      - --admin-password=${PORTAINER_ADMIN_PASSWORD}
     ports:
+      - "8000:8000"
       - "9000:9000"
       - "9443:9443"
     volumes:
       - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - "nyra.service=portainer"
-      - "nyra.role=orchestrator"
-
-  portainer-edge-agent-local:
-    image: portainer/agent:2.27.9
-    container_name: nyra-portainer-edge-local
-    restart: unless-stopped
-    environment:
-      EDGE: "1"
-      EDGE_ID: ${PORTAINER_EDGE_ID}
-      EDGE_KEY: ${PORTAINER_EDGE_KEY}
-      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
-      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent-local
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
-    labels:
-      - "nyra.service=portainer-agent"
-      - "nyra.role=orchestrator"
-
-  portainer-edge-agent:
-    image: portainer/agent:2.27.9
-    container_name: nyra-portainer-edge-agent
-    restart: unless-stopped
-    environment:
-      EDGE: "1"
-      EDGE_ID: ${PORTAINER_EDGE_ID}
-      EDGE_KEY: ${PORTAINER_EDGE_KEY}
-      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
-      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
-      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,edge}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
-    labels:
-      - "nyra.service=portainer-edge-agent"
-      - "nyra.role=edge"
+    networks:
+      - nyra-network
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
+    profiles: ["sync"]
     image: syncthing/syncthing:latest
-    container_name: nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
     network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
     volumes:
       - syncthing_config:/var/syncthing
-      - /run/desktop/mnt/host/wsl/...:/var/syncthing/data/home
+      - /home/ellisapotheosis:/var/syncthing/data/home
     restart: unless-stopped
 
 volumes:
-  redis_data:
   n8n_data:
-  nyra_secrets:
   cf_secrets:
   syncthing_config:
   portainer_data:
-    name: nyra-portainer-data
 
 networks:
   nyra-network:

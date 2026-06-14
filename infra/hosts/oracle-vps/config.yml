@@ -17,7 +17,7 @@ services:
       AP_DB_TYPE: ${AP_DB_TYPE:-POSTGRES}
       AP_ENCRYPTION_KEY: ${AP_ENCRYPTION_KEY}
       AP_EXECUTION_MODE: ${AP_EXECUTION_MODE:-UNSANDBOXED}
-      AP_FRONTEND_URL: ${AP_FRONTEND_URL:-https://active.ratehunter.net}
+      AP_FRONTEND_URL: ${AP_FRONTEND_URL:-https://active.projectnyra.com}
       AP_JWT_SECRET: ${AP_JWT_SECRET}
       AP_POSTGRES_DATABASE: ${AP_POSTGRES_DATABASE:-activepieces}
       AP_POSTGRES_HOST: ${AP_POSTGRES_HOST:-nyra-postgres}
@@ -405,7 +405,7 @@ services:
       - /usr/local/bin/agent-sidecar.sh
     environment:
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
@@ -445,7 +445,7 @@ services:
     build:
       args:
         APP_NAME: ratehunter-landing
-        APP_PATH: apps/landing/ratehunter-landing
+        APP_PATH: apps/ratehunter/landing
       context: /home/ellisapotheosis/repos/project-nyra
       dockerfile: infra/images/Dockerfile.nextjs
     container_name: nyra-landing
@@ -579,7 +579,7 @@ services:
       N8N_PORT: ${N8N_PORT:-5678}
       N8N_PROTOCOL: ${N8N_PROTOCOL:-https}
       N8N_SKIP_WEBHOOK_DNS_CHECK: ${N8N_SKIP_WEBHOOK_DNS_CHECK:-true}
-      N8N_WORKFLOW_URL: ${WEBHOOK_URL:-https://n8n.ratehunter.net}
+      N8N_WORKFLOW_URL: ${WEBHOOK_URL:-https://n8n.projectnyra.com}
       OFFICE_PHONE: ${OFFICE_PHONE:-}
       SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
       TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER:-}
@@ -928,7 +928,7 @@ services:
     container_name: nyra-secrets-init
     environment:
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -1018,7 +1018,7 @@ services:
     build:
       args:
         APP_NAME: mortgage-assistant
-        APP_PATH: apps/webapp/app
+        APP_PATH: apps/projectnyra
       context: /home/ellisapotheosis/repos/project-nyra
       dockerfile: infra/images/Dockerfile.nextjs
     container_name: nyra-webapp

@@ -1,0 +1,141 @@
+[
+  {
+    "id": "v0-interface",
+    "displayName": "Vercel v0 Interface",
+    "sourceBranch": "v0/ellisapotheosis-680b2db9",
+    "relatedBranches": [],
+    "sourcePath": ".",
+    "kind": "standalone-next-app",
+    "description": "Standalone v0-style Next.js interface app exported from the smallest dedicated Vercel branch.",
+    "notes": [
+      "This is the only confirmed standalone v0 branch in the repo.",
+      "The branch root already contains the full preview app shape."
+    ],
+    "previewPort": 4310
+  },
+  {
+    "id": "nyra-admin-dashboard",
+    "displayName": "Nyra Admin Dashboard",
+    "sourceBranch": "v0/ellisapotheosis-f394f4ed",
+    "relatedBranches": [
+      {
+        "branch": "v0/ellisapotheosis-b588f19e",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Earlier monorepo snapshot with similar UI surface."
+      },
+      {
+        "branch": "v0/ellisapotheosis-ec69b011",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Duplicate branch label pointing at the same earlier monorepo commit."
+      }
+    ],
+    "sourcePath": "apps/admin/app",
+    "kind": "monorepo-app-extract",
+    "description": "Authentication-ready admin dashboard with broker operations shell, lead pages, and quote desk UI.",
+    "notes": [
+      "Trimmed from the later monorepo snapshot to keep only the view layer and local app config.",
+      "Contains auth API routes in the extracted preview but is intended for UI review rather than live auth integration."
+    ],
+    "previewPort": 4311
+  },
+  {
+    "id": "ratehunter-landing-legacy",
+    "displayName": "RateHunter Landing Legacy",
+    "sourceBranch": "v0/ellisapotheosis-f394f4ed",
+    "relatedBranches": [
+      {
+        "branch": "v0/ellisapotheosis-b588f19e",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Earlier monorepo snapshot with similar landing surface."
+      },
+      {
+        "branch": "v0/ellisapotheosis-ec69b011",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Duplicate branch label pointing at the same earlier monorepo commit."
+      }
+    ],
+    "sourcePath": "apps/landing/app",
+    "kind": "monorepo-app-extract",
+    "description": "Marketing landing page shell with brochure sections, lead capture form, and Cloudflare Pages-oriented assets.",
+    "notes": [
+      "Includes legacy landing page deployment files because they directly influence local rendering.",
+      "This is preserved as a review artifact and not proposed as the current production app source."
+    ],
+    "previewPort": 4312
+  },
+  {
+    "id": "mortgage-crm-dashboard",
+    "displayName": "Mortgage CRM Dashboard",
+    "sourceBranch": "v0/ellisapotheosis-f394f4ed",
+    "relatedBranches": [
+      {
+        "branch": "v0/ellisapotheosis-b588f19e",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Earlier monorepo snapshot with similar CRM UI surface."
+      },
+      {
+        "branch": "v0/ellisapotheosis-ec69b011",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Duplicate branch label pointing at the same earlier monorepo commit."
+      }
+    ],
+    "sourcePath": "apps/mortgage-crm",
+    "kind": "monorepo-app-extract",
+    "description": "Standalone mortgage CRM prototype with Kanban-style UI, lead pages, and shell components.",
+    "notes": [
+      "Includes UI-adjacent API routes because they sit inside the app package.",
+      "Any backend integration is treated as non-authoritative; the vault is for UI mining."
+    ],
+    "previewPort": 4313
+  },
+  {
+    "id": "nexus-ui-console",
+    "displayName": "Nexus UI Console",
+    "sourceBranch": "v0/ellisapotheosis-f394f4ed",
+    "relatedBranches": [
+      {
+        "branch": "v0/ellisapotheosis-b588f19e",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Earlier monorepo snapshot with similar control-plane UI surface."
+      },
+      {
+        "branch": "v0/ellisapotheosis-ec69b011",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Duplicate branch label pointing at the same earlier monorepo commit."
+      }
+    ],
+    "sourcePath": "apps/nexusUI",
+    "kind": "monorepo-app-extract",
+    "description": "Control-plane dashboard for Nexus Router settings, tool groups, and LiteLLM-oriented operations UI.",
+    "notes": [
+      "This pack is useful as a dashboard/control-console template source.",
+      "The preview is meant for local visual inspection, not production config mutation."
+    ],
+    "previewPort": 4314
+  },
+  {
+    "id": "mortgage-assistant-webapp",
+    "displayName": "Mortgage Assistant Webapp",
+    "sourceBranch": "v0/ellisapotheosis-f394f4ed",
+    "relatedBranches": [
+      {
+        "branch": "v0/ellisapotheosis-b588f19e",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Earlier monorepo snapshot with similar broker webapp surface."
+      },
+      {
+        "branch": "v0/ellisapotheosis-ec69b011",
+        "commit": "853386068f384cb753e2466b337845f0f981966d",
+        "note": "Duplicate branch label pointing at the same earlier monorepo commit."
+      }
+    ],
+    "sourcePath": "apps/webapp/app",
+    "kind": "monorepo-app-extract",
+    "description": "Broker-facing command-center UI with campaigns, leads, assistant, quotes, and pipeline review surfaces.",
+    "notes": [
+      "This is the richest reusable component source among the monorepo-derived templates.",
+      "The preview is intentionally self-contained and may rely on mock/local app data rather than live services."
+    ],
+    "previewPort": 4315
+  }
+]

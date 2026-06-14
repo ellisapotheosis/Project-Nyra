@@ -96,7 +96,7 @@ def price_quote(loan_type: LoanType, req: LoanTypeRequest):
     
     # Calculate adjusted rate
     req.annual_interest_rate = get_adjusted_rate(
-        loan_type, req.term_years, req.credit_score, req.ltv
+        loan_type, req.term_years, req.credit_score, req.ltv, loan_purpose=req.loan_purpose
     )
     
     return quote_specific(loan_type, req)

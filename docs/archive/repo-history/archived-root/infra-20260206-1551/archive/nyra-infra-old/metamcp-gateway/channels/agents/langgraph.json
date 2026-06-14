@@ -1,9 +1,0 @@
-{
-  "name": "langgraph",
-  "description": "Channel exposing LangGraph agents via MetaMCP",
-  "includes": [
-    "../always-on.json",
-    "../context-hungry.json",
-    "../research.json"
-  ]
-}

@@ -1,23 +1,27 @@
-# Project Nyra Build Guidance
+# Project Nyra Guidance
 
-This folder is the planning and execution hub for the current consolidation work.
+This folder is the planning, prompt routing, screenshot, and source-reference hub for Project Nyra.
 
-Goals:
-- Keep the public borrower-facing site isolated at `ratehunter.net`
-- Consolidate broker-facing tools into a single multi-page app at `nyra.ratehunter.net`
-- Preserve `/home/ellisapotheosis/repos/webapp-merge` as backup source material
-- Create local copies of source material inside `project-nyra/apps` so agent work can reference stable in-repo paths
+## Start Here
 
-Important directories:
-- Master brief: [00-master-build-brief.md](/home/ellisapotheosis/repos/project-nyra/apps/guidance/00-master-build-brief.md)
-- Exact path map: [01-reference-map.md](/home/ellisapotheosis/repos/project-nyra/apps/guidance/01-reference-map.md)
-- Agent prompts: [prompts](/home/ellisapotheosis/repos/project-nyra/apps/guidance/prompts)
-- Component briefs: [components](/home/ellisapotheosis/repos/project-nyra/apps/guidance/components)
-- Frozen backup/reference copy of `webapp-merge`: [references/webapp-merge-snapshot](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot)
+- [context.md](/home/ellisapotheosis/repos/project-nyra/apps/guidance/context.md)
+- [prompting_plan.md](/home/ellisapotheosis/repos/project-nyra/apps/guidance/prompting_plan.md)
+- [03 UI/UX lane](/home/ellisapotheosis/repos/project-nyra/apps/guidance/03-FINAL-MEGA-UI-UX-WEBAPP-LANDING-OPERATOR-SURFACES-PROMPT.md)
+- [04 product/services lane](/home/ellisapotheosis/repos/project-nyra/apps/guidance/04-FINAL-MEGA-PRODUCT-BUILD-SERVICES-BUSINESS-LOGIC-PROMPT.md)
+- [05 infra/ops/security lane](/home/ellisapotheosis/repos/project-nyra/apps/guidance/05-FINAL-MEGA-INFRA-OPS-SECURITY-RELEASE-PROMPT.md)
+- [06 repo-truth conductor lane](/home/ellisapotheosis/repos/project-nyra/apps/guidance/06-FINAL-MEGA-REPO-TRUTH-CONDUCTOR-HANDOFF-ARCHIVAL-PROMPT.md)
 
-Non-negotiable decisions:
-- Public site: `apps/landing/ratehunter-landing`
-- Internal broker webapp: `apps/webapp/app`
-- Leave `apps/twenty` untouched
-- Do not delete anything from `/home/ellisapotheosis/repos/webapp-merge`
+## Active Decisions
 
+- `apps/ratehunter`: active public landing for `ratehunter.net`; no internal routes.
+- `apps/projectnyra`: active internal broker webapp for `projectnyra.com`.
+- `apps/nexusUI`: specialist standalone tool.
+- `apps/twenty`: protected CRM shell.
+- `apps/twenty-crm`: CRM integration/config material.
+- `apps/admin/app` and `apps/mortgage-crm`: prototype/source material until migrated or intentionally rejected.
+
+## Archives And References
+
+- Old prompt files were moved to [archive/2026-05-17-prompts](/home/ellisapotheosis/repos/project-nyra/apps/guidance/archive/2026-05-17-prompts).
+- Frozen source/reference material remains under `apps/guidance/references/**`.
+- Current route screenshots are under [screenshots/20260517-092747-current-pages-after-asset-fix](/home/ellisapotheosis/repos/project-nyra/apps/guidance/screenshots/20260517-092747-current-pages-after-asset-fix).

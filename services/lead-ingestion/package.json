@@ -1,0 +1,20 @@
+{
+  "name": "@nyra/lead-ingestion",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/services/lead-ingestion/src/index.js",
+  "types": "./dist/services/lead-ingestion/src/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --config vitest.config.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@nyra/domain-models": "workspace:*",
+    "@nyra/integration-adapters": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

@@ -24,11 +24,13 @@ This document details the complete mortgage brokerage business processes that Pr
 ### Primary Lead Sources
 
 #### 1. FreeRateUpdate.com API Integration
+
 **Type**: Shared lead marketplace
 **Cost**: $15-35 per lead
 **Quality**: Medium (1-3 competing brokers receive same lead)
 
 **Data Fields Received**:
+
 ```json
 {
   "lead_id": "FRU-2024-123456",
@@ -63,7 +65,8 @@ This document details the complete mortgage brokerage business processes that Pr
 ```
 
 **Integration Flow**:
-1. Webhook received at `https://nyra.ratehunter.net/api/webhooks/freerateupdate`
+
+1. Webhook received at `https://nyra.projectnyra.com/api/webhooks/freerateupdate`
 2. Nexus Router validates signature and payload
 3. Quote Engine processes immediately (< 2 seconds target)
 4. TwentyCRM creates lead record
@@ -72,11 +75,13 @@ This document details the complete mortgage brokerage business processes that Pr
 **Response Time Requirement**: **< 5 minutes** to first contact (competitive advantage)
 
 #### 2. LendingTree.com API Integration
+
 **Type**: Exclusive lead (optional)
 **Cost**: $50-100 per lead
 **Quality**: High (exclusive to one broker)
 
 **Data Fields Received**:
+
 ```json
 {
   "lead_id": "LT-2024-987654",
@@ -108,17 +113,20 @@ This document details the complete mortgage brokerage business processes that Pr
 ```
 
 **Integration Flow**:
+
 1. Poll API every 5 minutes (rate limit: 12 requests/minute)
 2. Process new leads with priority flag
 3. Generate personalized quote with **exclusive attention** messaging
 4. Trigger VIP campaign sequence in n8n
 
 #### 3. RateHunter.net Direct Submissions
+
 **Type**: Organic/direct
 **Cost**: $0 (owned traffic)
 **Quality**: Highest (warm leads, brand aware)
 
 **Submission Form Fields**:
+
 - Basic contact info (name, email, phone)
 - Loan purpose (purchase, refinance, cash-out, HELOC)
 - Property details (type, value, location)
@@ -126,6 +134,7 @@ This document details the complete mortgage brokerage business processes that Pr
 - Timeline urgency (ASAP, 30 days, 60 days, 90+ days)
 
 **Integration Flow**:
+
 1. Next.js API route receives form submission
 2. reCAPTCHA validation (block bots)
 3. Lead scoring algorithm assigns priority (A/B/C/D)
@@ -139,31 +148,35 @@ This document details the complete mortgage brokerage business processes that Pr
 
 ### Credit Score Tiers
 
-| Tier | FICO Range | Interest Rate Impact | Approval Likelihood | Actions |
-|------|------------|----------------------|---------------------|---------|
-| **Excellent** | 760+ | Best rates (-0.25% to -0.5%) | 95%+ | Fast-track, premium rates |
-| **Good** | 700-759 | Standard rates | 85-95% | Standard processing |
-| **Fair** | 640-699 | Higher rates (+0.5% to +1.0%) | 60-85% | Requires stronger DTI/LTV |
-| **Poor** | 580-639 | Subprime rates (+1.5% to +3.0%) | 30-60% | FHA/VA programs, manual review |
-| **Bad** | <580 | Limited options (+3.0%+) | <30% | Credit repair referral |
+| Tier          | FICO Range | Interest Rate Impact            | Approval Likelihood | Actions                        |
+| ------------- | ---------- | ------------------------------- | ------------------- | ------------------------------ |
+| **Excellent** | 760+       | Best rates (-0.25% to -0.5%)    | 95%+                | Fast-track, premium rates      |
+| **Good**      | 700-759    | Standard rates                  | 85-95%              | Standard processing            |
+| **Fair**      | 640-699    | Higher rates (+0.5% to +1.0%)   | 60-85%              | Requires stronger DTI/LTV      |
+| **Poor**      | 580-639    | Subprime rates (+1.5% to +3.0%) | 30-60%              | FHA/VA programs, manual review |
+| **Bad**       | <580       | Limited options (+3.0%+)        | <30%                | Credit repair referral         |
 
 ### Debt-to-Income (DTI) Ratio Guidelines
 
 **Formula**: `DTI = (Monthly Debt Payments / Gross Monthly Income) × 100`
 
 **Conventional Loans**:
+
 - **Ideal**: DTI ≤ 36% (front-end), ≤ 43% (back-end)
 - **Maximum**: DTI ≤ 50% with compensating factors
 
 **FHA Loans**:
+
 - **Ideal**: DTI ≤ 31% (front-end), ≤ 43% (back-end)
 - **Maximum**: DTI ≤ 56.99% with strong credit/reserves
 
 **VA Loans**:
+
 - No front-end DTI limit
 - **Maximum back-end**: DTI ≤ 41% (waivable to 50% with residual income)
 
 **Automated Calculation** (Quote Engine):
+
 ```python
 def calculate_dti(borrower_data):
     """Calculate front-end and back-end DTI ratios."""
@@ -194,6 +207,7 @@ def calculate_dti(borrower_data):
 **Formula**: `LTV = (Loan Amount / Property Value) × 100`
 
 **Purchase Loans**:
+
 - **Conventional**: 3-20% down payment (80-97% LTV)
 - **FHA**: 3.5% down payment minimum (96.5% LTV)
 - **VA**: 0% down payment (100% LTV, no PMI)
@@ -201,6 +215,7 @@ def calculate_dti(borrower_data):
 - **Jumbo**: 10-20% down payment (80-90% LTV)
 
 **Refinance Loans**:
+
 - **Conventional**: Maximum 80% LTV (no PMI) or 97% LTV (with PMI)
 - **FHA Streamline**: Maximum 97.75% LTV
 - **Cash-Out Refinance**: Maximum 80% LTV (conventional), 80% LTV (FHA)
@@ -208,6 +223,7 @@ def calculate_dti(borrower_data):
 ### Employment & Income Verification
 
 **Acceptable Income Types**:
+
 1. **W-2 Employment** (most common)
    - 2 years employment history required
    - Current paystubs (last 30 days)
@@ -233,6 +249,7 @@ def calculate_dti(borrower_data):
 ### Automated Qualification Workflow
 
 **Quote Engine Qualification Logic**:
+
 ```python
 def qualify_borrower(lead_data):
     """Automated qualification with compliance checks."""
@@ -287,6 +304,7 @@ def qualify_borrower(lead_data):
 ### Interest Rate Determination
 
 **Base Rate Sources**:
+
 1. **Optimal Blue API** - Wholesale rate sheets (30+ lenders)
 2. **Mortgage News Daily** - Daily rate trends
 3. **Freddie Mac PMMS** - Weekly national averages
@@ -294,17 +312,18 @@ def qualify_borrower(lead_data):
 
 **Rate Adjustment Factors**:
 
-| Factor | Impact | Example |
-|--------|--------|---------|
-| **Credit Score** | -0.5% to +3.0% | 760+ FICO: -0.25%, 620 FICO: +1.5% |
-| **LTV Ratio** | -0.25% to +1.0% | 80% LTV: base rate, 95% LTV: +0.5% |
-| **Loan Purpose** | 0% to +0.5% | Purchase: base, Cash-out refi: +0.5% |
-| **Property Type** | 0% to +1.5% | Primary: base, Investment: +1.0% |
-| **Loan Amount** | -0.125% to +0.5% | Conforming: base, Jumbo: +0.25% |
-| **State** | 0% to +0.375% | TX: base, NY: +0.25% (higher costs) |
-| **Lock Period** | 0% to +0.5% | 30-day: base, 60-day: +0.25% |
+| Factor            | Impact           | Example                              |
+| ----------------- | ---------------- | ------------------------------------ |
+| **Credit Score**  | -0.5% to +3.0%   | 760+ FICO: -0.25%, 620 FICO: +1.5%   |
+| **LTV Ratio**     | -0.25% to +1.0%  | 80% LTV: base rate, 95% LTV: +0.5%   |
+| **Loan Purpose**  | 0% to +0.5%      | Purchase: base, Cash-out refi: +0.5% |
+| **Property Type** | 0% to +1.5%      | Primary: base, Investment: +1.0%     |
+| **Loan Amount**   | -0.125% to +0.5% | Conforming: base, Jumbo: +0.25%      |
+| **State**         | 0% to +0.375%    | TX: base, NY: +0.25% (higher costs)  |
+| **Lock Period**   | 0% to +0.5%      | 30-day: base, 60-day: +0.25%         |
 
 **Automated Rate Calculation** (Quote Engine):
+
 ```python
 def calculate_interest_rate(lead_data, base_rates):
     """Calculate personalized interest rate with all adjustments."""
@@ -360,6 +379,7 @@ def calculate_interest_rate(lead_data, base_rates):
 **TILA Compliance Requirement**: APR must include ALL loan costs over the life of the loan.
 
 **Components Included in APR**:
+
 - Base interest rate
 - Origination fees
 - Discount points
@@ -368,6 +388,7 @@ def calculate_interest_rate(lead_data, base_rates):
 - Title insurance (in some states)
 
 **Excluded from APR**:
+
 - Appraisal fee
 - Credit report fee
 - Property inspection fees
@@ -375,6 +396,7 @@ def calculate_interest_rate(lead_data, base_rates):
 - Transfer taxes
 
 **APR Calculation Formula**:
+
 ```python
 def calculate_apr(interest_rate, loan_amount, term_months, total_fees):
     """Calculate APR including all loan costs (TILA compliant)."""
@@ -414,18 +436,21 @@ def calculate_apr(interest_rate, loan_amount, term_months, total_fees):
 ### Closing Cost Estimation
 
 **Required TILA/RESPA Disclosures**:
+
 1. **Loan Estimate (LE)** - Must be provided within 3 business days of application
 2. **Closing Disclosure (CD)** - Must be provided at least 3 business days before closing
 
 **Standard Closing Costs Breakdown**:
 
 **Section A: Origination Charges** (~1-2% of loan amount)
+
 - Origination fee: 0-1% ($0-$5,000)
 - Discount points (optional): 0-3% ($0-$15,000)
 - Application fee: $300-$500
 - Underwriting fee: $400-$900
 
 **Section B: Services Borrower Did NOT Shop For** (~$1,500-$2,500)
+
 - Appraisal fee: $450-$650
 - Credit report: $25-$75
 - Flood certification: $15-$25
@@ -433,6 +458,7 @@ def calculate_apr(interest_rate, loan_amount, term_months, total_fees):
 - Title services: $500-$1,200
 
 **Section C: Services Borrower CAN Shop For** (~$500-$1,500)
+
 - Survey fee: $350-$600
 - Pest inspection: $100-$300
 - Attorney fees: Variable by state
@@ -440,27 +466,32 @@ def calculate_apr(interest_rate, loan_amount, term_months, total_fees):
 **Section D: Total Loan Costs** (A + B + C)
 
 **Section E: Taxes and Other Government Fees** (~$500-$2,000)
+
 - Recording fees: $100-$500
 - Transfer taxes: 0.1-2% of purchase price (state-specific)
 
 **Section F: Prepaids** (~$3,000-$8,000)
+
 - Homeowner's insurance premium: $800-$2,000/year
 - Mortgage insurance premium: 0.5-1.5% of loan amount annually
 - Prepaid interest: $10-$50 per day from closing to month-end
 - Property taxes: 2-6 months escrow
 
 **Section G: Initial Escrow Payment** (~$2,000-$5,000)
+
 - Homeowner's insurance: 2 months
 - Mortgage insurance: 2 months
 - Property tax: 2-6 months
 
 **Section H: Other** (if applicable)
+
 - HOA fees: $100-$500/month (varies widely)
 - HOA transfer fee: $200-$500
 
 **Total Estimated Closing Costs**: $8,000-$25,000 (typically 2-5% of purchase price)
 
 **Automated Closing Cost Calculation**:
+
 ```python
 def estimate_closing_costs(lead_data):
     """Generate TILA-compliant closing cost estimate."""
@@ -542,6 +573,7 @@ def estimate_closing_costs(lead_data):
 **Purpose**: Ensure borrowers receive clear disclosure of loan terms and costs.
 
 **Key Requirements**:
+
 1. **3-Business-Day Rule**: Loan Estimate must be provided within 3 business days of receiving loan application
 2. **APR Accuracy**: APR must be within ±0.125% (1/8th of 1%) of actual APR
 3. **Loan Estimate (LE)**: Standardized 3-page form showing estimated costs
@@ -549,6 +581,7 @@ def estimate_closing_costs(lead_data):
 5. **Right to Rescind**: 3-day right to cancel on refinances (not purchases)
 
 **TILA Validation Checklist** (Compliance Sentinel Agent):
+
 ```python
 def validate_tila_compliance(quote_data):
     """Validate TILA compliance for generated quote."""
@@ -603,6 +636,7 @@ def validate_tila_compliance(quote_data):
 **Purpose**: Protect consumers from unnecessarily high settlement charges and abusive practices.
 
 **Key Requirements**:
+
 1. **Good Faith Estimate (GFE)**: Now replaced by Loan Estimate under TILA-RESPA Integrated Disclosure (TRID)
 2. **HUD-1 Settlement Statement**: Now replaced by Closing Disclosure under TRID
 3. **No Kickbacks**: Prohibits referral fees and kickbacks (Section 8)
@@ -610,6 +644,7 @@ def validate_tila_compliance(quote_data):
 5. **Servicing Transfer Notice**: 15-day notice required if loan servicing is transferred
 
 **RESPA Validation Checklist**:
+
 ```python
 def validate_respa_compliance(quote_data, referral_data=None):
     """Validate RESPA compliance for quote and referrals."""
@@ -656,6 +691,7 @@ def validate_respa_compliance(quote_data, referral_data=None):
 **Purpose**: Prohibit discrimination in any aspect of credit transaction.
 
 **Protected Classes**:
+
 - Race, Color, National Origin
 - Religion
 - Sex (including sexual orientation and gender identity)
@@ -665,12 +701,14 @@ def validate_respa_compliance(quote_data, referral_data=None):
 - Exercise of rights under Consumer Credit Protection Act
 
 **Key Requirements**:
+
 1. **No Discriminatory Questions**: Cannot ask about protected characteristics unless specifically required by law (e.g., government monitoring)
 2. **Adverse Action Notice**: Must provide written notice within 30 days if application is denied, with specific reasons
 3. **Equal Treatment**: All applicants must be evaluated using same criteria
 4. **Spousal Income**: Cannot discount income because of protected class
 
 **ECOA Validation**:
+
 ```python
 def validate_ecoa_compliance(lead_data, quote_data):
     """Validate ECOA compliance - detect potential discrimination."""
@@ -721,12 +759,14 @@ def validate_ecoa_compliance(lead_data, quote_data):
 **Purpose**: Protect consumers from unwanted telemarketing calls, texts, and faxes.
 
 **Key Requirements**:
+
 1. **Prior Express Written Consent**: Required for autodialed/prerecorded marketing calls/texts
 2. **Opt-Out Mechanism**: Must provide easy way to opt out of future communications
 3. **Call Time Restrictions**: No calls before 8 AM or after 9 PM (recipient's time zone)
 4. **Do Not Call (DNC) Registry**: Must scrub against National DNC list every 31 days
 
 **TCPA Compliance Workflow**:
+
 ```python
 def validate_tcpa_consent(lead_data, campaign_data):
     """Validate TCPA compliance before sending communications."""
@@ -783,14 +823,15 @@ def validate_tcpa_consent(lead_data, campaign_data):
 ```
 
 **TCPA Consent Language Example** (for RateHunter.net form):
+
 ```html
 <label>
-  <input type="checkbox" name="tcpa_consent" required>
+  <input type="checkbox" name="tcpa_consent" required />
   I agree to receive marketing calls, texts, and emails from RateHunter.net and
   affiliated mortgage brokers using autodialed, prerecorded, or artificial voice
   messages at the phone number and email provided. I understand consent is not
-  required to purchase goods or services and I may opt out at any time by replying
-  STOP to texts or clicking unsubscribe in emails.
+  required to purchase goods or services and I may opt out at any time by
+  replying STOP to texts or clicking unsubscribe in emails.
 </label>
 ```
 
@@ -801,6 +842,7 @@ def validate_tcpa_consent(lead_data, campaign_data):
 ### n8n Workflow Architecture
 
 **Campaign Types**:
+
 1. **Immediate Response** (triggered on lead receipt)
 2. **Nurture Drip** (multi-touch over 30-90 days)
 3. **Re-engagement** (inactive leads)
@@ -813,6 +855,7 @@ def validate_tcpa_consent(lead_data, campaign_data):
 **Channels**: Email + SMS + (optional) Phone
 
 **n8n Workflow Steps**:
+
 ```yaml
 workflow_name: "Immediate Response - New Lead"
 trigger: "Webhook - New Lead Created in TwentyCRM"
@@ -873,18 +916,19 @@ steps:
 
 **Campaign Schedule**:
 
-| Day | Channel | Content | Goal |
-|-----|---------|---------|------|
-| 0 | Email + SMS | Welcome + Quote | Immediate engagement |
-| 2 | Email | Educational - "5 Tips for First-Time Buyers" | Provide value |
-| 5 | SMS | Check-in - "Any questions about your quote?" | Re-engage |
-| 7 | Email | Case Study - "How [Name] Saved $50k" | Social proof |
-| 10 | Phone Call | Personal touch from loan officer | Build relationship |
-| 14 | Email | Market Update - "Rates Trending Lower" | Create urgency |
-| 21 | SMS | Limited Time - "Lock Your Rate Today" | Action prompt |
-| 30 | Email + Phone | Final Follow-Up - "Still Searching?" | Last attempt |
+| Day | Channel       | Content                                      | Goal                 |
+| --- | ------------- | -------------------------------------------- | -------------------- |
+| 0   | Email + SMS   | Welcome + Quote                              | Immediate engagement |
+| 2   | Email         | Educational - "5 Tips for First-Time Buyers" | Provide value        |
+| 5   | SMS           | Check-in - "Any questions about your quote?" | Re-engage            |
+| 7   | Email         | Case Study - "How [Name] Saved $50k"         | Social proof         |
+| 10  | Phone Call    | Personal touch from loan officer             | Build relationship   |
+| 14  | Email         | Market Update - "Rates Trending Lower"       | Create urgency       |
+| 21  | SMS           | Limited Time - "Lock Your Rate Today"        | Action prompt        |
+| 30  | Email + Phone | Final Follow-Up - "Still Searching?"         | Last attempt         |
 
 **n8n Workflow Configuration**:
+
 ```yaml
 workflow_name: "30-Day Nurture Drip"
 trigger: "Lead Status = 'nurture'"
@@ -941,6 +985,7 @@ steps:
 **Channels**: Email + SMS + Direct Mail (optional)
 
 **Campaign Flow**:
+
 1. **Day 60**: "We Miss You" email with updated quote
 2. **Day 67**: SMS with special incentive ("$500 closing cost credit")
 3. **Day 75**: Email with market update and rate comparison
@@ -949,24 +994,28 @@ steps:
 ### Milestone Follow-Up Campaigns
 
 **Application Submitted**:
+
 - Immediate: Confirmation email with next steps
 - Day 1: Document checklist email
 - Day 3: SMS check-in on document upload progress
 - Day 7: Phone call if documents incomplete
 
 **Under Review**:
+
 - Day 0: "Your Application is Under Review" email
 - Day 3: Progress update
 - Day 7: "We May Need Additional Documents" (if applicable)
 - Day 14: Phone call with loan officer
 
 **Approved**:
+
 - Immediate: "Congratulations!" email + SMS
 - Day 0: Next steps email (rate lock, appraisal scheduling)
 - Day 3: Closing timeline overview
 - Weekly: Progress updates until closing
 
 **Closed**:
+
 - Day 0: "Thank You!" email with referral request
 - Day 30: "How's Your New Home?" check-in
 - Day 90: Request for online review
@@ -979,17 +1028,20 @@ steps:
 ### Daily Rate Update Process
 
 **Rate Sources**:
+
 1. **Optimal Blue API** (primary) - Real-time wholesale rates
 2. **Mortgage News Daily** - Industry benchmarks
 3. **Freddie Mac PMMS** - Weekly published rates
 4. **Manual Override** - Rate analyst adjustments
 
 **Update Schedule**:
+
 - **Wholesale Rates**: Poll Optimal Blue API every 30 minutes during market hours (9 AM - 5 PM ET)
 - **Published Rates**: Update RateHunter.net homepage daily at 9 AM ET
 - **Email Campaigns**: Trigger "Rate Drop Alert" if rates decrease ≥ 0.125%
 
 **Rate Table Structure** (AgentDB storage):
+
 ```json
 {
   "timestamp": "2024-01-13T14:30:00Z",
@@ -998,35 +1050,35 @@ steps:
   "base_rates": {
     "15_year_fixed": 5.875,
     "20_year_fixed": 6.125,
-    "30_year_fixed": 6.500,
-    "5_1_arm": 6.000,
+    "30_year_fixed": 6.5,
+    "5_1_arm": 6.0,
     "7_1_arm": 6.125,
-    "10_1_arm": 6.250
+    "10_1_arm": 6.25
   },
   "discount_points": {
-    "no_points": 6.500,
+    "no_points": 6.5,
     "0.5_points": 6.375,
-    "1.0_points": 6.250,
+    "1.0_points": 6.25,
     "1.5_points": 6.125,
-    "2.0_points": 6.000
+    "2.0_points": 6.0
   },
   "adjustment_matrix": {
     "credit_score": {
-      "760_plus": -0.250,
+      "760_plus": -0.25,
       "740_759": -0.125,
-      "720_739": 0.000,
+      "720_739": 0.0,
       "700_719": 0.125,
       "680_699": 0.375,
-      "660_679": 0.750,
-      "640_659": 1.250,
+      "660_679": 0.75,
+      "640_659": 1.25,
       "620_639": 1.875,
-      "below_620": 2.500
+      "below_620": 2.5
     },
     "ltv_ratio": {
       "75_or_less": -0.125,
-      "80": 0.000,
-      "85": 0.250,
-      "90": 0.500,
+      "80": 0.0,
+      "85": 0.25,
+      "90": 0.5,
       "95": 0.875,
       "97": 1.125
     }
@@ -1037,12 +1089,14 @@ steps:
 ### Multi-Lender Comparison
 
 **Lender Network** (30+ wholesale lenders in Optimal Blue):
+
 - Major Banks: Wells Fargo, Chase, Bank of America
 - Non-Bank Lenders: Rocket Mortgage, LoanDepot, Better.com
 - Credit Unions: Navy Federal, Pentagon Federal, Alliant
 - Wholesale Aggregators: United Wholesale Mortgage (UWM), CMG Mortgage
 
 **Rate Shopping Algorithm**:
+
 ```python
 def find_best_rates(lead_data, num_results=5):
     """Find top 5 best rates across all lenders."""
@@ -1088,6 +1142,7 @@ def find_best_rates(lead_data, num_results=5):
 ### Rate Lock Strategy
 
 **Lock Periods**:
+
 - **15-day lock**: Best rate (discount of -0.125%)
 - **30-day lock**: Standard rate (base rate)
 - **45-day lock**: Premium of +0.125%
@@ -1095,15 +1150,16 @@ def find_best_rates(lead_data, num_results=5):
 
 **Float vs Lock Decision Matrix**:
 
-| Market Condition | Credit Score | LTV | Recommendation |
-|------------------|--------------|-----|----------------|
-| Rates Rising | Any | Any | **Lock immediately** |
-| Rates Stable | 760+ | ≤80% | Float 7-14 days, monitor |
-| Rates Stable | <760 | >80% | Lock within 48 hours |
-| Rates Falling | 760+ | ≤80% | Float until 15 days before closing |
-| Rates Falling | <760 | >80% | Float 7 days, then lock |
+| Market Condition | Credit Score | LTV  | Recommendation                     |
+| ---------------- | ------------ | ---- | ---------------------------------- |
+| Rates Rising     | Any          | Any  | **Lock immediately**               |
+| Rates Stable     | 760+         | ≤80% | Float 7-14 days, monitor           |
+| Rates Stable     | <760         | >80% | Lock within 48 hours               |
+| Rates Falling    | 760+         | ≤80% | Float until 15 days before closing |
+| Rates Falling    | <760         | >80% | Float 7 days, then lock            |
 
 **Rate Lock Automation** (Campaign Engine):
+
 ```python
 def recommend_rate_lock(lead_data, market_trends):
     """AI-powered rate lock recommendation."""
@@ -1175,9 +1231,10 @@ def recommend_rate_lock(lead_data, market_trends):
 
 #### 1. FreeRateUpdate.com Webhook Handler
 
-**Endpoint**: `POST https://nyra.ratehunter.net/api/webhooks/freerateupdate`
+**Endpoint**: `POST https://nyra.projectnyra.com/api/webhooks/freerateupdate`
 
 **Integration Code** (Nyra Orchestrator):
+
 ```python
 from fastapi import APIRouter, HTTPException, Request
 import hmac
@@ -1256,6 +1313,7 @@ async def handle_freerateupdate_webhook(request: Request):
 #### 2. Optimal Blue Rate Sheet API
 
 **Integration Code** (Quote Engine):
+
 ```python
 import httpx
 from typing import Dict, List
@@ -1316,6 +1374,7 @@ class OptimalBlueClient:
 #### 3. Twilio SMS/Voice Integration
 
 **Integration Code** (Campaign Engine):
+
 ```python
 from twilio.rest import Client
 
@@ -1374,7 +1433,7 @@ class TwilioCampaignService:
             to=to,
             from_=self.from_number,
             url=script_url,
-            status_callback=f"https://nyra.ratehunter.net/api/twilio/status",
+            status_callback=f"https://nyra.projectnyra.com/api/twilio/status",
             status_callback_event=["completed"]
         )
 
@@ -1401,6 +1460,7 @@ class TwilioCampaignService:
 ### Lead Funnel Metrics
 
 **Conversion Funnel**:
+
 ```
 100 Leads Received
   → 85 Qualified (85% qualification rate)
@@ -1414,24 +1474,26 @@ class TwilioCampaignService:
 
 **Key Performance Indicators**:
 
-| Metric | Target | Calculation | Importance |
-|--------|--------|-------------|------------|
-| **Lead Response Time** | < 5 min | Time from lead receipt to first contact | Critical for shared leads |
-| **Qualification Rate** | 80%+ | Qualified leads / Total leads | Indicates lead quality |
-| **Quote-to-App Rate** | 40%+ | Applications / Quotes sent | Measures quote attractiveness |
-| **Approval Rate** | 75%+ | Approvals / Applications | Indicates underwriting quality |
-| **Pull-Through Rate** | 80%+ | Closings / Approvals | Measures execution |
-| **Overall Conversion** | 8-12% | Closings / Total leads | Ultimate success metric |
+| Metric                 | Target  | Calculation                             | Importance                     |
+| ---------------------- | ------- | --------------------------------------- | ------------------------------ |
+| **Lead Response Time** | < 5 min | Time from lead receipt to first contact | Critical for shared leads      |
+| **Qualification Rate** | 80%+    | Qualified leads / Total leads           | Indicates lead quality         |
+| **Quote-to-App Rate**  | 40%+    | Applications / Quotes sent              | Measures quote attractiveness  |
+| **Approval Rate**      | 75%+    | Approvals / Applications                | Indicates underwriting quality |
+| **Pull-Through Rate**  | 80%+    | Closings / Approvals                    | Measures execution             |
+| **Overall Conversion** | 8-12%   | Closings / Total leads                  | Ultimate success metric        |
 
 ### Revenue Metrics
 
 **Average Revenue Per Loan**:
+
 - **Purchase Loans**: $3,500 - $5,000 commission (1% of loan amount)
 - **Refinance Loans**: $2,500 - $4,000 commission (0.75-1% of loan amount)
 - **Target Monthly Volume**: 10-15 closed loans
 - **Target Monthly Revenue**: $35,000 - $75,000
 
 **Cost Per Acquisition (CPA)**:
+
 ```
 CPA = (Marketing Spend + Operating Costs) / Closed Loans
 
@@ -1452,16 +1514,19 @@ ROI: 400%
 ### Campaign Performance Metrics
 
 **Email Metrics**:
+
 - **Open Rate Target**: 25-35% (industry avg: 20%)
 - **Click-Through Rate**: 3-5% (industry avg: 2%)
 - **Unsubscribe Rate**: < 0.5%
 
 **SMS Metrics**:
+
 - **Delivery Rate**: 98%+
 - **Response Rate**: 10-15%
 - **Opt-Out Rate**: < 2%
 
 **Call Metrics**:
+
 - **Connection Rate**: 60-70%
 - **Conversation Rate**: 40-50% (of connections)
 - **Callback Request Rate**: 15-20%
@@ -1469,17 +1534,20 @@ ROI: 400%
 ### System Performance Metrics
 
 **Response Times** (99th percentile):
+
 - Quote Generation: < 2 seconds
 - API Latency: < 500ms
 - Page Load Time: < 2 seconds
 - Campaign Trigger Delay: < 30 seconds
 
 **Reliability Metrics**:
+
 - Service Uptime: 99.9% (< 9 hours downtime/year)
 - Error Rate: < 1% of requests
 - Data Loss: 0 (backups + redundancy)
 
 **Cost Efficiency**:
+
 - LLM Token Cost: < $0.50 per quote
 - Infrastructure Cost: < $500/month (4-PC cluster)
 - Total Cost Per Lead: < $30 (including acquisition + processing)
@@ -1491,6 +1559,7 @@ ROI: 400%
 ### PII Protection
 
 **Sensitive Data Fields**:
+
 - Social Security Number (SSN)
 - Date of Birth
 - Bank account numbers
@@ -1499,6 +1568,7 @@ ROI: 400%
 - Asset statements
 
 **Security Measures**:
+
 1. **Encryption at Rest**: AES-256-GCM for all database fields
 2. **Encryption in Transit**: TLS 1.3 for all API communications
 3. **Access Control**: Role-based access with audit logging
@@ -1508,6 +1578,7 @@ ROI: 400%
 ### Compliance Audit Trail
 
 **Every Action Logged**:
+
 ```json
 {
   "timestamp": "2024-01-13T14:30:00Z",
@@ -1534,6 +1605,7 @@ ROI: 400%
 **Last Updated**: 2026-01-13
 **Maintained By**: Project Nyra Team
 **Related Docs**:
+
 - [Complete Loan Lifecycle](./LOAN-LIFECYCLE.md)
 - [Compliance Requirements](./COMPLIANCE-REQUIREMENTS.md)
 - [Technology Stack](./TECHNOLOGY-STACK.md)

@@ -127,16 +127,6 @@ export class MCPProxyService {
     // Default MCP servers for Project Nyra
     const defaultServers: MCPServer[] = [
       {
-        id: 'archon-os',
-        name: 'Archon OS MCP',
-        protocol: 'http',
-        config: {
-          url: process.env.ARCHON_MCP_URL || 'http://archon:3000/mcp',
-        },
-        enabled: true,
-        priority: 1,
-      },
-      {
         id: 'github',
         name: 'GitHub MCP',
         protocol: 'http',

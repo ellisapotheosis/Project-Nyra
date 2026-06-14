@@ -1,0 +1,47 @@
+{
+  "profiles": {
+    "nyra-codex-subscription": {
+      "provider": "llxprt-bridge",
+      "model": "codex-cli-subscription",
+      "baseUrl": "http://127.0.0.1:8090/v1",
+      "authEnv": "LLXPRT_BRIDGE_API_KEY",
+      "notes": "Routes through llxprt-jefe/llxprt-code to Codex CLI subscription usage."
+    },
+    "nyra-gemini-subscription": {
+      "provider": "llxprt-bridge",
+      "model": "gemini-cli-subscription",
+      "baseUrl": "http://127.0.0.1:8090/v1",
+      "authEnv": "LLXPRT_BRIDGE_API_KEY",
+      "notes": "Routes through Gemini CLI subscription/free quota."
+    },
+    "nyra-claude-subscription": {
+      "provider": "llxprt-bridge",
+      "model": "claude-code-subscription",
+      "baseUrl": "http://127.0.0.1:8090/v1",
+      "authEnv": "LLXPRT_BRIDGE_API_KEY",
+      "notes": "Routes through Claude Code CLI subscription."
+    },
+    "nyra-local-cluster": {
+      "provider": "litellm",
+      "model": "nyra-auto",
+      "baseUrl": "http://orchestrator.trex-fiordland.ts.net:4000/v1",
+      "authEnv": "LITELLM_MASTER_KEY",
+      "notes": "LiteLLM pool for local worker models."
+    },
+    "worker-rtx5090": {
+      "provider": "openai-compatible",
+      "model": "local-5090",
+      "baseUrl": "http://worker-rtx5090.trex-fiordland.ts.net:8000/v1"
+    },
+    "worker-rtx3090ti": {
+      "provider": "openai-compatible",
+      "model": "local-3090ti",
+      "baseUrl": "http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1"
+    },
+    "worker-rtx3060": {
+      "provider": "ollama-openai-compatible",
+      "model": "local-3060",
+      "baseUrl": "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1"
+    }
+  }
+}

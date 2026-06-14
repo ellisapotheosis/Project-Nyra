@@ -150,7 +150,7 @@ nyra_export_llxprt_env() {
   export SOURCEGIT_CMD="${SOURCEGIT_CMD:-${sourcegit_path}}"
   export LLXPRT_SOURCEGIT="${LLXPRT_SOURCEGIT:-${SOURCEGIT_CMD}}"
 
-  export NYRA_NEXUS_BASE_URL="${NYRA_NEXUS_BASE_URL:-http://orchestrator.trex-fiordland.ts.net:6000/v1}"
+  export NYRA_NEXUS_BASE_URL="${NYRA_NEXUS_BASE_URL:-http://oracle.trex-fiordland.ts.net:6000/v1}"
   export OPENAI_BASE_URL="${OPENAI_BASE_URL:-${NYRA_NEXUS_BASE_URL}}"
   export OPENAI_API_BASE="${OPENAI_API_BASE:-${NYRA_NEXUS_BASE_URL}}"
   export LLM_BASE_URL="${LLM_BASE_URL:-${NYRA_NEXUS_BASE_URL}}"

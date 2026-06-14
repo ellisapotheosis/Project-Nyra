@@ -10,7 +10,6 @@ node_modules/
 **/node_modules/
 package-lock.json
 yarn.lock
-pnpm-lock.yaml
 !pnpm-lock.yaml
 .pnp/
 .pnp.js
@@ -24,6 +23,10 @@ build/
 !infra/docker/build/
 out/
 .next/
+**/.next/
+**/.next.backup-*/
+.open-next/
+**/.open-next/
 .nuxt/
 .output/
 *.log
@@ -35,6 +38,7 @@ coverage/
 # Environment Files and Secrets
 ################################################################################
 .env
+.env.*
 .env.local
 .env.*.local
 .env.development.local
@@ -49,6 +53,55 @@ coverage/
 secrets/
 .secrets/
 credentials/
+.letta/
+.mempalace/
+.clerk/
+**/.clerk/
+data/gitea/
+data/gitea-db/
+data/app-guidance/files/nyra-stack/
+infra/env/secrets/
+infra/cloudflare/apply-results/
+
+# Host/runtime env files must stay local or come from Infisical.
+**/.env
+**/.env.*
+**/*.env
+!**/.env.example
+!**/.env.*.example
+!**/*.env.example
+!**/*.example.env
+!**/.env.template
+!**/.env.*.template
+!**/*.env.template
+!**/*.template.env
+!**/env.template
+!**/*.tmpl
+
+# Runtime Compose source-of-truth:
+# canonical compose files are only tracked under infra/hosts/<host>/.
+docker-compose.yml
+docker-compose.yaml
+docker-compose.*.yml
+docker-compose.*.yaml
+compose.yml
+compose.yaml
+compose.*.yml
+compose.*.yaml
+!infra/hosts/**/docker-compose.yml
+!infra/hosts/**/docker-compose.yaml
+!infra/hosts/**/docker-compose.*.yml
+!infra/hosts/**/docker-compose.*.yaml
+!infra/hosts/**/compose.yml
+!infra/hosts/**/compose.yaml
+!infra/hosts/**/compose.*.yml
+!infra/hosts/**/compose.*.yaml
+
+# Historical env backups and ingest archives can contain copied secrets.
+docs/**/env-backups/
+docs/**/archived-root/
+infra/cleanup_archive/
+data/**/ratehunter-export/
 
 # Explicitly blocked leaked secret files (do not commit)
 infra/docker-compose/.env.golden-stack-populated
@@ -82,6 +135,11 @@ configs/env/.env.legacy
 ehthumbs.db
 Thumbs.db
 Desktop.ini
+*:Zone.Identifier
+*.Zone.Identifier
+
+# Local Codex/CLI root config copy; canonical repo config lives under .codex/.
+/config.toml
 
 ################################################################################
 # Windows Reserved Filenames (Security)
@@ -150,6 +208,16 @@ backups/
 **/consolidation-temp/
 **/consolidation-tmp/
 consolidation-work/
+
+# Consolidation planning artifacts
+**/migration-temp/
+**/migration-staging/
+**/.migration-cache/
+
+# Workflow exports that may include credential metadata
+**/*n8n-export*.json
+**/*activepieces-export*.json
+
 
 ################################################################################
 # Turborepo
@@ -228,9 +296,14 @@ share/python-wheels/
 PIPFILE.lock
 
 # Keep tracked frontend source libraries inside app trees.
+!apps/*/src/lib/
+!apps/*/src/lib/**
+!apps/*/app/lib/
+!apps/*/app/lib/**
+!apps/projectnyra/lib/
+!apps/projectnyra/lib/**
 !apps/landing/ratehunter-landing/src/lib/
-!apps/landing/ratehunter-landing/src/lib/*.ts
-!apps/landing/ratehunter-landing/src/lib/*.tsx
+!apps/landing/ratehunter-landing/src/lib/**
 
 ################################################################################
 # Virtual Environments
@@ -319,6 +392,10 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 pnpm-debug.log*
+
+# Keep Next.js app route folders named "logs" trackable.
+!apps/*/src/app/**/logs/
+!apps/*/src/app/**/logs/**
 
 ################################################################################
 # Runtime Data
@@ -409,6 +486,12 @@ dist/
 ################################################################################
 .cache/
 public/
+!apps/*/public/
+!apps/*/public/**
+!apps/landing/ratehunter-landing/public/
+!apps/landing/ratehunter-landing/public/**
+!apps/nexusUI/public/
+!apps/nexusUI/public/.gitkeep
 
 ################################################################################
 # Serverless directories
@@ -476,7 +559,6 @@ bootstrap/
 .codanna/
 .env.gitea
 .env.infisical
-.env.archon
 .env.orchestrator
 .env.oracle
 .env.worker-*
@@ -487,11 +569,18 @@ bootstrap/
 # Commit only TEMPLATE.env.host; fill secrets locally after pull.
 **/.env.host
 # Per-host env files — secrets live here during Infisical migration
-infra/env/.env.*
-!infra/env/.env.*.example
+# Secrets
+.env
+.env.infisical
+.env.*
+!.env.example
+!.env.nyra_staging.example
+!**/.env.nyra_staging.example
 !infra/env/TEMPLATE.env.host
 # Oracle VPS live env (moved from infra/oracle/ to infra/env/)
 infra/hosts/oracle-vps/.env*
+# Generated Docker Compose output with expanded secrets.
+infra/hosts/oracle-vps/resolved_config.yml
 # Infisical agent tokens — never commit
 infra/hosts/**/.infisical-token
 infra/hosts/**/infisical-agent.token
@@ -505,7 +594,6 @@ gitea-setup-summary-*.md
 # Explicit negations below protect against any future broad exclude rules:
 !external/pocket-tts/
 !external/pocket-tts-openai/
-!external/archon/
 data/pockettts/
 data/gitea/
 data/gitea-db/
@@ -514,7 +602,23 @@ data/gitea-db/
 .llxprt/
 
 ################################################################################
-# Archon Runtime
 ################################################################################
 # Archon runtime artifacts (never commit)
 .archon/mcp/          # May contain env var references
+
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json
+.codex/*
+!.codex/agents/
+!.codex/agents/**
+!.codex/skills/
+!.codex/skills/**
+.codex/skills/.system/**
+!.codex/prompts/
+!.codex/prompts/**
+
+# Windows metadata copied through WSL/SMB
+*:Zone.Identifier
+Thumbs.db*
+Desktop.ini

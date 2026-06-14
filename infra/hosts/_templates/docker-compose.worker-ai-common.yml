@@ -1,0 +1,22 @@
+# Shared worker overlay for local observability.
+# Compose this with a concrete worker host compose file so worker-network comes
+# from the host stack.
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-grafana
+    restart: unless-stopped
+    ports:
+      - "${WORKER_GRAFANA_PORT:-3005}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - worker_grafana_data:/var/lib/grafana
+    networks:
+      - worker-network
+
+volumes:
+  worker_grafana_data:

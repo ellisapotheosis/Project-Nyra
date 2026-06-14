@@ -1,0 +1,26 @@
+##############################################################################
+# Project Nyra - Grafbase Nexus on oracle-vps
+#
+# Minimal healthy bootstrap config for the public Nexus endpoint.
+# Add MCP downstreams only after each endpoint passes an Oracle-local initialize
+# smoke check. Broken downstream MCP servers can keep Nexus from serving.
+##############################################################################
+
+[llm]
+enabled = true
+
+[llm.protocols.openai]
+enabled = true
+path = "/v1"
+
+[llm.providers.litellm]
+type = "openai"
+api_key = "not-needed"
+base_url = "http://litellm:4000/v1"
+forward_token = false
+
+[llm.providers.litellm.models."*"]
+
+[mcp]
+enabled = true
+path = "/mcp"

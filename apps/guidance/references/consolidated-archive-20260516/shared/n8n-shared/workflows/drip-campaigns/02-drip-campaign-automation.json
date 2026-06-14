@@ -1,0 +1,288 @@
+{
+  "name": "Drip Campaign Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-daily-trigger",
+      "name": "Daily 9AM Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM leads WHERE campaign_status = 'active' AND last_contact < NOW() - INTERVAL '2 days' AND email_count < 5",
+        "options": {}
+      },
+      "id": "postgres-get-leads",
+      "name": "Get Active Leads",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "PostgreSQL - Letta"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "split-in-batches",
+      "name": "Split Into Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.email_count}}",
+              "operation": "equal",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "if-first-email",
+      "name": "First Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "support@ratehunter.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "Welcome to RateHunter - Your Mortgage Journey Starts Here",
+        "emailType": "html",
+        "message": "<h2>Welcome {{$json.firstName}}!</h2><p>We're excited to help you find the perfect mortgage rate.</p><p>Your personalized quote: <strong>{{$json.quote_rate}}%</strong></p><p><a href=\"https://ratehunter.com/dashboard/{{$json.id}}\">View Your Dashboard</a></p><p>Next steps:</p><ul><li>Review your quote details</li><li>Upload required documents</li><li>Schedule a consultation</li></ul>"
+      },
+      "id": "email-welcome",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1050, 200],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP - SendGrid"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.email_count}}",
+              "operation": "equal",
+              "value2": 1
+            }
+          ]
+        }
+      },
+      "id": "if-second-email",
+      "name": "Second Email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1050, 400]
+    },
+    {
+      "parameters": {
+        "fromEmail": "support@ratehunter.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "Documents Needed - Let's Move Forward!",
+        "emailType": "html",
+        "message": "<h2>Hi {{$json.firstName}},</h2><p>Ready to take the next step? We need a few documents to proceed:</p><ul><li>Pay stubs (last 2 months)</li><li>W-2 forms (last 2 years)</li><li>Bank statements (last 2 months)</li></ul><p><a href=\"https://ratehunter.com/upload/{{$json.id}}\">Upload Documents Securely</a></p>"
+      },
+      "id": "email-documents",
+      "name": "Request Documents",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1250, 400],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP - SendGrid"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "support@ratehunter.com",
+        "toEmail": "={{$json.email}}",
+        "subject": "Limited Time Offer - Lock Your Rate Today!",
+        "emailType": "html",
+        "message": "<h2>{{$json.firstName}}, Don't Miss Out!</h2><p>Mortgage rates are changing. Lock in your rate of <strong>{{$json.quote_rate}}%</strong> today!</p><p>This rate is available for the next 48 hours.</p><p><a href=\"https://ratehunter.com/lock-rate/{{$json.id}}\">Lock Your Rate Now</a></p>"
+      },
+      "id": "email-urgency",
+      "name": "Send Urgency Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1250, 600],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "SMTP - SendGrid"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE leads SET email_count = email_count + 1, last_contact = NOW() WHERE id = {{$json.id}}",
+        "options": {}
+      },
+      "id": "postgres-update-lead",
+      "name": "Update Lead Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [1450, 300],
+      "credentials": {
+        "postgres": {
+          "id": "1",
+          "name": "PostgreSQL - Letta"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 9AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Active Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Leads": {
+      "main": [
+        [
+          {
+            "node": "Split Into Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Into Batches": {
+      "main": [
+        [
+          {
+            "node": "First Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First Email?": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Second Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Second Email?": {
+      "main": [
+        [
+          {
+            "node": "Request Documents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Urgency Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Documents": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Urgency Email": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Status": {
+      "main": [
+        [
+          {
+            "node": "Split Into Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-11T00:00:00.000Z",
+  "versionId": "1"
+}

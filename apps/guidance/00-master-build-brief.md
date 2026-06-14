@@ -5,13 +5,13 @@
 There are two separate products:
 
 1. Public site: `ratehunter.net`
-   - Target app: [apps/landing/ratehunter-landing](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing)
+   - Target app: [apps/ratehunter/landing](/home/ellisapotheosis/repos/project-nyra/apps/ratehunter/landing)
    - Audience: borrowers and clients
    - Deployment target: Cloudflare Pages
    - Must not contain internal broker/admin/CRM routes
 
-2. Internal app: `nyra.ratehunter.net`
-   - Target app: [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
+2. Internal app: `app.projectnyra.com`
+   - Target app: [apps/projectnyra](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra)
    - Audience: Ellis, coworkers, mortgage brokers, real estate brokers, branch-manager-facing workflows
    - Must become a single multi-page app with consolidated internal routes
 
@@ -24,10 +24,10 @@ There are two separate products:
 
 ## What The Existing Apps Mean
 
-- [apps/landing/ratehunter-landing](/home/ellisapotheosis/repos/project-nyra/apps/landing/ratehunter-landing)
+- [apps/ratehunter/landing](/home/ellisapotheosis/repos/project-nyra/apps/ratehunter/landing)
   Real public landing page target. Borrower-facing only.
 
-- [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
+- [apps/projectnyra](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra)
   Main internal app candidate. Contains assistant, campaigns, active leads, analytics, and some CRM-connected assumptions.
 
 - [apps/admin/app](/home/ellisapotheosis/repos/project-nyra/apps/admin/app)
@@ -44,7 +44,8 @@ There are two separate products:
 
 ## Final Webapp Route Direction
 
-Recommended internal app routes under `nyra.ratehunter.net`:
+Recommended internal app routes under `app.projectnyra.com`:
+
 - `/`
 - `/assistant`
 - `/campaigns`
@@ -60,6 +61,7 @@ Recommended internal app routes under `nyra.ratehunter.net`:
 ## Public Landing Direction
 
 Public site must:
+
 - preserve Carrd identity, content, bio, job titles, phone, buttons, links, Calendly, and borrower-facing messaging
 - incorporate the best borrower-facing content from the current `localhost:3101` app
 - keep Carrd background/look/section ordering as source of truth
@@ -69,10 +71,12 @@ Public site must:
 ## Theme Direction
 
 Desired design-system source for both public and internal UI:
+
 - TweakCN/shadCN theme from:
   [references/webapp-merge-snapshot/next-app](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot/next-app)
 
 Why it is not showing up now:
+
 - the theme lives in the `webapp-merge` scaffold, not in the currently running `project-nyra/apps/*` apps
 - the live apps use their own `globals.css`, Tailwind configs, and component libraries
 - `index.css` or `globals.css` usually contains the CSS variables, but the full theme migration requires:
@@ -83,6 +87,7 @@ Why it is not showing up now:
 ## Required Backup Rule
 
 Before modifying any major app:
+
 - preserve `/home/ellisapotheosis/repos/webapp-merge`
 - also keep the copied reference snapshot under:
   [apps/guidance/references/webapp-merge-snapshot](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot)
@@ -95,4 +100,3 @@ Before modifying any major app:
 4. CRM + Pipeline + Quotes
 5. Auth + Platform Cleanup
 6. Integration Orchestrator
-

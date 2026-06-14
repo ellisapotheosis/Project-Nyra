@@ -5,13 +5,13 @@
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
-version: '3.8'
+version: "3.8"
 
 services:
   # ── Infisical secrets init (runs once, writes files to /run/nyra-secrets/) ─
   secrets-init:
     build:
-      context: ../../infisical-secrets-init
+      context: ../../images/infisical-secrets-init
     container_name: worker-3090-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
@@ -19,7 +19,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3090ti}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks:
@@ -28,7 +28,7 @@ services:
   # ── Infisical agent (polls Infisical and refreshes secrets) ──────────────
   infisical-agent:
     build:
-      context: ../../infisical-secrets-init
+      context: ../../images/infisical-secrets-init
     container_name: worker-3090-infisical-agent
     restart: unless-stopped
     entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
@@ -36,10 +36,10 @@ services:
       secrets-init:
         condition: service_completed_successfully
     environment:
-      INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/workers/worker-rtx3090ti}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/worker-rtx3090ti}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -75,7 +75,7 @@ services:
     hostname: worker-3090-litellm
     restart: unless-stopped
     ports:
-      - '${LITELLM_PORT:-4000}:4000'
+      - "${LITELLM_PORT:-4000}:4000"
     environment:
       - MODEL_ID=worker-3090-vllm
       - VLLM_BASE_URL=http://worker-3090-vllm:8000/v1
@@ -101,12 +101,12 @@ services:
     hostname: worker-3090-redis
     restart: unless-stopped
     ports:
-      - '${REDIS_PORT:-6379}:6379'
+      - "${REDIS_PORT:-6379}:6379"
     command: redis-server --maxmemory 4gb --maxmemory-policy allkeys-lru
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -122,7 +122,7 @@ services:
     hostname: worker-3090-vllm
     restart: unless-stopped
     ports:
-      - '${VLLM_PORT:-8000}:8000'
+      - "${VLLM_PORT:-8000}:8000"
     volumes:
       - vllm-models:/root/.cache/huggingface
       - lmcache-data:/root/.cache/lmcache
@@ -162,22 +162,22 @@ services:
       secrets-init:
         condition: service_completed_successfully
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 120s
     labels:
-      - 'com.nyra.service=vllm'
-      - 'com.nyra.worker=rtx3090ti'
-      - 'com.nyra.gpu=rtx-3090-ti'
-      - 'com.nyra.vram=24gb'
-      - 'com.nyra.device=desktop-pc'
+      - "com.nyra.service=vllm"
+      - "com.nyra.worker=rtx3090ti"
+      - "com.nyra.gpu=rtx-3090-ti"
+      - "com.nyra.vram=24gb"
+      - "com.nyra.device=desktop-pc"
     logging:
-      driver: 'json-file'
+      driver: "json-file"
       options:
-        max-size: '50m'
-        max-file: '5'
+        max-size: "50m"
+        max-file: "5"
     networks:
       - worker-network
 
@@ -261,13 +261,13 @@ services:
       secrets-init:
         condition: service_completed_successfully
     labels:
-      - 'com.project-nyra.service=promtail'
-      - 'com.project-nyra.worker=worker-3090'
+      - "com.project-nyra.service=promtail"
+      - "com.project-nyra.worker=worker-3090"
     logging:
-      driver: 'json-file'
+      driver: "json-file"
       options:
-        max-size: '10m'
-        max-file: '3'
+        max-size: "10m"
+        max-file: "3"
 
   # ============================================================================
   # Node Exporter - System metrics for Prometheus
@@ -278,37 +278,37 @@ services:
     hostname: worker-3090-node-exporter
     restart: unless-stopped
     ports:
-      - '9100:9100'
+      - "9100:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--path.rootfs=/rootfs'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     networks:
       - worker-network
     labels:
-      - 'com.project-nyra.service=node-exporter'
-      - 'com.project-nyra.worker=worker-3090'
+      - "com.project-nyra.service=node-exporter"
+      - "com.project-nyra.worker=worker-3090"
     logging:
-      driver: 'json-file'
+      driver: "json-file"
       options:
-        max-size: '10m'
-        max-file: '3'
+        max-size: "10m"
+        max-file: "3"
 
   # ============================================================================
   # NVIDIA GPU Exporter - GPU metrics for Prometheus
   # ============================================================================
   nvidia-gpu-exporter:
-    image: utkuozdemir/nvidia_gpu_exporter:latest
+    image: haytao/nvidia-gpu-exporter:latest
     container_name: worker-3090-nvidia-exporter
     hostname: worker-3090-nvidia-exporter
     restart: unless-stopped
     ports:
-      - '9835:9835'
+      - "9835:9835"
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
@@ -322,13 +322,13 @@ services:
     networks:
       - worker-network
     labels:
-      - 'com.project-nyra.service=nvidia-exporter'
-      - 'com.project-nyra.worker=worker-3090'
+      - "com.project-nyra.service=nvidia-exporter"
+      - "com.project-nyra.worker=worker-3090"
     logging:
-      driver: 'json-file'
+      driver: "json-file"
       options:
-        max-size: '10m'
-        max-file: '3'
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   vllm-models:
