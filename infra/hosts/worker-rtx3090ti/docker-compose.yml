@@ -64,15 +64,24 @@ services:
       - LMCACHE_BACKEND=redis
       - LMCACHE_REDIS_HOST=worker-3090-redis
       - LMCACHE_REDIS_PORT=6379
-    command: >
-      --model ${VLLM_MODEL:-meta-llama/Llama-3.1-8B-Instruct}
-      --host 0.0.0.0
-      --port 8000
-      --tensor-parallel-size 1
-      --gpu-memory-utilization 0.90
-      --max-model-len 8192
-      --enable-prefix-caching
-      --trust-remote-code
+    entrypoint: []
+    command:
+      - /bin/sh
+      - -c
+      - |
+        model=$$(cat /root/.cache/huggingface/current_model.txt 2>/dev/null || echo "$${VLLM_MODEL:-IlyaGusev/gemma-2-9b-it-abliterated}")
+        echo "Starting vLLM with model: $$model"
+        exec python3 -m vllm.entrypoints.openai.api_server \
+          --model "$$model" \
+          --host 0.0.0.0 \
+          --port 8000 \
+          --tensor-parallel-size 1 \
+          --gpu-memory-utilization 0.90 \
+          --max-model-len 2048 \
+          --enable-prefix-caching \
+          --enable-auto-tool-choice \
+          --tool-call-parser qwen3_xml \
+          --trust-remote-code
     deploy:
       resources:
         reservations:
@@ -81,10 +90,15 @@ services:
               count: 1
               capabilities: [gpu]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test:
+        [
+          "CMD-SHELL",
+          'python3 -c "import urllib.request; urllib.request.urlopen(''http://localhost:8000/health'', timeout=8)"',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 240s
     networks:
       - worker-network
 
@@ -99,12 +113,23 @@ services:
     environment:
       - MODEL_ID=worker-3090-vllm
       - VLLM_BASE_URL=http://worker-3090-vllm:8000/v1
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:?LITELLM_MASTER_KEY is required}
     volumes:
       - ./litellm:/app/litellm:ro
     command: --config /app/litellm/config.yaml --port 4000
     depends_on:
       vllm:
         condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:4000/health/readiness'', timeout=8)"',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
     networks:
       - worker-network
 
@@ -117,10 +142,11 @@ services:
     volumes:
       - ./model-switcher:/app
       - vllm_models:/models
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - VLLM_URL=http://worker-3090-vllm:8000
-      - AVAILABLE_MODELS=meta-llama/Llama-3.1-8B-Instruct,Qwen/Qwen2.5-32B-Instruct,mistralai/Mixtral-8x22B-Instruct-v0.1
-      - DEFAULT_MODEL=meta-llama/Llama-3.1-8B-Instruct
+      - AVAILABLE_MODELS=IlyaGusev/gemma-2-9b-it-abliterated,cyankiwi/Qwen3.6-27B-AWQ-INT4,lhca521/Huihui-Qwen3.6-27B-abliterated-AWQ,cyankiwi/gemma-4-31B-it-AWQ-4bit,alonsoko/gemma-4-31b-it-abliterated-heretic-AWQ-W4A16,cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit
+      - DEFAULT_MODEL=IlyaGusev/gemma-2-9b-it-abliterated
     command: python /app/switcher.py
     depends_on:
       vllm:
@@ -199,7 +225,10 @@ services:
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
-    profiles: ["sync"]
+    # Canonical Syncthing runs from docker-compose.persistent.yml as
+    # nyra-persistent-worker-3090ti-syncthing. Leave this legacy surface opt-in
+    # only to avoid starting a second host-networked instance on the same box.
+    profiles: ["legacy-sync"]
     image: syncthing/syncthing:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
     network_mode: host

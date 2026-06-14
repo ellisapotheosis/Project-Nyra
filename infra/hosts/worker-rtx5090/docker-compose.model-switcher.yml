@@ -11,9 +11,15 @@ services:
       VLLM_URL: http://worker-5090-vllm:8000
       LITELLM_URL: http://worker-5090-litellm:4000
       MODEL_SWITCHER_WORKER: worker-rtx5090
+      SWITCHER_PORT: "8099"
+      AVAILABLE_MODELS: Qwen/Qwen2.5-32B-Instruct-AWQ,cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit,cyankiwi/gemma-4-31B-it-AWQ-4bit,alonsoko/gemma-4-31b-it-abliterated-heretic-AWQ-W4A16
+      DEFAULT_MODEL: Qwen/Qwen2.5-32B-Instruct-AWQ
+      SPECIALIZATION: mortgage,compliance,reasoning
     working_dir: /app
     volumes:
       - ./model-switcher:/app:ro
+      - vllm_models:/models
+      - /var/run/docker.sock:/var/run/docker.sock
     command:
       - /bin/sh
       - -lc

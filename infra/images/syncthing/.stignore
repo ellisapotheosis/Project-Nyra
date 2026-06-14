@@ -2,6 +2,8 @@
 .ssh
 .docker/config.json
 .local/share/Tailscale
+.hermes
+.hermes/**
 
 // Massive transient data
 .cache

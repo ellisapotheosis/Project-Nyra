@@ -339,7 +339,7 @@ export default function CampaignBuilder() {
                           </label>
                           <Select
                             value={step.channel}
-                            onValueChange={(val: any) =>
+                            onValueChange={(val: CampaignStep["channel"]) =>
                               updateStep(step.id, { channel: val })
                             }
                           >
@@ -381,7 +381,7 @@ export default function CampaignBuilder() {
                           </label>
                           <Select
                             value={step.templateId}
-                            onValueChange={(val: any) =>
+                            onValueChange={(val: string) =>
                               updateStep(step.id, { templateId: val })
                             }
                           >

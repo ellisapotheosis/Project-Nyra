@@ -44,8 +44,7 @@ Secrets are fetched from Infisical and used as environment variables.
    - `CLOUDFLARE_ACCOUNT_ID`
 3. Configure the appropriate Infisical token in GitHub secrets:
    - `INFISICAL_TOKEN` - General token
-   - `INFISICAL_TOKEN_PROD` - Production environment token
-   - `INFISICAL_TOKEN_STAGING` - Staging environment token
+   - `INFISICAL_TOKEN` - Infisical retains dev, stag, prod (development, staging, and production are the non truncated versions) environment versions of all secrets such as this one.
 
 ## 🔧 Step-by-Step Troubleshooting
 
@@ -85,11 +84,11 @@ GitHub has different secret scopes:
 
 The workflow maps GitHub environments to Infisical environments:
 
-| Workflow Environment  | Infisical Environment |
-| --------------------- | --------------------- |
-| `production`          | `prod`                |
-| `preview` / `staging` | `staging`             |
-| Other                 | `dev`                 |
+| Workflow Environment  | Infisical Environment  |
+| --------------------- | ---------------------- |
+| `production`          | `prod` or 'production' |
+| `preview` / `staging` | `stag` or 'staging'    |
+| Other                 | `dev` or 'development' |
 
 Ensure your Infisical secrets are in the correct environment.
 

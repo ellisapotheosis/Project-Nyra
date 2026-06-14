@@ -12,6 +12,7 @@ import {
   CircleDollarSign,
   FileClock,
   GitBranch,
+  LayoutDashboard,
   MessageSquareReply,
   RadioTower,
   ShieldAlert,
@@ -22,7 +23,6 @@ import {
   Workflow,
 } from "lucide-react";
 
-import { SiteHeader } from "@/components/site-header";
 import { LeadRadar } from "@/components/leads/lead-radar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,7 +30,7 @@ import {
   PriorityQueueSkeleton,
   LeadRadarSkeleton,
 } from "@/components/ui/dashboard-skeleton";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { crmApi } from "@/lib/api/crm";
 import { useApi } from "@/lib/api/hooks";
@@ -40,30 +40,86 @@ import { cn } from "@/lib/utils";
 export default function Home() {
   const {
     data: leadData,
+    error: leadError,
     execute: fetchLeads,
     isLoading: loadingLeads,
   } = useApi(() => crmApi.getLeads());
   const {
     data: pipelineData,
+    error: pipelineError,
     execute: fetchPipeline,
     isLoading: loadingPipeline,
   } = useApi(() => crmApi.getPipeline());
 
   useEffect(() => {
-    fetchLeads();
-    fetchPipeline();
+    void fetchLeads().catch(() => undefined);
+    void fetchPipeline().catch(() => undefined);
   }, [fetchLeads, fetchPipeline]);
 
-  const activeLeads = leadData?.leads || [];
-  const pipeline = pipelineData?.pipeline || [];
+  const activeLeads = leadData?.leads || leads;
+  const hotLeadCount = activeLeads.filter((lead) => {
+    const status = "status" in lead ? lead.status : undefined;
+    return status === "NEW" || lead.stage === "Qualified";
+  }).length;
+  const dataSourceStatus =
+    leadError || pipelineError ? "Local fallback active" : "CRM mirror ready";
+
+  const appSurfaces = [
+    {
+      title: "Lead Desk",
+      route: "/leads",
+      detail: "Unified lead intake, status, consent, and next action queue.",
+      icon: Users,
+    },
+    {
+      title: "CRM",
+      route: "/crm",
+      detail: "Broker-safe CRM workspace over the Twenty source of truth.",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Nexus UI",
+      route: "/nexus",
+      detail: "Nexus Router, LiteLLM, Grafbase, and operator service posture.",
+      icon: RadioTower,
+    },
+    {
+      title: "Admin",
+      route: "/admin",
+      detail: "Owner-only integrations, service posture, and release controls.",
+      icon: ShieldCheck,
+    },
+    {
+      title: "Assistant",
+      route: "/assistant",
+      detail: "OpenClaw-backed broker assistant and lead action workspace.",
+      icon: Bot,
+    },
+    {
+      title: "Campaigns",
+      route: "/campaigns",
+      detail: "Compliant sequence control, pause state, and campaign review.",
+      icon: Workflow,
+    },
+    {
+      title: "Quote Desk",
+      route: "/quotes",
+      detail: "Deterministic quote scenarios and lock window review.",
+      icon: CircleDollarSign,
+    },
+    {
+      title: "Pipeline",
+      route: "/pipeline",
+      detail: "Stage movement, borrower replies, and file progression.",
+      icon: GitBranch,
+    },
+  ];
 
   const commandStats = [
     {
       label: "New leads",
       value: loadingLeads ? "..." : activeLeads.length.toString(),
-      detail: `${
-        activeLeads.filter((l) => l.status === "NEW").length
-      } hot, 3 need same-day follow-up`,
+      detail: `${hotLeadCount} hot, 3 need same-day follow-up`,
       icon: Users,
       tone: "text-turquoise-400",
     },
@@ -139,8 +195,6 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground antialiased">
-      <SiteHeader />
-
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-5 sm:py-8 lg:px-8">
         <div className="flex flex-col gap-10">
           {/* Header Section */}
@@ -149,23 +203,60 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <RadioTower className="size-4 animate-pulse text-turquoise-400" />
                 <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-turquoise-400">
-                  Live System Status
+                  {dataSourceStatus}
                 </span>
               </div>
               <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-                Broker Command Deck
+                Project Nyra Webapp
               </h1>
+              <p className="max-w-3xl text-sm text-muted-foreground">
+                Broker command, CRM mirror, Nexus operations, assistant,
+                campaigns, quotes, pipeline, and admin surfaces are available
+                from this control hub.
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
-              <Button variant="outline" size="sm" className="h-9 gap-2 px-3">
+              <Link
+                href="/nexus"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "h-9 gap-2 px-3"
+                )}
+              >
                 <Activity className="size-4" />
                 <span className="truncate">Diagnostics</span>
-              </Button>
-              <Button size="sm" className="h-9 gap-2 px-3">
+              </Link>
+              <Link
+                href="/assistant"
+                className={cn(buttonVariants({ size: "sm" }), "h-9 gap-2 px-3")}
+              >
                 <Sparkles className="size-4" />
                 <span className="truncate">Ask Nyra</span>
-              </Button>
+              </Link>
             </div>
+          </section>
+
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {appSurfaces.map(({ title, route, detail, icon: Icon }) => (
+              <Link
+                key={route}
+                href={route}
+                className="group rounded-xl border border-border/40 bg-card/40 p-4 transition-colors hover:bg-card/65"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Icon className="size-4 text-primary" />
+                      <h2 className="text-sm font-semibold">{title}</h2>
+                    </div>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {detail}
+                    </p>
+                  </div>
+                  <ArrowRight className="mt-0.5 size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                </div>
+              </Link>
+            ))}
           </section>
 
           {/* Stats Grid */}
@@ -323,42 +414,54 @@ export default function Home() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    className="h-auto flex-col items-start gap-2 py-4"
+                  <Link
+                    href="/leads"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "h-auto flex-col items-start gap-2 py-4"
+                    )}
                   >
                     <Users className="size-4 text-turquoise-400" />
                     <span className="text-[10px] font-bold uppercase tracking-widest">
                       Intake Lead
                     </span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-auto flex-col items-start gap-2 py-4"
+                  </Link>
+                  <Link
+                    href="/quotes"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "h-auto flex-col items-start gap-2 py-4"
+                    )}
                   >
                     <CircleDollarSign className="size-4 text-indigo-400" />
                     <span className="text-[10px] font-bold uppercase tracking-widest">
                       Run Quote
                     </span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-auto flex-col items-start gap-2 py-4"
+                  </Link>
+                  <Link
+                    href="/campaigns/builder"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "h-auto flex-col items-start gap-2 py-4"
+                    )}
                   >
                     <GitBranch className="size-4 text-pink-400" />
                     <span className="text-[10px] font-bold uppercase tracking-widest">
                       New Campaign
                     </span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-auto flex-col items-start gap-2 py-4"
+                  </Link>
+                  <Link
+                    href="/assistant"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "h-auto flex-col items-start gap-2 py-4"
+                    )}
                   >
                     <Bot className="size-4 text-turquoise-400" />
                     <span className="text-[10px] font-bold uppercase tracking-widest">
                       Tune Agent
                     </span>
-                  </Button>
+                  </Link>
                 </CardContent>
               </Card>
 

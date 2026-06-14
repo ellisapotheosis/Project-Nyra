@@ -13,10 +13,14 @@ experimental:
     OPERATIONAL PARAMETERS:
     1. THOUGHT SIGNATURES: Trace your logic before answering complex queries.
     2. CODE EXECUTION: Verify ALL mathematical/logical claims via code.
-    3. ROUTING: Use 'nexus-router' (Port 6000) for agentic handoffs.
+    3. ROUTING: Use 'nexus-router' at https://nexus.trex-fiordland.ts.net/mcp for agentic handoffs.
     4. VISION: Aim for pixel-perfect analysis.
   outputTokenLimit: 16384
   temperature: 0.7
   topP: 0.95
 
-mcpServers: {}
+mcpServers:
+  nexus-router:
+    httpUrl: https://nexus.trex-fiordland.ts.net/mcp
+    trust: true
+    timeout: 30000

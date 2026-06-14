@@ -35,13 +35,13 @@ container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-ollama
 
 ## Host Inventory
 
-| Host             | Role                                                       | Primary Compose                             |
-| ---------------- | ---------------------------------------------------------- | ------------------------------------------- |
-| oracle-vps       | Cloud backend — CRM, DB, memory plane, public ingress      | `hosts/oracle-vps/docker-compose.yml`       |
-| orchestrator     | Control plane — LiteLLM, Nexus router, observability       | `hosts/orchestrator/docker-compose.yml`     |
-| worker-rtx3060   | Ollama inference (12 GB VRAM), distributed-voice STT       | `hosts/worker-rtx3060/docker-compose.yml`   |
-| worker-rtx3090ti | vLLM inference (24 GB VRAM), distributed-voice TTS         | `hosts/worker-rtx3090ti/docker-compose.yml` |
-| worker-rtx5090   | Primary vLLM inference (32 GB VRAM), distributed-voice LLM | `hosts/worker-rtx5090/docker-compose.yml`   |
+| Host             | Role                                                        | Primary Compose                             |
+| ---------------- | ----------------------------------------------------------- | ------------------------------------------- |
+| oracle-vps       | Cloud backend — CRM, DB, memory plane, public ingress       | `hosts/oracle-vps/docker-compose.yml`       |
+| orchestrator     | Control plane — LiteLLM, Nexus router, observability        | `hosts/orchestrator/docker-compose.yml`     |
+| worker-rtx3060   | Ollama inference (6 GB VRAM), distributed-voice STT         | `hosts/worker-rtx3060/docker-compose.yml`   |
+| worker-rtx3090ti | vLLM inference (24 GB VRAM), distributed-voice TTS          | `hosts/worker-rtx3090ti/docker-compose.yml` |
+| worker-rtx5090   | Primary vLLM inference (24 GB GDDR7), distributed-voice LLM | `hosts/worker-rtx5090/docker-compose.yml`   |
 
 ## Oracle-VPS Overlay Files
 

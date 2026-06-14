@@ -3,14 +3,14 @@
  * Runs once before all E2E tests
  */
 
-import { chromium, FullConfig } from '@playwright/test';
+import { chromium, FullConfig } from "@playwright/test";
 
 async function globalSetup(config: FullConfig) {
-  console.log('Starting E2E test setup...');
+  console.log("Starting E2E test setup...");
 
   // Set test environment variables
-  process.env.NODE_ENV = 'test';
-  process.env.E2E_TEST = 'true';
+  process.env.NODE_ENV = "test";
+  process.env.E2E_TEST = "true";
 
   // Create browser instance for setup
   const browser = await chromium.launch();
@@ -19,7 +19,7 @@ async function globalSetup(config: FullConfig) {
 
   try {
     // Wait for services to be ready
-    const baseURL = config.projects[0].use.baseURL || 'http://localhost:3000';
+    const baseURL = config.projects[0].use.baseURL || "http://localhost:3010";
 
     console.log(`Waiting for ${baseURL} to be ready...`);
 
@@ -29,11 +29,11 @@ async function globalSetup(config: FullConfig) {
       try {
         const response = await page.goto(baseURL, {
           timeout: 2000,
-          waitUntil: 'domcontentloaded',
+          waitUntil: "domcontentloaded",
         });
 
         if (response && response.ok()) {
-          console.log('Service is ready!');
+          console.log("Service is ready!");
           break;
         }
       } catch (error) {
@@ -51,9 +51,9 @@ async function globalSetup(config: FullConfig) {
     // Create test users
     await createTestUsers(page);
 
-    console.log('E2E test setup complete!');
+    console.log("E2E test setup complete!");
   } catch (error) {
-    console.error('E2E setup failed:', error);
+    console.error("E2E setup failed:", error);
     throw error;
   } finally {
     await page.close();
@@ -64,7 +64,7 @@ async function globalSetup(config: FullConfig) {
 
 async function seedTestData(page: any) {
   // Add test data seeding logic here
-  console.log('Seeding test data...');
+  console.log("Seeding test data...");
 
   // Example: Create test mortgage rates
   // await page.evaluate(() => {
@@ -74,7 +74,7 @@ async function seedTestData(page: any) {
 
 async function createTestUsers(page: any) {
   // Create test users for E2E tests
-  console.log('Creating test users...');
+  console.log("Creating test users...");
 
   // Example: Register test user
   // const testUser = {

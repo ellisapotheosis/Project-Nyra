@@ -1,0 +1,45 @@
+# Project Nyra Grafbase Gateway pilot.
+#
+# This is an app/API facade pilot only. Nexus Router remains the canonical
+# LLM/MCP entrypoint for agents and memory tools.
+
+[gateway]
+timeout = "30s"
+subgraph_timeout = "4s"
+
+[gateway.batching]
+enabled = false
+
+[gateway.retry]
+enabled = false
+
+[health]
+enabled = true
+listen = "0.0.0.0:9668"
+path = "/health"
+
+[operation_caching]
+enabled = true
+limit = 1000
+warm_on_reload = false
+
+[mcp]
+# Keep disabled until Project Nyra has an explicit GraphQL operation allowlist
+# and OAuth-protected-resource metadata for the MCP endpoint.
+enabled = false
+path = "/mcp"
+execute_mutations = false
+transport = "http-streaming"
+
+[cors]
+allow_origins = []
+allow_methods = ["POST"]
+allow_headers = [
+  "authorization",
+  "content-type",
+  "x-grafbase-client-name",
+  "x-grafbase-client-version",
+]
+
+[authentication]
+default = "anonymous"

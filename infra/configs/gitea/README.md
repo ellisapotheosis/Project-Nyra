@@ -14,26 +14,25 @@ Oracle VPS is the always-on standard CI host. GPU/large jobs belong on worker ho
 - Gitea server with Actions enabled
 - Postgres-backed Gitea persistence
 - `act_runner` self-hosted runner container
-- Runner auto-registration using `GITEA_RUNNER_TOKEN` from `/home/ubuntu/project-nyra/.env.gitea`
+- Runner auto-registration using `GITEA_RUNNER_TOKEN` injected from Infisical
 - Native Gitea pipelines in `.gitea/workflows/ci-cd.yml`
 - Internal image publish on tags in `.gitea/workflows/publish-images.yml`
 
 ## Required prerequisites
 
 - Docker + Docker Compose on Oracle VPS
-- `/home/ubuntu/project-nyra/.env.gitea`
-- Gitea runner token generated from the local Gitea container
+- `~/.zsh/99-secrets.zsh` on the operator/agent machine with Infisical auth variables
+- Gitea runtime secrets stored in Infisical, not in repo-local `.env` files
 
 ## Bootstrap commands (Oracle)
 
 From `/home/ubuntu/project-nyra` on Oracle:
 
 ```bash
-docker compose \
-  -f infra/hosts/oracle-vps/docker-compose.gitea.yml \
-  --env-file .env.gitea \
-  up -d
+make gitea-up
 ```
+
+The Makefile sources `~/.zsh/99-secrets.zsh` when needed, then runs Docker Compose through `infisical run` with `--env-file /dev/null`.
 
 ## Service compose integration
 
@@ -58,3 +57,7 @@ infra/hosts/oracle-vps/scripts/gitea-ci-health.sh
 - `GITEA_REGISTRY`
 - `GITEA_REGISTRY_USER`
 - `GITEA_REGISTRY_TOKEN`
+
+## Secret storage
+
+Project Nyra does not use `.env.gitea` or host-local `.env` files for Gitea runtime. Store Gitea service credentials in Infisical at `/clients/gitea`, and keep host-level compose inputs under `/machines/oracle-vps`.

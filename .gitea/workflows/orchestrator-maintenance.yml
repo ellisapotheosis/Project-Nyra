@@ -3,7 +3,7 @@ name: oracle-ci-maintenance
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 6 * * *'
+    - cron: "17 6 * * *"
 
 jobs:
   maintain-oracle-ci:
@@ -16,15 +16,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          docker compose \
-            -f infra/hosts/oracle-vps/docker-compose.gitea.yml \
-            --env-file /home/ubuntu/project-nyra/.env.gitea \
-            up -d
+          make gitea-up
 
       - name: Verify runner-facing CI health
         shell: bash
         run: |
           set -euo pipefail
           chmod +x infra/hosts/oracle-vps/scripts/gitea-ci-health.sh
-          ROOT_DIR="$PWD" COMPOSE_FILE=infra/hosts/oracle-vps/docker-compose.gitea.yml ENV_FILE=/home/ubuntu/project-nyra/.env.gitea \
-            infra/hosts/oracle-vps/scripts/gitea-ci-health.sh
+          ROOT_DIR="$PWD" infra/hosts/oracle-vps/scripts/gitea-ci-health.sh

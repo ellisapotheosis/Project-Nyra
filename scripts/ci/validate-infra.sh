@@ -38,9 +38,8 @@ ensure_env() {
   local file="$1"
   local key="$2"
   local value="$3"
-  if ! grep -q "^${key}=" "$file"; then
-    printf '%s=%s\n' "$key" "$value" >>"$file"
-  fi
+  sed -i "/^${key}=/d" "$file"
+  printf '%s=%s\n' "$key" "$value" >>"$file"
 }
 
 cat infra/hosts/oracle-vps/.env.example > "$tmp_env"
@@ -54,6 +53,7 @@ ensure_env "$tmp_env" PORTAINER_EDGE_KEY ci-portainer-edge-key
 ensure_env "$tmp_env" ORCHESTRATOR_TUNNEL_TOKEN ci-orchestrator-tunnel-token
 ensure_env "$tmp_env" FIRECRAWL_API_KEY ci-firecrawl-api-key
 ensure_env "$tmp_env" TAVILY_API_KEY ci-tavily-api-key
+ensure_env "$tmp_env" PAPERCLIP_API_KEY ci-paperclip-api-key
 
 bash -n scripts/gitea/bootstrap-act-runner.sh
 bash -n scripts/infra/assert-compose-source-of-truth.sh

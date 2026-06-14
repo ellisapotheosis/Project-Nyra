@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import confetti from "canvas-confetti";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
@@ -113,6 +114,12 @@ export function LeadCaptureWizard() {
 
       if (response.ok) {
         setStep("SUCCESS");
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ["#5038FF", "#00CCB2", "#F20D7A", "#8F14ED"],
+        });
       } else {
         alert("Something went wrong. Please try again.");
       }
@@ -414,7 +421,37 @@ export function LeadCaptureWizard() {
           <Progress value={progress} className="h-1" />
         </CardHeader>
       )}
-      <CardContent className="pt-4">{renderStep()}</CardContent>
+      <CardContent className="pt-4">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            {renderStep()}
+            {step === "LOAN" && data.propertyValue - data.downPayment > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
+                className="mt-4 rounded-xl bg-white/5 border border-white/10 p-4 text-center"
+              >
+                <p className="text-xs text-white/50 mb-1">
+                  Based on your loan amount
+                </p>
+                <p className="text-3xl font-bold text-[oklch(0.8871_0.1828_166.5465)]">
+                  6.74%{" "}
+                  <span className="text-sm font-normal text-white/50">
+                    est. rate
+                  </span>
+                </p>
+              </motion.div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </CardContent>
       {step !== "SUCCESS" && (
         <CardFooter className="flex justify-between bg-muted/30 border-t p-4">
           <Button

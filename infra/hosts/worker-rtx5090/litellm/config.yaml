@@ -1,12 +1,53 @@
 model_list:
+  # Primary alias — resolves to whatever model vLLM currently has loaded
   - model_name: worker-5090-vllm
     litellm_params:
-      model: openai/worker-5090-vllm
+      model: openai/Qwen/Qwen2.5-32B-Instruct-AWQ
+      api_base: http://worker-5090-vllm:8000/v1
+      api_key: "none"
+      drop_params: true
+
+  # Stable Qwen3 tool-call endpoint for OpenClaw / LiteLLM routing
+  - model_name: qwen3-4b
+    litellm_params:
+      model: openai/Qwen/Qwen3-4B-Instruct-2507
+      api_base: http://worker-5090-vllm:8000/v1
+      api_key: "none"
+      drop_params: true
+
+  # Qwen2.5-32B AWQ (known-good primary on this 24 GB host)
+  - model_name: qwen2.5-32b
+    litellm_params:
+      model: openai/Qwen/Qwen2.5-32B-Instruct-AWQ
+      api_base: http://worker-5090-vllm:8000/v1
+      api_key: "none"
+      drop_params: true
+
+  # Gemma 4 31B AWQ (regular)
+  - model_name: gemma4-31b
+    litellm_params:
+      model: openai/cyankiwi/gemma-4-31B-it-AWQ-4bit
+      api_base: http://worker-5090-vllm:8000/v1
+      api_key: "none"
+      drop_params: true
+
+  # Gemma 4 31B abliterated AWQ (vLLM-compatible)
+  - model_name: gemma4-31b-abliterated
+    litellm_params:
+      model: openai/alonsoko/gemma-4-31b-it-abliterated-heretic-AWQ-W4A16
+      api_base: http://worker-5090-vllm:8000/v1
+      api_key: "none"
+      drop_params: true
+
+  # Gemma 4 26B MoE AWQ (fast inference, 4B active params)
+  - model_name: gemma4-26b-moe
+    litellm_params:
+      model: openai/cyankiwi/gemma-4-26B-A4B-it-AWQ-4bit
       api_base: http://worker-5090-vllm:8000/v1
       api_key: "none"
       drop_params: true
 
 general_settings:
-  master_key: ${LITELLM_MASTER_KEY}
+  master_key: os.environ/LITELLM_MASTER_KEY
   drop_params: true
   json_logs: true

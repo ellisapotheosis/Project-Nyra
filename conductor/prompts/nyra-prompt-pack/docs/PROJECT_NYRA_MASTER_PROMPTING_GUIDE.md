@@ -25,17 +25,17 @@ Use this structure whenever assigning meaningful work:
 ```md
 You are working on Project Nyra.
 
-Role: [agent role]
-Mission: [specific outcome]
+Role: \\\[agent role]
+Mission: \\\[specific outcome]
 Target paths:
 
-- [paths]
+- \\\[paths]
 
 Do not touch:
 
 - apps/twenty
 - /home/ellisapotheosis/repos/webapp-merge
-- [other protected paths]
+- \\\[other protected paths]
 
 Source of truth:
 
@@ -102,7 +102,7 @@ Docker/infra checks:
 ```bash
 cd /home/ellisapotheosis/repos/project-nyra
 docker compose version
-find infra -name 'docker-compose*.yml' -o -name 'compose*.yml' | sort
+find infra -name 'docker-compose\\\*.yml' -o -name 'compose\\\*.yml' | sort
 ```
 
 ## Finish-line roadmap
@@ -364,32 +364,32 @@ Worker roles:
 ````md
 ## Result
 
-[What was completed]
+\\\[What was completed]
 
 ## Files changed
 
-- `path`: [why]
+- `path`: \\\[why]
 
 ## Validation
 
 ```bash
-[command]
+\\\[command]
 ```
 ````
 
-Result: [pass/fail and key output]
+Result: \[pass/fail and key output]
 
 ## Manual owner actions
 
-- [Only if needed]
+- \[Only if needed]
 
 ## Rollback
 
-- [How to revert]
+- \[How to revert]
 
 ## Next recommended task
 
-[One concrete next move]
+\[One concrete next move]
 
 ````
 

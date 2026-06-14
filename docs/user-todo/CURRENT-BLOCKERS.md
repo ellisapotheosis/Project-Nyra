@@ -38,8 +38,8 @@ Remaining warnings are owner/live-env gated:
   shell.
 - Supabase live auth values and redirect allowlist env are not present in the
   current shell.
-- TruffleHog is not installed locally, so the quick security scan used the
-  repo's fallback secret-pattern scan instead of a full TruffleHog scan.
+- Infisical CLI secret scanning has been run locally against the repo and
+  current changes. No leaks were found.
 
 ## Minimum Infisical Variables Blocking Live Smoke
 
@@ -140,6 +140,23 @@ explicitly set for a production mock test.
   smoke.
 - Complete SendGrid sender/domain authentication before email smoke.
 - Approve Tailscale devices and verify worker endpoints are private.
+
+## Secret Scan Evidence
+
+Infisical CLI is the preferred local leak scanner for this repo.
+
+Latest evidence:
+
+```bash
+infisical scan --source . --redact --report-format json --report-path security-reports/infisical-scan-20260522-152418.json
+infisical scan git-changes --redact --report-format json --report-path security-reports/infisical-git-changes-20260522-152553.json
+```
+
+Results:
+
+- Full git/history scan: 714 commits scanned, 0 findings.
+- Uncommitted/change scan: 0 findings.
+- Reports are stored under ignored `security-reports/`.
 
 ## After The Above Is Complete
 

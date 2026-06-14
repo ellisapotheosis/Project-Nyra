@@ -1,0 +1,149 @@
+// infra/configs/zellij/nyra-cluster.kdl
+// Nyra Cluster Layout — multi-node development cockpit
+// Left: local coding terminal
+// Centre-top: oracle-vps logs / docker ps
+// Centre-bottom: Letta + mem0 status
+// Right-top: worker-rtx3090ti OpenClaw status
+// Right-bottom: cluster health overview
+// Status bar shows Letta agent, mem0 stats, active worker count
+
+layout {
+    default_tab_template {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    // =========================================================================
+    // TAB 0: COCKPIT — primary coding + cluster view
+    // =========================================================================
+    tab name="[0] COCKPIT" focus=true {
+        pane split_direction="horizontal" {
+
+            // ---- LEFT: local coding terminal (33%) ----
+            pane name="local [worker-rtx5090]" size="33%" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh local-coding 'cd ~/repos/project-nyra && exec bash -l'"
+            }
+
+            // ---- CENTRE: oracle + memory (34%) ----
+            pane split_direction="vertical" size="34%" {
+                // Centre-top: oracle-vps docker ps
+                pane name="oracle-vps [docker ps]" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh oracle-docker 'while true; do clear; printf \"\033[34m=== oracle-vps docker ps ===\033[0m\\n\"; docker --context oracle-vps ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\" 2>/dev/null || echo \"context unavailable\"; sleep 8; done'"
+                }
+                // Centre-bottom: Letta + mem0 status
+                pane name="Letta + mem0 [oracle-vps]" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh letta-mem0 'while true; do clear; printf \"\033[34m=== Letta ===\033[0m\\n\"; curl -fsS http://oracle-vps.trex-fiordland.ts.net:8283/v1/health 2>/dev/null | grep -o '\"status\":\"[^\"]*\"' || echo offline; printf \"\033[34m\\n=== mem0 ===\033[0m\\n\"; curl -fsS http://oracle-vps.trex-fiordland.ts.net:5001/v1/health 2>/dev/null || echo offline; printf \"\033[34m\\n=== Letta MCP ===\033[0m\\n\"; curl -fsS http://oracle-vps.trex-fiordland.ts.net:8284/mcp 2>/dev/null | head -3 || echo offline; sleep 10; done'"
+                }
+            }
+
+            // ---- RIGHT: worker-3090ti OpenClaw + cluster health (33%) ----
+            pane split_direction="vertical" size="33%" {
+                // Right-top: worker-rtx3090ti OpenClaw
+                pane name="worker-rtx3090ti [OpenClaw]" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh worker-3090-openclaw 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=5 worker-rtx3090ti.trex-fiordland.ts.net \"docker logs -f worker-3090-openclaw 2>&1\" || bash'"
+                }
+                // Right-bottom: cluster health overview
+                pane name="cluster health" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh cluster-health 'while true; do clear; printf \"\033[36m=== Cluster Health ===\033[0m\\n\"; for host in worker-rtx5090 worker-rtx3090ti worker-rtx3060 orchestrator oracle-vps; do ip=$(getent hosts ${host}.trex-fiordland.ts.net | awk \"{print \\$1}\"); status=$(curl -sf --max-time 2 http://${host}.trex-fiordland.ts.net:8000/health >/dev/null 2>&1 && echo ONLINE || echo offline); printf \"  %-22s %s\\n\" \"${host}\" \"${status}\"; done; echo; printf \"Nexus: \"; curl -fsS --max-time 2 https://nexus.trex-fiordland.ts.net/health 2>/dev/null | grep -o '\"status\":\"[^\"]*\"' || echo offline; sleep 12; done'"
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // TAB 1: AGENTS — CLI swarm with subscription routing
+    // =========================================================================
+    tab name="[1] AGENTS" {
+        pane split_direction="horizontal" {
+            pane split_direction="vertical" size="60%" {
+                pane name="[CLAUDE] claude-code" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh claude-code 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-claude-oauth || claude'"
+                }
+                pane name="[CODEX] codex-cli" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh codex-cli 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-codex-oauth || codex'"
+                }
+                pane name="[GEMINI] gemini-cli" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh gemini-cli 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-gemini-oauth || gemini'"
+                }
+            }
+            pane split_direction="vertical" size="40%" {
+                pane name="llxprt-jefe [daemon]" command="bash" {
+                    args "-lc" "mkdir -p ~/.nyra && exec > ~/.nyra/jefe.log 2>&1; cd ~/repos/project-nyra && while true; do scripts/run-llxprt-jefe.sh || true; sleep 3; done"
+                }
+                pane name="llxprt-bridge [HA]" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh llxprt-bridge 'while true; do clear; date; curl -fsS http://127.0.0.1:8090/health | grep -o '\"status\":\"[^\"]*\"' || echo offline; sleep 5; done'"
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // TAB 2: MEMORY — Letta agents, mem0, MemPalace
+    // =========================================================================
+    tab name="[2] MEMORY" {
+        pane split_direction="horizontal" {
+            pane name="Letta agents" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh letta-agents 'while true; do clear; printf \"\033[34m=== Letta Agents ===\033[0m\\n\"; curl -fsS http://oracle-vps.trex-fiordland.ts.net:8283/v1/agents 2>/dev/null | python3 -c \"import sys,json; agents=json.load(sys.stdin).get(\\\"agents\\\",[]) if isinstance(json.load(open(\\\"/dev/stdin\\\"))if False else json.loads(sys.stdin.read()),dict) else []; [print(f\\\"  {a.get(\\\\\\\"name\\\\\\\",\\\\\\\"?\\\\\\\")}: {a.get(\\\\\\\"model\\\\\\\",\\\\\\\"?\\\\\\\")}\\\") for a in agents]\" 2>/dev/null || curl -fsS http://oracle-vps.trex-fiordland.ts.net:8283/v1/agents 2>/dev/null || echo offline; sleep 15; done'"
+            }
+            pane name="mem0 collections" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh mem0-stats 'while true; do clear; printf \"\033[34m=== mem0 Collections ===\033[0m\\n\"; curl -fsS http://oracle-vps.trex-fiordland.ts.net:5001/v1/memories/stats 2>/dev/null || curl -fsS http://oracle-vps.trex-fiordland.ts.net:5001/health 2>/dev/null || echo offline; printf \"\033[34m\\n=== MemPalace ===\033[0m\\n\"; curl -fsS http://127.0.0.1:8002/status 2>/dev/null || echo offline; sleep 12; done'"
+            }
+            pane name="FalkorDB + Qdrant" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh knowledge-graph 'while true; do clear; printf \"\033[34m=== Qdrant ===\033[0m\\n\"; curl -fsS http://oracle-vps.trex-fiordland.ts.net:6333/collections 2>/dev/null | grep -o '\"name\":\"[^\"]*\"' | head -8 || echo offline; printf \"\033[34m\\n=== FalkorDB ===\033[0m\\n\"; docker --context oracle-vps ps --filter name=falkordb --format \"{{.Names}} {{.Status}}\" 2>/dev/null || echo offline; sleep 15; done'"
+            }
+        }
+    }
+
+    // =========================================================================
+    // TAB 3: GPU — nvidia-smi across workers
+    // =========================================================================
+    tab name="[3] GPU" {
+        pane split_direction="horizontal" {
+            pane name="worker-rtx5090 [GPU]" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh gpu-5090 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=8 worker-rtx5090.trex-fiordland.ts.net \"nvidia-smi -l 2\" || bash'"
+            }
+            pane name="worker-rtx3090ti [GPU]" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh gpu-3090 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=8 worker-rtx3090ti.trex-fiordland.ts.net \"nvidia-smi -l 2\" || bash'"
+            }
+            pane name="worker-rtx3060 [GPU+Ollama]" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh gpu-3060 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=8 worker-rtx3060.trex-fiordland.ts.net \"nvidia-smi -l 2\" || bash'"
+            }
+        }
+    }
+
+    // =========================================================================
+    // TAB 4: LOGS — daemon and service tails
+    // =========================================================================
+    tab name="[4] LOGS" {
+        pane split_direction="horizontal" {
+            pane name="jefe log" command="bash" {
+                args "-lc" "mkdir -p ~/.nyra && tail -F ~/.nyra/jefe.log"
+            }
+            pane name="letta-mcp log" command="bash" {
+                args "-lc" "mkdir -p ~/.nyra && tail -F ~/.nyra/letta-mcp.log"
+            }
+            pane name="Nexus Router log" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh nexus-log 'ssh -A -t -o ConnectTimeout=5 orchestrator.trex-fiordland.ts.net \"docker logs -f nyra-nexus-router 2>&1 | tail -100\" || bash'"
+            }
+        }
+    }
+
+    // =========================================================================
+    // TAB 5: OPS — infra operations and Cloudflare
+    // =========================================================================
+    tab name="[5] OPS" {
+        pane split_direction="vertical" {
+            pane name="stack status" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh stack-status 'cd ~/repos/project-nyra && while true; do clear; make wave-stack-status 2>/dev/null || make health 2>/dev/null || echo \"run from project root\"; sleep 12; done'"
+            }
+            pane name="git status" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh git-watch 'cd ~/repos/project-nyra && while true; do clear; git status --short; echo; git log --oneline -5; sleep 20; done'"
+            }
+        }
+    }
+}

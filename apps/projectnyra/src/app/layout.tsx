@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Suspense } from "react";
 import { Electrolize, Michroma, Space_Mono } from "next/font/google";
 
 import "./globals.css";
@@ -9,6 +10,8 @@ import { AuthProvider } from "@/lib/auth-context";
 import { DEFAULT_THEME, themes } from "@/config/themes";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { AppShell } from "@/components/app-shell";
+import { MixpanelRouteTracker } from "@/components/analytics/mixpanel-route-tracker";
 
 export const metadata: Metadata = {
   title: "Project Nyra",
@@ -16,21 +19,26 @@ export const metadata: Metadata = {
     "Broker-facing command center for campaigns, quotes, CRM views, and mortgage operations.",
 };
 
-const electrolize = Electrolize({
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+const fontSans = Electrolize({
   subsets: ["latin"],
-  variable: "--font-electrolize",
+  variable: "--font-sans",
   weight: "400",
 });
 
-const michroma = Michroma({
+const fontSerif = Michroma({
   subsets: ["latin"],
-  variable: "--font-michroma",
+  variable: "--font-serif",
   weight: "400",
 });
 
-const spaceMono = Space_Mono({
+const fontMono = Space_Mono({
   subsets: ["latin"],
-  variable: "--font-space-mono",
+  variable: "--font-mono",
   weight: ["400", "700"],
 });
 
@@ -42,7 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${electrolize.variable} ${michroma.variable} ${spaceMono.variable} min-h-screen bg-background text-foreground antialiased`}
+        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} min-h-screen bg-background text-foreground antialiased`}
       >
         <ErrorBoundary>
           <ThemeProvider
@@ -52,7 +60,12 @@ export default function RootLayout({
             enableSystem={false}
             themes={themes.map((t) => t.value) as string[]}
           >
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              <Suspense fallback={null}>
+                <MixpanelRouteTracker />
+              </Suspense>
+              <AppShell>{children}</AppShell>
+            </AuthProvider>
             <Toaster />
           </ThemeProvider>
         </ErrorBoundary>

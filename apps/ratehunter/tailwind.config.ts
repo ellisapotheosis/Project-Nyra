@@ -60,13 +60,44 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "monospace"],
+        sans: [
+          "var(--font-sans)",
+          "var(--font-inter)",
+          "system-ui",
+          "sans-serif",
+        ],
+        display: ["var(--font-serif)", "var(--font-display)", "monospace"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      animation: {
+        "gradient-text": "gradient-text 7s ease infinite",
+        "shimmer-slide":
+          "shimmer-slide var(--speed,2.6s) ease-in-out infinite alternate",
+        marquee: "marquee var(--duration,40s) linear infinite",
+        "marquee-vertical":
+          "marquee-vertical var(--duration,40s) linear infinite",
+      },
+      keyframes: {
+        "gradient-text": {
+          "0%,100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "shimmer-slide": {
+          to: { transform: "translateX(calc(100cqh + 100%))" },
+        },
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(calc(-100% - var(--gap,1.5rem)))" },
+        },
+        "marquee-vertical": {
+          from: { transform: "translateY(0)" },
+          to: { transform: "translateY(calc(-100% - var(--gap,1.5rem)))" },
+        },
       },
     },
   },

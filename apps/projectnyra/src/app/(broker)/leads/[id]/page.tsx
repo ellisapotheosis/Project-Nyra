@@ -4,6 +4,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 
 import { crmApi, type Lead, useApi } from "@/lib/api";
+import { trackMixpanelEvent } from "@/lib/mixpanel";
 import { StatusGate } from "@/components/status-gate";
 import { LeadActivityWorkspace } from "@/components/leads/profile-sections/lead-activity-workspace";
 import { LeadProfileSidebar } from "@/components/leads/profile-sections/lead-profile-sidebar";
@@ -14,17 +15,54 @@ export default function LeadProfilePage() {
 
   const leadApi = useApi(() => crmApi.getLead(id));
   const conversationApi = useApi(() => crmApi.getLeadConversation(id));
+  const trackedLeadIdRef = React.useRef<string | null>(null);
+  const lead = leadApi.data?.lead;
+  const logs = conversationApi.data?.logs || [];
+  const quietHoursStatus = getQuietHoursStatus(lead);
+  const attribution = getSourceAttribution(lead);
+  const workspaceStatus = getWorkspaceStatus(lead);
 
   React.useEffect(() => {
     leadApi.execute();
     conversationApi.execute();
   }, [id]);
 
-  const lead = leadApi.data?.lead;
-  const logs = conversationApi.data?.logs || [];
-  const quietHoursStatus = getQuietHoursStatus(lead);
-  const attribution = getSourceAttribution(lead);
-  const workspaceStatus = getWorkspaceStatus(lead);
+  React.useEffect(() => {
+    const currentLead = lead;
+    if (!currentLead?.id) {
+      return;
+    }
+
+    if (trackedLeadIdRef.current === currentLead.id) {
+      return;
+    }
+
+    trackedLeadIdRef.current = currentLead.id;
+    const workspace = getLeadRecord(currentLead, "workspace");
+    const compliance = getNestedRecord(workspace, "compliance");
+    const campaign = getNestedRecord(workspace, "campaign");
+    const quote = getNestedRecord(workspace, "quote");
+
+    trackMixpanelEvent("lead_review_opened", {
+      lead_id: currentLead.id,
+      lead_stage: currentLead.stage ?? currentLead.campaignStatus ?? "unknown",
+      source:
+        currentLead.source ??
+        getLeadString(currentLead, "leadSource") ??
+        "Direct",
+      campaign_status:
+        getNestedString(campaign, "status") ??
+        currentLead.campaignStatus ??
+        "Unassigned",
+      workspace_crm_backed: workspace?.crmBacked === true,
+      workspace_compliance_blocked: compliance?.sendBlocked === true,
+      workspace_campaign_status:
+        getNestedString(campaign, "status") ?? "Unassigned",
+      workspace_quote_source:
+        getNestedString(quote, "sourceOfTruth") ?? "Pending",
+      quiet_hours: getQuietHoursStatus(currentLead).inQuietHours,
+    });
+  }, [lead]);
 
   return (
     <StatusGate

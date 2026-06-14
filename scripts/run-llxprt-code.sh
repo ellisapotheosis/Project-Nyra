@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-CF_APP_DIR="${NYRA_CF_APP_DIR:-${PROJECT_ROOT}/apps/ratehunter/landing}"
+CF_APP_DIR="${NYRA_CF_APP_DIR:-${PROJECT_ROOT}/apps/ratehunter}"
 CF_PROJECT_NAME="${NYRA_CF_PROJECT_NAME:-project-nyra}"
 
 # shellcheck source=scripts/llxprt-common.sh

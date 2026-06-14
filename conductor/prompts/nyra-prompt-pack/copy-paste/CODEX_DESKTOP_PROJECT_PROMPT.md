@@ -123,7 +123,7 @@ It is acceptable to document a deprecated tool as historical context or future o
 4. Recent infra audit docs and host-specific compose files.
 5. Current app/service `package.json` files.
 6. README and master build docs only when they agree with active source.
-7. `docs/archive/**` only when intentionally mining old assets.
+7. `docs/archive/\\\*\\\*` only when intentionally mining old assets.
 
 ## Default implementation posture
 
@@ -132,7 +132,7 @@ It is acceptable to document a deprecated tool as historical context or future o
 - Avoid placeholder-only scaffolding.
 - Preserve PII and compliance boundaries.
 - Use TypeScript, strict types, Zod validation where useful, clean service boundaries, and tests.
-- Use Windows/WSL2-aware paths and commands. Default repo path is `/home/ellisapotheosis/repos/project-nyra`; Windows equivalent is commonly under `C:\Dev\...` or `\\wsl$\Ubuntu\home\ellisapotheosis\repos\project-nyra` depending on context.
+- Use Windows/WSL2-aware paths and commands. Default repo path is `/home/ellisapotheosis/repos/project-nyra`; Windows equivalent is commonly under `C:\\\\Dev\\\\...` or `\\\\\\\\wsl$\\\\Ubuntu\\\\home\\\\ellisapotheosis\\\\repos\\\\project-nyra` depending on context.
 - For destructive, credentialed, payment, MFA, dashboard-click, domain-verification, or physical-machine steps: stop and write exact owner action instructions instead of pretending you completed them.
 
 # Codex Desktop / Codex CLI Project Instructions
@@ -161,14 +161,14 @@ Read the relevant instructions:
 sed -n '1,240p' AGENTS.md 2>/dev/null || true
 sed -n '1,240p' CLAUDE.md 2>/dev/null || true
 sed -n '1,240p' GEMINI.md 2>/dev/null || true
-find docs -maxdepth 3 \( -name '*ARCHITECTURE*' -o -name '*SPEC*' -o -name '*CLEANUP*' -o -name '*CONSOLIDATION*' \) -print 2>/dev/null | sort
+find docs -maxdepth 3 \\\\( -name '\\\*ARCHITECTURE\\\*' -o -name '\\\*SPEC\\\*' -o -name '\\\*CLEANUP\\\*' -o -name '\\\*CONSOLIDATION\\\*' \\\\) -print 2>/dev/null | sort
 ```
 
 If the task touches a major app, first confirm the backup sources exist:
 
 ```bash
-test -d /home/ellisapotheosis/repos/webapp-merge && echo "external backup exists" || echo "MISSING: /home/ellisapotheosis/repos/webapp-merge"
-test -d /home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot && echo "in-repo snapshot exists" || echo "MISSING: webapp-merge-snapshot"
+test -d /home/ellisapotheosis/repos/webapp-merge \\\&\\\& echo "external backup exists" || echo "MISSING: /home/ellisapotheosis/repos/webapp-merge"
+test -d /home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot \\\&\\\& echo "in-repo snapshot exists" || echo "MISSING: webapp-merge-snapshot"
 ```
 
 ## Protected paths
@@ -178,7 +178,7 @@ Do not edit unless explicitly instructed:
 ```text
 /home/ellisapotheosis/repos/webapp-merge
 /home/ellisapotheosis/repos/project-nyra/apps/twenty
-/home/ellisapotheosis/repos/project-nyra/docs/archive/**
+/home/ellisapotheosis/repos/project-nyra/docs/archive/\\\*\\\*
 ```
 
 You may read protected paths for reference if the task requires it.
@@ -200,8 +200,8 @@ If the repo uses npm/yarn instead, detect from lockfiles and use the correct pac
 For app-level validation, use targeted commands first:
 
 ```bash
-cd apps/landing/ratehunter-landing && pnpm lint && pnpm build
-cd apps/webapp/app && pnpm lint && pnpm build
+cd apps/landing/ratehunter-landing \\\&\\\& pnpm lint \\\&\\\& pnpm build
+cd apps/webapp/app \\\&\\\& pnpm lint \\\&\\\& pnpm build
 ```
 
 ## Coding rules

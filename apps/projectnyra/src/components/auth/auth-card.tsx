@@ -16,6 +16,7 @@ import {
   createSupabaseBrowserClient,
   getSupabasePublicConfig,
 } from "@/lib/supabase";
+import { identifyMixpanelUser, trackMixpanelEvent } from "@/lib/mixpanel";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 
 type AuthMode = "forgot-password" | "login" | "reset-password" | "signup";
@@ -83,34 +84,58 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
 
     try {
       if (mode === "login") {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { data: signInData, error: signInError } =
+          await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
 
         if (signInError) {
           setError(signInError.message);
           return;
         }
 
+        if (signInData.user) {
+          identifyMixpanelUser(signInData.user, {
+            sign_in_method: "password",
+          });
+        }
+        trackMixpanelEvent("sign_in_completed", {
+          sign_in_method: "password",
+        });
         router.replace(redirectTo);
         router.refresh();
         return;
       }
 
       if (mode === "signup") {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
-          },
-        });
+        const { data: signUpData, error: signUpError } =
+          await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+                redirectTo
+              )}`,
+            },
+          });
 
         if (signUpError) {
           setError(signUpError.message);
           return;
         }
+
+        if (signUpData.user) {
+          identifyMixpanelUser(signUpData.user, {
+            account_flow: "signup",
+            sign_up_method: "password",
+          });
+        }
+        trackMixpanelEvent("sign_up_completed", {
+          account_flow: "signup",
+          email_confirmation_required: signUpData.session == null,
+          sign_up_method: "password",
+        });
 
         setMessage("Check your email to confirm your Project Nyra account.");
         return;

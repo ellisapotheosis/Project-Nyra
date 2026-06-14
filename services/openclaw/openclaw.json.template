@@ -8,7 +8,7 @@
     },
     "entries": {
       "openclaw-mem0": {
-        "enabled": true,
+        "enabled": ${OPENCLAW_MEM0_ENABLED},
         "config": {
           "mode": "open-source",
           "userId": "nyra",
@@ -21,7 +21,7 @@
             "embedder": {
               "provider": "openai",
               "config": {
-                "model": "text-embedding-3-small",
+                "model": "${OPENCLAW_MEM0_EMBEDDING_MODEL}",
                 "api_key": "${OPENAI_API_KEY}",
                 "base_url": "${OPENAI_BASE_URL}"
               }
@@ -41,13 +41,44 @@
             "llm": {
               "provider": "openai",
               "config": {
-                "model": "gpt-4o-mini",
+                "model": "${OPENCLAW_MEM0_LLM_MODEL}",
                 "api_key": "${OPENAI_API_KEY}",
                 "base_url": "${OPENAI_BASE_URL}"
               }
             }
           }
         }
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "${OPENCLAW_AGENT_MODEL}"
+      },
+      "models": {
+        "${OPENCLAW_AGENT_MODEL}": {}
+      }
+    }
+  },
+  "models": {
+    "providers": {
+      "litellm": {
+        "api": "openai-completions",
+        "baseUrl": "${OPENAI_BASE_URL}",
+        "apiKey": "${OPENAI_API_KEY}",
+        "models": [
+          {
+            "id": "local/qwen-coder-32b",
+            "name": "local/qwen-coder-32b",
+            "contextTokens": 32768
+          },
+          {
+            "id": "local/gemma-4",
+            "name": "local/gemma-4",
+            "contextTokens": 32768
+          }
+        ]
       }
     }
   }

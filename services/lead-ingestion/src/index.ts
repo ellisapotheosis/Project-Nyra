@@ -30,27 +30,36 @@ export type RawLeadPayload = {
 
 const rawLeadPayloadSchema = z
   .object({
-    id: z.string().trim().optional(),
+    id: z.string().trim().uuid().optional(),
     externalId: z.string().trim().optional(),
-    firstName: z.string().trim().optional(),
-    lastName: z.string().trim().optional(),
+    firstName: z.string().trim().min(1, "First name is required").optional(),
+    lastName: z.string().trim().min(1, "Last name is required").optional(),
     name: z.string().trim().optional(),
-    email: z.string().trim().email().optional(),
+    email: z.string().trim().email("Invalid email format").optional(),
     phone: z.string().trim().optional(),
-    source: z.string().trim().optional(),
-    consentEmail: z.boolean().optional(),
-    consentSms: z.boolean().optional(),
-    consentVoice: z.boolean().optional(),
-    doNotContact: z.boolean().optional(),
+    source: z.string().trim().default("UNKNOWN"),
+    consentEmail: z.boolean().default(false),
+    consentSms: z.boolean().default(false),
+    consentVoice: z.boolean().default(false),
+    doNotContact: z.boolean().default(false),
     loanPurpose: z.string().trim().optional(),
     loanAmount: z
-      .union([z.number().finite().nonnegative(), z.string()])
+      .union([
+        z.number().finite().nonnegative(),
+        z
+          .string()
+          .transform((val) => Number(val.replace(/[$,\s]/g, "")))
+          .refine((n) => !isNaN(n) && n >= 0, "Invalid loan amount"),
+      ])
       .optional(),
-    propertyState: z.string().trim().optional(),
+    propertyState: z
+      .string()
+      .trim()
+      .length(2, "Use 2-letter state code")
+      .optional(),
     campaignId: z.string().trim().optional(),
-    metadata: z.record(z.string(), z.unknown()).optional(),
+    metadata: z.record(z.string(), z.unknown()).default({}),
   })
-  .passthrough()
   .superRefine((payload, context) => {
     const hasEmail = cleanString(payload.email) !== undefined;
     const hasPhone = cleanString(payload.phone) !== undefined;
@@ -166,6 +175,7 @@ export class LeadIngestionService {
     const lead = LeadSchema.parse({
       ...existingLead,
       ...normalized,
+      ...preserveComplianceBlock(existingLead),
       id: existingLead?.id ?? normalized.id,
       createdAt: existingLead?.createdAt ?? now,
       updatedAt: now,
@@ -316,6 +326,23 @@ export function determineCampaignEligibility(
   };
 }
 
+function preserveComplianceBlock(
+  existingLead: Lead | undefined
+): Pick<Lead, "consentStatus" | "doNotContact"> | undefined {
+  if (
+    !existingLead ||
+    (!existingLead.doNotContact &&
+      existingLead.consentStatus !== "DO_NOT_CONTACT")
+  ) {
+    return undefined;
+  }
+
+  return {
+    consentStatus: "DO_NOT_CONTACT",
+    doNotContact: true,
+  };
+}
+
 type BuildLeadEventsInput = {
   lead: Lead;
   dedupeKey: string;
@@ -404,12 +431,13 @@ type BuildCrmWritePlanInput = BuildLeadAuditEventsInput & {
 };
 
 export function buildCrmWritePlan(input: BuildCrmWritePlanInput): CrmWritePlan {
-  const leadId = input.lead.id ?? input.dedupeKey;
+  const isCreate = input.dedupeOutcome === "CREATED";
+  const leadId = isCreate ? "pending" : (input.lead.id ?? input.dedupeKey);
   const campaignId = cleanString(input.rawPayload.campaignId);
 
   return {
     lead: {
-      id: input.lead.id,
+      id: isCreate ? undefined : input.lead.id,
       externalId: input.lead.externalId,
       firstName: input.lead.firstName,
       lastName: input.lead.lastName,

@@ -1,0 +1,43 @@
+{
+  "id": "sales-ops-dashboard",
+  "displayName": "Sales Ops Dashboard",
+  "source": {
+    "type": "uploaded-zip",
+    "originalPath": "G:\\Shared drives\\GDrive_Shared\\Vercel_Templates\\sales-ops-dashboard.zip",
+    "zipName": "sales-ops-dashboard.zip"
+  },
+  "kind": "uploaded-vercel-template",
+  "description": "Sales operations dashboard with pipeline, customers, forecasting, reports, team, and settings sections.",
+  "preview": {
+    "dir": "templates/vercel-uploads/sales-ops-dashboard/preview",
+    "run": "cd templates/vercel-uploads/sales-ops-dashboard/preview && npm install --ignore-scripts --no-fund --no-audit --legacy-peer-deps && npm exec next dev -- -p 4323",
+    "port": 4323,
+    "url": "http://localhost:4323"
+  },
+  "screenshots": {
+    "dir": "templates/vercel-uploads/sales-ops-dashboard/screenshots",
+    "status": "captured",
+    "files": [
+      "home.png"
+    ],
+    "note": "Homepage screenshot captured successfully.",
+    "lastAttemptAt": "2026-05-19T18:40:23.721Z"
+  },
+  "extractedTopLevelEntries": [
+    ".gitignore",
+    "app",
+    "components",
+    "components.json",
+    "hooks",
+    "lib",
+    "next.config.mjs",
+    "package.json",
+    "pnpm-lock.yaml",
+    "postcss.config.mjs",
+    "public",
+    "styles",
+    "tsconfig.json"
+  ],
+  "extractedFileCount": 96,
+  "generatedAt": "2026-05-19T18:33:11.173Z"
+}

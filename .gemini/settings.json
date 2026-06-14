@@ -28,7 +28,13 @@
   "hooksConfig": {
     "enabled": true
   },
-  "mcpServers": {},
+  "mcpServers": {
+    "nexus-router": {
+      "type": "http",
+      "url": "https://nexus.trex-fiordland.ts.net/mcp",
+      "startup_timeout_sec": 90
+    }
+  },
   "ui": {
     "inlineThinkingMode": "off",
     "showStatusInTitle": true,

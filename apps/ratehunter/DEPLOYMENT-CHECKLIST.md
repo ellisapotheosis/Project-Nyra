@@ -37,11 +37,12 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 
 - [ ] Cloudflare Pages project created
 - [ ] GitHub repository connected
-- [ ] Root directory: `apps/ratehunter/landing`
+- [ ] Root directory: `apps/ratehunter`
 - [ ] Install command: `npm install`
 - [ ] Build command: `npm run build:cf`
 - [ ] Output directory: `.open-next`
 - [ ] Node version: 20
+- [ ] Build env: `GIT_LFS_SKIP_SMUDGE=1`
 - [ ] Root directory is **not** `/`
 
 ### Environment Variables (Production)
@@ -51,6 +52,7 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 - [ ] `NEXT_PUBLIC_SITE_NAME=RateHunter`
 - [ ] `NODE_VERSION=20`
 - [ ] `NEXT_TELEMETRY_DISABLED=1`
+- [ ] `GIT_LFS_SKIP_SMUDGE=1`
 - [ ] Any API keys or secrets added (encrypted)
 
 ### Build Settings
@@ -151,7 +153,7 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 - [ ] UptimeRobot monitor created (or similar)
 - [ ] Check interval: 5 minutes
 - [ ] Email alerts configured
-- [ ] Status page URL: ********\_********
+- [ ] Status page URL: **\*\*\*\***\_**\*\*\*\***
 
 ### Error Tracking (Recommended)
 
@@ -270,7 +272,7 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 1. Check Cloudflare status: https://www.cloudflarestatus.com/
 2. Check deployment history in dashboard
 3. Rollback to last working deployment (< 1 minute)
-4. Contact: ********\_********
+4. Contact: **\*\*\*\***\_**\*\*\*\***
 
 ### If Build Fails
 
@@ -290,10 +292,10 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 
 ## Sign-Off
 
-**Deployment Date**: ****\_\_\_****
-**Deployed By**: ****\_\_\_****
-**Production URL**: ****\_\_\_****
-**Verified By**: ****\_\_\_****
+**Deployment Date**: \***\*\_\_\_\*\***
+**Deployed By**: \***\*\_\_\_\*\***
+**Production URL**: \***\*\_\_\_\*\***
+**Verified By**: \***\*\_\_\_\*\***
 
 **Notes**:
 
@@ -307,7 +309,7 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 
 ## Next Review
 
-**Scheduled Review Date**: ****\_\_\_****
+**Scheduled Review Date**: \***\*\_\_\_\*\***
 **Items to Review**:
 
 - [ ] SSL certificate expiry (auto-renews, but verify)

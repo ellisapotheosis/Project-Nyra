@@ -322,7 +322,6 @@ export async function buildFinishLineReadinessReport(
       readExistingFiles(rootDir, [
         ".mcp.json",
         ".codex/config.toml",
-        "infra/configs/nexus/nexus.toml",
         "infra/hosts/oracle-vps/nexus.toml",
       ])
     ),

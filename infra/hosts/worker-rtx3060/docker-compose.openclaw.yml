@@ -8,7 +8,7 @@ services:
     container_name: worker-3060-openclaw
     restart: unless-stopped
     ports:
-      - "8003:8001"
+      - "8003:18789"
     environment:
       NODE_ENV: production
       OPENCLAW_ROLE: worker
@@ -16,27 +16,34 @@ services:
       OPENCLAW_MODE: cron-automation
       NEXUS_API_URL: "http://orchestrator.trex-fiordland.ts.net:6000"
       OPENCLAW_GATEWAY_URL: "http://orchestrator.trex-fiordland.ts.net:8001"
-      LITELLM_API_URL: "http://worker-rtx3060.trex-fiordland.ts.net:4000"
+      LITELLM_API_URL: "http://worker-3060-litellm:4000"
+      OPENAI_BASE_URL: "http://worker-3060-litellm:4000/v1"
+      OPENCLAW_AGENT_MODEL: "litellm/worker-3060-general"
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:-}
       ACTIVEPIECES_API_URL: "http://oracle.trex-fiordland.ts.net:5000"
       MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
       QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
       RATE_QUOTING_ENABLED: "true"
       CRON_JOB_EXECUTOR: enabled
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-local-dev-placeholder-change-me}
     depends_on:
       - litellm
     networks:
       - worker-network
 
   nerve-ui:
-    image: ghcr.io/oraios/nerve-ui:latest
+    build:
+      context: ../../images/nerve-ui
+      dockerfile: Dockerfile
     container_name: worker-3060-nerve-ui
     restart: unless-stopped
     ports:
       - "18791:18789"
     environment:
-      OPENCLAW_URL: http://worker-3060-openclaw:8001
+      OPENCLAW_URL: http://worker-3060-openclaw:18789
       NERVE_MODE: cron-interface
       NERVE_MORTGAGE_AUTOMATION: "true"
+      WORKER_NAME: worker-rtx3060
     depends_on:
       - openclaw
     networks:

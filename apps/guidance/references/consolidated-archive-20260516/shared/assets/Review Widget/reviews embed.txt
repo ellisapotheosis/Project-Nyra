@@ -1,3 +1,0 @@
-<!-- Elfsight All-in-One Reviews | Untitled All-in-One Reviews -->
-<script src="https://static.elfsight.com/platform/platform.js" async></script>
-<div class="elfsight-app-9f3a92c4-1c52-429f-8df9-8503522d2ba0" data-elfsight-app-lazy></div>

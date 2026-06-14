@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { crmApi, useApi } from "@/lib/api";
+import { crmApi, type Lead, useApi } from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
 import { WingmanPanel } from "@/components/assistant/wingman-panel";
 import { cn } from "@/lib/utils";
@@ -74,7 +74,7 @@ export default function AssistantPage() {
   const campaignUpdateApi = useApi(crmApi.updateLeadCampaign);
 
   const leads = leadsApi.data?.leads || [];
-  const selectedLead = leads.find((l: any) => l.id === selectedLeadId);
+  const selectedLead = leads.find((l: Lead) => l.id === selectedLeadId);
 
   useEffect(() => {
     leadsApi.execute();
@@ -83,7 +83,7 @@ export default function AssistantPage() {
   useEffect(() => {
     if (!selectedLeadId) return;
     timelineApi.execute(selectedLeadId).then(() => {
-      const lead = leads.find((l: any) => l.id === selectedLeadId);
+      const lead = leads.find((l: Lead) => l.id === selectedLeadId);
       if (lead) {
         setMessages((prev) => [
           ...prev,
@@ -204,7 +204,7 @@ export default function AssistantPage() {
               {(leadsData) => (
                 <ScrollArea className="h-full">
                   <div className="p-3 space-y-1">
-                    {leadsData.map((lead: any) => (
+                    {leadsData.map((lead: Lead) => (
                       <button
                         key={lead.id}
                         onClick={() => setSelectedLeadId(lead.id)}

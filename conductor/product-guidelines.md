@@ -8,7 +8,7 @@
 - **Proactive AI Assistance:** The AI assistant should provide "proposed action" cards for broker approval rather than performing silent mutations.
 - **Deterministic Transparency:** Financial terms and quotes must show the assumptions ledger and require explicit broker approval before delivery.
 
-## Design System & Tokens
+## Design System \& Tokens
 
 - **Foundations:** Next.js App Router, Tailwind CSS, shadcn/ui, Magic UI.
 - **Theming:** Use TweakCN OKLCH themes. Avoid random hex colors; strictly adhere to theme variables.

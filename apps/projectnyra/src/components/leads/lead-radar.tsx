@@ -111,6 +111,37 @@ export function LeadRadar() {
         </span>
       </div>
 
+      {/* Sonar sweep overlay */}
+      <div className="relative w-full aspect-square max-w-[180px] mx-auto mb-2 pointer-events-none">
+        <div
+          className="absolute inset-0 rounded-full border border-indigo-500/10"
+          style={{
+            background:
+              "radial-gradient(circle, oklch(0.5038 0.2937 285.3753 / 0.04) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "50%",
+            background:
+              "conic-gradient(from 0deg, rgba(80,56,255,0.3) 0deg, transparent 60deg, transparent 360deg)",
+            animation: "sonar-sweep 4s linear infinite",
+          }}
+        />
+        <style>{`
+          @keyframes sonar-sweep {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+          }
+        `}</style>
+        {/* Centre dot */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="size-1.5 rounded-full bg-indigo-400/60" />
+        </div>
+      </div>
+
       <div className="space-y-2">
         {leads.map((lead) => (
           <div

@@ -30,6 +30,9 @@ services:
       - ../../..:/workspace
       - ${HOME:-/home/ellisapotheosis}/.config:/tmp/.config:ro
       - ${HOME:-/home/ellisapotheosis}/.cache:/tmp/.cache
+      - ${HOME:-/home/ellisapotheosis}/.llxprt:/tmp/.llxprt:ro
+      - ${HOME:-/home/ellisapotheosis}/.codex:/tmp/.codex
+      - ${HOME:-/home/ellisapotheosis}/.codex/packages/standalone/current/bin/codex:/usr/local/bin/codex:ro
     healthcheck:
       test:
         [

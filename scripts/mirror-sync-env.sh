@@ -8,12 +8,12 @@
 
 set -euo pipefail
 
-LOCAL_SECRETS_FILE="${INFISICAL_LOCAL_SECRETS_FILE:-$HOME/.zsh/99-secrets.zsh}"
-if [[ -z "${INFISICAL_TOKEN:-}" && -f "$LOCAL_SECRETS_FILE" ]]; then
+SECRETS_FILE="$HOME/.zsh/99-secrets.zsh"
+if [[ -z "${INFISICAL_TOKEN:-}" && -f "$SECRETS_FILE" ]]; then
   set +u
   set -a
   # shellcheck source=/dev/null
-  source "$LOCAL_SECRETS_FILE"
+  source "$SECRETS_FILE"
   set +a
   set -u
 fi

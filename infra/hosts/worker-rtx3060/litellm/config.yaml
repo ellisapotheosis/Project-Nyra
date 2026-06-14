@@ -1,10 +1,82 @@
 # LiteLLM Configuration for Worker RTX 3060
-# Provides an OpenAI-compatible API over the local Ollama runtime.
+# Role-based routing over local Ollama runtime (6 GB VRAM laptop).
+# Three roles: embedding, reranker, LLM (background + PicoClaw).
+# Models are swapped on demand via Ollama keep_alive; only ~5 GB of usable VRAM.
 
 model_list:
+  # ── Embedding role (always loaded, ~400 MB) ────────────────────────────────
+  - model_name: worker-3060-embed
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: http://ollama:11434
+      timeout: 120
+    model_info:
+      mode: embedding
+      supports_function_calling: false
+      supports_vision: false
+
+  # Legacy alias kept for backward compat
+  - model_name: worker-3060-embedding
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: http://ollama:11434
+      timeout: 120
+    model_info:
+      mode: embedding
+      supports_function_calling: false
+      supports_vision: false
+
+  # ── Reranker role (~400 MB — routes to all-minilm until Ollama ships Qwen3-Reranker-0.6B) ──
+  - model_name: worker-3060-rerank
+    litellm_params:
+      model: ollama/all-minilm:l6-v2
+      api_base: http://ollama:11434
+      timeout: 120
+    model_info:
+      mode: embedding
+      supports_function_calling: false
+      supports_vision: false
+
+  # ── Background memory LLM (Qwen3-4B, ~2.5 GB, always loaded alongside embedding) ──
+  - model_name: worker-3060-bg-llm
+    litellm_params:
+      model: ollama/qwen3:4b
+      api_base: http://ollama:11434
+      timeout: 180
+      max_tokens: 8192
+    model_info:
+      mode: chat
+      supports_function_calling: true
+      supports_vision: false
+
+  # ── PicoClaw chat LLM (same Qwen3-4B footprint, routed separately for clarity) ──
+  - model_name: worker-3060-picoclaw
+    litellm_params:
+      model: ollama/qwen3:4b
+      api_base: http://ollama:11434
+      timeout: 180
+      max_tokens: 8192
+    model_info:
+      mode: chat
+      supports_function_calling: true
+      supports_vision: false
+
+  # ── Uncensored/obliterated role (Gemma4 E4B OBLITERATED, ~2.5 GB, swap with bg-llm) ──
+  - model_name: worker-3060-uncensored
+    litellm_params:
+      model: ollama/gemma4:4b-obliterated
+      api_base: http://ollama:11434
+      timeout: 180
+      max_tokens: 4096
+    model_info:
+      mode: chat
+      supports_function_calling: false
+      supports_vision: false
+
+  # ── Legacy aliases ─────────────────────────────────────────────────────────
   - model_name: worker-3060-code
     litellm_params:
-      model: ollama/codellama:7b-q4
+      model: ollama/qwen3:4b
       api_base: http://ollama:11434
       timeout: 120
       max_tokens: 8192
@@ -25,7 +97,7 @@ model_list:
       supports_vision: false
 
 general_settings:
-  master_key: ${LITELLM_MASTER_KEY}
+  master_key: os.environ/LITELLM_MASTER_KEY
   drop_params: true
   json_logs: true
 

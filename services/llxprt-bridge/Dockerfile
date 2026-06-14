@@ -1,11 +1,10 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
-# Install dependencies (none needed besides standard node)
-# But we need npm for the spawn command in server.mjs
-
-RUN apk add --no-cache npm git
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates git \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY server.mjs .
 

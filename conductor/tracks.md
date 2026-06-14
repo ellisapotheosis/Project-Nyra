@@ -44,7 +44,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Finish Line Acceleration**
+- [x] **Track: Finish Line Acceleration**
       _Link: [./tracks/finish_line_acceleration_20260520/](./tracks/finish_line_acceleration_20260520/)_
 
 ---

@@ -76,7 +76,7 @@
     "nyra-local-nexus": {
       "provider": "openai-compatible",
       "model": "nyra-auto",
-      "baseUrl": "http://orchestrator.trex-fiordland.ts.net:6000/v1",
+      "baseUrl": "https://nexus.trex-fiordland.ts.net/v1",
       "auth": "Keyring via /key save nyra-nexus <key-or-placeholder>"
     },
     "nyra-local-workers": {
@@ -91,24 +91,27 @@
     },
     "nyra-worker-5090": {
       "provider": "openai-compatible",
-      "model": "local-5090",
-      "baseUrl": "http://worker-rtx5090.trex-fiordland.ts.net:8000/v1"
+      "model": "worker-5090-vllm",
+      "baseUrl": "http://worker-rtx5090.trex-fiordland.ts.net:4000/v1",
+      "notes": "Primary 24 GB worker via LiteLLM so local model switching stays transparent to callers."
     },
     "nyra-worker-3090ti": {
       "provider": "openai-compatible",
-      "model": "local-3090ti",
-      "baseUrl": "http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1"
+      "model": "worker-3090-vllm",
+      "baseUrl": "http://worker-rtx3090ti.trex-fiordland.ts.net:4000/v1",
+      "notes": "24 GB worker via LiteLLM so OpenClaw and direct callers follow the active vLLM model."
     },
     "nyra-worker-3060": {
       "provider": "openai-compatible",
-      "model": "local-3060",
-      "baseUrl": "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1"
+      "model": "worker-3060-bg-llm",
+      "baseUrl": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1",
+      "notes": "Background memory and PicoClaw lane via worker-rtx3060 LiteLLM. Prefer role-specific aliases over raw Ollama ports."
     },
     "nyra-worker-3060-embeddings": {
       "provider": "openai-compatible",
-      "model": "nomic-embed-text",
-      "baseUrl": "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1",
-      "notes": "Utility embedding/extraction lane. Keep 3060 as background memory/extraction worker by default; OpenClaw/PicoClaw is opt-in via make wave-stack-up-3060."
+      "model": "worker-3060-embed",
+      "baseUrl": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1",
+      "notes": "Utility embedding and rerank lane through worker-rtx3060 LiteLLM. Keep 3060 as background memory/extraction worker by default; PicoClaw is opt-in."
     }
   }
 }

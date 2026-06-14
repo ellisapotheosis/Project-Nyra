@@ -41,11 +41,10 @@ apps/
       (assistant)/
       api/
   ratehunter/
-    landing/
     landing-legacy/
 ```
 
-`apps/projectnyra` is the product surface. `apps/ratehunter/landing` is the
+`apps/projectnyra` is the product surface. `apps/ratehunter` is the
 personal brokerage landing page. Runtime Docker Compose files must remain under
 `infra/hosts/<host-name>/` only, with `external/` as the only accepted
 non-host exception.
