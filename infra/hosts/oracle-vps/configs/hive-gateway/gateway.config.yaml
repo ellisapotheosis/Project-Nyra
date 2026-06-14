@@ -1,0 +1,20 @@
+# Hive Gateway — Project Nyra
+# Self-hosted GraphQL federation gateway (The Guild)
+# Replaces deprecated grafbase/router (ghcr.io/grafbase/gateway:latest, port 5050)
+#
+# SCHEMA STRATEGY: Local supergraph SDL file (free, self-hosted, no Hive CDN account needed)
+#
+# To regenerate the supergraph SDL from Twenty CRM:
+#   docker exec oracle-vps-twenty sh -c \
+#     "npx --yes @graphql-hive/cli schema:fetch http://localhost:3000/api/graphql" \
+#     > infra/hosts/oracle-vps/configs/hive-gateway/supergraph.graphql
+#
+# Then restart the gateway: make hive-gateway-down && make hive-gateway-up
+
+serve:
+  port: 4000
+  hostname: "0.0.0.0"
+  healthCheckEndpoint: /healthcheck
+
+# Use pre-composed local supergraph SDL (mounted as /gateway/supergraph.graphql)
+supergraph: /gateway/supergraph.graphql
