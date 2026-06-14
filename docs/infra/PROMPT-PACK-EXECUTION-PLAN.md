@@ -30,8 +30,8 @@ These are the only actions that require the owner:
 
 1. Add or confirm `ratehunter.net` and `projectnyra.com` zones in Cloudflare.
 2. Change Spaceship authoritative nameservers after checking DNSSEC.
-3. Attach `ratehunter.net` and `www.ratehunter.net` to the correct Cloudflare Pages project.
-4. Apply Cloudflare DNS, tunnel public hostnames, and Access policies from the generated plan.
+3. Attach `ratehunter.net` to the correct Cloudflare Pages project.
+4. Apply Cloudflare Access policies after `projectnyra.com` becomes active in Cloudflare.
 5. Complete Portainer first-login/admin setup and enroll remote environments.
 6. Import or paste the generated Home Assistant dashboard YAML into Home Assistant.
 7. Set secret values, especially `NYRA_STATUS_BRIDGE_TOKEN`, through Infisical or gitignored env files.
@@ -46,3 +46,23 @@ This plan is complete when:
 - Portainer lists orchestrator, worker nodes, and Oracle VPS.
 - Home Assistant loads the command deck and status bridge cards.
 - No `ratehunter.net` tunnel route serves Project Nyra apps.
+
+## Completed via Cloudflare API on 2026-05-22
+
+- Verified `cloudflared` availability: `2026.5.0`.
+- Applied Orchestrator tunnel config successfully.
+- Applied Oracle tunnel config successfully.
+- Upserted 22 `projectnyra.com` DNS records successfully.
+- Validated generated ingress rules locally with `cloudflared`.
+
+## Still Blocked By Owner Action
+
+Cloudflare Access app creation failed because Cloudflare reports
+`projectnyra.com` does not yet belong to the Access zone. The Cloudflare zone is
+still `pending` because Spaceship nameservers have not been changed from
+`launch1.spaceship.net` / `launch2.spaceship.net` to:
+
+```text
+mcgrory.ns.cloudflare.com
+zita.ns.cloudflare.com
+```

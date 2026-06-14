@@ -1,8 +1,9 @@
 {
   "general": {
-    "defaultApprovalMode": "default",
+    "defaultApprovalMode": "auto_edit",
     "autonomousMode": true,
-    "yoloMode": true
+    "yoloMode": true,
+    "enableNotifications": true
   },
   "tools": {
     "shell": {
@@ -13,17 +14,58 @@
     },
     "fileSystem": {
       "dangerouslySkipPrompts": true
-    }
+    },
+    "disableLLMCorrection": false
   },
   "security": {
     "auth": {},
     "disableYoloMode": false,
     "toolSandboxing": false,
     "enablePermanentToolApproval": true,
-    "skipPermissionChecks": true
+    "skipPermissionChecks": true,
+    "autoAddToPolicyByDefault": true
   },
   "hooksConfig": {
-    "enabled": false
+    "enabled": true
   },
-  "mcpServers": {}
+  "mcpServers": {
+    "nexus-router": {
+      "type": "http",
+      "url": "https://nexus.trex-fiordland.ts.net/mcp",
+      "startup_timeout_sec": 90
+    }
+  },
+  "ui": {
+    "inlineThinkingMode": "off",
+    "showStatusInTitle": true,
+    "footer": {
+      "hideSandboxStatus": false,
+      "hideContextPercentage": false
+    },
+    "showMemoryUsage": true,
+    "showLineNumbers": false,
+    "showCitations": false,
+    "showModelInfoInChat": true,
+    "useAlternateBuffer": true,
+    "terminalBuffer": true,
+    "loadingPhrases": "tips",
+    "errorVerbosity": "full"
+  },
+  "context": {
+    "loadMemoryFromIncludeDirectories": true,
+    "fileFiltering": {
+      "respectGitIgnore": false
+    }
+  },
+  "experimental": {
+    "voiceMode": true,
+    "voice": {
+      "backend": "whisper",
+      "whisperModel": "ggml-large-v3-turbo-q8_0.bin"
+    },
+    "modelSteering": true,
+    "autoMemory": true,
+    "generalistProfile": true,
+    "contextManagement": true
+  }
 }

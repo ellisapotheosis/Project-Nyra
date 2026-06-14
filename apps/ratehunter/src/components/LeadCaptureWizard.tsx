@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import confetti from "canvas-confetti";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
@@ -113,6 +114,12 @@ export function LeadCaptureWizard() {
 
       if (response.ok) {
         setStep("SUCCESS");
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ["#5038FF", "#00CCB2", "#F20D7A", "#8F14ED"],
+        });
       } else {
         alert("Something went wrong. Please try again.");
       }
@@ -342,10 +349,17 @@ export function LeadCaptureWizard() {
               <ShieldCheck className="h-8 w-8 text-primary" />
               <h2 className="text-xl font-bold">Final Verification</h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                By clicking "Get My Quote", you authorize RateHunter and its
-                partners to contact you at the number/email provided using
-                automated technology (SMS, email, or voice) regarding mortgage
-                products. Consent is not a condition of purchase.
+                By clicking "Request Scenario Review", you authorize RateHunter,
+                Ellis Andersen, and West Capital Lending to contact you at the
+                phone number and email provided using calls, texts, email, or
+                automated technology about your mortgage request. Consent is not
+                a condition of purchase. Message/data rates may apply. Reply
+                STOP to text messages to opt out.
+              </p>
+              <p className="rounded-xl border border-primary/15 bg-background/40 p-3 text-[11px] leading-relaxed text-muted-foreground">
+                Your scenario is routed for broker review and intake logging.
+                The assistant and form do not issue official loan approvals,
+                locked rates, APR, or binding Loan Estimates.
               </p>
               <div className="space-y-2 pt-2 border-t border-primary/10">
                 <p className="text-[10px] font-bold uppercase text-primary">
@@ -371,9 +385,9 @@ export function LeadCaptureWizard() {
             </div>
             <h2 className="text-2xl font-bold">Quote Requested!</h2>
             <p className="text-muted-foreground text-sm">
-              The system is analyzing your scenario and the current rate sheets.
-              Expect an email with your professional quote in the next 2
-              minutes.
+              Your scenario was submitted for broker review. You will receive
+              follow-up after the request is checked against current pricing,
+              eligibility, and disclosure requirements.
             </p>
             <Button
               variant="outline"
@@ -407,7 +421,37 @@ export function LeadCaptureWizard() {
           <Progress value={progress} className="h-1" />
         </CardHeader>
       )}
-      <CardContent className="pt-4">{renderStep()}</CardContent>
+      <CardContent className="pt-4">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            {renderStep()}
+            {step === "LOAN" && data.propertyValue - data.downPayment > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.3 }}
+                className="mt-4 rounded-xl bg-white/5 border border-white/10 p-4 text-center"
+              >
+                <p className="text-xs text-white/50 mb-1">
+                  Based on your loan amount
+                </p>
+                <p className="text-3xl font-bold text-[oklch(0.8871_0.1828_166.5465)]">
+                  6.74%{" "}
+                  <span className="text-sm font-normal text-white/50">
+                    est. rate
+                  </span>
+                </p>
+              </motion.div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </CardContent>
       {step !== "SUCCESS" && (
         <CardFooter className="flex justify-between bg-muted/30 border-t p-4">
           <Button
@@ -422,7 +466,7 @@ export function LeadCaptureWizard() {
               onClick={handleSubmit}
               className="px-8 shadow-lg shadow-primary/20"
             >
-              Get My Quote <Sparkles className="h-4 w-4 ml-2" />
+              Request Scenario Review <Sparkles className="h-4 w-4 ml-2" />
             </Button>
           ) : (
             <Button onClick={next} className="px-8">

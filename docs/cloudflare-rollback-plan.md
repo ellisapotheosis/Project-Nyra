@@ -31,5 +31,5 @@ Rollback Access:
 
 Preferred operational rollback:
 
-- Do not remove DNS for `ratehunter.net` or `www.ratehunter.net`; those were not changed by this apply and should remain Cloudflare Pages.
+- Do not remove DNS for `ratehunter.net`; it was not changed by this apply and should remain Cloudflare Pages.
 - If Oracle remains down, leave DNS in place and repair the Oracle connector rather than deleting subdomain records.

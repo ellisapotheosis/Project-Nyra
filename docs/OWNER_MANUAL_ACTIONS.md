@@ -1,5 +1,15 @@
 # OWNER_MANUAL_ACTIONS.md
 
+Current owner-facing guide package: `docs/user-todo/`.
+
+Use `docs/user-todo/CHECKLIST.md` as the concise source of truth for open
+owner-only actions. This file remains the detailed historical log and reference
+backlog.
+
+Use `docs/user-todo/INFISICAL-MISSING-SECRETS.md` for the tracked, secret-safe
+Infisical missing-variable list. Generated temporary values remain outside the
+repo at `/home/ellisapotheosis/repos/PROJECT_NYRA_INFISICAL_MISSING_SECRETS.md`.
+
 Manual tasks that AI agents cannot complete for you because they require:
 
 - dashboard login
@@ -13,6 +23,46 @@ Manual tasks that AI agents cannot complete for you because they require:
 Agents should always document these steps here instead of blocking.
 
 ## Infisical
+
+### Runtime hardening secrets
+
+The host compose files intentionally fail closed for operational secrets that
+used to have local fallback passwords. Set these before bringing up the affected
+stacks:
+
+- `/machines/orchestrator`: `GRAFANA_ADMIN_PASSWORD`
+- `/machines/oracle-vps`: `PAPERCLIP_DB_PASSWORD`
+- `/machines/oracle-vps`: `PAPERCLIP_API_KEY`
+- `/machines/oracle-vps`: `OPENLIT_DB_PASSWORD`
+- `/machines/oracle-vps`: `OPENLIT_NEXTAUTH_SECRET`
+- `/machines/oracle-vps`: `OPENLIT_VAULT_ENCRYPTION_KEY`
+- `/machines/oracle-vps`: `GRAFANA_PASSWORD` for the migrated LiteLLM Grafana stack if it is used
+- `/machines/oracle-vps`: `N8N_BASIC_AUTH_PASSWORD` and `N8N_DB_PASSWORD` for the migrated shared n8n stack if it is used
+- `/machines/worker-rtx3060`, `/machines/worker-rtx3090ti`, `/machines/worker-rtx5090`: `UNMUTE_OPENAI_API_KEY` when voice stacks are enabled
+- `/machines/worker-rtx3090ti`, `/machines/worker-rtx5090`: `NEXUS_ADMIN_TOKEN` when worker assistant stacks are enabled
+
+Use Infisical, Portainer stack environment, systemd `EnvironmentFile`, or a
+gitignored host `.env`. Do not restore source-level fallback passwords.
+
+### Project Nyra final-cut app/service variables
+
+Add these to the Project Nyra app/service environments before live CRM, quote,
+campaign, and auth smoke tests:
+
+- `CRM_API_URL`
+- `CRM_API_KEY`
+- `LEAD_INGESTION_API_URL`
+- `LEAD_INGESTION_API_KEY`
+- `CAMPAIGN_ENGINE_URL`
+- `QUOTE_API_URL`
+- `QUOTE_API_SECRET`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_APP_URL`
+
+The code now has mock-safe fallbacks for local UI work, but production writes
+must point at the audited service boundaries above.
 
 ### Per-host sidecar bootstrap token
 
@@ -51,6 +101,19 @@ exits successfully and the `infisical-agent` container stays running.
 ### Home Assistant command deck and projectnyra.com domain split
 
 The local prompt-pack work for the `nyra_ha_domain_prompt_pack` was completed on 2026-05-17.
+Cloudflare API follow-up was run on 2026-05-22.
+
+Completed by agent:
+
+- Verified `cloudflared` is installed (`2026.5.0`).
+- Applied Orchestrator tunnel config.
+- Applied Oracle tunnel config.
+- Upserted 22 `projectnyra.com` DNS records.
+- Validated local `cloudflared` ingress rules.
+
+Blocked:
+
+- Cloudflare Access app creation failed because `projectnyra.com` is still pending and not yet delegated to Cloudflare.
 
 Generated local artifacts:
 
@@ -65,9 +128,11 @@ Generated local artifacts:
 Owner-only steps:
 
 1. In Cloudflare, add or confirm separate zones for `ratehunter.net` and `projectnyra.com`.
-2. In Spaceship, check DNSSEC for both domains, disable DNSSEC first if active, then replace authoritative nameservers with Cloudflare-assigned nameservers.
-3. In Cloudflare Pages, attach `ratehunter.net` and `www.ratehunter.net` to the RateHunter Pages project.
-4. In Cloudflare Zero Trust, create or confirm Access apps for Project Nyra admin/control surfaces before exposing them.
+2. In Spaceship, check DNSSEC for `projectnyra.com`, disable DNSSEC first if active, then replace authoritative nameservers with:
+   - `mcgrory.ns.cloudflare.com`
+   - `zita.ns.cloudflare.com`
+3. In Cloudflare Pages, attach `ratehunter.net` to the RateHunter Pages project.
+4. After `projectnyra.com` becomes active in Cloudflare, re-run the Access app apply step or create/confirm Access apps for Project Nyra admin/control surfaces.
 5. In Portainer, complete first-login/admin setup if needed and enroll the worker and Oracle environments.
 6. In Home Assistant, import `infra/hosts/homeassistant/dashboards/nyra-command-deck.yaml` or paste it into a YAML dashboard.
 7. Set `NYRA_STATUS_BRIDGE_TOKEN` in Infisical or a gitignored env file before starting `nyra-status-bridge`.
@@ -84,25 +149,26 @@ Generated desired-state files now exist for the orchestrator and Oracle VPS tunn
 
 Important routing decision:
 
-- `ratehunter.com` and `www.ratehunter.com` stay on Cloudflare Pages only.
+- `ratehunter.net` stays on Cloudflare Pages only.
 - App/service/MCP hostnames use subdomains such as `app.projectnyra.com`, `api.projectnyra.com`, `nexus.projectnyra.com`, and `nexus-router.projectnyra.com`.
 
 Apply status:
 
-- Applied through Cloudflare API on 2026-05-08.
+- Applied through Cloudflare API on 2026-05-22.
 - Tunnel configs applied successfully.
 - DNS records applied successfully.
-- UI/admin Access apps applied successfully.
-- `ratehunter.com` and `www.ratehunter.com` remain Cloudflare Pages hostnames.
+- UI/admin Access apps could not be created yet because Cloudflare returned
+  `domain does not belong to zone` while the `projectnyra.com` zone is still `pending`.
+- `ratehunter.net` remains the only RateHunter landing hostname in this plan.
 
 Required follow-up:
 
-1. Rotate `ORCHESTRATOR_TUNNEL_TOKEN`; a token was pasted into chat during setup.
-2. Confirm Infisical `/machines/orchestrator` contains `ORCHESTRATOR_TUNNEL_ID` and `ORCHESTRATOR_TUNNEL_TOKEN`.
-3. Replace Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN` with the token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`.
-4. Add `SUPABASE_DB_URL_PASSWORD` as the URL-encoded form of `SUPABASE_DB_PASSWORD` if the raw password contains URL-reserved characters.
-5. Repair the stale Oracle Docker/Tailscale context so `docker --context oracle ...` works again without using the public SSH endpoint.
-6. Validate the Home Assistant Green Linkwarden origin from the orchestrator tunnel container. The route and Access apps exist, but the current Codex App session is logged out of Tailscale and cannot reach `100.64.0.2:3007`.
+1. Finish Cloudflare nameserver/domain activation for `projectnyra.com`.
+2. Re-run `bash infra/cloudflare/apply-access-apps.sh` after the zone is active.
+3. Confirm Infisical `/machines/orchestrator` contains `ORCHESTRATOR_TUNNEL_ID` and `ORCHESTRATOR_TUNNEL_TOKEN`.
+4. Replace Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN` with the token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f` if it still mismatches.
+5. Add `SUPABASE_DB_URL_PASSWORD` as the URL-encoded form of `SUPABASE_DB_PASSWORD` if the raw password contains URL-reserved characters.
+6. Validate the Home Assistant Green Linkwarden origin from the orchestrator tunnel container.
 
 Current runtime caveat:
 
@@ -110,6 +176,26 @@ Current runtime caveat:
 - The Oracle tunnel connector is online as tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`, but this session used a runtime token override because the shared Infisical token currently mismatches the tunnel ID.
 - The preferred Linkwarden hostname is `links.projectnyra.com`; keep `linkwarden.projectnyra.com` only as a temporary alias if desired.
 - `http://100.64.0.2:3007` timed out from this local Codex App session on 2026-05-11. Tailscale also reported this session is logged out, so final origin validation must run from the orchestrator tunnel container or a Tailscale-authenticated shell.
+
+2026-05-19 update:
+
+- Cloudflare API token auth is active but lacks Zero Trust tunnel permissions; account API-key auth was used for tunnel, DNS, and Access API calls.
+- `projectnyra.com` Cloudflare zone is still `pending`; public NS still answers `launch1.spaceship.net` and `launch2.spaceship.net`.
+- `ratehunter.net` Cloudflare zone shows `moved`; public NS still answers `dns101.registrar-servers.com` and `dns102.registrar-servers.com`.
+- Cloudflare activation checks were triggered for both zones.
+- Oracle tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f` is healthy with 4 connector connections.
+- Orchestrator tunnel `ae0bd53a-f22e-4414-8593-5b765dcd044b` is healthy with 4 connector connections after correcting the stale local tunnel ID and updating Infisical `/machines/orchestrator`.
+- `projectnyra.com` DNS desired state was re-applied successfully: 22 upserts succeeded, and current projectnyra tunnel CNAME coverage is 21 Oracle records plus 3 orchestrator records with no stale `5ccd2294` CNAMEs.
+- Cloudflare Access app creation for `projectnyra.com` is still blocked with `domain does not belong to zone` until registrar nameservers are delegated to Cloudflare.
+
+After registrar delegation is complete, run:
+
+```bash
+source ~/.zsh/99-secrets.zsh
+export CF_API_TOKEN=
+export CLOUDFLARE_API_TOKEN=
+bash infra/cloudflare/apply-access-apps.sh
+```
 
 Current Oracle smoke status:
 
@@ -235,34 +321,64 @@ This means one of these owner-managed values is wrong or missing:
 6. Verify the API token used by Actions has access to that same account and includes Pages permissions.
 7. Re-run the `Deploy to Cloudflare Pages` workflow after correcting the account/project mismatch.
 
-### ratehunter.com serves branded 404 after a successful landing deploy
+### ratehunter.net serves branded 404 after a successful landing deploy
 
-Observed on May 1, 2026: `https://ratehunter.com/` resolves through Cloudflare but serves a branded `404 Page Not Found`
+Observed on May 1, 2026: the prior RateHunter hostname resolved through Cloudflare but served a branded `404 Page Not Found`
 instead of the landing app homepage. This is different from a build failure. It means the public hostname is not serving
 the deployed `apps/ratehunter/landing` homepage.
 
 Likely causes:
 
-- `ratehunter.com` is attached to a different Pages project, Worker route, or Cloudflared fallback origin.
-- The `ratehunter-landing` Pages project deployed successfully, but `ratehunter.com` is not listed under that project's custom domains.
+- `ratehunter.net` is attached to a different Pages project, Worker route, or Cloudflared fallback origin.
+- The `ratehunter-landing` Pages project deployed successfully, but `ratehunter.net` is not listed under that project's custom domains.
 - DNS for the apex or `www` hostname points at a stale Cloudflare route instead of the Pages custom-domain binding.
 - The deployment adapter uploaded an artifact that returns 200/404 but does not serve the OpenNext landing app content.
 
 **Steps:**
 
 1. Open Cloudflare Dashboard → **Workers & Pages** → `ratehunter-landing` → **Custom domains**.
-2. Confirm both `ratehunter.com` and `www.ratehunter.com` are attached to this exact project and show as active.
-3. Open the Cloudflare DNS records for the `ratehunter.com` zone and confirm there is no Worker route, Pages project,
+2. Confirm both `ratehunter.net` and `www.ratehunter.net` are attached to this exact project and show as active.
+3. Open the Cloudflare DNS records for the `ratehunter.net` zone and confirm there is no Worker route, Pages project,
    or Cloudflared tunnel hostname taking precedence over the apex.
 4. If the domain is attached to another project, remove it there first, then add it to `ratehunter-landing`.
-5. If `ratehunter.com` is intentionally served by Cloudflared instead of Pages, update
+5. If `ratehunter.net` is intentionally served by Cloudflared instead of Pages, update
    `.github/workflows/deploy-cloudflare-pages.yml` and `docs/05_cloudflare_pages_landing.md` before switching traffic.
-6. Re-run the GitHub workflow. Production deploys now verify that `https://ratehunter.com/` contains the expected
+6. Re-run the GitHub workflow. Production deploys now verify that `https://ratehunter.net/` contains the expected
    landing homepage text (`Ellis Andersen`) and will fail if the domain still serves the 404 page.
 
 ## Tailscale
 
 Manual only if you want to enforce additional ACLs, tags, or device policies.
+
+### Runtime health smoke follow-up — May 20, 2026
+
+`scripts/deployment/health-check.sh --allow-down --json-out reports/health/ops-hardening-smoke.json`
+confirmed Tailscale reachability for orchestrator, Oracle VPS, and all three
+GPU workers. The same smoke also showed several live services down or
+unreachable from this shell.
+
+Healthy during the smoke:
+
+- `worker-rtx5090` vLLM health endpoint
+- `worker-rtx5090` subscription bridge
+- `worker-rtx3060` Docker GPU probe
+- `worker-rtx3060` LiteLLM endpoint, returning expected auth-protected `401`
+- `worker-rtx3060` subscription bridge
+
+Owner/operator follow-up before release:
+
+1. On orchestrator, start or repair Portainer, status bridge,
+   subscription bridge, Prometheus, Grafana, and Loki.
+2. On `worker-rtx5090`, repair the Docker context SSH path used by the GPU
+   probe and start or intentionally decommission the local LiteLLM endpoint.
+3. On `worker-rtx3090ti`, repair Docker context SSH, vLLM, LiteLLM, and
+   subscription bridge reachability.
+4. On `worker-rtx3060`, start Ollama or remove it from the expected-health
+   config if the utility worker has moved to a different model endpoint.
+5. On Oracle VPS, start or repair Twenty, Activepieces, n8n, LiteLLM, Nexus,
+   Quote API, Gitea, Letta, and Mem0 reachability.
+6. Re-run the health check without `--allow-down` only after the intended
+   live services are up.
 
 ## Twilio / email providers
 
@@ -416,7 +532,7 @@ email addresses can log in.
 **Allowed identities:**
 
 - `edaneandersen@gmail.com`
-- `ellisandersen@ratehunter.com`
+- the owner's current Cloudflare-approved email identity
 
 **Steps (Cloudflare Zero Trust Dashboard):**
 
@@ -514,3 +630,24 @@ import/reference:
 
 Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
 policies to every private UI before use.
+
+---
+
+## Remaining owner-gated conductor tasks, 2026-05-20
+
+Local repo validation is complete for the prompt-surface and final-cut
+maintenance pass. The remaining unchecked conductor tasks require provider
+dashboards, live credentials, or infrastructure reachable only from the owner
+environment:
+
+1. Create or confirm Twenty CRM custom objects for `MortgageLead` and `Quote`
+   in the Twenty UI.
+2. Populate live Infisical secrets for Twilio, SendGrid, Twenty CRM, Cloudflare
+   tunnel tokens, Composio hosted MCP values, and any provider OAuth clients.
+3. Import campaign sequences into the live Activepieces runtime after secrets
+   are present.
+4. Validate Letta, mem0, FalkorDB, Qdrant, and OpenMemory MCP against the live
+   orchestrator and Oracle VPS memory stack.
+5. Apply Cloudflare Access OAuth/service-token gates in the Cloudflare Zero
+   Trust dashboard and run live URL smoke checks from a Tailscale-authenticated
+   shell.

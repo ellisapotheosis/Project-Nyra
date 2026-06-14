@@ -4,10 +4,12 @@ set -Eeuo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 session="${NYRA_ZELLIJ_SESSION:-nyra-wave-ai}"
 include_3060="${NYRA_INCLUDE_3060:-0}"
-layout="$repo_root/infra/zellij/nyra-wave-ai.kdl"
+layout="$repo_root/infra/configs/zellij/nyra-wave-ai.kdl"
 
 if [ "$include_3060" = "1" ]; then
-  layout="$repo_root/infra/zellij/nyra-wave-ai-3060.kdl"
+  layout="$repo_root/infra/configs/zellij/nyra-wave-ai-3060.kdl"
+else
+  layout="$repo_root/infra/configs/zellij/nyra-wave-ai.kdl"
 fi
 
 mkdir -p "${NYRA_ZELLIJ_HISTORY_DIR:-$HOME/.nyra/zellij-history}"

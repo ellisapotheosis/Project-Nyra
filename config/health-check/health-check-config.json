@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "description": "Default Project Nyra infra health inventory. Endpoints are private MagicDNS/Tailscale or localhost-facing service ports from infra/hosts/* compose files.",
+  "description": "Default Project Nyra infra health inventory. Endpoints are private MagicDNS/Tailscale or localhost-facing service ports from infra/hosts/* compose files. WSL does not require local tailscale/cloudflared CLIs; tunnels are checked as containers through Docker contexts.",
   "external_commands": {
-    "tailscale_status": true,
-    "cloudflared_tunnels": true
+    "tailscale_status": false,
+    "cloudflared_tunnels": false
   },
   "nodes": [
     {
@@ -25,7 +25,7 @@
       "role": "primary-vllm",
       "host": "worker-rtx5090.trex-fiordland.ts.net",
       "ping": true,
-      "gpu": true,
+      "gpu": false,
       "ssh": "worker-rtx5090.trex-fiordland.ts.net"
     },
     {
@@ -33,7 +33,7 @@
       "role": "secondary-vllm",
       "host": "worker-rtx3090ti.trex-fiordland.ts.net",
       "ping": true,
-      "gpu": true,
+      "gpu": false,
       "ssh": "worker-rtx3090ti.trex-fiordland.ts.net"
     },
     {
@@ -41,7 +41,7 @@
       "role": "subscription-api-light-worker",
       "host": "worker-rtx3060.trex-fiordland.ts.net",
       "ping": true,
-      "gpu": true,
+      "gpu": false,
       "ssh": "worker-rtx3060.trex-fiordland.ts.net"
     }
   ],
@@ -61,6 +61,14 @@
       "endpoint": "http://orchestrator.trex-fiordland.ts.net:8787/health",
       "expected_status": [200, 401, 403],
       "compose": "infra/hosts/orchestrator/docker-compose.status-bridge.yml"
+    },
+    {
+      "name": "orchestrator-subscription-bridge",
+      "host_name": "orchestrator",
+      "type": "http",
+      "endpoint": "http://orchestrator.trex-fiordland.ts.net:8090/health",
+      "expected_status": [200, 401, 403],
+      "compose": "infra/hosts/orchestrator/docker-compose.llxprt.yml"
     },
     {
       "name": "orchestrator-prometheus",
@@ -91,6 +99,26 @@
       "compose": "infra/hosts/worker-rtx5090/docker-compose.yml"
     },
     {
+      "name": "worker-5090-gpu-docker",
+      "host_name": "worker-rtx5090",
+      "type": "command",
+      "command": [
+        "docker",
+        "--context",
+        "worker-rtx5090",
+        "run",
+        "--rm",
+        "--gpus",
+        "all",
+        "nvidia/cuda:12.9.0-base-ubuntu22.04",
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used",
+        "--format=csv,noheader"
+      ],
+      "timeout": 30,
+      "compose": "infra/hosts/worker-rtx5090/docker-compose.yml"
+    },
+    {
       "name": "worker-5090-litellm",
       "host_name": "worker-rtx5090",
       "type": "http",
@@ -99,10 +127,38 @@
       "compose": "infra/hosts/worker-rtx5090/docker-compose.yml"
     },
     {
+      "name": "worker-5090-subscription-bridge",
+      "host_name": "worker-rtx5090",
+      "type": "http",
+      "endpoint": "http://worker-rtx5090.trex-fiordland.ts.net:8090/health",
+      "expected_status": [200, 401, 403],
+      "compose": "infra/hosts/worker-rtx5090/docker-compose.llxprt.yml"
+    },
+    {
       "name": "worker-3090ti-vllm",
       "host_name": "worker-rtx3090ti",
       "type": "http",
       "endpoint": "http://worker-rtx3090ti.trex-fiordland.ts.net:8000/health",
+      "compose": "infra/hosts/worker-rtx3090ti/docker-compose.yml"
+    },
+    {
+      "name": "worker-3090ti-gpu-docker",
+      "host_name": "worker-rtx3090ti",
+      "type": "command",
+      "command": [
+        "docker",
+        "--context",
+        "worker-rtx3090ti",
+        "run",
+        "--rm",
+        "--gpus",
+        "all",
+        "nvidia/cuda:12.9.0-base-ubuntu22.04",
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used",
+        "--format=csv,noheader"
+      ],
+      "timeout": 30,
       "compose": "infra/hosts/worker-rtx3090ti/docker-compose.yml"
     },
     {
@@ -114,10 +170,38 @@
       "compose": "infra/hosts/worker-rtx3090ti/docker-compose.yml"
     },
     {
+      "name": "worker-3090ti-subscription-bridge",
+      "host_name": "worker-rtx3090ti",
+      "type": "http",
+      "endpoint": "http://worker-rtx3090ti.trex-fiordland.ts.net:8090/health",
+      "expected_status": [200, 401, 403],
+      "compose": "infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml"
+    },
+    {
       "name": "worker-3060-ollama",
       "host_name": "worker-rtx3060",
       "type": "http",
       "endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:11434/api/tags",
+      "compose": "infra/hosts/worker-rtx3060/docker-compose.yml"
+    },
+    {
+      "name": "worker-3060-gpu-docker",
+      "host_name": "worker-rtx3060",
+      "type": "command",
+      "command": [
+        "docker",
+        "--context",
+        "worker-rtx3060",
+        "run",
+        "--rm",
+        "--gpus",
+        "all",
+        "nvidia/cuda:12.9.0-base-ubuntu22.04",
+        "nvidia-smi",
+        "--query-gpu=name,memory.total,memory.used",
+        "--format=csv,noheader"
+      ],
+      "timeout": 30,
       "compose": "infra/hosts/worker-rtx3060/docker-compose.yml"
     },
     {
@@ -127,6 +211,14 @@
       "endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:4000/health",
       "expected_status": [200, 401, 403],
       "compose": "infra/hosts/worker-rtx3060/docker-compose.yml"
+    },
+    {
+      "name": "worker-3060-subscription-bridge",
+      "host_name": "worker-rtx3060",
+      "type": "http",
+      "endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:8090/health",
+      "expected_status": [200, 401, 403],
+      "compose": "infra/hosts/worker-rtx3060/docker-compose.llxprt.yml"
     },
     {
       "name": "oracle-twenty",
@@ -192,12 +284,6 @@
       "type": "http",
       "endpoint": "http://oracle.trex-fiordland.ts.net:5001/health",
       "compose": "infra/hosts/oracle-vps/docker-compose.memory.yml"
-    }
-  ],
-  "pending_services": [
-    {
-      "name": "worker-rtx3060-subscription-api-shim",
-      "reason": "No host-scoped OpenAI-compatible subscription API service is present yet; this inventory keeps current worker LiteLLM/Ollama checks separate from that future shim."
     }
   ]
 }

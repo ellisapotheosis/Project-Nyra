@@ -1,3 +1,5 @@
 {
-  "scope": "project"
+  "scope": "user",
+  "mcpMode": "none",
+  "installMode": "plugin"
 }

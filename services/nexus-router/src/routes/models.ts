@@ -1,15 +1,15 @@
-import { Router, Request, Response } from 'express';
-import { createLogger } from '../utils/logger';
-import { ModelDiscoveryService } from '../services/model-discovery';
+import { Router, Request, Response } from "express";
+import { createLogger } from "../utils/logger";
+import { ModelDiscoveryService } from "../services/model-discovery";
 
-const logger = createLogger('models-route');
+const logger = createLogger("models-route");
 const router = Router();
 
 /**
  * GET /api/models
  * List all discovered models with full capability matrix
  */
-router.get('/', async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const discoveryService = ModelDiscoveryService.getInstance();
 
@@ -28,10 +28,10 @@ router.get('/', async (req: Request, res: Response) => {
     if (provider) filter.provider = provider as string;
     if (availability) filter.availability = availability as string;
     if (supportsToolCalling !== undefined) {
-      filter.supportsToolCalling = supportsToolCalling === 'true';
+      filter.supportsToolCalling = supportsToolCalling === "true";
     }
     if (supportsVision !== undefined) {
-      filter.supportsVision = supportsVision === 'true';
+      filter.supportsVision = supportsVision === "true";
     }
     if (minContextLength) {
       filter.minContextLength = parseInt(minContextLength as string, 10);
@@ -48,10 +48,10 @@ router.get('/', async (req: Request, res: Response) => {
     // Format in OpenAI-compatible format with extended capabilities
     const formattedModels = models.map((model) => ({
       id: model.id,
-      object: 'model',
+      object: "model",
       created: Math.floor(model.lastChecked.getTime() / 1000),
       owned_by: model.provider,
-      available: model.availability === 'available',
+      available: model.availability === "available",
       provider: model.provider,
 
       // Extended capability matrix
@@ -70,12 +70,12 @@ router.get('/', async (req: Request, res: Response) => {
       pricing: {
         costPer1kInputTokens: model.costPer1kInputTokens,
         costPer1kOutputTokens: model.costPer1kOutputTokens,
-        currency: 'USD',
+        currency: "USD",
       },
 
       // Runtime info
       runtime:
-        model.provider === 'local-gpu'
+        model.provider === "local-gpu"
           ? {
               workerUrl: model.workerUrl,
               workerId: model.workerId,
@@ -102,25 +102,28 @@ router.get('/', async (req: Request, res: Response) => {
     const status = discoveryService.getStatus();
 
     res.json({
-      object: 'list',
+      object: "list",
       data: formattedModels,
       metadata: {
         totalModels: models.length,
         byProvider,
-        availableModels: models.filter((m) => m.availability === 'available').length,
-        unavailableModels: models.filter((m) => m.availability === 'unavailable')
+        availableModels: models.filter((m) => m.availability === "available")
           .length,
+        unavailableModels: models.filter(
+          (m) => m.availability === "unavailable"
+        ).length,
         lastDiscovery: status.lastDiscovery.toISOString(),
         nextDiscovery: status.nextDiscovery.toISOString(),
         cacheVersion: discoveryService.getCacheVersion(),
       },
     });
   } catch (error) {
-    logger.error('Models list error:', error);
+    logger.error("Models list error:", error);
     res.status(500).json({
       error: {
-        message: error instanceof Error ? error.message : 'Failed to list models',
-        type: 'server_error',
+        message:
+          error instanceof Error ? error.message : "Failed to list models",
+        type: "server_error",
       },
     });
   }
@@ -130,9 +133,9 @@ router.get('/', async (req: Request, res: Response) => {
  * GET /api/models/:id
  * Get detailed model information by ID or alias
  */
-router.get('/:model', async (req: Request, res: Response): Promise<void> => {
+router.get("/:model", async (req: Request, res: Response): Promise<void> => {
   try {
-    const modelId = req.params.model;
+    const modelId = String(req.params.model);
     const discoveryService = ModelDiscoveryService.getInstance();
 
     // Look up model (supports aliases)
@@ -142,8 +145,8 @@ router.get('/:model', async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({
         error: {
           message: `Model '${modelId}' not found`,
-          type: 'invalid_request_error',
-          details: 'Model may not be available or discovery has not run yet',
+          type: "invalid_request_error",
+          details: "Model may not be available or discovery has not run yet",
         },
       });
       return;
@@ -153,10 +156,10 @@ router.get('/:model', async (req: Request, res: Response): Promise<void> => {
     res.json({
       id: model.id,
       name: model.name,
-      object: 'model',
+      object: "model",
       created: Math.floor(model.lastChecked.getTime() / 1000),
       owned_by: model.provider,
-      available: model.availability === 'available',
+      available: model.availability === "available",
       provider: model.provider,
 
       // Full capability matrix
@@ -175,7 +178,7 @@ router.get('/:model', async (req: Request, res: Response): Promise<void> => {
       pricing: {
         costPer1kInputTokens: model.costPer1kInputTokens,
         costPer1kOutputTokens: model.costPer1kOutputTokens,
-        currency: 'USD',
+        currency: "USD",
         estimatedCostPer1MTokens: model.costPer1kInputTokens
           ? {
               input: model.costPer1kInputTokens * 1000,
@@ -188,15 +191,15 @@ router.get('/:model', async (req: Request, res: Response): Promise<void> => {
 
       // Runtime information
       runtime:
-        model.provider === 'local-gpu'
+        model.provider === "local-gpu"
           ? {
               workerUrl: model.workerUrl,
               workerId: model.workerId,
               responseTime: model.responseTime,
-              location: 'local',
+              location: "local",
             }
           : {
-              location: 'cloud',
+              location: "cloud",
               endpoint: getCloudEndpoint(model.provider),
             },
 
@@ -211,11 +214,14 @@ router.get('/:model', async (req: Request, res: Response): Promise<void> => {
       recommendedFor: getRecommendedUseCases(model),
     });
   } catch (error) {
-    logger.error('Model details error:', error);
+    logger.error("Model details error:", error);
     res.status(500).json({
       error: {
-        message: error instanceof Error ? error.message : 'Failed to get model details',
-        type: 'server_error',
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to get model details",
+        type: "server_error",
       },
     });
   }
@@ -223,14 +229,14 @@ router.get('/:model', async (req: Request, res: Response): Promise<void> => {
 
 function getCloudEndpoint(provider: string): string {
   switch (provider) {
-    case 'anthropic':
-      return 'https://api.anthropic.com/v1/messages';
-    case 'openai':
-      return 'https://api.openai.com/v1/chat/completions';
-    case 'google-gemini':
-      return 'https://generativelanguage.googleapis.com/v1/models/{model}:generateContent';
+    case "anthropic":
+      return "https://api.anthropic.com/v1/messages";
+    case "openai":
+      return "https://api.openai.com/v1/chat/completions";
+    case "google-gemini":
+      return "https://generativelanguage.googleapis.com/v1/models/{model}:generateContent";
     default:
-      return 'https://openrouter.ai/api/v1/chat/completions';
+      return "https://openrouter.ai/api/v1/chat/completions";
   }
 }
 
@@ -238,7 +244,7 @@ function getCloudEndpoint(provider: string): string {
  * POST /api/models/discovery/refresh
  * Trigger manual model discovery refresh
  */
-router.post('/discovery/refresh', async (_req: Request, res: Response) => {
+router.post("/discovery/refresh", async (_req: Request, res: Response) => {
   try {
     const discoveryService = ModelDiscoveryService.getInstance();
 
@@ -246,24 +252,26 @@ router.post('/discovery/refresh', async (_req: Request, res: Response) => {
     discoveryService
       .discoverModels()
       .then(() => {
-        logger.info('Manual discovery refresh completed');
+        logger.info("Manual discovery refresh completed");
       })
       .catch((error) => {
-        logger.error('Manual discovery refresh failed:', error);
+        logger.error("Manual discovery refresh failed:", error);
       });
 
     res.json({
       success: true,
-      message: 'Model discovery refresh triggered',
+      message: "Model discovery refresh triggered",
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    logger.error('Discovery refresh error:', error);
+    logger.error("Discovery refresh error:", error);
     res.status(500).json({
       error: {
         message:
-          error instanceof Error ? error.message : 'Failed to trigger discovery refresh',
-        type: 'server_error',
+          error instanceof Error
+            ? error.message
+            : "Failed to trigger discovery refresh",
+        type: "server_error",
       },
     });
   }
@@ -273,18 +281,18 @@ router.post('/discovery/refresh', async (_req: Request, res: Response) => {
  * GET /api/models/discovery/status
  * Get current discovery service status
  */
-router.get('/discovery/status', async (_req: Request, res: Response) => {
+router.get("/discovery/status", async (_req: Request, res: Response) => {
   try {
     const discoveryService = ModelDiscoveryService.getInstance();
     const status = discoveryService.getStatus();
 
     res.json({
-      status: 'operational',
+      status: "operational",
       discovery: {
         lastDiscovery: status.lastDiscovery.toISOString(),
         nextDiscovery: status.nextDiscovery.toISOString(),
         discovering: status.discovering,
-        refreshInterval: '5 minutes',
+        refreshInterval: "5 minutes",
         refreshIntervalMs: 5 * 60 * 1000,
       },
       models: {
@@ -297,11 +305,14 @@ router.get('/discovery/status', async (_req: Request, res: Response) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    logger.error('Discovery status error:', error);
+    logger.error("Discovery status error:", error);
     res.status(500).json({
       error: {
-        message: error instanceof Error ? error.message : 'Failed to get discovery status',
-        type: 'server_error',
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to get discovery status",
+        type: "server_error",
       },
     });
   }
@@ -314,43 +325,51 @@ function getRecommendedUseCases(model: any): string[] {
   const useCases: string[] = [];
 
   if (model.supportsToolCalling) {
-    useCases.push('function-calling', 'agentic-workflows');
+    useCases.push("function-calling", "agentic-workflows");
   }
 
   if (model.supportsVision) {
-    useCases.push('image-analysis', 'visual-qa');
+    useCases.push("image-analysis", "visual-qa");
   }
 
   if (model.maxContextLength >= 100000) {
-    useCases.push('long-context', 'document-analysis');
+    useCases.push("long-context", "document-analysis");
   }
 
   if (model.vramRequirements && model.vramRequirements <= 12) {
-    useCases.push('edge-deployment', 'local-inference');
+    useCases.push("edge-deployment", "local-inference");
   }
 
   if (model.costPer1kInputTokens && model.costPer1kInputTokens < 0.001) {
-    useCases.push('high-volume', 'cost-sensitive');
+    useCases.push("high-volume", "cost-sensitive");
   }
 
   if (model.parameterSize) {
     const size = model.parameterSize.toLowerCase();
-    if (size.includes('70b') || size.includes('671b') || size.includes('405b')) {
-      useCases.push('reasoning', 'complex-tasks');
-    } else if (size.includes('7b') || size.includes('8b') || size.includes('13b')) {
-      useCases.push('fast-inference', 'chat');
+    if (
+      size.includes("70b") ||
+      size.includes("671b") ||
+      size.includes("405b")
+    ) {
+      useCases.push("reasoning", "complex-tasks");
+    } else if (
+      size.includes("7b") ||
+      size.includes("8b") ||
+      size.includes("13b")
+    ) {
+      useCases.push("fast-inference", "chat");
     }
   }
 
-  if (model.architecture === 'claude') {
-    useCases.push('code-generation', 'analysis', 'writing');
+  if (model.architecture === "claude") {
+    useCases.push("code-generation", "analysis", "writing");
   }
 
-  if (model.architecture === 'deepseek') {
-    useCases.push('coding', 'reasoning');
+  if (model.architecture === "deepseek") {
+    useCases.push("coding", "reasoning");
   }
 
-  return useCases.length > 0 ? useCases : ['general-purpose'];
+  return useCases.length > 0 ? useCases : ["general-purpose"];
 }
 
 export { router as modelsRouter };

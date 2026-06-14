@@ -1,28 +1,29 @@
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
 export type SupabasePublicConfig = {
   anonKey: string;
   url: string;
 };
 
-export function getSupabasePublicConfig(): SupabasePublicConfig | null {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+function getEnvValue(value: string | undefined) {
+  if (!value || value.trim() === "" || value.includes("replace-me")) {
     return null;
   }
 
-  if (
-    SUPABASE_URL.includes("replace-me") ||
-    SUPABASE_ANON_KEY.includes("replace-me")
-  ) {
+  return value;
+}
+
+export function getSupabasePublicConfig(): SupabasePublicConfig | null {
+  const url = getEnvValue(process.env.NEXT_PUBLIC_SUPABASE_URL);
+  const anonKey =
+    getEnvValue(process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) ??
+    getEnvValue(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+  if (!url || !anonKey) {
     return null;
   }
 
   return {
-    anonKey: SUPABASE_ANON_KEY,
-    url: SUPABASE_URL,
+    anonKey,
+    url,
   };
 }
 

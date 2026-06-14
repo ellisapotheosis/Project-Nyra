@@ -133,7 +133,7 @@ curl -X POST https://api.project-nyra.io/v1/chat/completions \
   <div id="events"></div>
 
   <script>
-    const token = 'YOUR_TOKEN';
+    const token = '<TOKEN>';
     const ws = new WebSocket(`wss://api.project-nyra.io/ws?token=${token}`);
 
     ws.onopen = () => {
@@ -219,7 +219,7 @@ Always store tokens securely:
 const token = process.env.NYRA_API_TOKEN;
 
 // ❌ Bad: Hardcode tokens
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+const token = '<TOKEN>';
 ```
 
 ### Rate Limiting

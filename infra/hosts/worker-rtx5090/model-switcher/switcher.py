@@ -2,6 +2,8 @@ import json
 import os
 import urllib.error
 import urllib.request
+import socket
+import http.client
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 
@@ -20,6 +22,54 @@ VLLM_URL = os.environ.get("VLLM_URL", "")
 PORT = int(os.environ.get("SWITCHER_PORT", "8090"))
 
 state = {"current_model": DEFAULT_MODEL}
+
+
+class UnixHTTPConnection(http.client.HTTPConnection):
+    def __init__(self, unix_socket_path):
+        super().__init__("localhost")
+        self.unix_socket_path = unix_socket_path
+
+    def connect(self):
+        self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.sock.connect(self.unix_socket_path)
+
+
+def find_vllm_container():
+    try:
+        conn = UnixHTTPConnection("/var/run/docker.sock")
+        conn.connect()
+        conn.request("GET", "/containers/json")
+        res = conn.getresponse()
+        if res.status == 200:
+            containers = json.loads(res.read().decode("utf-8"))
+            for container in containers:
+                labels = container.get("Labels", {})
+                if labels.get("com.nyra.service") == "vllm":
+                    return container["Id"]
+            for container in containers:
+                if "vllm" in container.get("Image", "").lower():
+                    return container["Id"]
+            for container in containers:
+                for name in container.get("Names", []):
+                    if "vllm" in name.lower():
+                        return container["Id"]
+        return None
+    except Exception as exc:
+        print(f"Error finding vllm container: {exc}")
+        return None
+
+
+def restart_vllm(container_id):
+    try:
+        conn = UnixHTTPConnection("/var/run/docker.sock")
+        conn.connect()
+        conn.request("POST", f"/containers/{container_id}/restart?t=5")
+        res = conn.getresponse()
+        print(f"Restart container {container_id} status: {res.status} {res.reason}")
+        return res.status in (200, 204)
+    except Exception as exc:
+        print(f"Error restarting container: {exc}")
+        return False
 
 
 def backend_status():
@@ -82,8 +132,56 @@ class Handler(BaseHTTPRequestHandler):
             self._json(400, {"error": "unknown_model", "available_models": AVAILABLE_MODELS})
             return
 
-        state["current_model"] = target
-        self._json(200, {"ok": True, "current_model": state["current_model"]})
+        try:
+            with open("/models/current_model.txt", "w", encoding="utf-8") as handle:
+                handle.write(target)
+            print(f"Wrote target model {target} to /models/current_model.txt")
+        except Exception as exc:
+            self._json(500, {"error": "write_failed", "details": str(exc)})
+            return
+
+        vllm_id = find_vllm_container()
+        if not vllm_id:
+            self._json(
+                500,
+                {
+                    "error": "vllm_container_not_found",
+                    "message": "Could not find vllm container via docker socket",
+                },
+            )
+            return
+
+        print(f"Found vllm container ID: {vllm_id}. Triggering restart...")
+        if restart_vllm(vllm_id):
+            state["current_model"] = target
+            self._json(
+                200,
+                {
+                    "ok": True,
+                    "current_model": state["current_model"],
+                    "message": f"Successfully switched model to {target} and restarted vLLM.",
+                },
+            )
+            return
+
+        self._json(
+            500,
+            {
+                "error": "restart_failed",
+                "message": f"Located vllm container {vllm_id} but docker restart failed",
+            },
+        )
+
+
+try:
+    if os.path.exists("/models/current_model.txt"):
+        with open("/models/current_model.txt", "r", encoding="utf-8") as handle:
+            saved_model = handle.read().strip()
+        if saved_model in AVAILABLE_MODELS:
+            state["current_model"] = saved_model
+            print(f"Restored current model from file: {saved_model}")
+except Exception as exc:
+    print(f"Error restoring model state: {exc}")
 
 
 HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()

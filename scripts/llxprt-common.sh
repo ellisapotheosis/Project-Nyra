@@ -150,7 +150,7 @@ nyra_export_llxprt_env() {
   export SOURCEGIT_CMD="${SOURCEGIT_CMD:-${sourcegit_path}}"
   export LLXPRT_SOURCEGIT="${LLXPRT_SOURCEGIT:-${SOURCEGIT_CMD}}"
 
-  export NYRA_NEXUS_BASE_URL="${NYRA_NEXUS_BASE_URL:-http://oracle.trex-fiordland.ts.net:6000/v1}"
+  export NYRA_NEXUS_BASE_URL="${NYRA_NEXUS_BASE_URL:-https://nexus.trex-fiordland.ts.net/v1}"
   export OPENAI_BASE_URL="${OPENAI_BASE_URL:-${NYRA_NEXUS_BASE_URL}}"
   export OPENAI_API_BASE="${OPENAI_API_BASE:-${NYRA_NEXUS_BASE_URL}}"
   export LLM_BASE_URL="${LLM_BASE_URL:-${NYRA_NEXUS_BASE_URL}}"
@@ -166,8 +166,25 @@ nyra_run_llxprt() {
   local prefix_dir="${NYRA_LLXPRT_NPM_PREFIX:-${HOME}/.cache/nyra-llxprt-code}"
   local provider="${NYRA_LLXPRT_PROVIDER:-openai}"
   local model="${NYRA_LLXPRT_MODEL:-${NYRA_LOCAL_CLUSTER_MODEL:-local-cluster}}"
+  local uses_profile=0
+  local arg
 
   mkdir -p "${prefix_dir}"
+
+  for arg in "$@"; do
+    case "${arg}" in
+      --profile-load|--profile)
+        uses_profile=1
+        break
+        ;;
+    esac
+  done
+
+  if [[ "${uses_profile}" == "1" ]]; then
+    npm exec --yes --prefix "${prefix_dir}" --package "${package_name}" -- llxprt "$@"
+    return
+  fi
+
   npm exec --yes --prefix "${prefix_dir}" --package "${package_name}" -- llxprt \
     --provider "${provider}" \
     --baseurl "${NYRA_NEXUS_BASE_URL}" \

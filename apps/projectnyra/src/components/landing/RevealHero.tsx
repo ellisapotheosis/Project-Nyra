@@ -1,7 +1,12 @@
 "use client";
 
 import React from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import Link from "next/link";
 import { Bot, ChevronDown, ArrowRight } from "lucide-react";
 import { Button, Badge } from "@nyra/ui";
@@ -9,16 +14,13 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { cn } from "@/lib/utils";
 
 export function RevealHero() {
+  const prefersReducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
 
-  // Transform values based on scroll
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
-
-  const revealOpacity = useTransform(scrollYProgress, [0.1, 0.3], [0, 1]);
-  const revealY = useTransform(scrollYProgress, [0.1, 0.3], [50, 0]);
-
-  const loginOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 1]); // Always visible or fades in?
+  const opacity = useTransform(scrollYProgress, [0, 0.16], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.16], [1, 0.94]);
+  const revealOpacity = useTransform(scrollYProgress, [0.08, 0.24], [0, 1]);
+  const revealY = useTransform(scrollYProgress, [0.08, 0.24], [32, 0]);
 
   return (
     <div className="relative min-h-[200vh] bg-black">
@@ -62,8 +64,8 @@ export function RevealHero() {
             Scroll to reveal the neural command layer.
           </p>
           <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
+            animate={prefersReducedMotion ? undefined : { y: [0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
             className="pt-12"
           >
             <ChevronDown className="size-8 text-indigo-400 mx-auto opacity-40" />
@@ -98,7 +100,7 @@ export function RevealHero() {
           </div>
 
           <div className="relative aspect-square">
-            <div className="absolute inset-0 bg-indigo-500/20 blur-[120px] rounded-full animate-pulse" />
+            <div className="absolute inset-8 bg-indigo-500/18 blur-[88px] rounded-full motion-safe:animate-pulse" />
             <div className="relative z-10 border border-indigo-500/30 bg-card/40 backdrop-blur-3xl rounded-[48px] p-8 shadow-2xl h-full flex flex-col justify-center items-center text-center space-y-6">
               <Bot className="size-24 text-indigo-400" />
               <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">
@@ -106,8 +108,14 @@ export function RevealHero() {
               </h3>
               <div className="w-full h-1 bg-indigo-500/10 rounded-full overflow-hidden">
                 <motion.div
-                  animate={{ x: ["-100%", "100%"] }}
-                  transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                  animate={
+                    prefersReducedMotion ? undefined : { x: ["-100%", "100%"] }
+                  }
+                  transition={{
+                    repeat: Infinity,
+                    duration: 3.6,
+                    ease: "linear",
+                  }}
                   className="h-full w-1/3 bg-indigo-500"
                 />
               </div>

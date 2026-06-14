@@ -16,6 +16,7 @@ import {
   createSupabaseBrowserClient,
   getSupabasePublicConfig,
 } from "@/lib/supabase";
+import { identifyMixpanelUser, trackMixpanelEvent } from "@/lib/mixpanel";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 
 type AuthMode = "forgot-password" | "login" | "reset-password" | "signup";
@@ -52,14 +53,21 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [message, setMessage] = React.useState<string | null>(null);
-  const [error, setError] = React.useState<string | null>(
-    searchParams.get("error") === "supabase_not_configured"
-      ? "Supabase is not configured for this environment yet."
-      : null
-  );
+  const initialError = searchParams?.get("error") ?? null;
+  const [error, setError] = React.useState<string | null>(() => {
+    if (initialError === "supabase_not_configured") {
+      return "Supabase is not configured for this environment yet.";
+    }
+
+    if (initialError === "auth_callback_failed") {
+      return "Supabase could not complete the sign-in callback. Try signing in again.";
+    }
+
+    return null;
+  });
   const [isPending, setIsPending] = React.useState(false);
   const configured = Boolean(getSupabasePublicConfig());
-  const redirectTo = getSafeRedirectPath(searchParams.get("redirect"));
+  const redirectTo = getSafeRedirectPath(searchParams?.get("redirect") ?? null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -76,34 +84,58 @@ export function AuthCard({ mode }: { mode: AuthMode }) {
 
     try {
       if (mode === "login") {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { data: signInData, error: signInError } =
+          await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
 
         if (signInError) {
           setError(signInError.message);
           return;
         }
 
+        if (signInData.user) {
+          identifyMixpanelUser(signInData.user, {
+            sign_in_method: "password",
+          });
+        }
+        trackMixpanelEvent("sign_in_completed", {
+          sign_in_method: "password",
+        });
         router.replace(redirectTo);
         router.refresh();
         return;
       }
 
       if (mode === "signup") {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
-          },
-        });
+        const { data: signUpData, error: signUpError } =
+          await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+                redirectTo
+              )}`,
+            },
+          });
 
         if (signUpError) {
           setError(signUpError.message);
           return;
         }
+
+        if (signUpData.user) {
+          identifyMixpanelUser(signUpData.user, {
+            account_flow: "signup",
+            sign_up_method: "password",
+          });
+        }
+        trackMixpanelEvent("sign_up_completed", {
+          account_flow: "signup",
+          email_confirmation_required: signUpData.session == null,
+          sign_up_method: "password",
+        });
 
         setMessage("Check your email to confirm your Project Nyra account.");
         return;

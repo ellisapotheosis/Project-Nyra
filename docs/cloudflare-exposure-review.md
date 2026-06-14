@@ -4,7 +4,7 @@ Updated: 2026-05-08
 
 Decision summary:
 
-- Keep `ratehunter.net` and `www.ratehunter.net` on Cloudflare Pages.
+- Keep `ratehunter.net` and `ratehunter.net` on Cloudflare Pages.
 - Route app/service subdomains through Cloudflare Tunnel.
 - Use Oracle VPS for durable app, Supabase, CRM, workflow, observability, Nexus, LiteLLM, and most MCP sidecars.
 - Use orchestrator tunnel for orchestrator-local services and `links.projectnyra.com` to Home Assistant Green / Linkwarden.

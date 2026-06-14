@@ -5,6 +5,8 @@ import {
   determineCampaignEligibility,
   getLeadDedupeKey,
   normalizeLeadPayload,
+  persistCrmWritePlan,
+  validateRawLeadPayload,
   type RawLeadPayload,
 } from "./index";
 
@@ -42,6 +44,49 @@ describe("lead ingestion", () => {
     });
   });
 
+  it("rejects invalid raw payloads before normalization or CRM writes", async () => {
+    expect(() =>
+      validateRawLeadPayload({
+        email: "not-an-email",
+        phone: "555-123-4567",
+        source: "vendor-feed",
+      })
+    ).toThrow(/email/i);
+
+    expect(() =>
+      normalizeLeadPayload(
+        {
+          firstName: "Missing",
+          lastName: "Destination",
+          source: "vendor-feed",
+        },
+        { id: leadId }
+      )
+    ).toThrow(/email or phone/i);
+
+    const service = new LeadIngestionService({
+      crm: {
+        getLead: async () => {
+          throw new Error("CRM should not be called for invalid lead payloads");
+        },
+        upsertLead: async () => {
+          throw new Error("CRM should not be called for invalid lead payloads");
+        },
+        logCommunication: async () => {
+          throw new Error("CRM should not be called for invalid lead payloads");
+        },
+        checkHealth: async () => ({ status: "HEALTHY" }),
+      },
+    });
+
+    await expect(
+      service.ingest({
+        email: "bad-email",
+        source: "vendor-feed",
+      })
+    ).rejects.toThrow(/email/i);
+  });
+
   it("uses a stable dedupe key and updates matching leads through the CRM boundary", async () => {
     const store = new InMemoryLeadIngestionStore();
     const service = new LeadIngestionService({
@@ -73,6 +118,41 @@ describe("lead ingestion", () => {
       "lead.updated",
       "campaign.eligible",
     ]);
+  });
+
+  it("preserves existing do-not-contact blocks on dedupe updates", async () => {
+    const service = new LeadIngestionService({
+      now: () => fixedDate,
+      idFactory: () => leadId,
+    });
+
+    await service.ingest({
+      firstName: "Casey",
+      lastName: "Stopped",
+      email: "casey-stopped@example.com",
+      source: "unsubscribe",
+      doNotContact: true,
+      campaignId: "speed-to-lead",
+    });
+
+    const updated = await service.ingest({
+      firstName: "Casey",
+      lastName: "Stopped",
+      email: "casey-stopped@example.com",
+      source: "vendor-refresh",
+      consentSms: true,
+      campaignId: "speed-to-lead",
+    });
+
+    expect(updated.dedupeOutcome).toBe("UPDATED");
+    expect(updated.lead).toMatchObject({
+      consentStatus: "DO_NOT_CONTACT",
+      doNotContact: true,
+    });
+    expect(updated.campaignEligibility).toEqual({
+      eligible: false,
+      reason: "DO_NOT_CONTACT",
+    });
   });
 
   it("blocks campaign eligibility when consent is missing", () => {
@@ -114,6 +194,26 @@ describe("lead ingestion", () => {
       eligible: false,
       reason: "DO_NOT_CONTACT",
     });
+    expect(result.crmWritePlan).toMatchObject({
+      lead: {
+        consentStatus: "DO_NOT_CONTACT",
+        doNotContact: true,
+        customFields: {
+          campaignId: "speed-to-lead",
+          campaignStatus: "STOPPED",
+        },
+      },
+      campaignEnrollment: undefined,
+    });
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: "lead.created",
+      }),
+      expect.objectContaining({
+        type: "campaign.ineligible",
+        reason: "DO_NOT_CONTACT",
+      }),
+    ]);
     expect(result.auditEvents).toMatchObject([
       {
         entityType: "LEAD",
@@ -128,11 +228,78 @@ describe("lead ingestion", () => {
         performer: "lead-ingestion",
       },
     ]);
+    expect(result.crmWritePlan.auditEvents).toHaveLength(2);
   });
 
   it("prefers email dedupe over phone dedupe", () => {
     expect(
       getLeadDedupeKey({ email: " Lead@Example.com ", phone: "5551234567" })
     ).toBe("email:lead@example.com");
+  });
+
+  it("builds a typed Twenty CRM write plan for eligible campaign enrollment", async () => {
+    const service = new LeadIngestionService({
+      now: () => fixedDate,
+      idFactory: () => leadId,
+    });
+
+    const result = await service.ingest({
+      firstName: "Morgan",
+      lastName: "Borrower",
+      email: "morgan@example.com",
+      source: "ratehunter",
+      consentSms: true,
+      campaignId: "speed-to-lead",
+      phone: "555-111-2222",
+      loanPurpose: "PURCHASE",
+      loanAmount: 500000,
+      propertyState: "id",
+    });
+
+    expect(result.crmWritePlan).toMatchObject({
+      lead: {
+        firstName: "Morgan",
+        customFields: {
+          dedupeKey: "email:morgan@example.com",
+          campaignId: "speed-to-lead",
+          campaignStatus: "ACTIVE",
+          loanPurpose: "PURCHASE",
+          loanAmount: 500000,
+          propertyState: "ID",
+        },
+      },
+      campaignEnrollment: {
+        leadId: "pending",
+        campaignId: "speed-to-lead",
+        status: "ACTIVE",
+        currentStepIndex: 0,
+      },
+    });
+    expect(result.crmWritePlan.lead.id).toBeUndefined();
+  });
+
+  it("hands the normalized CRM write plan to the persistence boundary", async () => {
+    const service = new LeadIngestionService({
+      now: () => fixedDate,
+      idFactory: () => leadId,
+    });
+    const result = await service.ingest({
+      firstName: "Priya",
+      lastName: "Pipeline",
+      email: "priya@example.com",
+      source: "projectnyra",
+      consentEmail: true,
+      campaignId: "speed-to-lead",
+    });
+    const calls: unknown[] = [];
+
+    await persistCrmWritePlan(result, {
+      execute: async (plan) => {
+        calls.push(plan);
+        return { accepted: true };
+      },
+    });
+
+    expect(calls).toEqual([result.crmWritePlan]);
   });
 });

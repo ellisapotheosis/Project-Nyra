@@ -1,6 +1,16 @@
 # Project Nyra orchestration Makefile (Docker Compose + monorepo utilities)
 
 SHELL := /bin/bash
+NODE ?= orchestrator
+SERVICE ?=
+PROFILES ?=
+NYRA_BOOTSTRAP_DIR ?= /home/ellisapotheosis/repos/Syncnet/nyra-letta-llxprt-bootstrap
+NYRA_BOOTSTRAP ?= $(NYRA_BOOTSTRAP_DIR)
+NYRA_REPO_WSL ?= $(CURDIR)
+PREVIEW ?= 1
+PROJECTNYRA_PORT ?= 3000
+RATEHUNTER_PORT ?= 3001
+NYRA_ENABLE_PREVIEW ?= $(PREVIEW)
 
 # Core Paths — canonical compose is per-host under infra/hosts/
 ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.yml
@@ -16,6 +26,7 @@ ARCHON_ENV_FILE ?= external/archon/nyra-configs/env/archon.env
 
 # Host Specific Compose Files
 ORCHESTRATOR_LLXPRT_COMPOSE := infra/hosts/orchestrator/docker-compose.llxprt.yml
+ORCHESTRATOR_PORTAINER_EDGE_COMPOSE := infra/hosts/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml
 WORKER_3060_LLXPRT_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
 WORKER_3090TI_LLXPRT_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
 WORKER_5090_LLXPRT_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
@@ -41,8 +52,19 @@ WORKER_5090_NERVE_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.nerve.yml
 WORKER_5090_MODEL_SWITCHER_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.model-switcher.yml
 WORKER_3090TI_NERVE_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
 WORKER_3060_OPENCLAW_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.openclaw.yml
+WORKER_3060_BITNET_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.bitnet.yml
 AGENT_INFRA_ENV ?= prod
 INFISICAL_PROJECT_ID ?= 8374cea9-e5e8-4050-bda4-b91f25ab30ef
+NYRA_SECRETS_FILE ?= $(HOME)/.zsh/99-secrets.zsh
+NYRA_USE_LOCAL_ENV ?= 0
+NYRA_LOCAL_VLLM_MODEL ?= Qwen/Qwen2.5-0.5B-Instruct
+NYRA_LOCAL_PLACEHOLDER_SECRET ?= local-dev-placeholder-change-me
+NYRA_COMPOSE_PARALLEL_LIMIT ?= 1
+ORCHESTRATOR_INFISICAL_PATH ?= /machines/orchestrator
+ORACLE_INFISICAL_PATH ?= /machines/oracle-vps
+WORKER_5090_INFISICAL_PATH ?= /machines/worker-rtx5090
+WORKER_3090TI_INFISICAL_PATH ?= /machines/worker-rtx3090ti
+WORKER_3060_INFISICAL_PATH ?= /machines/worker-rtx3060
 ORCHESTRATOR_CONTEXT ?= orchestrator
 ORACLE_CONTEXT ?= oracle
 WORKER_5090_CONTEXT ?= worker-rtx5090
@@ -50,6 +72,60 @@ WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
 WORKER_3060_CONTEXT ?= worker-rtx3060
 FLEET_SSH_TARGETS ?= orchestrator worker-rtx5090 worker-rtx3090ti worker-rtx3060 oracle
 FLEET_DOCKER_CONTEXTS ?= default worker-rtx5090 worker-rtx3090ti worker-rtx3060 orchestrator oracle oracle-vps-oci
+# Agent vault (credential proxy for AI agents) — also pre-Infisical, uses its own env file
+ORACLE_AGENT_VAULT_COMPOSE := infra/hosts/oracle-vps/docker-compose.agent-vault.yml
+ORACLE_AGENT_VAULT_ENV_FILE ?= infra/hosts/oracle-vps/.env.agent-vault
+NYRA_INFISICAL_TOKEN_HINT := INFISICAL_UNIVERSAL_AUTH_CLIENT_ID/SECRET or INFISICAL_TOKEN must be exported on this PC before running remote Docker context targets.
+NYRA_LOCAL_ENV_HINT := repo-local infra/hosts/<host>/.env files are disabled; use ~/.zsh/99-secrets.zsh plus Infisical injection.
+
+define nyra_load_infisical_env
+if [ -f "$(NYRA_SECRETS_FILE)" ] && { [ -z "$${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" ] || [ -z "$${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" ]; } && [ -z "$${INFISICAL_TOKEN:-}" ]; then set -a; . "$(NYRA_SECRETS_FILE)"; set +a; fi;
+endef
+
+define nyra_host_compose
+case "$(1)" in \
+  "$(ORCHESTRATOR_INFISICAL_PATH)") env_file="infra/hosts/orchestrator/.env"; compose_project_name="nyra-network";; \
+  "$(ORACLE_INFISICAL_PATH)") env_file="infra/hosts/oracle-vps/.env"; compose_project_name="nyra-network";; \
+  "$(WORKER_5090_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="worker-rtx5090";; \
+  "$(WORKER_3090TI_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3090ti/.env"; compose_project_name="worker-rtx3090ti";; \
+  "$(WORKER_3060_INFISICAL_PATH)") env_file="infra/hosts/worker-rtx3060/.env"; compose_project_name="worker-rtx3060";; \
+  *) echo "Unknown Infisical path '$(1)' for local env fallback." >&2; exit 64;; \
+esac; \
+if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
+  echo "$(NYRA_LOCAL_ENV_HINT)" >&2; exit 66; \
+  $(4) COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" COMPOSE_PROJECT_NAME="$$compose_project_name" VLLM_MODEL="$${VLLM_MODEL:-$(NYRA_LOCAL_VLLM_MODEL)}" TWENTY_DB_PASSWORD="$${TWENTY_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENCLAW_GATEWAY_TOKEN="$${OPENCLAW_GATEWAY_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_API_KEY="$${PAPERCLIP_API_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_DB_PASSWORD="$${PAPERCLIP_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_SESSION_SECRET="$${PAPERCLIP_SESSION_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" SEARXNG_SECRET="$${SEARXNG_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" BROWSERLESS_TOKEN="$${BROWSERLESS_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_DB_PASSWORD="$${OPENLIT_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_NEXTAUTH_SECRET="$${OPENLIT_NEXTAUTH_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_VAULT_ENCRYPTION_KEY="$${OPENLIT_VAULT_ENCRYPTION_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_DB_PASSWORD="$${LETTA_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_SERVER_PASSWORD="$${LETTA_SERVER_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" docker --context "$(2)" compose --env-file "$$env_file" $(3); \
+else \
+  $(nyra_load_infisical_env) nyra_infisical_auth_token="$$(scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+  $(4) COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" INFISICAL_TOKEN="$$nyra_infisical_auth_token" INFISICAL_UNIVERSAL_AUTH_CLIENT_ID="$${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET="$${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" INFISICAL_ENV="$(AGENT_INFRA_ENV)" NYRA_INFISICAL_PATH="$(1)" infisical run --token="$$nyra_infisical_auth_token" --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(1)" -- env -u DOCKER_HOST docker --context "$(2)" compose --env-file /dev/null $(3); \
+fi
+endef
+
+define nyra_node_shell
+case "$(NODE)" in \
+  orchestrator) host_path="$(ORCHESTRATOR_INFISICAL_PATH)"; ctx="$(ORCHESTRATOR_CONTEXT)"; compose_files="-f $(ORCHESTRATOR_COMPOSE)"; env_file="infra/hosts/orchestrator/.env"; compose_project_name="nyra-network";; \
+  oracle|oracle-vps) host_path="$(ORACLE_INFISICAL_PATH)"; ctx="$(ORACLE_CONTEXT)"; compose_files="-f $(ORACLE_COMPOSE)"; env_file="infra/hosts/oracle-vps/.env"; compose_project_name="nyra-network";; \
+  worker-rtx5090) host_path="$(WORKER_5090_INFISICAL_PATH)"; ctx="$(WORKER_5090_CONTEXT)"; compose_files="-f $(WORKER_5090_COMPOSE)"; env_file="infra/hosts/worker-rtx5090/.env"; compose_project_name="worker-rtx5090";; \
+  worker-rtx3090ti) host_path="$(WORKER_3090TI_INFISICAL_PATH)"; ctx="$(WORKER_3090TI_CONTEXT)"; compose_files="-f $(WORKER_3090TI_COMPOSE)"; env_file="infra/hosts/worker-rtx3090ti/.env"; compose_project_name="worker-rtx3090ti";; \
+  worker-rtx3060) host_path="$(WORKER_3060_INFISICAL_PATH)"; ctx="$(WORKER_3060_CONTEXT)"; compose_files="-f $(WORKER_3060_COMPOSE)"; env_file="infra/hosts/worker-rtx3060/.env"; compose_project_name="worker-rtx3060";; \
+  *) echo "Unknown NODE='$(NODE)'. Expected orchestrator, oracle, worker-rtx5090, worker-rtx3090ti, or worker-rtx3060." >&2; exit 64;; \
+esac; \
+if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
+  echo "$(NYRA_LOCAL_ENV_HINT)" >&2; exit 66; \
+  COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" COMPOSE_PROJECT_NAME="$$compose_project_name" VLLM_MODEL="$${VLLM_MODEL:-$(NYRA_LOCAL_VLLM_MODEL)}" TWENTY_DB_PASSWORD="$${TWENTY_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENCLAW_GATEWAY_TOKEN="$${OPENCLAW_GATEWAY_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_API_KEY="$${PAPERCLIP_API_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_DB_PASSWORD="$${PAPERCLIP_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" PAPERCLIP_SESSION_SECRET="$${PAPERCLIP_SESSION_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" SEARXNG_SECRET="$${SEARXNG_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" BROWSERLESS_TOKEN="$${BROWSERLESS_TOKEN:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_DB_PASSWORD="$${OPENLIT_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_NEXTAUTH_SECRET="$${OPENLIT_NEXTAUTH_SECRET:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" OPENLIT_VAULT_ENCRYPTION_KEY="$${OPENLIT_VAULT_ENCRYPTION_KEY:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_DB_PASSWORD="$${LETTA_DB_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" LETTA_SERVER_PASSWORD="$${LETTA_SERVER_PASSWORD:-$(NYRA_LOCAL_PLACEHOLDER_SECRET)}" docker --context "$$ctx" compose --env-file "$$env_file" $$compose_files; \
+else \
+  $(nyra_load_infisical_env) \
+  nyra_infisical_auth_token="$$(scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+  COMPOSE_PARALLEL_LIMIT="$(NYRA_COMPOSE_PARALLEL_LIMIT)" \
+  INFISICAL_TOKEN="$$nyra_infisical_auth_token" \
+  INFISICAL_UNIVERSAL_AUTH_CLIENT_ID="$${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" \
+  INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET="$${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" \
+  INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" \
+  INFISICAL_ENV="$(AGENT_INFRA_ENV)" \
+  NYRA_INFISICAL_PATH="$$host_path" \
+  infisical run --token="$$nyra_infisical_auth_token" --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$$host_path" -- \
+  env -u DOCKER_HOST docker --context "$$ctx" compose --env-file /dev/null $$compose_files; \
+fi
+endef
 
 # Voice Setup Compose Files
 VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
@@ -74,6 +150,8 @@ DEFAULT_PROFILES ?= apps,sync,debug
   nexus-up nexus-down health stack-up stack-verify \
   gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
   voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed \
+  waveterm-install waveterm-stack-up waveterm-ubuntu waveterm-windows waveterm-health waveterm-status waveterm-preview-up waveterm-preview-down waveterm-preview-status \
+  worker-3060-bitnet-up worker-3060-bitnet-down worker-3090ti-voice-up worker-3090ti-voice-down worker-3090ti-voice-status nexus-agent-status letta-mcp-status composio-status \
   cf-orch-up cf-orch-down cf-orch-logs \
   oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
   oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
@@ -84,12 +162,12 @@ DEFAULT_PROFILES ?= apps,sync,debug
 
 restoration-up: oracle-mcp-tools-up oracle-memory-full-up
 	@echo "🚀 Bringing up LLXPRT cluster..."
-	@docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_LLXPRT_COMPOSE) up -d
-	@docker --context $(WORKER_5090_CONTEXT) compose -f $(WORKER_5090_LLXPRT_COMPOSE) up -d
-	@docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WORKER_3090TI_LLXPRT_COMPOSE) up -d
-	@docker --context $(WORKER_3060_CONTEXT) compose -f $(WORKER_3060_LLXPRT_COMPOSE) up -d
+	@$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_LLXPRT_COMPOSE) up -d)
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_LLXPRT_COMPOSE) up -d)
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_LLXPRT_COMPOSE) up -d)
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_LLXPRT_COMPOSE) up -d)
 	@echo "🐾 Starting ActivePieces MCP on Oracle..."
-	@docker --context oracle compose -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d)
 	@echo "✅ Full Restoration Stack is LIVE."
 
 .DEFAULT_GOAL := help
@@ -105,6 +183,11 @@ help:
 	@echo "make fleet-ssh-check    Verify SSH aliases for PCs and Oracle"
 	@echo "make fleet-docker-check Verify local and remote Docker contexts"
 	@echo "make restoration-up     🚀 RESTORE ALL MISSING SERVICES (ActivePieces, LLXPRT, Memory)"
+	@echo "make waveterm-stack-up  Ubuntu-canonical WaveTerm/Zellij/LLxprt cockpit + optional previews"
+	@echo "make waveterm-ubuntu    Launch the WSL/Ubuntu WaveTerm workflow only"
+	@echo "make waveterm-windows   Launch Windows WaveTerm as a backup shell into Ubuntu"
+	@echo "make waveterm-preview-up/down/status Toggle local Project Nyra + RateHunter previews"
+	@echo "make nexus-agent-status Check Nexus, direct Letta MCP, and Composio routing status"
 	@echo "make up                 Start default local stack profiles"
 	@echo "make down               Stop and remove local stack"
 	@echo "make ps                 Show running containers"
@@ -128,6 +211,7 @@ help:
 	@echo "make voice-3060         Start standalone Unmute on RTX 3060"
 	@echo "make voice-5090         Start standalone Unmute on RTX 5090"
 	@echo "make voice-3090ti       Start standalone Unmute on RTX 3090 Ti"
+	@echo "make worker-3090ti-voice-up/down/status Toggle Kyutai Unmute on RTX 3090 Ti"
 	@echo "make voice-orch         Start Kyutai Pocket TTS on Orchestrator"
 	@echo "make voice-distributed  Start distributed 3-node voice setup"
 	@echo
@@ -151,10 +235,17 @@ help:
 	@echo "make kyutai-mesh-up       Start 3-node Kyutai voice mesh"
 	@echo
 	@echo "--- WAVE AI + ZELLIJ GRID ---"
-	@echo "make wave-stack-up        Start orchestrator + 5090/3090 AI grid and attach Wave/Zellij"
-	@echo "make wave-stack-up-3060   Start default grid plus 3060 OpenClaw/NerveUI tab"
+	@echo "make wave-stack-up        Start full AI grid: 5090 LLM, 3090 OpenClaw/Nerve, 3060 utility, Oracle memory/MCP"
+	@echo "make wave-stack-up-3060   Alias for full grid; 3060 is now included by default"
 	@echo "make wave-stack-status    Show AI grid container status through Docker contexts"
+	@echo "make waveterm-up          Launch Ubuntu-canonical WaveTerm workflow (PREVIEW=0 disables web previews)"
+	@echo "make waveterm-windows-up  Launch the Windows WaveTerm backup into the Ubuntu workflow"
+	@echo "make waveterm-preview-up  Start local ProjectNyra/RateHunter Next.js previews"
+	@echo "make waveterm-preview-down Stop local ProjectNyra/RateHunter previews"
+	@echo "make waveterm-health      Run bootstrap stack health checks"
 	@echo "make wave-only            Attach the persistent Wave/Zellij cockpit only"
+	@echo "make worker-5090-openclaw-up   Optional OpenClaw/Nerve overlay on RTX5090"
+	@echo "make worker-3090ti-voice-up    Optional Kyutai Unmute voice on RTX3090Ti"
 	@echo "make oracle-paperclip-up  Start Paperclip on Oracle VPS"
 	@echo "make oracle-clawteam-up   Start ClawTeam on Oracle VPS"
 	@echo "make oracle-ui-factory-up Start UI Factory MCP/tooling containers"
@@ -163,15 +254,15 @@ help:
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="
-	@docker compose -f $(ORCHESTRATOR_COMPOSE) ps
+	@$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) ps)
 	@echo -e "\n=== [ORACLE-VPS] ==="
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) ps
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) ps)
 	@echo -e "\n=== [WORKER-5090] ==="
-	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) ps
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) ps)
 	@echo -e "\n=== [WORKER-3090TI] ==="
-	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) ps
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) ps)
 	@echo -e "\n=== [WORKER-3060] ==="
-	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) ps
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) ps)
 
 fleet-check: fleet-ssh-check fleet-docker-check
 
@@ -202,14 +293,24 @@ fleet-docker-check:
 up-all: sync-env up up-workers up-oracle
 
 sync-env:
-	@echo "🐾 Synchronizing cluster environment secrets from Infisical..."
-	@./scripts/mirror-sync-env.sh
+	@if [ "$(NYRA_USE_LOCAL_ENV)" = "1" ]; then \
+	  echo "$(NYRA_LOCAL_ENV_HINT)" >&2; \
+	  exit 66; \
+	else \
+	  echo "Checking Infisical auth; secrets stay in Infisical and are injected at compose runtime."; \
+	  $(nyra_load_infisical_env) \
+	  INFISICAL_PROJECT_ID="$(INFISICAL_PROJECT_ID)" \
+	  INFISICAL_ENV="$(AGENT_INFRA_ENV)" \
+	  INFISICAL_ENV_NAME="$(AGENT_INFRA_ENV)" \
+	  infisical login status --silent >/dev/null; \
+	  echo "Infisical auth available for make targets."; \
+	fi
 
 down-all: down
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down
-	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) down
-	docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) down
-	docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) down
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down)
+	$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) down)
+	$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) down)
+	$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) down)
 
 verify-paths:
 	@test -f $(COMPOSE_FILE) || (echo "Missing $(COMPOSE_FILE)" && exit 1)
@@ -225,6 +326,7 @@ verify-paths:
 	@test -f $(WORKER_AI_COMMON_COMPOSE) || (echo "Missing $(WORKER_AI_COMMON_COMPOSE)" && exit 1)
 	@test -f $(WORKER_3090TI_NERVE_COMPOSE) || (echo "Missing $(WORKER_3090TI_NERVE_COMPOSE)" && exit 1)
 	@test -f $(WORKER_5090_NERVE_COMPOSE) || (echo "Missing $(WORKER_5090_NERVE_COMPOSE)" && exit 1)
+	@test -f $(WORKER_3060_BITNET_COMPOSE) || (echo "Missing $(WORKER_3060_BITNET_COMPOSE)" && exit 1)
 	@test -f $(VOICE_3060_COMPOSE) || (echo "Missing $(VOICE_3060_COMPOSE)" && exit 1)
 	@test -f $(VOICE_5090_COMPOSE) || (echo "Missing $(VOICE_5090_COMPOSE)" && exit 1)
 	@test -f $(VOICE_3090TI_COMPOSE) || (echo "Missing $(VOICE_3090TI_COMPOSE)" && exit 1)
@@ -232,7 +334,31 @@ verify-paths:
 	@test -f $(DIST_VOICE_3060) || (echo "Missing $(DIST_VOICE_3060)" && exit 1)
 	@test -f $(DIST_VOICE_5090) || (echo "Missing $(DIST_VOICE_5090)" && exit 1)
 	@test -f $(DIST_VOICE_3090TI) || (echo "Missing $(DIST_VOICE_3090TI)" && exit 1)
-	@echo "All Makefile compose paths are valid."
+	@for file in \
+	  scripts/mirror-sync-env.sh \
+	  scripts/run-llxprt-code.sh \
+	  scripts/nyra-cluster.sh \
+	  scripts/nyra-grid.sh \
+	  scripts/health-check.sh \
+	  scripts/validate-agent-infra.sh \
+	  scripts/infisical/agent-infra-secrets.sh \
+	  scripts/check-voice-mesh.sh \
+	  scripts/setup-waveterm-cyberpunk.sh \
+	  scripts/start-llxprt-bridge.sh \
+	  scripts/stop-llxprt-bridge.sh \
+	  scripts/start-llxprt-oracle-tunnel.sh \
+	  scripts/stop-llxprt-oracle-tunnel.sh \
+	  scripts/setup-wave-configs.sh \
+	  scripts/nyra-wave-zellij.sh \
+	  scripts/nyra-zellij-pane.sh \
+	  scripts/nyra-ui-install.sh \
+	  infra/zellij/nyra-swarm.kdl \
+	  infra/zellij/nyra-orchestrator-mcp.kdl \
+	  infra/images/clawteam/Dockerfile \
+	  infra/images/paperclip/Dockerfile; do \
+	  test -e "$$file" || (echo "Missing $$file" && exit 1); \
+	done
+	@echo "All Makefile compose, script, layout, and image paths are valid."
 
 dev-orchestrate:
 	@echo "🎨 Starting local development orchestration..."
@@ -240,18 +366,68 @@ dev-orchestrate:
 	@make orchestrator-setup
 	@echo "Development stack is being prepared. Use 'make orchestrator-full' to launch the cockpit."
 
+install:
+	pnpm install
+
+lint:
+	pnpm lint
+
+test:
+	pnpm test
+
+validate: verify-paths agent-infra-validate
+	pnpm typecheck
+
+sync-env-all: sync-env
+
+up-core: up
+
+up-orchestrator: up
+
+up-apps: oracle-apps-up
+
+up-dev: dev-orchestrate
+
+stack-up: up-all
+
+stack-verify: health
+
+dev-panels: wave-only
+
+dev-llxprt-code:
+	@./scripts/run-llxprt-code.sh
+
+nexus-up:
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) up -d nexus)
+
+nexus-down:
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) stop nexus)
+
+orchestrator-secrets: orchestrator-setup
+
+orchestrator-wave-launch: orchestrator-full
+
 # --- CORE TARGETS ---
 
 up:
 	@profiles=$$(echo "$(DEFAULT_PROFILES)" | tr ',' ' '); \
 	for p in $$profiles; do args="$$args --profile $$p"; done; \
-	docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) $$args up -d
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) $$args up -d)
 
 down:
-	docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) down --remove-orphans
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) down --remove-orphans)
 
 ps:
-	docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) ps
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) ps)
+
+logs:
+	@$(nyra_node_shell) logs -f --tail=100 $(SERVICE)
+
+pull:
+	@$(nyra_node_shell) pull $(SERVICE)
+
+restart:
+	@$(nyra_node_shell) restart $(SERVICE)
 
 # --- DISTRIBUTED TARGETS ---
 
@@ -268,37 +444,34 @@ grid-kill:
 	tmux kill-session -t nyra-grid 2>/dev/null || true
 
 up-workers:
-	docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
-	docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d
-	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) up -d)
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) up -d)
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) up -d)
 
 up-oracle:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d)
 
 # --- COMPONENT TARGETS ---
 
 ORACLE_GITEA_COMPOSE := infra/hosts/oracle-vps/docker-compose.gitea.yml
 
 gitea-up:
-	docker --context oracle compose -f $(ORACLE_GITEA_COMPOSE) up -d
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_GITEA_COMPOSE) up -d)
 
 gitea-down:
-	docker --context oracle compose -f $(ORACLE_GITEA_COMPOSE) stop
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_GITEA_COMPOSE) stop)
 
 gitea-ps:
-	docker --context oracle compose -f $(ORACLE_GITEA_COMPOSE) ps
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_GITEA_COMPOSE) ps)
 
 twenty-crm-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) up -d twenty
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) up -d twenty)
 
-mempalace-init:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace init
-
-mempalace-mine:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace mine
+twenty-crm-down:
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) stop twenty twenty-worker twenty-db)
 
 health:
-	bash scripts/verify-stack.sh
+	bash scripts/health-check.sh
 
 .PHONY: secrets-init secrets-build secrets-up check-host
 
@@ -308,32 +481,32 @@ check-host:
 # --- VOICE TARGETS ---
 
 voice-3060:
-	docker --context worker-rtx3060 compose -f $(VOICE_3060_COMPOSE) up -d
+	$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(VOICE_3060_COMPOSE) up -d)
 
 voice-5090:
-	docker --context worker-rtx5090 compose -f $(VOICE_5090_COMPOSE) up -d
+	$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(VOICE_5090_COMPOSE) up -d)
 
 voice-3090ti:
-	docker --context worker-rtx3090ti compose -f $(VOICE_3090TI_COMPOSE) up -d
+	$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(VOICE_3090TI_COMPOSE) up -d)
 
 voice-orch:
-	docker compose -f $(VOICE_ORCHESTRATOR_COMPOSE) up -d
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(VOICE_ORCHESTRATOR_COMPOSE) up -d)
 
 voice-distributed:
-	docker --context worker-rtx3060 compose -f $(DIST_VOICE_3060) up -d
-	docker --context worker-rtx5090 compose -f $(DIST_VOICE_5090) up -d
-	docker --context worker-rtx3090ti compose -f $(DIST_VOICE_3090TI) up -d
+	$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(DIST_VOICE_3060) up -d)
+	$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(DIST_VOICE_5090) up -d)
+	$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(DIST_VOICE_3090TI) up -d)
 
 # --- CLOUDFLARED TUNNEL TARGETS ---
 
 cf-orch-up:
-	docker compose -f $(CF_ORCH_COMPOSE) up -d
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(CF_ORCH_COMPOSE) up -d)
 
 cf-orch-down:
-	docker compose -f $(CF_ORCH_COMPOSE) down
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(CF_ORCH_COMPOSE) down)
 
 cf-orch-logs:
-	docker compose -f $(CF_ORCH_COMPOSE) logs -f --tail=100
+	$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(CF_ORCH_COMPOSE) logs -f --tail=100)
 
 # --- ORACLE APP STACK TARGETS ---
 # Apps run on Oracle VPS. They use profile "apps" so they don't start
@@ -342,16 +515,140 @@ cf-orch-logs:
 # compose stay there.
 
 oracle-apps-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d)
 
 oracle-apps-down:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down)
 
 oracle-quote-engine-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d quote_engine
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d quote_engine)
 
 oracle-campaign-engine-up:
-	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d campaign_engine
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d campaign_engine)
+
+# --- INFISICAL SELF-HOSTED STACK ---
+# Uses direct docker commands (NOT nyra_host_compose) because this IS the secrets layer.
+# It bootstraps itself from .env.infisical, not from Infisical.
+
+.PHONY: infisical-gen-env infisical-deploy infisical-up infisical-down infisical-restart infisical-logs infisical-logs-backend infisical-logs-gateway infisical-logs-postgres infisical-health infisical-ps infisical-shell
+
+define nyra_infisical_retired
+	@echo "❌ The self-hosted Infisical stack has been retired."
+	@echo "   Use Infisical Cloud with Universal Auth instead."
+	@echo "   Required env: INFISICAL_UNIVERSAL_AUTH_CLIENT_ID, INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET, INFISICAL_PROJECT_ID"
+	@exit 1
+endef
+
+infisical-gen-env:
+$(nyra_infisical_retired)
+
+infisical-deploy:
+$(nyra_infisical_retired)
+
+infisical-up:
+$(nyra_infisical_retired)
+
+infisical-down:
+$(nyra_infisical_retired)
+
+infisical-restart:
+$(nyra_infisical_retired)
+
+infisical-logs:
+$(nyra_infisical_retired)
+
+infisical-logs-backend:
+$(nyra_infisical_retired)
+
+infisical-logs-gateway:
+$(nyra_infisical_retired)
+
+infisical-logs-postgres:
+$(nyra_infisical_retired)
+
+infisical-health:
+$(nyra_infisical_retired)
+
+infisical-ps:
+$(nyra_infisical_retired)
+
+infisical-shell:
+$(nyra_infisical_retired)
+
+# --- AGENT VAULT ---
+# Credential proxy for AI agents. Also pre-Infisical bootstrap, uses own env file.
+
+.PHONY: agent-vault-up agent-vault-down agent-vault-restart agent-vault-logs agent-vault-health agent-vault-ps agent-vault-shell
+
+agent-vault-up:
+	@echo "🔐 Starting Agent Vault..."
+	@[ -f $(ORACLE_AGENT_VAULT_ENV_FILE) ] || (echo "❌ Missing $(ORACLE_AGENT_VAULT_ENV_FILE)"; exit 1)
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) up -d
+	@echo "✅ Agent Vault running — https://agent-vault.trex-fiordland.ts.net"
+
+agent-vault-down:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) down
+
+agent-vault-restart:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) restart
+
+agent-vault-logs:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) logs -f
+
+agent-vault-health:
+	@echo "📊 Agent Vault Health"
+	@echo "====================="
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) ps
+	@curl -sf https://agent-vault.trex-fiordland.ts.net/health 2>/dev/null && echo "✅ Reachable via Caddy" || echo "⚠️  Not yet reachable (Caddy or service may be starting)"
+
+agent-vault-ps:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) ps
+
+agent-vault-shell:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_VAULT_COMPOSE) --env-file $(ORACLE_AGENT_VAULT_ENV_FILE) exec agent-vault sh
+
+# --- INFISICAL CLOUD AUDIT (app.infisical.com) ---
+# Cloud-only status and coverage helpers. The local/self-hosted Infisical sync
+# path has been retired; use Universal Auth or a cloud token.
+#
+# Quick start:
+#   export INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=<client-id>
+#   export INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=<client-secret>
+#   make infisical-cloud-status
+
+.PHONY: infisical-cloud-sync infisical-cloud-push infisical-cloud-pull infisical-cloud-status infisical-cloud-dry-run infisical-missing-secrets memory-stack-smoke nexus-mcp-smoke compose-with-infisical
+
+infisical-cloud-sync:
+	@echo "📊 Cloud Infisical status..."
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh status
+
+infisical-cloud-push:
+	@echo "ℹ️  Local/self-hosted sync has been retired; showing cloud status..."
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh status
+
+infisical-cloud-pull:
+	@echo "ℹ️  Local/self-hosted sync has been retired; showing cloud status..."
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh status
+
+infisical-cloud-status:
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh status
+
+infisical-cloud-dry-run:
+	@echo "🧪 Cloud audit (no changes made)..."
+	@$(nyra_load_infisical_env) scripts/infisical/sync-cloud.sh audit
+
+infisical-missing-secrets:
+	@python scripts/infra/inventory-infisical-secrets.py --write
+	@echo "Wrote docs/reports/INFISICAL_MISSING_SECRETS.md"
+
+memory-stack-smoke:
+	@scripts/infra/smoke-memory-stack.sh
+
+nexus-mcp-smoke:
+	@scripts/infra/smoke-nexus-mcp.sh
+
+compose-with-infisical:
+	@scripts/infra/compose-with-infisical.sh --help
 
 # --- AGENT INFRA TARGETS ---
 
@@ -367,52 +664,46 @@ agent-secrets-audit:
 	INFISICAL_ENV=$(AGENT_INFRA_ENV) scripts/infisical/agent-infra-secrets.sh audit
 
 oracle-agent-utils-up:
-	docker --context oracle compose -f $(ORACLE_AGENT_UTILS_COMPOSE) up -d
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_AGENT_UTILS_COMPOSE) up -d)
 
 oracle-agent-utils-down:
-	docker --context oracle compose -f $(ORACLE_AGENT_UTILS_COMPOSE) down
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_AGENT_UTILS_COMPOSE) down)
 
 oracle-memory-up:
-	docker --context oracle compose -f $(ORACLE_MEMORY_COMPOSE) up -d
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) up -d)
 
 oracle-memory-down:
-	docker --context oracle compose -f $(ORACLE_MEMORY_COMPOSE) down
+	$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) down)
 
 kyutai-base-3060-up:
-	docker --context worker-rtx3060 compose -f $(KYUTAI_BASE_3060_COMPOSE) up -d
+	$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(KYUTAI_BASE_3060_COMPOSE) up -d)
 
 kyutai-mesh-up:
-	docker --context worker-rtx3060 compose -f $(KYUTAI_MESH_3060_COMPOSE) up -d
-	docker --context worker-rtx3090ti compose -f $(KYUTAI_MESH_3090TI_COMPOSE) up -d
-	docker --context worker-rtx5090 compose -f $(KYUTAI_MESH_5090_COMPOSE) up -d
+	$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(KYUTAI_MESH_3060_COMPOSE) up -d)
+	$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(KYUTAI_MESH_3090TI_COMPOSE) up -d)
+	$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(KYUTAI_MESH_5090_COMPOSE) up -d)
 
 kyutai-mesh-down:
-	docker --context worker-rtx3060 compose -f $(KYUTAI_MESH_3060_COMPOSE) down
-	docker --context worker-rtx3090ti compose -f $(KYUTAI_MESH_3090TI_COMPOSE) down
-	docker --context worker-rtx5090 compose -f $(KYUTAI_MESH_5090_COMPOSE) down
+	$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(KYUTAI_MESH_3060_COMPOSE) down)
+	$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(KYUTAI_MESH_3090TI_COMPOSE) down)
+	$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(KYUTAI_MESH_5090_COMPOSE) down)
 
 kyutai-mesh-check:
 	bash scripts/check-voice-mesh.sh
 
 secrets-init: check-host
-	@if [ -z "$(TOKEN)" ]; then echo "🚨 Error: TOKEN is required."; exit 1; fi
-	@mkdir -p infra/hosts/$(HOST)
-	@echo "INFISICAL_TOKEN=$(TOKEN)" > infra/hosts/$(HOST)/.env.host
-	@echo "INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef" >> infra/hosts/$(HOST)/.env.host
-	@echo "INFISICAL_ENV=prod" >> infra/hosts/$(HOST)/.env.host
-	@echo "INFISICAL_PATH=/workers/$(HOST)" >> infra/hosts/$(HOST)/.env.host
-	@if [ "$(HOST)" = "homeassistant" ]; then echo "INFISICAL_PATH=/homeassistant" >> infra/hosts/$(HOST)/.env.host; fi
-	@echo "INFISICAL_API_URL=https://app.infisical.com" >> infra/hosts/$(HOST)/.env.host
-	@echo "NYRA_FORCE_SECRETS=false" >> infra/hosts/$(HOST)/.env.host
-	@echo "🐾 ✅ Successfully generated infra/hosts/$(HOST)/.env.host"
+	@echo "$(NYRA_LOCAL_ENV_HINT)" >&2
+	@echo "Use make targets from the repo root; they source $(NYRA_SECRETS_FILE) and run docker compose under infisical run." >&2
+	@exit 66
 
 secrets-build: check-host
 	@echo "🐾 🛠️  Building secrets sidecar for $(HOST)..."
 	docker compose -f infra/hosts/$(HOST)/docker-compose.yml --profile secrets build
 
 secrets-up: check-host
-	@echo "🐾 🚀 Starting secrets sidecar for $(HOST)..."
-	docker compose -f infra/hosts/$(HOST)/docker-compose.yml --env-file infra/hosts/$(HOST)/.env.host --profile secrets up -d
+	@echo "$(NYRA_LOCAL_ENV_HINT)" >&2
+	@echo "Use the host-specific make target so secrets are injected by Infisical at runtime." >&2
+	@exit 66
 
 # ════════════════════════════════════════════════════════════════════════════
 # MAXIMALIST SWARM ORCHESTRATION: WAVE + ZELLIJ + INFISICAL
@@ -420,12 +711,7 @@ secrets-up: check-host
 
 .PHONY: swarm-setup swarm-up swarm-oracle swarm-utility swarm-down swarm-logs swarm-ghost swarm-grid nerve-ui-3090ti nerve-ui-5090 claw-team-up
 
-# Infisical integration: export secrets to .env.swarm
-.env.swarm:
-	@echo "🔐 Pulling secrets from Infisical CLI..."
-	@infisical export --env=prod --path=/workers/orchestrator --format=dotenv > .env.swarm || \
-		(echo "⚠️ Failed to pull Infisical secrets. Creating empty .env.swarm..." && touch .env.swarm)
-
+# Infisical integration: local swarm inherits auth from ~/.zsh/99-secrets.zsh; no repo-local .env file.
 swarm-setup:
 	@echo "🌊 Bootstrapping Maximalist Wave AI (Waveterm) & Zellij Swarm..."
 	@curl -fsSL https://dl.waveterm.dev/get-waveterm.sh | sh
@@ -433,13 +719,13 @@ swarm-setup:
 	@./scripts/setup-waveterm-cyberpunk.sh
 	@echo "✅ Configuration written. Restart WaveTerm to apply."
 
-swarm-up: .env.swarm
+swarm-up:
 	@echo "🌊 Booting Maximalist Zellij Swarm..."
 	@if zellij list-sessions 2>/dev/null | grep -q "nyra-swarm"; then \
 		echo "⚡ Swarm already active. Attaching via WaveTerm..."; \
 	else \
 		echo "🚀 Spawning detached Zellij Swarm (nyra-swarm)..."; \
-		set -a; source .env.swarm; set +a; \
+		$(nyra_load_infisical_env) \
 		zellij --layout infra/zellij/nyra-swarm.kdl --session nyra-swarm -d; \
 		echo "⏳ Waiting 3s for Ghost Layer (llxprt) proxy to stabilize on :8080..."; \
 		sleep 3; \
@@ -450,20 +736,20 @@ swarm-up: .env.swarm
 
 swarm-oracle:
 	@echo "☁️  Deploying Asynchronous Heavy State to Oracle VPS..."
-	@docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.oracle.yml up -d
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f infra/hosts/oracle-vps/docker-compose.oracle.yml up -d)
 	@echo "✅ Oracle Stack (Paperclip, SearXNG, Browserless) is LIVE."
 
 swarm-utility:
 	@echo "🛠️  Deploying Utility Node to RTX 3060..."
-	@docker --context worker-rtx3060 compose -f infra/hosts/worker-rtx3060/docker-compose.utility.yml up -d
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f infra/hosts/worker-rtx3060/docker-compose.utility.yml up -d)
 	@echo "✅ Utility Stack (Embeddings, TTS Voice) is LIVE."
 
 swarm-down:
 	@echo "🛑 Terminating local Zellij Swarm..."
 	@zellij kill-session nyra-swarm 2>/dev/null || echo "Local swarm already down."
 	@echo "🛑 Terminating remote stacks..."
-	@docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.oracle.yml down
-	@docker --context worker-rtx3060 compose -f infra/hosts/worker-rtx3060/docker-compose.utility.yml down
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f infra/hosts/oracle-vps/docker-compose.oracle.yml down)
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f infra/hosts/worker-rtx3060/docker-compose.utility.yml down)
 	@rm -f .env.swarm
 	@echo "✅ Entire Swarm (Local + Oracle + Utility) terminated."
 
@@ -483,13 +769,13 @@ swarm-grid:
 
 nerve-ui-3090ti:
 	@echo "🧠 Starting Nerve UI on RTX3090Ti..."
-	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d openclaw
-	@echo "Nerve UI (3090Ti): http://worker-rtx3090ti.trex-fiordland.ts.net:8001"
+	@$(MAKE) worker-3090ti-ai-up
+	@echo "Nerve UI (3090Ti): http://worker-rtx3090ti.trex-fiordland.ts.net:18790"
 
 nerve-ui-5090:
 	@echo "🧠 Starting Nerve UI on RTX5090..."
-	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d openclaw
-	@echo "Nerve UI (5090): http://worker-rtx5090.trex-fiordland.ts.net:8001"
+	@$(MAKE) worker-5090-ai-up
+	@echo "Nerve UI (5090): http://worker-rtx5090.trex-fiordland.ts.net:18789"
 
 claw-team-up:
 	@echo "🦞 Starting ClawTeam Orchestration (Distributed Nerve)..."
@@ -517,7 +803,7 @@ dev-status:
 	@docker --context worker-rtx3060 ps 2>/dev/null | grep -E "embed|voice|inference" || echo "     ℹ Not running (use 'make up-workers')"
 	@echo ""
 	@echo "🗄️ PAPERCLIP (Oracle VPS):"
-	@docker compose -f $(ORACLE_COMPOSE) ps 2>/dev/null | grep paperclip || echo "     ℹ Not running (use 'make oracle-apps-up')"
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) ps paperclip) 2>/dev/null | grep paperclip || echo "     ℹ Not running (use 'make oracle-paperclip-up')"
 
 dev-down:
 	@echo "Shutting down Development Orchestration..."
@@ -529,7 +815,8 @@ dev-llxprt-jefe:
 	@cd ./external/llxprt-jefe && jefe
 
 llxprt-bridge-up:
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt -- ./scripts/start-llxprt-bridge.sh
+	@$(nyra_load_infisical_env) nyra_infisical_auth_token="$$(scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+	  infisical run --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt -- ./scripts/start-llxprt-bridge.sh
 
 llxprt-bridge-down:
 	@./scripts/stop-llxprt-bridge.sh
@@ -552,41 +839,49 @@ llxprt-oracle-subscription-up: llxprt-bridge-up llxprt-oracle-tunnel-up llxprt-o
 .PHONY: up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers
 
 up-worker-3090ti:
-	@echo "Starting RTX3090Ti (openclaw + gemma4)..."
-	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d
+	@echo "Starting RTX3090Ti (vLLM + LiteLLM + OpenClaw + Nerve)..."
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) up -d)
 
 up-worker-5090:
-	@echo "Starting RTX5090 (claude-code + qwen3.6)..."
-	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
+	@echo "Starting RTX5090 (local vLLM + LMCache + Redis + LiteLLM only)..."
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) up -d)
 
 up-worker-3060:
-	@echo "Starting RTX3060 (embeddings + LLM + voice)..."
-	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
+	@echo "Starting RTX3060 (embeddings + PicoClaw + background memory LLM + BitNet CPU)..."
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) up -d)
+	@$(MAKE) worker-3060-bitnet-up
 
 up-all-workers: up-worker-3090ti up-worker-5090 up-worker-3060
 	@echo "All workers started"
 
 down-all-workers:
-	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) down
-	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) down
-	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) down
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) down)
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) down)
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) down)
+	@$(MAKE) worker-3060-bitnet-down
+
+worker-3060-bitnet-up:
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_BITNET_COMPOSE) up -d --build)
+
+worker-3060-bitnet-down:
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_BITNET_COMPOSE) down)
 
 # PAPERCLIP (Oracle VPS)
 .PHONY: paperclip-up paperclip-down paperclip-logs paperclip-status
 
 paperclip-up:
 	@echo "Starting PAPERCLIP..."
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
+	@$(MAKE) oracle-paperclip-up
 	@echo "PAPERCLIP: http://paperclip.projectnyra.com"
 
 paperclip-down:
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) stop paperclip paperclip-mcp
+	@$(MAKE) oracle-paperclip-down
 
 paperclip-logs:
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) logs -f paperclip
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) logs -f paperclip)
 
 paperclip-status:
-	@docker --context oracle compose -f $(ORACLE_COMPOSE) ps paperclip paperclip-mcp
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) ps paperclip)
 
 # ════════════════════════════════════════════════════════════════════════════
 # 🌊 ULTIMATE ORCHESTRATOR: Letta-MCP + Composio + Full Multi-CLI Cockpit
@@ -602,7 +897,9 @@ orchestrator-setup:
 	@echo "🔐 [1/4] Pulling Infisical secrets for orchestrator..."
 	@mkdir -p ~/.nyra
 	@if command -v infisical &>/dev/null; then \
-		infisical export --env=prod --path=/workers/orchestrator --format=dotenv > ~/.nyra/.env.orchestrator 2>/dev/null || \
+		$(nyra_load_infisical_env) \
+		nyra_infisical_auth_token="$$(scripts/infra/infisical-auth-token.sh)" && \
+		infisical export --token="$$nyra_infisical_auth_token" --projectId="$(INFISICAL_PROJECT_ID)" --env="$(AGENT_INFRA_ENV)" --path="$(ORCHESTRATOR_INFISICAL_PATH)" --format=dotenv > ~/.nyra/.env.orchestrator 2>/dev/null || \
 		(echo "⚠️  Infisical offline. Creating minimal .env..." && echo "LLXPRT_DUMMY_KEY=local_dev" > ~/.nyra/.env.orchestrator); \
 	else \
 		echo "⚠️  Infisical CLI not installed. Skipping secret pull."; \
@@ -720,9 +1017,7 @@ oracle-clawteam:
 	@$(MAKE) oracle-clawteam-up
 
 rtx3060-clawteam-fallback:
-	@docker --context $(WORKER_3060_CONTEXT) compose \
-	  -f infra/hosts/worker-rtx3060/docker-compose.yml \
-	  -f infra/hosts/worker-rtx3060/docker-compose.clawteam.yml up -d clawteam
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f infra/hosts/worker-rtx3060/docker-compose.yml -f infra/hosts/worker-rtx3060/docker-compose.clawteam.yml up -d clawteam)
 
 clawteam-all-deploy: oracle-clawteam rtx3060-clawteam-fallback
 	@echo "✅ ClawTeam dual-deployment complete"
@@ -773,16 +1068,16 @@ openclaw-status-dashboard:
 	@echo "════════════════════════════════════════════════════════════"
 	@echo ""
 	@echo "🔴 RTX5090 (Inference)"
-	@echo "   OpenClaw: worker-rtx5090:8001 | NerveUI: worker-rtx5090:6006"
-	@docker --context $(WORKER_5090_CONTEXT) exec $(COMPOSE_PROJECT_NAME:-nyra)-worker-rtx5090-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
+	@echo "   OpenClaw: worker-rtx5090:8001 | NerveUI: worker-rtx5090:18789"
+	@docker --context $(WORKER_5090_CONTEXT) exec worker-5090-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
 	@echo ""
 	@echo "🟢 RTX3090Ti (Inference)"
-	@echo "   OpenClaw: worker-rtx3090ti:8002 | NerveUI: worker-rtx3090ti:6007"
-	@docker --context $(WORKER_3090TI_CONTEXT) exec $(COMPOSE_PROJECT_NAME:-nyra)-worker-rtx3090ti-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
+	@echo "   OpenClaw: worker-rtx3090ti:8002 | NerveUI: worker-rtx3090ti:18790"
+	@docker --context $(WORKER_3090TI_CONTEXT) exec worker-3090-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
 	@echo ""
 	@echo "🟡 RTX3060 (Cron/Testing)"
-	@echo "   OpenClaw: worker-rtx3060:8003 | NerveUI: worker-rtx3060:6008"
-	@docker --context $(WORKER_3060_CONTEXT) exec $(COMPOSE_PROJECT_NAME:-nyra)-worker-rtx3060-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
+	@echo "   OpenClaw: worker-rtx3060:8003 | NerveUI: worker-rtx3060:18791"
+	@docker --context $(WORKER_3060_CONTEXT) exec worker-3060-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
 	@echo ""
 	@echo "════════════════════════════════════════════════════════════"
 
@@ -796,12 +1091,12 @@ openclaw-status-dashboard:
 
 docker-build-clawteam:
 	@echo "Building ClawTeam Docker image..."
-	docker build -f infra/docker/Dockerfile.clawteam -t nyra/clawteam:latest .
+	docker build -f infra/images/clawteam/Dockerfile -t nyra/clawteam:latest .
 	@echo "✅ ClawTeam image built: nyra/clawteam:latest"
 
 docker-build-paperclip:
 	@echo "Building Paperclip Docker image..."
-	docker build -f infra/docker/Dockerfile.paperclip -t nyra/paperclip:latest .
+	docker build -f infra/images/paperclip/Dockerfile -t nyra/paperclip:latest .
 	@echo "✅ Paperclip image built: nyra/paperclip:latest"
 
 docker-build-all: docker-build-clawteam docker-build-paperclip
@@ -822,15 +1117,15 @@ docker-push-paperclip:
 # ════════════════════════════════════════════════════════════════════════════
 
 oracle-clawteam-deploy:
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) build clawteam
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) build clawteam)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam)
 	@sleep 3
 	@echo "✅ ClawTeam deployed to Oracle-VPS (port 8080)"
 	@docker --context $(ORACLE_CONTEXT) logs nyra-clawteam-primary --tail 20
 
 oracle-paperclip-deploy:
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) build paperclip
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) up -d paperclip
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) build paperclip)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) up -d paperclip)
 	@sleep 3
 	@echo "✅ Paperclip deployed to Oracle-VPS (port 3100)"
 	@docker --context $(ORACLE_CONTEXT) logs nyra-paperclip-mcp-gateway --tail 20
@@ -847,155 +1142,202 @@ oracle-clawteam-paperclip-all:
 # ============================================================================
 
 .PHONY: wave-stack-up wave-stack-up-3060 wave-stack-down wave-stack-status \
+  waveterm-setup waveterm-install waveterm-stack-up waveterm-up waveterm-ubuntu waveterm-up-no-preview waveterm-windows waveterm-windows-up \
+  waveterm-zellij waveterm-health waveterm-preview-up waveterm-preview-down \
+  waveterm-preview-status waveterm-status workstation-up nexus-agent-status letta-mcp-status composio-status composio-login \
   wave-only wave-only-3060 orchestrator-ai-up orchestrator-ai-down \
   worker-5090-ai-up worker-3090ti-ai-up worker-3060-ai-up \
   worker-5090-ai-down worker-3090ti-ai-down worker-3060-ai-down \
+  worker-5090-openclaw-up worker-5090-openclaw-down \
+  worker-3090ti-voice-up worker-3090ti-voice-down worker-3090ti-voice-ps worker-3090ti-voice-status \
   oracle-memory-manager-up oracle-memory-extra-up oracle-memory-full-up \
   oracle-memory-full-down oracle-webapp-twenty-up oracle-webapp-twenty-down \
   oracle-paperclip-up oracle-paperclip-down oracle-clawteam-up \
   oracle-clawteam-down oracle-agent-tools-up oracle-agent-tools-down
 
-wave-stack-up: orchestrator-ai-up worker-5090-ai-up worker-3090ti-ai-up oracle-memory-full-up oracle-webapp-twenty-up oracle-portainer-up oracle-mcp-tools-up wave-only
+.PHONY: waveterm-setup waveterm-install waveterm-stack-up waveterm-up waveterm-ubuntu waveterm-up-no-preview waveterm-windows waveterm-windows-up waveterm-zellij waveterm-health waveterm-preview-up waveterm-preview-down waveterm-preview-status waveterm-status workstation-up nexus-agent-status letta-mcp-status composio-status composio-login worker-5090-ai-up worker-3090ti-ai-up worker-3060-ai-up worker-5090-ai-down worker-3090ti-ai-down worker-3060-ai-down worker-5090-openclaw-up worker-5090-openclaw-down worker-3090ti-voice-up worker-3090ti-voice-down worker-3090ti-voice-ps worker-3090ti-voice-status
 
-wave-stack-up-3060: orchestrator-ai-up worker-5090-ai-up worker-3090ti-ai-up worker-3060-ai-up oracle-memory-full-up oracle-webapp-twenty-up oracle-portainer-up oracle-mcp-tools-up wave-only-3060
+wave-stack-up: orchestrator-ai-up worker-5090-ai-up worker-3090ti-ai-up worker-3060-ai-up oracle-memory-full-up oracle-webapp-twenty-up oracle-portainer-up oracle-mcp-tools-up waveterm-up
+
+wave-stack-up-3060: wave-stack-up
+
+waveterm-stack-up: wave-stack-up
+
+waveterm-setup:
+	@test -d "$(NYRA_BOOTSTRAP_DIR)" || (echo "Missing NYRA_BOOTSTRAP_DIR=$(NYRA_BOOTSTRAP_DIR)" >&2; exit 64)
+	@echo "Installing canonical Ubuntu WaveTerm/Zellij/LLxprt configs from $(NYRA_BOOTSTRAP_DIR)..."
+	@cd "$(NYRA_BOOTSTRAP_DIR)" && bash scripts/linux/install-bootstrap.sh && bash scripts/linux/apply-llxprt-profiles.sh
+
+waveterm-install: waveterm-setup
+
+workstation-up:
+	@test -d "$(NYRA_BOOTSTRAP_DIR)" || (echo "Missing NYRA_BOOTSTRAP_DIR=$(NYRA_BOOTSTRAP_DIR)" >&2; exit 64)
+	@cd "$(NYRA_BOOTSTRAP_DIR)" && NYRA_REPO_WSL="$(NYRA_REPO_WSL)" bash scripts/linux/standup-workstation.sh
+
+waveterm-up: waveterm-setup
+	@echo "Launching Ubuntu-canonical WaveTerm workflow (PREVIEW=$(PREVIEW))..."
+	@cd "$(NYRA_BOOTSTRAP_DIR)" && \
+	  NYRA_REPO_WSL="$(NYRA_REPO_WSL)" \
+	  START_LIVE_PREVIEW="$(PREVIEW)" \
+	  NYRA_ENABLE_PREVIEW="$(PREVIEW)" \
+	  PROJECTNYRA_PORT="$(PROJECTNYRA_PORT)" \
+	  RATEHUNTER_PORT="$(RATEHUNTER_PORT)" \
+	  bash scripts/linux/launch-waveterm-workflow.sh
+
+waveterm-ubuntu: waveterm-up
+
+waveterm-up-no-preview:
+	@$(MAKE) waveterm-up PREVIEW=0
+
+waveterm-windows-up:
+	@test -f "$(NYRA_BOOTSTRAP_DIR)/scripts/windows/launch-waveai.ps1" || (echo "Missing Windows WaveTerm launcher" >&2; exit 64)
+	@powershell.exe -ExecutionPolicy Bypass -File "$$(wslpath -w "$(NYRA_BOOTSTRAP_DIR)/scripts/windows/launch-waveai.ps1")"
+
+waveterm-windows: waveterm-windows-up
+
+waveterm-zellij:
+	@test -d "$(NYRA_BOOTSTRAP_DIR)" || (echo "Missing NYRA_BOOTSTRAP_DIR=$(NYRA_BOOTSTRAP_DIR)" >&2; exit 64)
+	@cd "$(NYRA_BOOTSTRAP_DIR)" && bash scripts/linux/launch-zellij-stack.sh
+
+waveterm-health:
+	@test -d "$(NYRA_BOOTSTRAP_DIR)" || (echo "Missing NYRA_BOOTSTRAP_DIR=$(NYRA_BOOTSTRAP_DIR)" >&2; exit 64)
+	@cd "$(NYRA_BOOTSTRAP_DIR)" && bash scripts/linux/healthcheck-stack.sh
+
+waveterm-preview-up:
+	@test -d "$(NYRA_BOOTSTRAP_DIR)" || (echo "Missing NYRA_BOOTSTRAP_DIR=$(NYRA_BOOTSTRAP_DIR)" >&2; exit 64)
+	@cd "$(NYRA_BOOTSTRAP_DIR)" && NYRA_REPO_WSL="$(NYRA_REPO_WSL)" PROJECTNYRA_PORT="$(PROJECTNYRA_PORT)" bash scripts/linux/launch-live-dev.sh projectnyra > /tmp/nyra-dev-projectnyra.log 2>&1 & echo $$! > /tmp/nyra-dev-projectnyra.pid
+	@cd "$(NYRA_BOOTSTRAP_DIR)" && NYRA_REPO_WSL="$(NYRA_REPO_WSL)" RATEHUNTER_PORT="$(RATEHUNTER_PORT)" bash scripts/linux/launch-live-dev.sh ratehunter > /tmp/nyra-dev-ratehunter.log 2>&1 & echo $$! > /tmp/nyra-dev-ratehunter.pid
+	@echo "Project Nyra preview: http://localhost:$(PROJECTNYRA_PORT)"
+	@echo "RateHunter preview:   http://localhost:$(RATEHUNTER_PORT)"
+
+waveterm-preview-down:
+	@for pidfile in /tmp/nyra-dev-projectnyra.pid /tmp/nyra-dev-ratehunter.pid; do \
+	  if [ -f "$$pidfile" ]; then kill "$$(cat "$$pidfile")" 2>/dev/null || true; rm -f "$$pidfile"; fi; \
+	done
+	@pkill -f "next dev .* -p $(PROJECTNYRA_PORT)" 2>/dev/null || true
+	@pkill -f "next dev .* -p $(RATEHUNTER_PORT)" 2>/dev/null || true
+
+waveterm-preview-status:
+	@printf "%-16s " "projectnyra"; curl -fsSI --max-time 5 "http://127.0.0.1:$(PROJECTNYRA_PORT)" >/dev/null && echo "OK http://localhost:$(PROJECTNYRA_PORT)" || echo "DOWN http://localhost:$(PROJECTNYRA_PORT)"
+	@printf "%-16s " "ratehunter"; curl -fsSI --max-time 5 "http://127.0.0.1:$(RATEHUNTER_PORT)" >/dev/null && echo "OK http://localhost:$(RATEHUNTER_PORT)" || echo "DOWN http://localhost:$(RATEHUNTER_PORT)"
+
+waveterm-status: waveterm-preview-status nexus-agent-status
+	@echo ""
+	@echo "== WaveTerm helper =="
+	@wsh version 2>/dev/null || echo "wsh unavailable; open Ubuntu WaveTerm or run make waveterm-windows"
+
+nexus-agent-status: letta-mcp-status composio-status
+	@printf "%-22s " "Nexus health"; curl -fsS --max-time 8 "https://nexus.trex-fiordland.ts.net/health" >/dev/null && echo "OK https://nexus.trex-fiordland.ts.net/health" || echo "DOWN https://nexus.trex-fiordland.ts.net/health"
+	@printf "%-22s " "Nexus MCP"; status=$$(curl -sS -o /tmp/nyra-nexus-mcp.status -w "%{http_code}" --max-time 8 "https://nexus.trex-fiordland.ts.net/mcp" || true); echo "HTTP $$status (405 on GET is expected for streamable HTTP POST)"
+
+letta-mcp-status:
+	@printf "%-22s " "Letta agents"; curl -fsS --max-time 8 "https://letta.projectnyra.com/v1/agents" >/dev/null && echo "OK https://letta.projectnyra.com/v1/agents" || echo "CHECK https://letta.projectnyra.com/v1/agents"
+	@printf "%-22s " "Letta MCP direct"; curl -isS --max-time 3 "http://oracle-vps.trex-fiordland.ts.net:8284/sse" 2>/dev/null | grep -q "200 OK" && echo "OK oracle-vps.trex-fiordland.ts.net:8284/sse" || echo "CHECK oracle-vps.trex-fiordland.ts.net:8284/sse"
+	@echo "Letta MCP is intentionally verified as direct service plus Nexus health unless/until Nexus exposes a spec-clean Letta tool listing."
+
+composio-status:
+	@printf "%-22s " "Composio CLI"; command -v composio >/dev/null && composio whoami >/dev/null 2>&1 && echo "INSTALLED/auth cache present" || echo "MISSING or login required"
+	@printf "%-22s " "Composio API"; composio search github --limit 1 >/dev/null 2>&1 && echo "OK" || echo "AUTH FAILED; run make composio-login"
+	@printf "%-22s " "Composio config"; rg -q "composio|COMPOSIO" infra/hosts/oracle-vps services config scripts && echo "PRESENT in repo config/secrets inventory" || echo "MISSING repo references"
+	@printf "%-22s " "Composio Nexus"; rg -q "mcp\\.servers\\..*composio|COMPOSIO_MCP" infra/hosts/oracle-vps/nexus.toml && echo "CONFIGURED" || echo "NOT AGGREGATED in Nexus"
+
+composio-login:
+	@composio login
 
 wave-stack-down: orchestrator-ai-down worker-5090-ai-down worker-3090ti-ai-down worker-3060-ai-down oracle-memory-full-down oracle-webapp-twenty-down oracle-mcp-tools-down
 	@zellij kill-session nyra-wave-ai 2>/dev/null || true
 
 wave-only:
-	@chmod +x scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@chmod +x scripts/setup-wave-configs.sh scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@scripts/setup-wave-configs.sh
 	@NYRA_INCLUDE_3060=0 scripts/nyra-wave-zellij.sh
 
 wave-only-3060:
-	@chmod +x scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@chmod +x scripts/setup-wave-configs.sh scripts/nyra-wave-zellij.sh scripts/nyra-zellij-pane.sh
+	@scripts/setup-wave-configs.sh
 	@NYRA_INCLUDE_3060=1 scripts/nyra-wave-zellij.sh
 
 orchestrator-ai-up:
 	@echo "Starting lightweight orchestrator edge services; LiteLLM/Nexus/Portainer CE run on Oracle..."
-	@NYRA_INFISICAL_PATH=/machines/orchestrator \
-	  docker --context $(ORCHESTRATOR_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORCHESTRATOR_COMPOSE) \
-	  -f $(INFISICAL_RUNTIME_COMPOSE) \
-	  --profile apps up -d \
-	  openclaw-gateway portainer-edge-agent infisical-agent infisical-sidecar
+	@$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(ORCHESTRATOR_LLXPRT_COMPOSE) -f $(ORCHESTRATOR_PORTAINER_EDGE_COMPOSE) --profile apps up -d openclaw-gateway portainer-edge-agent infisical-agent infisical-sidecar llxprt-jefe llxprt-code llxprt-bridge)
 
 orchestrator-ai-down:
-	@NYRA_INFISICAL_PATH=/machines/orchestrator \
-	  docker --context $(ORCHESTRATOR_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORCHESTRATOR_COMPOSE) \
-	  -f $(INFISICAL_RUNTIME_COMPOSE) down
+	@$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(ORCHESTRATOR_LLXPRT_COMPOSE) -f $(ORCHESTRATOR_PORTAINER_EDGE_COMPOSE) down)
 
 worker-5090-ai-up:
-	@echo "Starting RTX5090 vLLM + LMCache + Redis + LiteLLM + OpenClaw + NerveUI..."
-	@NYRA_INFISICAL_PATH=/machines/worker-rtx5090 WORKER_GRAFANA_PORT=3005 \
-	  docker --context $(WORKER_5090_CONTEXT) compose --env-file /dev/null \
-	  -f $(WORKER_5090_COMPOSE) \
-	  -f $(INFISICAL_RUNTIME_COMPOSE) \
-	  -f $(WORKER_AI_COMMON_COMPOSE) \
-	  -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) \
-	  -f $(WORKER_5090_NERVE_COMPOSE) up -d \
-	  portainer-edge-agent redis vllm litellm promtail node-exporter gpu-exporter health-monitor grafana model-switcher openclaw nerve-ui infisical-agent infisical-sidecar
+	@echo "Starting RTX5090 local LLM only: vLLM + LMCache + Redis + LiteLLM + model-switcher + LLxprt bridge..."
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_5090_LLXPRT_COMPOSE) -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) up -d portainer-edge-agent redis vllm litellm promtail node-exporter gpu-exporter health-monitor grafana model-switcher infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3005)
+
+worker-5090-openclaw-up:
+	@echo "Starting optional RTX5090 OpenClaw + NerveUI overlay..."
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(WORKER_5090_NERVE_COMPOSE) up -d openclaw nerve-ui)
+
+worker-5090-openclaw-down:
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(WORKER_5090_NERVE_COMPOSE) stop openclaw nerve-ui)
 
 worker-3090ti-ai-up:
 	@echo "Starting RTX3090Ti vLLM + LMCache + Redis + LiteLLM + OpenClaw + NerveUI..."
-	@NYRA_INFISICAL_PATH=/machines/worker-rtx3090ti WORKER_GRAFANA_PORT=3006 \
-	  docker --context $(WORKER_3090TI_CONTEXT) compose --env-file /dev/null \
-	  -f $(WORKER_3090TI_COMPOSE) \
-	  -f $(INFISICAL_RUNTIME_COMPOSE) \
-	  -f $(WORKER_AI_COMMON_COMPOSE) \
-	  -f $(WORKER_3090TI_NERVE_COMPOSE) up -d \
-	  portainer-edge-agent redis vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3090TI_LLXPRT_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) up -d portainer-edge-agent vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3006)
 
 worker-3060-ai-up:
-	@echo "Starting RTX3060 Ollama + LiteLLM + optional OpenClaw + NerveUI..."
-	@NYRA_INFISICAL_PATH=/machines/worker-rtx3060 WORKER_GRAFANA_PORT=3007 \
-	  docker --context $(WORKER_3060_CONTEXT) compose --env-file /dev/null \
-	  -f $(WORKER_3060_COMPOSE) \
-	  -f $(INFISICAL_RUNTIME_COMPOSE) \
-	  -f $(WORKER_AI_COMMON_COMPOSE) \
-	  -f $(WORKER_3060_OPENCLAW_COMPOSE) up -d \
-	  portainer-edge-agent ollama litellm model-switcher promtail node-exporter gpu-exporter grafana openclaw nerve-ui infisical-agent infisical-sidecar
+	@echo "Starting RTX3060 utility role: embeddings + PicoClaw + memory/fallback LiteLLM + LLxprt bridge..."
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3060_LLXPRT_COMPOSE) up -d portainer-edge-agent ollama litellm model-switcher embedding-service picoclaw promtail node-exporter gpu-exporter grafana infisical-agent infisical-sidecar llxprt-code llxprt-bridge,WORKER_GRAFANA_PORT=3007)
+	@$(MAKE) worker-3060-bitnet-up
 
 worker-5090-ai-down:
-	@NYRA_INFISICAL_PATH=/machines/worker-rtx5090 WORKER_GRAFANA_PORT=3005 \
-	  docker --context $(WORKER_5090_CONTEXT) compose --env-file /dev/null \
-	  -f $(WORKER_5090_COMPOSE) \
-	  -f $(INFISICAL_RUNTIME_COMPOSE) \
-	  -f $(WORKER_AI_COMMON_COMPOSE) \
-	  -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) \
-	  -f $(WORKER_5090_NERVE_COMPOSE) down
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_5090_LLXPRT_COMPOSE) -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) down,WORKER_GRAFANA_PORT=3005)
 
 worker-3090ti-ai-down:
-	@NYRA_INFISICAL_PATH=/machines/worker-rtx3090ti WORKER_GRAFANA_PORT=3006 \
-	  docker --context $(WORKER_3090TI_CONTEXT) compose --env-file /dev/null \
-	  -f $(WORKER_3090TI_COMPOSE) \
-	  -f $(INFISICAL_RUNTIME_COMPOSE) \
-	  -f $(WORKER_AI_COMMON_COMPOSE) \
-	  -f $(WORKER_3090TI_NERVE_COMPOSE) down
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3090TI_LLXPRT_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) down,WORKER_GRAFANA_PORT=3006)
 
 worker-3060-ai-down:
-	@NYRA_INFISICAL_PATH=/machines/worker-rtx3060 WORKER_GRAFANA_PORT=3007 \
-	  docker --context $(WORKER_3060_CONTEXT) compose --env-file /dev/null \
-	  -f $(WORKER_3060_COMPOSE) \
-	  -f $(INFISICAL_RUNTIME_COMPOSE) \
-	  -f $(WORKER_AI_COMMON_COMPOSE) \
-	  -f $(WORKER_3060_OPENCLAW_COMPOSE) down
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3060_LLXPRT_COMPOSE) down,WORKER_GRAFANA_PORT=3007)
+
+worker-3090ti-voice-up:
+	@echo "Starting optional RTX3090Ti Kyutai Unmute voice..."
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(VOICE_3090TI_COMPOSE) up -d unmute-standalone)
+
+worker-3090ti-voice-down:
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(VOICE_3090TI_COMPOSE) stop unmute-standalone)
+
+worker-3090ti-voice-ps:
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(VOICE_3090TI_COMPOSE) ps unmute-standalone)
+
+worker-3090ti-voice-status: worker-3090ti-voice-ps
 
 oracle-memory-manager-up:
 	@echo "Starting Oracle memory manager: Letta + mem0 + FalkorDB + Qdrant + Letta MCP..."
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_MEMORY_COMPOSE) \
-	  -f $(ORACLE_LETTA_MCP_COMPOSE) up -d --build
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) up -d --build)
 
 oracle-memory-extra-up:
-	@echo "Starting optional memory companions: memOS/MemoryTensor and ClaudeMem..."
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_MEMORY_COMPOSE) \
-	  -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos claudemem
+	@echo "Starting memory companions: memOS/MemoryTensor API and MCP..."
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos-api memos-mcp)
 
 oracle-memory-full-up: oracle-memory-manager-up oracle-memory-extra-up
 
 oracle-memory-full-down:
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_MEMORY_COMPOSE) \
-	  -f $(ORACLE_LETTA_MCP_COMPOSE) \
-	  -f $(ORACLE_MEMORY_EXTRA_COMPOSE) down
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) down)
 
 oracle-webapp-twenty-up:
 	@echo "Starting Oracle webapp + Twenty CRM + Twenty MCP..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) \
-	  -f $(ORACLE_APPS_COMPOSE) \
-	  --profile apps up -d \
-	  postgres redis-cache twenty-db twenty twenty-worker twenty-mcp crm-api webapp cloudflared portainer-edge-agent infisical-sidecar
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps up -d postgres-cache twenty-db twenty twenty-worker twenty-mcp crm-api webapp cloudflared portainer-edge-agent infisical-agent infisical-sidecar)
 
 oracle-webapp-twenty-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) \
-	  -f $(ORACLE_APPS_COMPOSE) down
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) down)
 
 oracle-paperclip-up:
 	@echo "Starting Paperclip on Oracle VPS..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) up -d paperclip paperclip-mcp infisical-agent infisical-sidecar)
 
 oracle-paperclip-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) stop paperclip paperclip-mcp
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) stop paperclip paperclip-mcp infisical-agent infisical-sidecar)
 
 oracle-clawteam-up:
 	@echo "Starting ClawTeam on Oracle VPS..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) \
-	  -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam infisical-agent infisical-sidecar)
 
 oracle-clawteam-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) \
-	  -f $(ORACLE_CLAWTEAM_COMPOSE) stop clawteam
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) stop clawteam infisical-agent infisical-sidecar)
 
 oracle-agent-tools-up: oracle-paperclip-up oracle-clawteam-up
 
@@ -1003,16 +1345,13 @@ oracle-agent-tools-down: oracle-paperclip-down oracle-clawteam-down
 
 oracle-ui-factory-up:
 	@echo "Starting Oracle UI Factory containers..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) up -d $(ORACLE_UI_FACTORY_SERVICES)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) up -d $(ORACLE_UI_FACTORY_SERVICES))
 
 oracle-ui-factory-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) stop $(ORACLE_UI_FACTORY_SERVICES)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) stop $(ORACLE_UI_FACTORY_SERVICES))
 
 oracle-ui-factory-ps:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) ps $(ORACLE_UI_FACTORY_SERVICES)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) ps $(ORACLE_UI_FACTORY_SERVICES))
 
 oracle-ui-install:
 	@test -n "$(COMPONENT)" || (echo "usage: make oracle-ui-install COMPONENT=@magicui/shiny-button" >&2; exit 64)
@@ -1020,58 +1359,58 @@ oracle-ui-install:
 
 oracle-mcp-tools-up:
 	@echo "Starting Oracle MCP tool containers and Nexus..."
-	@LLXPRT_BRIDGE_API_KEY="$$(infisical secrets get LLXPRT_BRIDGE_API_KEY --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt --plain --silent 2>/dev/null)" \
-	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@$(nyra_load_infisical_env) nyra_infisical_auth_token="$$(scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+	  LLXPRT_BRIDGE_API_KEY="$$(infisical secrets get LLXPRT_BRIDGE_API_KEY --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt --plain --silent 2>/dev/null)" \
+	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  infisical run --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  env -u DOCKER_HOST docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-down:
-	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@$(nyra_load_infisical_env) nyra_infisical_auth_token="$$(scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  infisical run --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  env -u DOCKER_HOST docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) stop $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-ps:
-	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
+	@$(nyra_load_infisical_env) nyra_infisical_auth_token="$$(scripts/infra/infisical-auth-token.sh)" || { echo "$(NYRA_INFISICAL_TOKEN_HINT)" >&2; exit 1; }; \
+	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
+	  infisical run --token="$$nyra_infisical_auth_token" --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/machines/oracle-vps -- \
+	  env -u DOCKER_HOST docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) ps $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-portainer-up:
 	@echo "Starting Oracle Portainer CE control plane..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) up -d $(ORACLE_PORTAINER_SERVICES)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) up -d $(ORACLE_PORTAINER_SERVICES))
 
 oracle-portainer-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) stop $(ORACLE_PORTAINER_SERVICES)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) stop $(ORACLE_PORTAINER_SERVICES))
 
 oracle-portainer-ps:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) ps $(ORACLE_PORTAINER_SERVICES)
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) ps $(ORACLE_PORTAINER_SERVICES))
 
 wave-stack-status:
 	@echo "=== ORCHESTRATOR ==="
-	@docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) ps || true
+	@$(call nyra_host_compose,$(ORCHESTRATOR_INFISICAL_PATH),$(ORCHESTRATOR_CONTEXT),-f $(ORCHESTRATOR_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(ORCHESTRATOR_LLXPRT_COMPOSE) -f $(ORCHESTRATOR_PORTAINER_EDGE_COMPOSE) ps) || true
 	@echo
 	@echo "=== WORKER RTX5090 ==="
-	@docker --context $(WORKER_5090_CONTEXT) compose -f $(WORKER_5090_COMPOSE) -f $(WORKER_5090_NERVE_COMPOSE) ps || true
+	@$(call nyra_host_compose,$(WORKER_5090_INFISICAL_PATH),$(WORKER_5090_CONTEXT),-f $(WORKER_5090_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_5090_LLXPRT_COMPOSE) -f $(WORKER_5090_MODEL_SWITCHER_COMPOSE) -f $(WORKER_5090_NERVE_COMPOSE) ps,WORKER_GRAFANA_PORT=3005) || true
 	@echo
 	@echo "=== WORKER RTX3090TI ==="
-	@docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WORKER_3090TI_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) ps || true
+	@$(call nyra_host_compose,$(WORKER_3090TI_INFISICAL_PATH),$(WORKER_3090TI_CONTEXT),-f $(WORKER_3090TI_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3090TI_LLXPRT_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) ps,WORKER_GRAFANA_PORT=3006) || true
 	@echo
 	@echo "=== WORKER RTX3060 ==="
-	@docker --context $(WORKER_3060_CONTEXT) compose -f $(WORKER_3060_COMPOSE) -f $(WORKER_3060_OPENCLAW_COMPOSE) ps || true
+	@$(call nyra_host_compose,$(WORKER_3060_INFISICAL_PATH),$(WORKER_3060_CONTEXT),-f $(WORKER_3060_COMPOSE) -f $(INFISICAL_RUNTIME_COMPOSE) -f $(WORKER_AI_COMMON_COMPOSE) -f $(WORKER_3060_LLXPRT_COMPOSE) -f $(WORKER_3060_OPENCLAW_COMPOSE) ps,WORKER_GRAFANA_PORT=3007) || true
 	@echo
 	@echo "=== ORACLE MEMORY ==="
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) ps || true
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) ps) || true
 	@echo
 	@echo "=== ORACLE APPS ==="
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) ps || true
+	@$(call nyra_host_compose,$(ORACLE_INFISICAL_PATH),$(ORACLE_CONTEXT),-f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) ps) || true
 
 verify-clis:
 	@echo "🔍 Verifying Required CLI Tools..."

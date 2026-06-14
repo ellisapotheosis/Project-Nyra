@@ -29,7 +29,7 @@ export default defineConfig({
   // Shared settings for all projects
   use: {
     // Base URL for navigation
-    baseURL: process.env.BASE_URL || "http://localhost:3000",
+    baseURL: process.env.BASE_URL || "http://localhost:3010",
 
     // Collect trace when retrying the failed test
     trace: "on-first-retry",
@@ -87,14 +87,14 @@ export default defineConfig({
     ? undefined
     : [
         {
-          command: "pnpm --filter projectnyra dev",
-          port: 3000,
+          command: "PORT=3010 pnpm --filter projectnyra dev",
+          port: 3010,
           timeout: 120 * 1000,
           reuseExistingServer: !process.env.CI,
         },
         {
-          command: "pnpm --filter ratehunter-landing dev",
-          port: 3001,
+          command: "PORT=3011 pnpm --filter ratehunter-landing dev",
+          port: 3011,
           timeout: 120 * 1000,
           reuseExistingServer: !process.env.CI,
         },

@@ -2,26 +2,32 @@
   {
     "keys": ["Cmd:Shift:D"],
     "command": "app:newTab",
-    "args": { "preset": "daemon-dashboard" },
-    "info": "Toggle Daemon (Ghost Layer) Dashboard"
+    "args": { "preset": "nyra-provider-auth" },
+    "info": "Open LLxprt provider auth cockpit"
   },
   {
     "keys": ["Cmd:Shift:C"],
     "command": "app:newTab",
-    "args": { "preset": "multi-cli-cockpit" },
-    "info": "Launch Multi-CLI Cockpit (3 CLIs + 2 Workers)"
+    "args": { "preset": "nyra-mission-control" },
+    "info": "Launch Nyra mission control"
   },
   {
     "keys": ["Cmd:Shift:M"],
     "command": "app:newTab",
-    "args": { "preset": "cluster-monitor" },
+    "args": { "preset": "nyra-cluster-health" },
     "info": "Cluster Health Monitor (Orch + Oracle + Workers)"
   },
   {
     "keys": ["Cmd:Shift:L"],
     "command": "app:newTab",
-    "args": { "preset": "daemon-logs" },
-    "info": "Daemon Logs (llxprt + Letta-MCP tail)"
+    "args": { "preset": "nyra-openclaw-topology" },
+    "info": "OpenClaw worker topology"
+  },
+  {
+    "keys": ["Cmd:Shift:6"],
+    "command": "app:newTab",
+    "args": { "preset": "nyra-mission-control-3060" },
+    "info": "Launch Nyra mission control with RTX3060"
   },
   {
     "keys": ["Cmd:Shift:E"],

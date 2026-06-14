@@ -92,11 +92,12 @@ ratehunter-landing/
 
 ```
 Framework preset: Next.js
-Root directory: apps/ratehunter/landing
+Root directory: apps/ratehunter
 Build command: npm run build:cf
 Build output: .open-next
 Install command: npm install
 Node version: 20
+Build env: GIT_LFS_SKIP_SMUDGE=1
 ```
 
 **Environment variables:**
@@ -105,6 +106,7 @@ Node version: 20
 NODE_VERSION=20
 NODE_ENV=production
 NEXT_TELEMETRY_DISABLED=1
+GIT_LFS_SKIP_SMUDGE=1
 NEXT_PUBLIC_SITE_URL=https://ratehunter.net
 NEXT_PUBLIC_SITE_NAME=RateHunter
 ```

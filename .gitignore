@@ -23,12 +23,17 @@ build/
 !infra/docker/build/
 out/
 .next/
+**/.next/
+**/.next.backup-*/
+.open-next/
+**/.open-next/
 .nuxt/
 .output/
 *.log
 *.tsbuildinfo
 coverage/
 .nyc_output/
+security-reports/
 
 ################################################################################
 # Environment Files and Secrets
@@ -51,7 +56,10 @@ secrets/
 credentials/
 .letta/
 .mempalace/
+.clerk/
+**/.clerk/
 data/gitea/
+data/gitea-db/
 data/app-guidance/files/nyra-stack/
 infra/env/secrets/
 infra/cloudflare/apply-results/
@@ -70,6 +78,25 @@ infra/cloudflare/apply-results/
 !**/*.template.env
 !**/env.template
 !**/*.tmpl
+
+# Runtime Compose source-of-truth:
+# canonical compose files are only tracked under infra/hosts/<host>/.
+docker-compose.yml
+docker-compose.yaml
+docker-compose.*.yml
+docker-compose.*.yaml
+compose.yml
+compose.yaml
+compose.*.yml
+compose.*.yaml
+!infra/hosts/**/docker-compose.yml
+!infra/hosts/**/docker-compose.yaml
+!infra/hosts/**/docker-compose.*.yml
+!infra/hosts/**/docker-compose.*.yaml
+!infra/hosts/**/compose.yml
+!infra/hosts/**/compose.yaml
+!infra/hosts/**/compose.*.yml
+!infra/hosts/**/compose.*.yaml
 
 # Historical env backups and ingest archives can contain copied secrets.
 docs/**/env-backups/
@@ -109,6 +136,8 @@ configs/env/.env.legacy
 ehthumbs.db
 Thumbs.db
 Desktop.ini
+*:Zone.Identifier
+*.Zone.Identifier
 
 # Local Codex/CLI root config copy; canonical repo config lives under .codex/.
 /config.toml
@@ -175,6 +204,7 @@ _backup/
 *.backup
 backup/
 backups/
+archive/
 
 # Temporary consolidation files
 **/consolidation-temp/
@@ -524,6 +554,11 @@ docs/archive/**/*.pem
 docs/archive/**/*.key
 docs/archive/**/*.db
 bootstrap/
+!bootstrap/
+bootstrap/*
+!bootstrap/README.md
+!bootstrap/wave-ai-llxprt-zellij/
+!bootstrap/wave-ai-llxprt-zellij/**
 !infra/bootstrap/
 !infra/bootstrap/**
 
@@ -546,6 +581,8 @@ bootstrap/
 .env.infisical
 .env.*
 !.env.example
+!.env.nyra_staging.example
+!**/.env.nyra_staging.example
 !infra/env/TEMPLATE.env.host
 # Oracle VPS live env (moved from infra/oracle/ to infra/env/)
 infra/hosts/oracle-vps/.env*
@@ -571,6 +608,10 @@ data/gitea-db/
 # llxprt local cache (npm prefix + jefe binary)
 .llxprt/
 
+# OMC local runtime/session state. These files are machine-local agent state and
+# must not be published with the repository.
+.omc/
+
 ################################################################################
 ################################################################################
 # Archon runtime artifacts (never commit)
@@ -580,6 +621,8 @@ data/gitea-db/
 mempalace.yaml
 entities.json
 .codex/*
+!.codex/AGENTS.md
+!.codex/PROJECT_PROMPT.md
 !.codex/agents/
 !.codex/agents/**
 !.codex/skills/
@@ -592,3 +635,7 @@ entities.json
 *:Zone.Identifier
 Thumbs.db*
 Desktop.ini
+
+# Prisma 7 generated clients are recreated by package prebuild/generate scripts.
+services/*/src/generated/prisma/
+packages/*/src/generated/prisma/

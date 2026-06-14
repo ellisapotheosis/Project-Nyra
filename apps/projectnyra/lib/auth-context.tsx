@@ -3,6 +3,7 @@
 import * as React from "react";
 import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 
+import { identifyMixpanelUser, resetMixpanel } from "@/lib/mixpanel";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getSupabasePublicConfig } from "@/lib/supabase/env";
 
@@ -25,9 +26,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null);
   const [loading, setLoading] = React.useState(configured);
 
+  const syncMixpanelIdentity = React.useCallback((nextUser: User | null) => {
+    if (nextUser) {
+      identifyMixpanelUser(nextUser, {
+        auth_provider: nextUser.app_metadata?.provider ?? "email",
+      });
+      return;
+    }
+
+    resetMixpanel();
+  }, []);
+
   React.useEffect(() => {
     if (!configured) {
       setLoading(false);
+      resetMixpanel();
       return;
     }
 
@@ -36,7 +49,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     supabase.auth.getUser().then((result: { data: { user: User | null } }) => {
       if (!cancelled) {
-        setUser(result.data.user ?? null);
+        const nextUser = result.data.user ?? null;
+        setUser(nextUser);
+        syncMixpanelIdentity(nextUser);
         setLoading(false);
       }
     });
@@ -45,7 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
       (_event: AuthChangeEvent, session: Session | null) => {
-        setUser(session?.user ?? null);
+        const nextUser = session?.user ?? null;
+        setUser(nextUser);
+        syncMixpanelIdentity(nextUser);
         setLoading(false);
       }
     );
@@ -54,14 +71,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, [configured]);
+  }, [configured, syncMixpanelIdentity]);
 
   const signOut = React.useCallback(async () => {
     if (!configured) {
+      resetMixpanel();
       return;
     }
 
     await createSupabaseBrowserClient().auth.signOut();
+    resetMixpanel();
     setUser(null);
   }, [configured]);
 

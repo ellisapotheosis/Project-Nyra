@@ -1,38 +1,38 @@
 {
   "mcpServers": {
     "nexus-router": {
-      "type": "sse",
-      "url": "https://nexus.ratehunter.net/mcp",
-      "headers": {
-        "Authorization": "Bearer ${ORCHESTRATOR_TUNNEL_TOKEN}"
-      },
+      "type": "http",
+      "url": "https://nexus.trex-fiordland.ts.net/mcp",
       "startup_timeout_sec": 90
     },
     "serena": {
-      "command": "serena",
+      "command": "/home/ellisapotheosis/.local/bin/uvx",
       "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
         "start-mcp-server",
         "--project-from-cwd",
-        "--context=claude-code"
+        "--context=claude-code",
+        "--enable-web-dashboard",
+        "false",
+        "--enable-gui-log-window",
+        "false",
+        "--open-web-dashboard",
+        "false"
       ],
       "startup_timeout_sec": 60
     },
     "ssh": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-ssh"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-ssh"],
       "env": {
-        "SSH_ALLOWED_HOSTS": "*.trex-fiordland.ts.net,100.64.0.*,github.com,gitea.ratehunter.net"
+        "SSH_ALLOWED_HOSTS": "*.trex-fiordland.ts.net,100.64.0.*,github.com,gitea.projectnyra.com"
       }
     },
     "shadcn": {
       "command": "npx",
-      "args": [
-        "shadcn@latest",
-        "mcp"
-      ]
+      "args": ["shadcn@latest", "mcp"]
     }
   },
   "disabledMcpServers": []

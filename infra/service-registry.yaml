@@ -135,24 +135,6 @@ services:
       url: https://ratehunter.net
     ports: []
     notes: Cloudflare Pages only; do not route through Nyra tunnels.
-  - id: www
-    name: RateHunter Landing
-    category: app
-    host: cloudflare-pages
-    container: none
-    internal_url: none
-    public_url: https://www.ratehunter.net
-    tailnet_url: none
-    iframe_policy: link-first
-    requires_auth: false
-    cloudflare_access: not-required
-    contains_borrower_data: false
-    risk_level: public
-    healthcheck:
-      type: http
-      url: https://www.ratehunter.net
-    ports: []
-    notes: Cloudflare Pages only; do not route through Nyra tunnels.
   - id: borrower-chat
     name: Borrower ChatUI
     category: broker-workspace
@@ -386,7 +368,76 @@ services:
       url: https://nexus.projectnyra.com
     ports:
       - 3016
-    notes: Human UI for Nexus.
+    notes: Human UI for Nexus. Surface the OpenMemory entry here instead of the main webapp.
+    linked_tools:
+      - openmemory
+      - mem0
+      - letta
+  - id: openmemory
+    name: OpenMemory
+    category: memory
+    host: oracle
+    container: openmemory-mcp
+    internal_url: http://openmemory-mcp:8765
+    public_url: https://memory.projectnyra.com
+    tailnet_url: http://oracle.trex-fiordland.ts.net:8765
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: required
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: http://oracle.trex-fiordland.ts.net:8765/health
+    ports:
+      - 8765
+    notes:
+      NexusUI-only memory management entrypoint. Mem0 is the singular runtime
+      memory endpoint, backed by FalkorDB for graph memory and Qdrant for vector
+      retrieval; OpenMemory MCP is the management surface.
+  - id: mem0
+    name: Mem0 Runtime Memory
+    category: memory
+    host: oracle
+    container: mem0
+    internal_url: http://mem0:5000
+    public_url: none
+    tailnet_url: http://oracle.trex-fiordland.ts.net:5001
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: private-only
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: http://oracle.trex-fiordland.ts.net:5001/health
+    ports:
+      - 5001
+    notes:
+      Singular runtime memory API for agents through Nexus. Keep private; do not
+      expose as a raw public endpoint.
+  - id: letta
+    name: Letta Memory Manager
+    category: memory
+    host: oracle
+    container: letta
+    internal_url: http://letta:8283
+    public_url: none
+    tailnet_url: http://oracle.trex-fiordland.ts.net:8283
+    iframe_policy: link-first
+    requires_auth: true
+    cloudflare_access: private-only
+    contains_borrower_data: true
+    risk_level: borrower-data
+    healthcheck:
+      type: http
+      url: http://oracle.trex-fiordland.ts.net:8283/v1/health
+    ports:
+      - 8283
+    notes:
+      Memory-manager and OpenClaw-agent orchestration support layer. Route model
+      calls through Nexus/LiteLLM and private worker GPUs; do not make Letta the
+      CRM or workflow system of record.
   - id: nexus-router
     name: Nexus Router
     category: ops

@@ -3,7 +3,6 @@
 ## Public
 
 - `ratehunter.net`
-- `www.ratehunter.net`
 - Optionally `projectnyra.com` once an app portal exists
 
 ## Protected
@@ -13,6 +12,9 @@
 - `n8n.projectnyra.com`
 - `gitea.projectnyra.com`
 - `openwebui.projectnyra.com`
+- `openmemory.projectnyra.com`
+- `letta.projectnyra.com`
+- `mem0.projectnyra.com`
 - `campaigns.projectnyra.com`
 - `quotes.projectnyra.com`
 

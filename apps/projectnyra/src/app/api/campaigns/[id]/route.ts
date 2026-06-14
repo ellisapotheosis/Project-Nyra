@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+import {
+  canUseMockFallback,
+  productionWriteUnavailable,
+} from "@/lib/api/config";
+import { toCampaignContract } from "@/lib/campaign-contract";
 import { campaigns } from "@/lib/mock-data";
 
 const CAMPAIGN_ENGINE_URL = process.env.CAMPAIGN_ENGINE_URL;
@@ -44,7 +49,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const body = await request.json();
+  const body = toCampaignContract(await request.json());
 
   if (CAMPAIGN_ENGINE_URL) {
     try {
@@ -61,6 +66,13 @@ export async function PUT(
         return NextResponse.json(await response.json());
       }
     } catch {}
+  }
+
+  if (!canUseMockFallback()) {
+    return productionWriteUnavailable(
+      "Campaign service",
+      "CAMPAIGN_ENGINE_URL must be configured for production campaign writes"
+    );
   }
 
   return NextResponse.json({ id, ...body, source: "mock" });
@@ -85,6 +97,13 @@ export async function DELETE(
         return NextResponse.json(await response.json());
       }
     } catch {}
+  }
+
+  if (!canUseMockFallback()) {
+    return productionWriteUnavailable(
+      "Campaign service",
+      "CAMPAIGN_ENGINE_URL must be configured for production campaign deletes"
+    );
   }
 
   return NextResponse.json({ success: true, id, source: "mock" });

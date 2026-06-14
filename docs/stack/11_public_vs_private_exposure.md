@@ -6,7 +6,7 @@ Updated: 2026-04-30
 
 ### Public via Cloudflared (internet-facing)
 
-- `ratehunter.net` and `www.ratehunter.net` -> Cloudflare Pages marketing site.
+- `ratehunter.net` and `ratehunter.net` -> Cloudflare Pages marketing site.
 - `app.projectnyra.com` -> WebApp.
 - `crm.projectnyra.com` -> Twenty CRM.
 - `n8n.projectnyra.com` -> n8n.

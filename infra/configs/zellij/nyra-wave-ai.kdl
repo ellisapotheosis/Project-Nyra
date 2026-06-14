@@ -13,21 +13,21 @@ layout {
         pane split_direction="vertical" {
             pane split_direction="horizontal" size="50%" {
                 pane name="llxprt-jefe" command="bash" {
-                    args "-lc" "scripts/nyra-zellij-pane.sh llxprt-jefe 'cd ~/repos/project-nyra && (npx -y @vybestack/llxprt-jefe || llxprt-jefe || bash)'"
+                    args "-lc" "scripts/nyra-zellij-pane.sh llxprt-jefe 'cd ~/repos/project-nyra && scripts/run-llxprt-jefe.sh || bash'"
                 }
                 pane name="llxprt-code" command="bash" {
-                    args "-lc" "scripts/nyra-zellij-pane.sh llxprt-code 'cd ~/repos/project-nyra && (npx -y @vybestack/llxprt-code --expert || llxprt-code --expert || bash)'"
+                    args "-lc" "scripts/nyra-zellij-pane.sh llxprt-code 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-subscription-ha || bash'"
                 }
             }
             pane split_direction="horizontal" size="50%" {
                 pane name="codex-cli" command="bash" {
-                    args "-lc" "scripts/nyra-zellij-pane.sh codex-cli 'cd ~/repos/project-nyra && codex'"
+                    args "-lc" "scripts/nyra-zellij-pane.sh codex-cli 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-codex-oauth || codex'"
                 }
                 pane name="gemini-cli" command="bash" {
-                    args "-lc" "scripts/nyra-zellij-pane.sh gemini-cli 'cd ~/repos/project-nyra && gemini'"
+                    args "-lc" "scripts/nyra-zellij-pane.sh gemini-cli 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-gemini-oauth || gemini'"
                 }
                 pane name="claude-code" command="bash" {
-                    args "-lc" "scripts/nyra-zellij-pane.sh claude-code 'cd ~/repos/project-nyra && claude'"
+                    args "-lc" "scripts/nyra-zellij-pane.sh claude-code 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-claude-oauth || claude'"
                 }
             }
         }
@@ -40,6 +40,31 @@ layout {
             }
             pane name="3090 OpenClaw" command="bash" {
                 args "-lc" "scripts/nyra-zellij-pane.sh worker-3090-openclaw 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=5 worker-rtx3090ti.trex-fiordland.ts.net \"docker logs -f worker-3090-openclaw\" || bash'"
+            }
+        }
+    }
+
+    tab name="Letta" {
+        pane split_direction="vertical" {
+            pane name="letta-health" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh letta-health 'while true; do clear; date; curl -fsS http://oracle-vps.trex-fiordland.ts.net:8283/v1/health || curl -fsS http://oracle-vps.trex-fiordland.ts.net:8283/health || true; echo; curl -fsS http://oracle-vps.trex-fiordland.ts.net:8284/mcp || true; sleep 8; done'"
+            }
+            pane name="llxprt-bridge" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh llxprt-bridge 'cd ~/repos/project-nyra && (make llxprt-bridge-status || true); echo; echo Letta should use http://127.0.0.1:8090/v1 through the llxprt-bridge profile; bash'"
+            }
+        }
+    }
+
+    tab name="Providers" {
+        pane split_direction="horizontal" {
+            pane name="triad-ha" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh triad-ha 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-cli-triad-ha || bash'"
+            }
+            pane name="openrouter-free" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh openrouter-free 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-openrouter-free || bash'"
+            }
+            pane name="local-workers" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh local-workers 'cd ~/repos/project-nyra && scripts/run-llxprt-code.sh --profile-load nyra-local-workers || bash'"
             }
         }
     }

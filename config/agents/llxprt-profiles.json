@@ -1,0 +1,117 @@
+{
+  "profileDirectory": "config/agents/llxprt-profiles",
+  "installTarget": "~/.llxprt/profiles",
+  "defaultProfile": "nyra-subscription-ha",
+  "profiles": {
+    "nyra-subscription-ha": {
+      "type": "loadbalancer",
+      "policy": "failover",
+      "profiles": [
+        "nyra-codex-oauth",
+        "nyra-claude-oauth",
+        "nyra-gemini-oauth",
+        "nyra-qwen-oauth",
+        "nyra-kimi-reasoning",
+        "nyra-openrouter-free",
+        "nyra-local-nexus"
+      ],
+      "notes": "Default long-task profile. Keeps one provider until rate/quota/server/network failure, then moves down the chain while preserving application-level conversation context."
+    },
+    "nyra-subscription-spread": {
+      "type": "loadbalancer",
+      "policy": "roundrobin",
+      "profiles": [
+        "nyra-codex-oauth",
+        "nyra-gemini-oauth",
+        "nyra-qwen-oauth",
+        "nyra-openrouter-free",
+        "nyra-local-nexus"
+      ],
+      "notes": "Short-task spread profile. Avoid for long sessions because backend rotation loses provider-side prompt-cache locality."
+    },
+    "nyra-cli-triad-ha": {
+      "type": "loadbalancer",
+      "policy": "failover",
+      "profiles": [
+        "nyra-codex-oauth",
+        "nyra-claude-oauth",
+        "nyra-gemini-oauth",
+        "nyra-qwen-oauth",
+        "nyra-openrouter-free",
+        "nyra-local-nexus"
+      ],
+      "notes": "Explicit subscription-triad profile for Letta/Jefe lanes: Codex, Claude, Gemini, then free/cheap fallback lanes when subscription quota is exhausted."
+    },
+    "nyra-codex-oauth": {
+      "provider": "codex",
+      "model": "gpt-5.3-codex",
+      "auth": "OAuth via /auth codex enable"
+    },
+    "nyra-claude-oauth": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "auth": "OAuth via /auth anthropic enable"
+    },
+    "nyra-gemini-oauth": {
+      "provider": "gemini",
+      "model": "gemini-2.5-pro",
+      "auth": "OAuth via /auth gemini enable"
+    },
+    "nyra-qwen-oauth": {
+      "provider": "qwen",
+      "model": "qwen3-coder-plus",
+      "auth": "OAuth via /auth qwen enable"
+    },
+    "nyra-kimi-reasoning": {
+      "provider": "kimi",
+      "model": "kimi-for-coding",
+      "auth": "Keyring via /key save kimi <key>"
+    },
+    "nyra-openrouter-free": {
+      "provider": "openrouter",
+      "model": "nvidia/nemotron-nano-9b-v2",
+      "auth": "Keyring via /key save openrouter <key>",
+      "notes": "Uses LLxprt's OpenRouter provider alias. Treat free-model availability as drift-prone and update the model when OpenRouter changes its free tier."
+    },
+    "nyra-local-nexus": {
+      "provider": "openai-compatible",
+      "model": "nyra-auto",
+      "baseUrl": "https://nexus.trex-fiordland.ts.net/v1",
+      "auth": "Keyring via /key save nyra-nexus <key-or-placeholder>"
+    },
+    "nyra-local-workers": {
+      "type": "loadbalancer",
+      "policy": "failover",
+      "profiles": [
+        "nyra-worker-5090",
+        "nyra-worker-3090ti",
+        "nyra-worker-3060"
+      ],
+      "notes": "Private Tailscale-only local worker fallback. Prefer Nexus/LiteLLM for production orchestration and use this for direct local diagnostic lanes."
+    },
+    "nyra-worker-5090": {
+      "provider": "openai-compatible",
+      "model": "worker-5090-vllm",
+      "baseUrl": "http://worker-rtx5090.trex-fiordland.ts.net:4000/v1",
+      "notes": "Primary 24 GB worker via LiteLLM so local model switching stays transparent to callers."
+    },
+    "nyra-worker-3090ti": {
+      "provider": "openai-compatible",
+      "model": "worker-3090-vllm",
+      "baseUrl": "http://worker-rtx3090ti.trex-fiordland.ts.net:4000/v1",
+      "notes": "24 GB worker via LiteLLM so OpenClaw and direct callers follow the active vLLM model."
+    },
+    "nyra-worker-3060": {
+      "provider": "openai-compatible",
+      "model": "worker-3060-bg-llm",
+      "baseUrl": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1",
+      "notes": "Background memory and PicoClaw lane via worker-rtx3060 LiteLLM. Prefer role-specific aliases over raw Ollama ports."
+    },
+    "nyra-worker-3060-embeddings": {
+      "provider": "openai-compatible",
+      "model": "worker-3060-embed",
+      "baseUrl": "http://worker-rtx3060.trex-fiordland.ts.net:4000/v1",
+      "notes": "Utility embedding and rerank lane through worker-rtx3060 LiteLLM. Keep 3060 as background memory/extraction worker by default; PicoClaw is opt-in."
+    }
+  }
+}

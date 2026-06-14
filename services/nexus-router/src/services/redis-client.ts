@@ -1,8 +1,8 @@
-import Redis from 'ioredis';
-import { config } from '../config';
-import { createLogger } from '../utils/logger';
+import Redis from "ioredis";
+import { config } from "../config";
+import { createLogger } from "../utils/logger";
 
-const logger = createLogger('redis-client');
+const logger = createLogger("redis-client");
 
 export class RedisClient {
   private static instance: RedisClient;
@@ -14,11 +14,13 @@ export class RedisClient {
       retryStrategy: (times: number) => {
         // Stop retrying after 3 attempts to avoid memory leaks
         if (times > 3) {
-          logger.error('Redis connection failed after 3 attempts, giving up');
+          logger.error("Redis connection failed after 3 attempts, giving up");
           return null;
         }
         const delay = Math.min(times * 50, 2000);
-        logger.warn(`Redis connection retry attempt ${times}, delay: ${delay}ms`);
+        logger.warn(
+          `Redis connection retry attempt ${times}, delay: ${delay}ms`
+        );
         return delay;
       },
       maxRetriesPerRequest: 3,
@@ -27,22 +29,22 @@ export class RedisClient {
       enableOfflineQueue: false, // Don't queue commands when disconnected
     });
 
-    this.client.on('connect', () => {
-      logger.info('Redis connecting...');
+    this.client.on("connect", () => {
+      logger.info("Redis connecting...");
     });
 
-    this.client.on('ready', () => {
+    this.client.on("ready", () => {
       this.connected = true;
-      logger.info('Redis connected and ready');
+      logger.info("Redis connected and ready");
     });
 
-    this.client.on('error', (error) => {
-      logger.error('Redis error:', error);
+    this.client.on("error", (error) => {
+      logger.error("Redis error:", error);
       this.connected = false;
     });
 
-    this.client.on('close', () => {
-      logger.warn('Redis connection closed');
+    this.client.on("close", () => {
+      logger.warn("Redis connection closed");
       this.connected = false;
     });
   }
@@ -59,7 +61,10 @@ export class RedisClient {
       // Add timeout to prevent hanging indefinitely
       const connectPromise = this.client.connect();
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Redis connection timeout after 5s')), 5000)
+        setTimeout(
+          () => reject(new Error("Redis connection timeout after 5s")),
+          5000
+        )
       );
 
       await Promise.race([connectPromise, timeoutPromise]);
@@ -110,6 +115,18 @@ export class RedisClient {
     }
   }
 
+  public async keys(pattern: string): Promise<string[]> {
+    if (!this.connected) return [];
+    try {
+      const fullPattern = `${config.redis.cacheKeyPrefix}${pattern}`;
+      const keys = await this.client.keys(fullPattern);
+      return keys.map((key) => key.replace(config.redis.cacheKeyPrefix, ""));
+    } catch (error) {
+      logger.warn(`Redis keys failed for pattern ${pattern}:`, error);
+      return [];
+    }
+  }
+
   // Metrics operations
   public async incrementMetric(metric: string): Promise<void> {
     if (!this.connected) return;
@@ -138,12 +155,20 @@ export class RedisClient {
     return await this.get(`request:${requestHash}`);
   }
 
-  public async cacheRequest(requestHash: string, response: string, ttl?: number): Promise<void> {
+  public async cacheRequest(
+    requestHash: string,
+    response: string,
+    ttl?: number
+  ): Promise<void> {
     await this.set(`request:${requestHash}`, response, ttl);
   }
 
   // Worker status tracking
-  public async setWorkerStatus(workerId: string, status: string, ttl: number = 300): Promise<void> {
+  public async setWorkerStatus(
+    workerId: string,
+    status: string,
+    ttl: number = 300
+  ): Promise<void> {
     const key = `worker:${workerId}:status`;
     await this.set(key, status, ttl);
   }

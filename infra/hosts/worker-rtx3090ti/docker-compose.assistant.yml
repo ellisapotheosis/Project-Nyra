@@ -5,7 +5,7 @@
 # Optimized for local GPU inference
 # ============================================================================
 
-version: '3.8'
+version: "3.8"
 
 services:
   # ============================================================================
@@ -19,7 +19,7 @@ services:
     environment:
       - NODE_ENV=production
       - OPENAI_API_BASE=http://vllm:8000/v1
-      - OPENAI_API_KEY=${NEXUS_ADMIN_TOKEN:-dummy}
+      - OPENAI_API_KEY=${NEXUS_ADMIN_TOKEN:?NEXUS_ADMIN_TOKEN is required}
       - MEM0_API_KEY=${MEM0_API_KEY}
       - TWENTY_API_KEY=${TWENTY_CRM_API_KEY}
       - TWENTY_URL=${TWENTY_CRM_URL}

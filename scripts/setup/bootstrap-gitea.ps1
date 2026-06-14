@@ -95,15 +95,13 @@ Log "MachineRole: $detected" 'OK'
 
 Ensure-Docker
 Ensure-FileFromTemplate ".env.gitea.template" ".env.gitea"
-Ensure-FileFromTemplate ".env.infisical.template" ".env.infisical"
 
 $nyraNet = (Select-String -Path ".env.gitea" -Pattern "^NYRA_NETWORK=" -ErrorAction SilentlyContinue | ForEach-Object { $_.Line.Split('=')[1].Trim() })
 if ([string]::IsNullOrWhiteSpace($nyraNet)) { $nyraNet = "nyra-net" }
 Ensure-Network $nyraNet
 
 if ($EnableInfisicalServer) {
-  Log "Starting Infisical self-host stack..." 'INFO'
-  Compose-Up "docker-compose.infisical.yml" ".env.infisical" @()
+  Log "Infisical self-host stack has been retired; use Infisical Cloud Universal Auth instead." 'WARN'
 }
 
 $profiles = @()

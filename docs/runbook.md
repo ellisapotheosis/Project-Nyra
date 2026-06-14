@@ -75,7 +75,7 @@ Expected webhook alignment:
 ## Port collision check
 
 ```bash
-docker compose --env-file infra/env/.env.orchestrator -f infra/docker-compose.yml -f infra/compose/overrides/docker-compose.orchestrator.override.yml config | rg 'published:'
+docker compose -f infra/hosts/orchestrator/docker-compose.yml config | rg 'published:'
 ```
 
 If duplicates appear, adjust the conflicting `*_PORT` env values and re-run `make compose-config-all`.

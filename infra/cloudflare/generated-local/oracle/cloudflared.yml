@@ -1,6 +1,8 @@
-# Generated backup/export for the Oracle VPS Cloudflare Tunnel.
+# Generated source config for the Oracle VPS Cloudflare Tunnel.
 # Runtime preference: API/dashboard-managed tunnel with ORACLE_TUNNEL_TOKEN.
-# ratehunter.net and www.ratehunter.net are Cloudflare Pages, not tunnel routes.
+# ratehunter.net is Cloudflare Pages, not a tunnel route.
+#
+# Source of truth: infra/hosts/oracle-vps/cloudflared-config.yml
 
 tunnel: ${ORACLE_TUNNEL_ID}
 credentials-file: /etc/cloudflared/${ORACLE_TUNNEL_ID}.json
@@ -28,6 +30,8 @@ ingress:
     service: http://activepieces:80
   - hostname: grafana.projectnyra.com
     service: http://grafana:3000
+  - hostname: openlit.projectnyra.com
+    service: http://openlit:3000
   - hostname: prometheus.projectnyra.com
     service: http://prometheus:9090
   - hostname: cadvisor.projectnyra.com
@@ -50,4 +54,10 @@ ingress:
       noTLSVerify: true
   - hostname: git-ssh.projectnyra.com
     service: ssh://gitea:2222
+  - hostname: uptime.projectnyra.com
+    service: http://nyra-uptime-kuma:3001
+  - hostname: public-status.projectnyra.com
+    service: http://nyra-uptime-kuma:3001
+  - hostname: oracle.projectnyra.com
+    service: http://nyra-caddy:80
   - service: http_status:404

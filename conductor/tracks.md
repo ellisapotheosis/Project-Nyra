@@ -29,5 +29,35 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Wiring & Hardening Phase**
-      *Link: [./tracks/wiring_hardening_20260516/](./tracks/wiring_hardening_20260516/)*
+- [x] **Track: Operational Hardening & Observability**
+      _Link: [./tracks/ops_hardening_20260519/](./tracks/ops_hardening_20260519/)_
+
+---
+
+- [x] **Track: Prompt Surface Canonicalization**
+      _Link: [./tracks/prompt_canonicalization_20260519/](./tracks/prompt_canonicalization_20260519/)_
+
+---
+
+- [x] **Track: Unified UI & Operator Experience**
+      _Link: [./tracks/unified_ui_refinement_20260519/](./tracks/unified_ui_refinement_20260519/)_
+
+---
+
+- [x] **Track: Finish Line Acceleration**
+      _Link: [./tracks/finish_line_acceleration_20260520/](./tracks/finish_line_acceleration_20260520/)_
+
+---
+
+- [x] **Track: Wiring & Hardening Phase**
+      _Link: [./tracks/wiring_hardening_20260516/](./tracks/wiring_hardening_20260516/)_
+
+---
+
+- [x] **Track: Final-Cut Product Integration Backlog**
+      _Link: [./tracks/final_cut_product_integration_20260520/](./tracks/final_cut_product_integration_20260520/)_
+
+---
+
+- [x] **Track: Nyra Prompt Pack Finish-Line Execution**
+      _Link: [./tracks/prompt_pack_execution_20260520/](./tracks/prompt_pack_execution_20260520/)_

@@ -1,9 +1,28 @@
 import type { Metadata, Viewport } from "next";
+import { Electrolize, Michroma, Space_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import "./themes/apotheosis.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ratehunter.net";
+
+const fontSans = Electrolize({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: "400",
+});
+
+const fontSerif = Michroma({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  weight: "400",
+});
+
+const fontMono = Space_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  weight: ["400", "700"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -59,7 +78,9 @@ export default function RootLayout({
           content="black-translucent"
         />
       </head>
-      <body>
+      <body
+        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}
+      >
         {children}
         <Script
           async

@@ -1,485 +1,486 @@
 "use client";
 
-import { useAuth } from "@/lib/auth-context";
-import { RevealHero } from "@/components/landing/RevealHero";
-import { ClusterHealthHeartbeat } from "@/components/telemetry/cluster-health";
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SiteHeader } from "@/components/site-header";
-import {
-  ChromaAlertCard,
-  ChromaMetricCard,
-  NyraGlowSurface,
-} from "@/components/chroma";
-import { cn } from "@/lib/utils";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import {
+  Activity,
+  AlertTriangle,
   ArrowRight,
   Bot,
+  CalendarClock,
   CheckCircle2,
-  LockKeyhole,
+  CircleDollarSign,
+  FileClock,
+  GitBranch,
+  LayoutDashboard,
+  MessageSquareReply,
+  RadioTower,
+  ShieldAlert,
   ShieldCheck,
-  Workflow,
-  Cpu,
-  Monitor,
-  Zap,
-  Users,
-  Calculator,
-  TrendingUp,
-  DollarSign,
-  Clock,
-  AlertTriangle,
-  CheckCircle,
-  Activity,
-  ChevronRight,
   Sparkles,
-  Shield,
+  TrendingUp,
+  Users,
+  Workflow,
 } from "lucide-react";
 
-function AnimatedCounter({
-  value,
-  isCurrency = false,
-}: {
-  value: number;
-  isCurrency?: boolean;
-}) {
+import { LeadRadar } from "@/components/leads/lead-radar";
+import { Badge } from "@/components/ui/badge";
+import {
+  CommandStatsSkeleton,
+  PriorityQueueSkeleton,
+  LeadRadarSkeleton,
+} from "@/components/ui/dashboard-skeleton";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { crmApi } from "@/lib/api/crm";
+import { useApi } from "@/lib/api/hooks";
+import { applications, campaigns, crmOverview, leads } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
+
+export default function Home() {
+  const {
+    data: leadData,
+    error: leadError,
+    execute: fetchLeads,
+    isLoading: loadingLeads,
+  } = useApi(() => crmApi.getLeads());
+  const {
+    data: pipelineData,
+    error: pipelineError,
+    execute: fetchPipeline,
+    isLoading: loadingPipeline,
+  } = useApi(() => crmApi.getPipeline());
+
+  useEffect(() => {
+    void fetchLeads().catch(() => undefined);
+    void fetchPipeline().catch(() => undefined);
+  }, [fetchLeads, fetchPipeline]);
+
+  const activeLeads = leadData?.leads || leads;
+  const hotLeadCount = activeLeads.filter((lead) => {
+    const status = "status" in lead ? lead.status : undefined;
+    return status === "NEW" || lead.stage === "Qualified";
+  }).length;
+  const dataSourceStatus =
+    leadError || pipelineError ? "Local fallback active" : "CRM mirror ready";
+
+  const appSurfaces = [
+    {
+      title: "Lead Desk",
+      route: "/leads",
+      detail: "Unified lead intake, status, consent, and next action queue.",
+      icon: Users,
+    },
+    {
+      title: "CRM",
+      route: "/crm",
+      detail: "Broker-safe CRM workspace over the Twenty source of truth.",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Nexus UI",
+      route: "/nexus",
+      detail: "Nexus Router, LiteLLM, Grafbase, and operator service posture.",
+      icon: RadioTower,
+    },
+    {
+      title: "Admin",
+      route: "/admin",
+      detail: "Owner-only integrations, service posture, and release controls.",
+      icon: ShieldCheck,
+    },
+    {
+      title: "Assistant",
+      route: "/assistant",
+      detail: "OpenClaw-backed broker assistant and lead action workspace.",
+      icon: Bot,
+    },
+    {
+      title: "Campaigns",
+      route: "/campaigns",
+      detail: "Compliant sequence control, pause state, and campaign review.",
+      icon: Workflow,
+    },
+    {
+      title: "Quote Desk",
+      route: "/quotes",
+      detail: "Deterministic quote scenarios and lock window review.",
+      icon: CircleDollarSign,
+    },
+    {
+      title: "Pipeline",
+      route: "/pipeline",
+      detail: "Stage movement, borrower replies, and file progression.",
+      icon: GitBranch,
+    },
+  ];
+
+  const commandStats = [
+    {
+      label: "New leads",
+      value: loadingLeads ? "..." : activeLeads.length.toString(),
+      detail: `${hotLeadCount} hot, 3 need same-day follow-up`,
+      icon: Users,
+      tone: "text-turquoise-400",
+    },
+    {
+      label: "Active replies",
+      value: "7",
+      detail: "2 paused for broker review",
+      icon: MessageSquareReply,
+      tone: "text-pink-400",
+    },
+    {
+      label: "Quote desk",
+      value: "18",
+      detail: "3 locks expire within 7 days",
+      icon: CircleDollarSign,
+      tone: "text-indigo-400",
+    },
+    {
+      label: "Pipeline value",
+      value: crmOverview.pipelineValue,
+      detail: `${applications.length} active applications`,
+      icon: TrendingUp,
+      tone: "text-turquoise-400",
+    },
+  ];
+
+  const priorityQueue = [
+    {
+      title: "Borrower reply waiting on HITL approval",
+      context:
+        "Jane Smith answered the Purchase Power SMS. Automation is paused.",
+      route: "/leads/2",
+      action: "Open lead",
+      severity: "critical",
+      icon: ShieldAlert,
+    },
+    {
+      title: "Rate lock expiration review",
+      context:
+        "Three quote packages need lock-status confirmation before Friday.",
+      route: "/quotes",
+      action: "Review quotes",
+      severity: "warning",
+      icon: FileClock,
+    },
+    {
+      title: "Refinance Blitz is outperforming",
+      context: "42% reply rate. Consider cloning gates before scaling volume.",
+      route: "/campaigns",
+      action: "Inspect campaign",
+      severity: "healthy",
+      icon: Workflow,
+    },
+  ];
+
+  const blockerRows = [
+    [
+      "Compliance gate",
+      "Clear",
+      "No STOP, DNC, quiet-hours, or consent blocks on active hot leads.",
+    ],
+    [
+      "CRM sync",
+      "Degraded",
+      "Twenty mirror is using cached mock contracts until crm-api is reachable.",
+    ],
+    [
+      "Assistant safety",
+      "Active",
+      "Token verification and HITL approval gates are enforced for all tools.",
+    ],
+  ];
+
   return (
-    <>{isCurrency ? `$${value.toLocaleString()}` : value.toLocaleString()}</>
-  );
-}
-
-function NyraSacredCore({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "relative flex items-center justify-center rounded-[32px] border border-indigo-500/20 bg-indigo-500/5",
-        className
-      )}
-    >
-      <div className="absolute size-72 rounded-full border border-turquoise-400/20 shadow-[0_0_80px_rgba(45,212,191,0.18)]" />
-      <div className="absolute size-48 rounded-full border border-indigo-400/30 rotate-45" />
-      <div className="size-24 rounded-3xl bg-indigo-600/80 shadow-[0_0_80px_rgba(99,102,241,0.5)]" />
-    </div>
-  );
-}
-
-export default function HomePage() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-pulse text-indigo-400 font-black tracking-widest uppercase text-sm">
-          INITIALIZING_NEURAL_COMMAND...
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <RevealHero />;
-  }
-
-  // Authenticated Dashboard View
-  return (
-    <div className="min-h-screen bg-black">
-      <SiteHeader />
-      <main className="space-y-16 py-10 max-w-[1600px] mx-auto px-6 lg:px-8">
-        {/* High-Fidelity Internal Landing Hero */}
-        <section className="relative px-6 py-20 rounded-[48px] border border-indigo-500/20 bg-card/20 overflow-hidden shadow-2xl">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.1),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(20,184,166,0.1),transparent_40%)]" />
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
-
-          <div className="relative z-10 grid gap-12 lg:grid-cols-2 items-center">
-            <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
-              <div>
-                <Badge
-                  variant="outline"
-                  className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20 px-4 py-1.5 font-black text-[10px] uppercase tracking-[0.4em] mb-6 shadow-inner"
-                >
-                  MISSION_PROTOCOL_v1.0_ACTIVE
-                </Badge>
-                <h1 className="text-7xl font-black tracking-tighter text-foreground leading-[0.85] lg:text-8xl uppercase italic">
-                  The Neural <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-turquoise-400 to-indigo-600">
-                    Command_Deck
-                  </span>
-                </h1>
-                <p className="mt-8 text-xl text-muted-foreground font-medium max-w-xl leading-relaxed uppercase tracking-tight opacity-70">
-                  Synchronized Mortgage Orchestration for Ellis Andersen. <br />
-                  <span className="text-indigo-400">
-                    Project Nyra Foundation Layer: LOCKED.
-                  </span>
-                </p>
+    <div className="flex min-h-screen flex-col bg-background text-foreground antialiased">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-5 sm:py-8 lg:px-8">
+        <div className="flex flex-col gap-10">
+          {/* Header Section */}
+          <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <RadioTower className="size-4 animate-pulse text-turquoise-400" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-turquoise-400">
+                  {dataSourceStatus}
+                </span>
               </div>
-
-              <div className="flex flex-wrap gap-5 pt-4">
-                <Link
-                  href="/leads"
-                  className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-[0.2em] px-12 h-16 rounded-2xl shadow-2xl shadow-indigo-500/30 active:scale-95 transition-all text-[11px] group"
-                  )}
-                >
-                  INITIATE_COCKPIT{" "}
-                  <ChevronRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  href="/assistant"
-                  className={cn(
-                    buttonVariants({ size: "lg", variant: "outline" }),
-                    "border-indigo-500/30 bg-indigo-500/5 text-indigo-400 font-black uppercase tracking-[0.2em] px-12 h-16 rounded-2xl hover:bg-indigo-500/10 transition-all text-[11px]"
-                  )}
-                >
-                  ASK_NYRA_AI
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-8 pt-6 opacity-40">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-turquoise-400" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">
-                    Compliance_Secure
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Zap className="size-4 text-indigo-400" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">
-                    Zero_Latency_Ingress
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <LockKeyhole className="size-4 text-pink-400" />
-                  <span className="text-[9px] font-black uppercase tracking-widest">
-                    Secret_Isolated
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="hidden lg:block relative">
-              <div className="absolute -inset-10 bg-indigo-500/10 blur-[100px] rounded-full animate-pulse" />
-              <NyraSacredCore className="h-[500px] bg-transparent border-none shadow-none" />
-            </div>
-          </div>
-        </section>
-
-        {/* Global Performance Metrics */}
-        <section className="space-y-8">
-          <div className="flex items-end justify-between border-b border-border/30 pb-4">
-            <div>
-              <p className="text-turquoise-400 text-[10px] font-black uppercase tracking-[0.3em] mb-1">
-                Telemetry_Pulse
+              <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+                Project Nyra Webapp
+              </h1>
+              <p className="max-w-3xl text-sm text-muted-foreground">
+                Broker command, CRM mirror, Nexus operations, assistant,
+                campaigns, quotes, pipeline, and admin surfaces are available
+                from this control hub.
               </p>
-              <h2 className="text-3xl font-black uppercase tracking-tighter">
-                System_Overview
-              </h2>
             </div>
-            <div className="flex items-center gap-6">
-              <ClusterHealthHeartbeat />
-              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest opacity-40 italic">
-                Last Refreshed: {new Date().toLocaleTimeString()}
-              </p>
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+              <Link
+                href="/nexus"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "h-9 gap-2 px-3"
+                )}
+              >
+                <Activity className="size-4" />
+                <span className="truncate">Diagnostics</span>
+              </Link>
+              <Link
+                href="/assistant"
+                className={cn(buttonVariants({ size: "sm" }), "h-9 gap-2 px-3")}
+              >
+                <Sparkles className="size-4" />
+                <span className="truncate">Ask Nyra</span>
+              </Link>
             </div>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
-            <MetricCard
-              title="Leads_Today"
-              value="12"
-              change="+8%"
-              trend="up"
-              color="indigo"
-              icon={Users}
-            />
-            <MetricCard
-              title="Active_Quotes"
-              value="847"
-              change="+12%"
-              trend="up"
-              color="turquoise"
-              icon={Calculator}
-            />
-            <MetricCard
-              title="Pipeline_Val"
-              value="$24.5M"
-              change="+5%"
-              trend="up"
-              color="indigo"
-              icon={DollarSign}
-            />
-            <MetricCard
-              title="Conversion"
-              value="3.2%"
-              change="-0.3%"
-              trend="down"
-              color="pink"
-              icon={TrendingUp}
-            />
-            <MetricCard
-              title="Compliance"
-              value="98.5%"
-              change="+0.5%"
-              trend="up"
-              color="turquoise"
-              icon={ShieldCheck}
-            />
-          </div>
-          <NyraGlowSurface className="p-6">
-            <div className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr_0.8fr]">
-              <ChromaAlertCard
-                title="First-response approval gate"
-                detail="A borrower-facing SMS draft is ready. Automation remains paused until Ellis approves or edits the response."
-                action="Review draft"
-                mode="critical"
-              />
-              <ChromaMetricCard
-                label="OpenClaw tools"
-                value="9 ready"
-                detail="Quote, SMS, SendGrid, TwentyCRM, campaigns, docs, tasking, history, escalation."
-                mode="brand"
-              />
-              <ChromaMetricCard
-                label="Live compliance"
-                value="Clear"
-                detail="No DNC, STOP, quiet-hours, or consent blocks on the current lead."
-                mode="live"
-              />
-            </div>
-          </NyraGlowSurface>
-        </section>
+          </section>
 
-        <section className="grid gap-12 lg:grid-cols-2">
-          {/* Recent Activity Feed */}
-          <Card className="bg-card/40 border-border/50 shadow-2xl border-t-2 border-t-indigo-500 overflow-hidden rounded-[32px]">
-            <CardHeader className="bg-indigo-500/5 border-b border-border/50 p-8 pb-6">
-              <CardTitle className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 flex items-center gap-2">
-                <Zap className="size-4" /> RECENT_SYSTEM_TRACE
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-8 space-y-5">
-              {recentActivity.map((activity, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-5 p-5 rounded-2xl border border-border/30 bg-background/40 hover:bg-indigo-500/5 transition-all group shadow-inner"
-                >
-                  <div className="size-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
-                    <activity.icon className="size-6" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-black uppercase tracking-tight text-foreground group-hover:text-indigo-400 transition-colors">
-                      {activity.title}
-                    </p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60 italic">
-                      {activity.desc}
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {appSurfaces.map(({ title, route, detail, icon: Icon }) => (
+              <Link
+                key={route}
+                href={route}
+                className="group rounded-xl border border-border/40 bg-card/40 p-4 transition-colors hover:bg-card/65"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Icon className="size-4 text-primary" />
+                      <h2 className="text-sm font-semibold">{title}</h2>
+                    </div>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {detail}
                     </p>
                   </div>
-                  <span className="text-[9px] font-black text-muted-foreground uppercase opacity-40">
-                    {activity.time}
-                  </span>
+                  <ArrowRight className="mt-0.5 size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                 </div>
-              ))}
-            </CardContent>
-          </Card>
+              </Link>
+            ))}
+          </section>
 
-          {/* Quick Urgency / Health Buffer */}
-          <div className="space-y-8">
-            <Card className="bg-card/40 border-pink-500/30 overflow-hidden shadow-2xl backdrop-blur-md border-t-2 border-t-pink-500 rounded-[32px]">
-              <CardHeader className="bg-pink-500/5 border-b border-border/50 p-8 pb-6">
-                <CardTitle className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-pink-400">
-                  <AlertTriangle className="size-4" />
-                  SYSTEM_URGENCY_BUFFER
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 space-y-4">
-                <AlertItem
-                  title="Rate_Lock_Expiration"
-                  desc="3 loans expiring within 7 days."
-                  action="REVIEW_LOCKS"
-                  color="pink"
-                />
-                <AlertItem
-                  title="Campaign_Success"
-                  desc="Refi_Blitz_V2 showing 42% reply."
-                  action="VIEW_STATS"
-                  color="turquoise"
-                />
-                <AlertItem
-                  title="Cluster_Load_Spike"
-                  desc="RTX5090 at 94% VRAM capacity."
-                  action="ROUTE_POLICY"
-                  color="indigo"
-                />
-              </CardContent>
-            </Card>
-
-            {/* Memory Cluster Link */}
-            <Card className="border-border/50 bg-card/40 backdrop-blur-md shadow-2xl rounded-[32px] overflow-hidden group">
-              <CardContent className="p-10 flex flex-col items-center text-center space-y-6">
-                <div className="size-20 rounded-3xl bg-indigo-600 flex items-center justify-center shadow-2xl border border-indigo-400/30 group-hover:scale-105 transition-transform relative">
-                  <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full" />
-                  <Bot className="size-10 text-white relative z-10" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400">
-                    AI_OPERATOR_ONLINE
-                  </p>
-                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-relaxed opacity-60 italic mt-3 max-w-xs mx-auto">
-                    "Processing 1,452 cognitive memory particles across the
-                    cluster. Goal alignment: 98.5%."
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 w-full">
-                  <Link href="/memory" className="w-full">
-                    <Button
-                      variant="outline"
-                      className="w-full border-indigo-500/20 bg-indigo-500/5 text-indigo-400 font-black uppercase tracking-widest text-[10px] h-12 rounded-xl hover:bg-indigo-600 hover:text-white transition-all shadow-inner"
-                    >
-                      ACCESS_MEMPALACE_GRAPH
-                    </Button>
-                  </Link>
-                  <a
-                    href="https://openmemory.projectnyra.com/mcp"
-                    target="_blank"
-                    className="text-[8px] font-black text-muted-foreground/40 uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors"
+          {/* Stats Grid */}
+          <section>
+            {loadingLeads || loadingPipeline ? (
+              <CommandStatsSkeleton />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {commandStats.map((stat) => (
+                  <Card
+                    key={stat.label}
+                    className="border-border/40 bg-card/40"
                   >
-                    OpenMemory_MCP_Diagnostic_Bridge
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        {stat.label}
+                      </CardTitle>
+                      <stat.icon className={cn("size-4", stat.tone)} />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{stat.value}</div>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {stat.detail}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </section>
 
-        <footer className="pt-16 border-t border-border/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-8">
-          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-30">
-            Project Nyra Foundation · Neural Command v1.0 · West Capital Lending
-          </p>
-          <div className="flex items-center gap-8">
-            <Badge
-              variant="outline"
-              className="border-turquoise-500/20 bg-turquoise-500/5 text-turquoise-400 font-black text-[10px] uppercase tracking-widest px-5 py-1 rounded-lg shadow-inner"
-            >
-              Ellis Andersen · Licensed Broker
-            </Badge>
-            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em]">
-              SYSTEM_PROTOCOL_LOCKED
-            </p>
+          {/* Main Workspace */}
+          <div className="grid gap-6 lg:grid-cols-[1fr_400px]">
+            <div className="space-y-6">
+              {/* Priority Queue */}
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    Priority Queue
+                  </h2>
+                  <Badge
+                    variant="secondary"
+                    className="bg-primary/5 text-primary"
+                  >
+                    {priorityQueue.length} items
+                  </Badge>
+                </div>
+                {loadingLeads ? (
+                  <PriorityQueueSkeleton />
+                ) : (
+                  <div className="grid gap-3">
+                    {priorityQueue.map((item) => (
+                      <Card
+                        key={item.title}
+                        className="group border-border/40 bg-card/40 transition-colors hover:bg-card/60"
+                      >
+                        <CardContent className="flex items-start gap-4 p-4">
+                          <div
+                            className={cn(
+                              "mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/50",
+                              item.severity === "critical" && "text-pink-400",
+                              item.severity === "warning" && "text-amber-400",
+                              item.severity === "healthy" &&
+                                "text-turquoise-400"
+                            )}
+                          >
+                            <item.icon className="size-5" />
+                          </div>
+                          <div className="flex-1 space-y-1">
+                            <h3 className="text-sm font-semibold">
+                              {item.title}
+                            </h3>
+                            <p className="text-xs leading-relaxed text-muted-foreground">
+                              {item.context}
+                            </p>
+                            <div className="flex pt-2">
+                              <Link
+                                href={item.route}
+                                className={cn(
+                                  buttonVariants({
+                                    variant: "link",
+                                    size: "sm",
+                                  }),
+                                  "h-auto p-0 text-primary"
+                                )}
+                              >
+                                <span>{item.action}</span>
+                                <ArrowRight className="ml-1 size-3 transition-transform group-hover:translate-x-1" />
+                              </Link>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              {/* Blockers & Health */}
+              <section className="space-y-4">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                  System Blockers
+                </h2>
+                <div className="overflow-x-auto rounded-xl border border-border/40 bg-card/20">
+                  <table className="min-w-[720px] w-full text-left text-xs">
+                    <thead className="border-b border-border/40 bg-muted/30">
+                      <tr>
+                        <th className="px-4 py-3 font-semibold text-muted-foreground">
+                          Component
+                        </th>
+                        <th className="px-4 py-3 font-semibold text-muted-foreground">
+                          Status
+                        </th>
+                        <th className="px-4 py-3 font-semibold text-muted-foreground">
+                          Context
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/30">
+                      {blockerRows.map(([name, status, context]) => (
+                        <tr key={name} className="hover:bg-muted/10">
+                          <td className="whitespace-nowrap px-4 py-3 font-medium">
+                            {name}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "border-none px-0 font-bold uppercase tracking-tighter",
+                                status === "Clear" && "text-turquoise-400",
+                                status === "Active" && "text-indigo-400",
+                                status === "Degraded" && "text-pink-400"
+                              )}
+                            >
+                              {status}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-3 text-muted-foreground">
+                            {context}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+
+            <div className="space-y-6">
+              {/* Quick Actions */}
+              <Card className="border-border/40 bg-card/40">
+                <CardHeader>
+                  <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    Quick Actions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-2">
+                  <Link
+                    href="/leads"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "h-auto flex-col items-start gap-2 py-4"
+                    )}
+                  >
+                    <Users className="size-4 text-turquoise-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Intake Lead
+                    </span>
+                  </Link>
+                  <Link
+                    href="/quotes"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "h-auto flex-col items-start gap-2 py-4"
+                    )}
+                  >
+                    <CircleDollarSign className="size-4 text-indigo-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Run Quote
+                    </span>
+                  </Link>
+                  <Link
+                    href="/campaigns/builder"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "h-auto flex-col items-start gap-2 py-4"
+                    )}
+                  >
+                    <GitBranch className="size-4 text-pink-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      New Campaign
+                    </span>
+                  </Link>
+                  <Link
+                    href="/assistant"
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "h-auto flex-col items-start gap-2 py-4"
+                    )}
+                  >
+                    <Bot className="size-4 text-turquoise-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">
+                      Tune Agent
+                    </span>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Live Radar */}
+              <Card className="border-border/40 bg-card/40">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                    Operational Awareness
+                  </CardTitle>
+                  <Activity className="size-4 text-muted-foreground/50" />
+                </CardHeader>
+                <CardContent>
+                  {loadingLeads ? <LeadRadarSkeleton /> : <LeadRadar />}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </footer>
+        </div>
       </main>
     </div>
   );
 }
-
-function MetricCard({ title, value, change, trend, icon: Icon, color }: any) {
-  const colorMap: any = {
-    indigo: "text-indigo-400 border-t-indigo-500",
-    turquoise: "text-turquoise-400 border-t-turquoise-500",
-    pink: "text-pink-400 border-t-pink-500",
-  };
-  const trendColor = trend === "up" ? "text-turquoise-400" : "text-pink-400";
-
-  const numValue =
-    typeof value === "string"
-      ? parseFloat(value.replace(/[^0-9.]/g, ""))
-      : value;
-  const isCurrency = typeof value === "string" && value.startsWith("$");
-  const isPercent = typeof value === "string" && value.endsWith("%");
-
-  return (
-    <Card
-      className={cn(
-        "bg-card/40 backdrop-blur-md border border-border/50 shadow-2xl border-t-2 overflow-hidden group hover:border-indigo-500/30 transition-all",
-        colorMap[color]
-      )}
-    >
-      <CardHeader className="pb-2 bg-background/20 border-b border-border/50 flex flex-row items-center justify-between">
-        <CardTitle className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] group-hover:text-indigo-400 transition-colors">
-          {title}
-        </CardTitle>
-        <Icon className="size-4 text-muted-foreground/40 group-hover:text-indigo-400 transition-colors" />
-      </CardHeader>
-      <CardContent className="pt-5">
-        <div className="text-4xl font-black text-foreground tracking-tighter group-hover:translate-x-1 transition-transform">
-          {isCurrency ? (
-            <AnimatedCounter value={numValue * 1000000} isCurrency />
-          ) : isPercent ? (
-            <>{value}</>
-          ) : (
-            <AnimatedCounter value={numValue} />
-          )}
-        </div>
-        <div className="flex items-center gap-2 mt-3">
-          <span
-            className={cn(
-              "text-[10px] font-black px-2 py-0.5 rounded-lg bg-background/50 border border-border/30 shadow-inner",
-              trendColor
-            )}
-          >
-            {change}
-          </span>
-          <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">
-            DELTA_PULSE
-          </span>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function AlertItem({ title, desc, action, color }: any) {
-  const colorMap: any = {
-    indigo: "border-indigo-500/20 bg-indigo-500/5 text-indigo-400",
-    turquoise: "border-turquoise-500/20 bg-turquoise-500/5 text-turquoise-400",
-    pink: "border-pink-500/20 bg-pink-500/5 text-pink-400",
-  };
-  return (
-    <div
-      className={cn(
-        "p-5 rounded-2xl border flex flex-col gap-4 group hover:scale-[1.02] transition-transform shadow-lg",
-        colorMap[color]
-      )}
-    >
-      <div className="flex justify-between items-start">
-        <p className="text-[11px] font-black uppercase tracking-tight italic">
-          {title}
-        </p>
-        <div className="size-2 rounded-full bg-current animate-pulse shadow-current shadow-[0_0_10px]" />
-      </div>
-      <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest leading-relaxed">
-        {desc}
-      </p>
-      <button className="text-[9px] font-black uppercase tracking-[0.3em] text-foreground hover:text-indigo-400 hover:underline text-left mt-2 transition-colors">
-        {action}_INVOKE →
-      </button>
-    </div>
-  );
-}
-
-const recentActivity = [
-  {
-    title: "NEW_LEAD_INGRESS",
-    desc: "Sarah Johnson - $450k PURCHASE",
-    time: "5M_AGO",
-    icon: Users,
-  },
-  {
-    title: "QUOTE_ENGINE_DISPATCH",
-    desc: "Michael Chen - 30Y CONV @ 6.8%",
-    time: "12M_AGO",
-    icon: Calculator,
-  },
-  {
-    title: "APPLICATION_LOCKED",
-    desc: "Lisa Rodriguez - $325k FHA",
-    time: "18M_AGO",
-    icon: CheckCircle,
-  },
-  {
-    title: "COMPLIANCE_PASS",
-    desc: "TILA-RESPA LE Delivered",
-    time: "32M_AGO",
-    icon: ShieldCheck,
-  },
-];

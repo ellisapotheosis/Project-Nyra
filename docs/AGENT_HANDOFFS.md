@@ -1,5 +1,14 @@
 # AGENT_HANDOFFS.md
 
+## Status: Historical Foundation Handoff
+
+This file is preserved for the earlier non-UI foundation pass. The active
+release-candidate handoff is `docs/AGENT_RELEASE_HANDOFF.md`; the current
+docs/conductor handoff review is `docs/CONDUCTOR_HANDOFF_REVIEW.md`.
+
+Do not use this file as the current execution queue unless the task explicitly
+targets the older foundation package.
+
 ## Current Status: Non-UI Foundation Ready
 
 The foundation pass has established the core domain contracts, integration interfaces, campaign templates, and operational documentation for Project Nyra. UI work is intentionally outside this package.

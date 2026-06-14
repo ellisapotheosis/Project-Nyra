@@ -1,4 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  buildRateLimitHeaders,
+  checkRateLimit,
+  getRequestRateLimitKey,
+} from "@/lib/api/rateLimit";
+import {
+  redactSensitiveText,
+  summarizeSafeError,
+} from "@/lib/privacy/redaction";
 
 type ChatMessage = {
   role: "assistant" | "system" | "user";
@@ -24,6 +33,12 @@ const OPENCLAW_GATEWAY_TOKEN = process.env.OPENCLAW_GATEWAY_TOKEN || "";
 const OPENCLAW_DEFAULT_MODEL =
   process.env.OPENCLAW_DEFAULT_MODEL || "gpt-4o-mini";
 const INTERNAL_PROXY_TOKEN = process.env.NYRA_CHAT_INTERNAL_PROXY_TOKEN || "";
+const EXPOSE_UPSTREAM_BODY =
+  process.env.NYRA_INTERNAL_PROXY_EXPOSE_UPSTREAM_BODY === "true";
+const RATE_LIMIT = {
+  limit: Number(process.env.NYRA_INTERNAL_API_RATE_LIMIT ?? 60),
+  windowMs: 60_000,
+};
 
 function getAssistantText(payload: ChatPayload): string {
   return (
@@ -35,12 +50,24 @@ function getAssistantText(payload: ChatPayload): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const rateLimit = checkRateLimit(
+      getRequestRateLimitKey(req, "internal:openclaw:chat"),
+      RATE_LIMIT
+    );
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        { status: 429, headers: buildRateLimitHeaders(rateLimit) }
+      );
+    }
+
     if (INTERNAL_PROXY_TOKEN) {
       const incomingToken = req.headers.get("x-nyra-internal-token") || "";
       if (incomingToken !== INTERNAL_PROXY_TOKEN) {
         return NextResponse.json(
           { error: "Unauthorized proxy request" },
-          { status: 401 }
+          { status: 401, headers: buildRateLimitHeaders(rateLimit) }
         );
       }
     }
@@ -51,7 +78,7 @@ export async function POST(req: NextRequest) {
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
         { error: "messages[] is required" },
-        { status: 400 }
+        { status: 400, headers: buildRateLimitHeaders(rateLimit) }
       );
     }
 
@@ -78,26 +105,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: "Upstream OpenClaw request failed",
-          upstreamBody: upstreamText,
           upstreamStatus: upstreamResponse.status,
+          ...(EXPOSE_UPSTREAM_BODY
+            ? { upstreamBody: redactSensitiveText(upstreamText) }
+            : {}),
         },
-        { status: 502 }
+        { status: 502, headers: buildRateLimitHeaders(rateLimit) }
       );
     }
 
     try {
       const parsed = JSON.parse(upstreamText) as ChatPayload;
-      return NextResponse.json({
-        assistant: getAssistantText(parsed),
-        raw: parsed,
-      });
+      return NextResponse.json(
+        {
+          assistant: getAssistantText(parsed),
+          raw: parsed,
+        },
+        { headers: buildRateLimitHeaders(rateLimit) }
+      );
     } catch {
-      return NextResponse.json({ assistant: upstreamText, raw: upstreamText });
+      return NextResponse.json(
+        { assistant: upstreamText, raw: upstreamText },
+        { headers: buildRateLimitHeaders(rateLimit) }
+      );
     }
   } catch (error) {
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : "Internal proxy error",
+        error: summarizeSafeError(error).message || "Internal proxy error",
       },
       { status: 500 }
     );

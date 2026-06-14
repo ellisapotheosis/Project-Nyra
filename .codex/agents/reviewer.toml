@@ -1,3 +1,5 @@
+name = "reviewer"
+description = "Code review focused on correctness, security, and regressions"
 model = "gpt-5.4"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"

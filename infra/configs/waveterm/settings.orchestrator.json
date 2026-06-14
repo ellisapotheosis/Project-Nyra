@@ -27,10 +27,11 @@
   "app:animations": "enabled",
   "app:animationspeed": 200,
   
-  "waveai:defaultmode": "letta-bridge-orchestrator",
+  "waveai:defaultmode": "nyra-letta-orchestrator",
   "waveai:sidebaropen": false,
   "waveai:sidebarlocation": "right",
   "waveai:modelselection": "local",
+  "waveai:showcloudmodes": false,
   
   "editor:tabsize": 2,
   "editor:insertspaces": true,

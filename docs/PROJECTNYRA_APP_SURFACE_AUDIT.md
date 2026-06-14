@@ -6,7 +6,7 @@
 the main pages expected from the older app roots: admin, assistant, CRM, leads,
 lead detail, applications, quotes, pipeline, campaigns, and campaign builder.
 
-`apps/ratehunter/landing` is the canonical RateHunter personal brokerage landing
+`apps/ratehunter` is the canonical RateHunter personal brokerage landing
 page. It should remain the only `ratehunter.net` app surface.
 
 The other app roots are not deleted because they still serve as migration
@@ -17,7 +17,7 @@ sources or separate operational tools.
 | Path                             | Classification                    | What It Contains                                                                        | Decision                                                                                                     |
 | -------------------------------- | --------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `apps/projectnyra`               | Canonical product app             | Public launch page, broker routes, admin route group, assistant route group, API routes | Keep and continue building here                                                                              |
-| `apps/ratehunter/landing`        | Canonical personal landing        | Public RateHunter lead-capture site                                                     | Keep isolated for `ratehunter.net`                                                                           |
+| `apps/ratehunter`                | Canonical personal landing        | Public RateHunter lead-capture site                                                     | Keep isolated for `ratehunter.net`                                                                           |
 | `apps/ratehunter/landing-legacy` | Legacy reference                  | Older RateHunter landing implementation                                                 | Keep temporarily until landing migration is verified                                                         |
 | `apps/mortgage-crm`              | Migration source                  | Standalone CRM prototype, lead detail view, Kanban board, mortgage domain/services      | Do not deploy as canonical app; migrate useful pieces into `apps/projectnyra`, `services/*`, or `packages/*` |
 | `apps/admin`                     | Migration source                  | Standalone admin dashboard prototype, quote/leads pages, auth wrapper                   | Do not treat as canonical; Project Nyra admin belongs under `apps/projectnyra/app/(admin)`                   |

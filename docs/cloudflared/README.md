@@ -33,7 +33,7 @@ you use the Cloudflare Web UI, manually recreate the hostnames from
 | Hostname              | Role                           |
 | --------------------- | ------------------------------ |
 | `ratehunter.net`      | Cloudflare Pages landing site  |
-| `www.ratehunter.net`  | Cloudflare Pages landing alias |
+| `ratehunter.net`      | Cloudflare Pages landing alias |
 | `app.projectnyra.com` | Project Nyra webapp            |
 | `crm.projectnyra.com` | Twenty CRM                     |
 

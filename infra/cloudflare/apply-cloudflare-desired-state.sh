@@ -14,13 +14,16 @@ ACCOUNT_ID="$(clean "${CF_ACCOUNT_ID:-${CLOUDFLARE_ACCOUNT_ID:-}}")"
 ZONE_ID="$(clean "${CF_ZONE_ID:-${CLOUDFLARE_ZONE_ID:-}}")"
 EMAIL="$(clean "${CLOUDFLARE_EMAIL:-${CF_EMAIL:-}}")"
 API_KEY="$(clean "${CLOUDFLARE_API_KEY:-${CF_API_KEY:-}}")"
+API_TOKEN="$(clean "${CLOUDFLARE_API_TOKEN:-${CF_API_TOKEN:-}}")"
 ORCHESTRATOR_TUNNEL_ID_CLEAN="$(clean "${ORCHESTRATOR_TUNNEL_ID:-}")"
 ORACLE_TUNNEL_ID_CLEAN="$(clean "${ORACLE_TUNNEL_ID:-}")"
 
 : "${ACCOUNT_ID:?missing CF_ACCOUNT_ID/CLOUDFLARE_ACCOUNT_ID}"
 : "${ZONE_ID:?missing CF_ZONE_ID/CLOUDFLARE_ZONE_ID}"
-: "${EMAIL:?missing CLOUDFLARE_EMAIL/CF_EMAIL}"
-: "${API_KEY:?missing CLOUDFLARE_API_KEY/CF_API_KEY}"
+if [[ -z "$API_TOKEN" ]]; then
+  : "${EMAIL:?missing CLOUDFLARE_EMAIL/CF_EMAIL when CLOUDFLARE_API_TOKEN/CF_API_TOKEN is not set}"
+  : "${API_KEY:?missing CLOUDFLARE_API_KEY/CF_API_KEY when CLOUDFLARE_API_TOKEN/CF_API_TOKEN is not set}"
+fi
 : "${ORCHESTRATOR_TUNNEL_ID_CLEAN:?missing ORCHESTRATOR_TUNNEL_ID}"
 : "${ORACLE_TUNNEL_ID_CLEAN:?missing ORACLE_TUNNEL_ID}"
 
@@ -28,16 +31,20 @@ api() {
   local method="$1"
   local url="$2"
   local data="${3:-}"
+  local auth_headers
+  if [[ -n "$API_TOKEN" ]]; then
+    auth_headers=(-H "Authorization: Bearer ${API_TOKEN}")
+  else
+    auth_headers=(-H "X-Auth-Email: ${EMAIL}" -H "X-Auth-Key: ${API_KEY}")
+  fi
   if [[ -n "$data" ]]; then
     curl -sS -X "$method" "https://api.cloudflare.com/client/v4${url}" \
-      -H "X-Auth-Email: ${EMAIL}" \
-      -H "X-Auth-Key: ${API_KEY}" \
+      "${auth_headers[@]}" \
       -H "Content-Type: application/json" \
       --data @"$data"
   else
     curl -sS -X "$method" "https://api.cloudflare.com/client/v4${url}" \
-      -H "X-Auth-Email: ${EMAIL}" \
-      -H "X-Auth-Key: ${API_KEY}" \
+      "${auth_headers[@]}" \
       -H "Content-Type: application/json"
   fi
 }
@@ -71,7 +78,11 @@ echo "Upserting DNS records..."
 : > "$RESULTS_DIR/dns-upsert.ndjson"
 jq -c '.records[]' "$RESULTS_DIR/dns-records.resolved.json" | while IFS= read -r rec; do
   short="$(jq -r '.name' <<<"$rec")"
-  fqdn="${short}.projectnyra.com"
+  if [[ "$short" == "@" ]]; then
+    fqdn="projectnyra.com"
+  else
+    fqdn="${short}.projectnyra.com"
+  fi
   existing="$(api GET "/zones/${ZONE_ID}/dns_records?name=${fqdn}&per_page=20")"
   id="$(jq -r '.result[0].id // empty' <<<"$existing")"
   payload="$(mktemp)"

@@ -30,11 +30,11 @@ choco install infisical -y
 # Login
 infisical login
 
-# Set token (get from: https://app.infisical.com/project/8374cea9-e5e8-4050-bda4-b91f25ab30ef/settings/tokens)
+# Set token (get from: https://app.infisical.com/project/<PROJECT_ID>/settings/tokens)
 $env:INFISICAL_TOKEN = "YOUR_TOKEN_HERE"
 
 # Test connection
-infisical secrets list --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" --env="dev" --path="/worker-3090"
+infisical secrets list --projectId="<PROJECT_ID>" --env="dev" --path="/worker-3090"
 ```
 
 ## Step 3: Run Setup Script (30-60 minutes)

@@ -27,8 +27,8 @@ nano .env
 
 **Minimum required**:
 ```bash
-LITELLM_MASTER_KEY=sk-test-12345
-OPENROUTER_API_KEY=sk-or-v1-your-key-here
+LITELLM_MASTER_KEY=<LITELLM_MASTER_KEY>
+OPENROUTER_API_KEY=<OPENROUTER_API_KEY>
 ```
 
 ### 3. Start Services
@@ -47,12 +47,12 @@ pnpm start:dev
 curl http://localhost:4000/health
 
 # List models
-curl -H "Authorization: Bearer sk-test-12345" \
+curl -H "Authorization: Bearer <LITELLM_MASTER_KEY>" \
   http://localhost:4000/v1/models
 
 # Chat completion
 curl -X POST http://localhost:4000/v1/chat/completions \
-  -H "Authorization: Bearer sk-test-12345" \
+  -H "Authorization: Bearer <LITELLM_MASTER_KEY>" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "deepseek-r1",
@@ -133,21 +133,21 @@ Use with any OpenAI-compatible client:
 ```python
 import openai
 openai.api_base = "http://localhost:4000/v1"
-openai.api_key = "sk-test-12345"
+openai.api_key = "<LITELLM_MASTER_KEY>"
 ```
 
 **Node.js**:
 ```javascript
 const client = new OpenAI({
   baseURL: 'http://localhost:4000/v1',
-  apiKey: 'sk-test-12345'
+  apiKey: '<LITELLM_MASTER_KEY>'
 });
 ```
 
 **Environment Variables**:
 ```bash
 export OPENAI_API_BASE=http://localhost:4000/v1
-export OPENAI_API_KEY=sk-test-12345
+export OPENAI_API_KEY=<LITELLM_MASTER_KEY>
 ```
 
 ## Stop Services

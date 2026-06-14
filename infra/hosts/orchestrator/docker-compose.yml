@@ -12,12 +12,30 @@ services:
       NEXUS_API_URL: "http://oracle.trex-fiordland.ts.net:6000"
       LITELLM_API_URL: "http://oracle.trex-fiordland.ts.net:4000"
       MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENCLAW_AGENT_MODEL: ${OPENCLAW_AGENT_MODEL:-litellm/local/qwen-coder-32b}
+      OPENCLAW_MEM0_ENABLED: ${OPENCLAW_MEM0_ENABLED:-false}
+      OPENCLAW_MEM0_LLM_MODEL: ${OPENCLAW_MEM0_LLM_MODEL:-local/gemma-4}
+      OPENCLAW_MEM0_EMBEDDING_MODEL: ${OPENCLAW_MEM0_EMBEDDING_MODEL:-local/embeddings}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       DATABASE_URL: ${DATABASE_URL:-}
       QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
     restart: unless-stopped
     networks:
       - nyra-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+        reservations:
+          memory: 256m
 
   # docker-mcp-toolkit:
   #   image: docker/mcp-toolkit:latest
@@ -38,8 +56,16 @@ services:
   #   restart: unless-stopped
   #   networks:
   #     - nyra-network
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 1g
+  #       reservations:
+  #         memory: 256m
 
   postgres-client:
+    # Debug-only psql client. This is not an orchestrator Postgres server:
+    # it has no data volume, no host port, and sleeps until an operator execs in.
     image: postgres:16-alpine
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-postgres-client
     profiles: ["debug"]
@@ -70,10 +96,23 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - nyra-network
+    healthcheck:
+      # portainer-ce is distroless here; no sh/curl/wget is available in-image.
+      # External status check: http://<host>:9000/api/status
+      disable: true
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
 
   # ── Syncthing ───────────────────────────────────────────────────────────
   syncthing:
-    profiles: ["sync"]
+    # Canonical Syncthing runs from docker-compose.persistent.yml as
+    # nyra-persistent-orchestrator-syncthing. Leave this legacy surface opt-in
+    # only to avoid starting a second host-networked instance on the same box.
+    profiles: ["legacy-sync"]
     image: syncthing/syncthing:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
     network_mode: host

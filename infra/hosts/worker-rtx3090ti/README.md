@@ -58,13 +58,13 @@ choco install infisical -y
 infisical login
 
 # Create machine identity token at:
-# https://app.infisical.com/project/8374cea9-e5e8-4050-bda4-b91f25ab30ef/settings/tokens
+# https://app.infisical.com/project/<PROJECT_ID>/settings/tokens
 
 # Set token as environment variable
 $env:INFISICAL_TOKEN = "your-token-here"
 
 # Verify connection
-infisical secrets list --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" --env="dev" --path="/worker-3090"
+infisical secrets list --projectId="<PROJECT_ID>" --env="dev" --path="/worker-3090"
 ```
 
 ### 3. Verify Installation
@@ -87,13 +87,13 @@ docker-compose logs -f ollama
 
 ### Docker Services
 
-| Service | Port | Description |
-|---------|------|-------------|
-| `ollama` | 11434 | Ollama LLM server with GPU passthrough |
-| `health-monitor` | - | Periodic health checks and metrics |
-| `promtail` | - | Log shipper to Loki |
-| `node-exporter` | 9100 | System metrics for Prometheus |
-| `nvidia-gpu-exporter` | 9835 | GPU metrics for Prometheus |
+| Service               | Port  | Description                            |
+| --------------------- | ----- | -------------------------------------- |
+| `ollama`              | 11434 | Ollama LLM server with GPU passthrough |
+| `health-monitor`      | -     | Periodic health checks and metrics     |
+| `promtail`            | -     | Log shipper to Loki                    |
+| `node-exporter`       | 9100  | System metrics for Prometheus          |
+| `nvidia-gpu-exporter` | 9835  | GPU metrics for Prometheus             |
 
 ### Network Configuration
 
@@ -356,7 +356,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '16'
+          cpus: "16"
           memory: 32G
         reservations:
           devices:
@@ -437,7 +437,7 @@ Never commit `.env` file to git. Use Infisical for secret management:
 
 ```powershell
 # Pull secrets from Infisical
-infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" --env="dev" --path="/worker-3090" -- docker-compose up -d
+infisical run --projectId="<PROJECT_ID>" --env="dev" --path="/worker-3090" -- docker-compose up -d
 ```
 
 ## Support
@@ -468,3 +468,17 @@ infisical run --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef" --env="dev" --p
 **Last Updated**: 2026-01-22
 **Version**: 1.0.0
 **Status**: Production Ready
+
+## Secrets Contract
+
+Do not create or depend on repo-local `.env` files in this directory. Runtime secrets belong in Infisical and are injected at process start by repo-root Makefile targets.
+
+The expected flow is:
+
+1. The operator or agent runs `make <target>` from the repo root.
+2. The Makefile sources `~/.zsh/99-secrets.zsh` only when the current shell has no `INFISICAL_TOKEN`.
+3. The Makefile runs worker compose commands under `infisical run` for `/machines/worker-rtx3090ti`.
+4. Docker Compose receives secrets only through that runtime environment.
+5. Sidecar-managed services consume secrets from their runtime volume, not local env files.
+
+The only local secret-bearing file for normal operations should be the user shell secret file outside the repo: `~/.zsh/99-secrets.zsh`.

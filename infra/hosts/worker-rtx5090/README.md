@@ -20,3 +20,17 @@ docker compose \
   -f infra/hosts/worker-rtx5090/docker-compose.assistant.yml \
   up -d openclaw nerve-ui
 ```
+
+## Secrets Contract
+
+Do not create or depend on repo-local `.env` files in this directory. Runtime secrets belong in Infisical and are injected at process start by repo-root Makefile targets.
+
+The expected flow is:
+
+1. The operator or agent runs `make <target>` from the repo root.
+2. The Makefile sources `~/.zsh/99-secrets.zsh` only when the current shell has no `INFISICAL_TOKEN`.
+3. The Makefile runs worker compose commands under `infisical run` for `/machines/worker-rtx5090`.
+4. Docker Compose receives secrets only through that runtime environment.
+5. Sidecar-managed services consume secrets from their runtime volume, not local env files.
+
+The only local secret-bearing file for normal operations should be the user shell secret file outside the repo: `~/.zsh/99-secrets.zsh`.
