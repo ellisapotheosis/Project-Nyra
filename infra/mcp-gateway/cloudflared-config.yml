@@ -1,0 +1,55 @@
+# Cloudflare Tunnel Configuration with MCP Gateway
+# This exposes the Nexus Router MCP server via Cloudflare Tunnel
+
+tunnel: projectnyra-tunnel
+credentials-file: ~/.cloudflared/projectnyra-tunnel-credentials.json
+
+# MCP Gateway Port
+mcp_gateway_port: 7001
+
+# Public ingress routes (frontend + backend)
+ingress:
+  # MCP Gateway (Nexus Router) - Admin/internal use
+  - hostname: mcp-gateway.projectnyra.com
+    service: http://localhost:7001
+    originRequest:
+      http2Origin: true
+      connectTimeout: 60s
+    headers:
+      User-Agent:
+        - Nexus-Router-MCP-Client
+      Authorization:
+        - Bearer ${MCP_GATEWAY_TOKEN}
+
+  # Supabase (auth + API)
+  - hostname: supabase.projectnyra.com
+    service: http://localhost:8000
+    originRequest:
+      http2Origin: true
+      connectTimeout: 30s
+
+  # TwentyCRM (CRM system)
+  - hostname: twenty.projectnyra.com
+    service: http://localhost:3000
+    originRequest:
+      connectTimeout: 30s
+
+  # Activepieces (workflow automation)
+  - hostname: active.projectnyra.com
+    service: http://localhost:5678
+    originRequest:
+      connectTimeout: 30s
+
+  # Catch-all (404)
+  - service: http_status:404
+
+# Logging
+logDirectory: /var/log/cloudflared
+loglevel: info
+
+# Automatic updates
+autoupdate: true
+updateCheckInterval: 24h
+
+# Protocol settings
+protocol: quic
