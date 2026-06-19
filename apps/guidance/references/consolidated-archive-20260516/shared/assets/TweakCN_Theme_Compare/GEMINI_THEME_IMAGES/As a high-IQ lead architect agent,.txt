@@ -1,0 +1,23 @@
+As a high-IQ lead architect agent, execute a top-to-bottom consolidation and cleanup of this repository. We are transitioning from a fragmented structure to a unified three-app stack: Landing Page, Webapp (Mortgage Assistant core), and Twenty CRM.
+
+### PHASE 1: PURGE LEGACY STACK
+- Eliminate all files and references to: archon OS, ruflo, claude-flow, ruvector, flow-nexus, ruv-swarm, agentic-flow, agentdb, agent booster, epic sdk, and sona.
+- Scan /docs, /infra, and /scripts. Delete legacy integration docs or remove their specific context from scripts without breaking current core utility functions.
+
+### PHASE 2: CONSOLIDATE DOCUMENTATION (/docs & /infra)
+- Reorganize all relevant snippets, examples, code, data, and specs into three primary categories:
+  1. /docs/landing-page: Content for ratehunter.net redesign.
+  2. /docs/webapp: The core mortgage assistant system (Nyra). Merge all mortgage lead drip campaign info, admin page specs, mortgage/real estate brokering duties, and n8n/activepieces workflows here.
+  3. /docs/twenty-crm: All CRM connector, lead management, and integration documentation specific to the new Twenty CRM build.
+- Folder Reorganization: Remove similar or duplicate folders. Move all n8n workflows into a single predictable location within the docs structure.
+
+### PHASE 3: TECHNICAL ARCHITECTURE & PLANNING
+- For the WEBAPP category, generate a 150IQ comprehensive spec sheet, whitepaper, and a "Zero-Question" Prompting Plan. This must provide enough context for autonomous agents to complete the project from start to finish.
+- The plan must incorporate existing tools: n8n, activepieces, Twilio, SendGrid, and Kyutai Moshi integrations.
+- Propose and document three innovative new ideas for the unified Mortgage Assistant ecosystem to enhance the "Nyra" setup.
+
+### PHASE 4: REPOSITORY HYGIENE
+- Perform a light cleanup of the /scripts folder to ensure sensible file naming and locations without breaking active automation.
+- Ensure .gitignore is updated to reflect the removal of legacy components and protect any new sensitive patterns.
+
+Wait for my confirmation on the consolidated plan before deploying any coding agents for implementation.

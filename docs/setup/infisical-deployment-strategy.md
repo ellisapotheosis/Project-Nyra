@@ -26,6 +26,7 @@ Complete strategy for deploying Project Nyra with Infisical secrets management a
 - **Multi-PC Sync**: Synchronize secrets across orchestrator + workers
 
 **Alternative Approaches**:
+
 - `.env` files: Simple but insecure, manual distribution
 - HashiCorp Vault: Enterprise-grade but complex setup
 - AWS Secrets Manager: Cloud-only, vendor lock-in
@@ -69,11 +70,13 @@ Complete strategy for deploying Project Nyra with Infisical secrets management a
 ### Secrets Distribution Strategy
 
 **Development** (Local `.env`):
+
 - Use `.env` files for local development
 - Secrets committed to Infisical for team sync
 - Automatic validation via `validate-env.sh`
 
 **Production** (Infisical):
+
 - All secrets stored in Infisical cloud
 - Infisical Agent runs on each machine
 - Secrets injected at runtime, never stored on disk
@@ -90,6 +93,7 @@ Complete strategy for deploying Project Nyra with Infisical secrets management a
 3. Verify email
 
 **Pricing** (as of 2026):
+
 - **Free**: 5 users, unlimited secrets, 3 environments
 - **Pro**: $18/user/month, RBAC, audit logs, secret rotation
 - **Enterprise**: Custom pricing, SSO, dedicated support
@@ -109,16 +113,19 @@ Complete strategy for deploying Project Nyra with Infisical secrets management a
 Infisical projects have 3 default environments. Customize them:
 
 **Development**:
+
 - Used for local development
 - Secrets accessible to all developers
 - No secret rotation
 
 **Staging**:
+
 - Pre-production testing environment
 - Mirrored from production with test credentials
 - Optional secret rotation
 
 **Production**:
+
 - Live production environment
 - Restricted access (admin only)
 - Automatic secret rotation enabled
@@ -146,6 +153,7 @@ NEXUS_ADMIN_TOKEN=<generate-random-32-char>
 ```
 
 **Tip**: Use Infisical's built-in secret generator:
+
 - Click **Generate** button next to value field
 - Select length (16, 32, 64 characters)
 - Include/exclude special characters
@@ -166,12 +174,14 @@ NEXUS_ADMIN_TOKEN=<generate-random-32-char>
 ### Install Infisical CLI
 
 **Linux / macOS**:
+
 ```bash
 curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
 sudo apt-get update && sudo apt-get install -y infisical
 ```
 
 **Windows** (via Chocolatey):
+
 ```powershell
 choco install infisical
 ```
@@ -189,6 +199,7 @@ choco install infisical
 4. Copy token
 
 On orchestrator mini PC:
+
 ```bash
 export INFISICAL_TOKEN=<your-token>
 infisical secrets
@@ -212,23 +223,27 @@ infisical login --method=universal-auth \
 ### Deploy to Orchestrator Mini PC
 
 1. **Install Docker & Docker Compose**:
+
 ```bash
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
 ```
 
 2. **Clone Repository**:
+
 ```bash
 git clone https://github.com/yourusername/Project-Nyra.git
 cd Project-Nyra
 ```
 
 3. **Authenticate Infisical**:
+
 ```bash
 export INFISICAL_TOKEN=<orchestrator-token>
 ```
 
 4. **Run Services with Infisical**:
+
 ```bash
 infisical run --env=production -- \
   docker-compose -f infra/docker-compose.dev.yml -p nyra up -d
@@ -241,27 +256,32 @@ This injects all Infisical secrets as environment variables before starting Dock
 Repeat for each GPU worker (3 total):
 
 1. **Wake Machine** (Magic Packet from orchestrator):
+
 ```bash
 wakeonlan AA:BB:CC:DD:EE:FF  # Worker 1 MAC address
 ```
 
 2. **SSH into Worker**:
+
 ```bash
 ssh user@gpu-worker-1.local
 ```
 
 3. **Install Infisical CLI**:
+
 ```bash
 curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
 sudo apt-get install -y infisical
 ```
 
 4. **Create Worker-Specific Token**:
+
 - In Infisical, create token: `GPU Worker 1 Token`
 - Restrict to production environment
 - Export on worker: `export INFISICAL_TOKEN=<token>`
 
 5. **Run GPU Services**:
+
 ```bash
 cd Project-Nyra
 infisical run --env=production -- \
@@ -272,11 +292,13 @@ infisical run --env=production -- \
 ### Deploy to VPS
 
 1. **SSH into VPS**:
+
 ```bash
-ssh root@ratehunter.net
+ssh root@ratehunter.com
 ```
 
 2. **Setup Infisical**:
+
 ```bash
 curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
 sudo apt-get install -y infisical
@@ -285,6 +307,7 @@ export INFISICAL_TOKEN=<vps-token>
 ```
 
 3. **Deploy Frontend**:
+
 ```bash
 cd Project-Nyra/apps/ratehunter
 infisical run --env=production -- npm run build
@@ -371,22 +394,26 @@ docker-compose --env-file .env.prod up -d
 **Example: Rotate PostgreSQL Password**
 
 1. Generate new password:
+
 ```bash
 NEW_PASSWORD=$(openssl rand -hex 32)
 ```
 
 2. Update in Infisical:
+
 ```bash
 infisical secrets set POSTGRES_PASSWORD="${NEW_PASSWORD}" --env=production
 ```
 
 3. Update in PostgreSQL:
+
 ```bash
 docker exec -it nyra-postgres psql -U postgres -c \
   "ALTER USER postgres WITH PASSWORD '${NEW_PASSWORD}';"
 ```
 
 4. Restart services:
+
 ```bash
 infisical run --env=production -- \
   docker-compose -f infra/docker-compose.dev.yml restart
@@ -445,11 +472,13 @@ service-account-*.json
 ### 2. Restrict Access
 
 **Principle of Least Privilege**:
+
 - Developers: Read-only access to development environment
 - DevOps: Read/write access to staging
 - Admin: Full access to production
 
 **Infisical RBAC**:
+
 1. Go to **Project Settings** → **Members**
 2. Invite team member
 3. Select role:
@@ -466,6 +495,7 @@ Enable in **Project Settings** → **Audit Logs**:
 - Monitor failed authentication attempts
 
 **Review regularly**:
+
 ```bash
 # Export audit logs
 infisical audit-logs --env=production --start-date=2026-01-01
@@ -482,6 +512,7 @@ gpg --encrypt --recipient admin@yourdomain.com secrets-backup.json.enc
 ```
 
 **Store backup**:
+
 - Bitwarden vault (encrypted)
 - Offline USB drive (encrypted)
 - Physical safe (printed, sealed envelope)
@@ -512,6 +543,7 @@ gpg --encrypt --recipient admin@yourdomain.com secrets-backup.json.enc
 ### Infisical Pricing
 
 **Free Tier**:
+
 - 5 users
 - Unlimited secrets
 - 3 environments
@@ -519,6 +551,7 @@ gpg --encrypt --recipient admin@yourdomain.com secrets-backup.json.enc
 - **Suitable for**: Development, small teams
 
 **Pro Tier**:
+
 - Unlimited users
 - RBAC, audit logs
 - Secret rotation
@@ -527,6 +560,7 @@ gpg --encrypt --recipient admin@yourdomain.com secrets-backup.json.enc
 - **Suitable for**: Production, compliance requirements
 
 **Annual Savings**:
+
 - Avoid manual secret distribution: ~10 hours/month × $100/hour = $1,000/month saved
 - Prevent security breaches: Priceless
 
@@ -541,6 +575,7 @@ gpg --encrypt --recipient admin@yourdomain.com secrets-backup.json.enc
 **Cause**: Invalid or expired token
 
 **Solution**:
+
 ```bash
 # Re-authenticate
 infisical login
@@ -553,6 +588,7 @@ export INFISICAL_TOKEN=<new-token>
 **Cause**: Secret doesn't exist in selected environment
 
 **Solution**:
+
 ```bash
 # List all secrets
 infisical secrets --env=production
@@ -566,6 +602,7 @@ infisical secrets set SECRET_NAME="value" --env=production
 **Cause**: Too many API calls to Infisical
 
 **Solution**:
+
 - Use Infisical Agent for caching
 - Reduce frequency of secret pulls
 - Upgrade to Pro plan (higher rate limits)

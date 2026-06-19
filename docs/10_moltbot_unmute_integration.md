@@ -1,55 +1,71 @@
-# 10 Moltbot / Kyutai Unmute Integration
+# 10 Voice and OpenClaw Integration
+
+Updated: 2026-04-30
 
 ## Current state
 
-Moltbot-related runtime appears in active compose inventory, but dedicated unmute profile wiring is not yet standardized in the canonical Makefile path.
+Voice and assistant/runtime services are optional overlays. They should stay private unless a specific UI/API hostname is Cloudflare Access-gated.
 
 ## Known services
 
-- `moltbot-web` appears in `infra/docker-compose.yml` as a web endpoint.
-- `moltbot` appears in `infra/oracle/docker-compose.oracle.yml` with RTP/WebSocket ports.
+| Host               | Service                | Compose                                |         Port(s) | Target                             |
+| ------------------ | ---------------------- | -------------------------------------- | --------------: | ---------------------------------- |
+| `orchestrator`     | `openclaw-gateway`     | `docker-compose.yml`                   |          `8001` | assistant gateway profile          |
+| `orchestrator`     | `pocket-tts`           | `docker-compose.voice.yml`             |          `8080` | local TTS                          |
+| `oracle-vps`       | `clawteam`             | `docker-compose.clawteam.yml`          |  `8090 -> 8080` | optional assistant team UI/runtime |
+| `worker-rtx3060`   | `unmute-standalone`    | `docker-compose.voice.yml`             |  `8098 -> 8080` | standalone voice                   |
+| `worker-rtx3060`   | `unmute-stt`           | `docker-compose.distributed-voice.yml` |  `8081 -> 8080` | distributed STT role               |
+| `worker-rtx3090ti` | `unmute-standalone`    | `docker-compose.voice.yml`             |  `8098 -> 8080` | standalone voice                   |
+| `worker-rtx3090ti` | `unmute-tts`           | `docker-compose.distributed-voice.yml` |  `8081 -> 8080` | distributed TTS role               |
+| `worker-rtx5090`   | `unmute-standalone`    | `docker-compose.voice.yml`             |  `8098 -> 8080` | standalone voice                   |
+| `worker-rtx5090`   | `unmute-llm`           | `docker-compose.distributed-voice.yml` |  `8081 -> 8080` | distributed LLM role               |
+| `worker-rtx3090ti` | `openclaw`, `nerve-ui` | `docker-compose.nerve.yml`             | `8001`, `18789` | optional runtime/dashboard         |
+| `worker-rtx5090`   | `openclaw`, `nerve-ui` | `docker-compose.nerve.yml`             | `8001`, `18789` | optional runtime/dashboard         |
+
+## Cloudflared hostnames
+
+Optional assistant/runtime web surfaces should use the Access-gated hostnames
+documented in `docs/cloudflared/hostname-matrix.md`.
+
+Recommended worker UI hostnames:
+
+| Hostname                        | Origin                                         |
+| ------------------------------- | ---------------------------------------------- |
+| `openclaw-5090.projectnyra.com` | `worker-rtx5090.trex-fiordland.ts.net:8001`    |
+| `nerve-5090.projectnyra.com`    | `worker-rtx5090.trex-fiordland.ts.net:18789`   |
+| `openclaw-3090.projectnyra.com` | `worker-rtx3090ti.trex-fiordland.ts.net:8001`  |
+| `nerve-3090.projectnyra.com`    | `worker-rtx3090ti.trex-fiordland.ts.net:18789` |
+
+Keep raw voice/media ports private. Do not publish Unmute transport ports unless
+there is a dedicated Access policy and a documented product reason.
+
+## Makefile targets
+
+| Target                                  | Purpose                                          |
+| --------------------------------------- | ------------------------------------------------ |
+| `make voice-3060`                       | Start standalone voice on RTX 3060               |
+| `make voice-3090ti`                     | Start standalone voice on RTX 3090 Ti            |
+| `make voice-5090`                       | Start standalone voice on RTX 5090               |
+| `make voice-orch`                       | Start orchestrator Pocket TTS                    |
+| `make voice-distributed`                | Start distributed voice roles across all workers |
+| `make nerve-3090ti` / `make nerve-5090` | Start worker runtime/dashboard overlay           |
+| `make oracle-clawteam`                  | Start Oracle clawteam overlay                    |
 
 ## Integration stance
 
-- Keep voice processing services private by default.
-- Expose only explicit web control APIs through Access if required.
-- Avoid public exposure of raw media transport ports.
-
-## Required env domains
-
-- upstream LLM endpoint (internal LiteLLM or private gateway)
-- voice/STT/TTS provider keys via Infisical
-- orchestrator callback URLs
-
-## Next steps
-
-1. Add explicit Make target for optional voice profile if desired.
-2. Add health endpoint docs once canonicalized.
-3. Keep edge docs synchronized if any public hostname is introduced.
+- Keep raw voice/media ports private.
+- Prefer private mesh routing from app services to voice workers.
+- Expose only explicit web UIs or APIs through Cloudflare Access.
+- Keep core CRM, quote, and compliance workflows independent from optional voice overlays.
 
 ## Validation plan
-1. Confirm compose service healthchecks are present or add synthetic probes.
-2. Validate media port reachability only on private network paths.
-3. Verify that no cloudflared hostnames are mapped to raw media transport ports.
+
+```bash
+docker --context worker-rtx3060 compose -f infra/hosts/worker-rtx3060/docker-compose.voice.yml config
+docker --context worker-rtx3090ti compose -f infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml config
+docker --context worker-rtx5090 compose -f infra/hosts/worker-rtx5090/docker-compose.nerve.yml config
+```
 
 ## Rollback plan
-- Disable optional voice profile targets first.
-- Keep core routing and CRM workflows independent from voice stack.
-- Re-run compose config validation after rollback.
 
-## Owner note
-- This section is intentionally conservative until full canonical voice profile files are finalized.
-
-## Evidence references
-- Source compose: `infra/docker-compose.yml`
-- Targeting policy: `infra/cloudflared/config.yml`
-- Control surface docs: `docs/02_ports_registry.md`
-
-## Command snippets
-```bash
-rg -n "<service-name>|ports:" infra/docker-compose.yml
-```
-
-```bash
-rg -n "hostname:|service:" infra/cloudflared/config.yml
-```
+Stop optional voice and runtime overlays first. Do not stop Oracle CRM, Gitea CI/CD, quote services, or orchestrator LiteLLM/Nexus to roll back voice experiments.

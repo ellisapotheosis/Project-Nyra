@@ -14,13 +14,19 @@ def _build_config() -> dict:
     openai_key = os.environ.get("OPENAI_API_KEY", "")
     qdrant_host = os.environ.get("QDRANT_HOST", "nyra-qdrant")
     qdrant_port = int(os.environ.get("QDRANT_PORT", "6333"))
+    qdrant_api_key = os.environ.get("QDRANT_API_KEY", "")
+    qdrant_url = os.environ.get("QDRANT_URL", f"http://{qdrant_host}:{qdrant_port}")
+    qdrant_connection = (
+        {"url": qdrant_url, "api_key": qdrant_api_key}
+        if qdrant_api_key
+        else {"host": qdrant_host, "port": qdrant_port}
+    )
 
     cfg: dict = {
         "vector_store": {
             "provider": "qdrant",
             "config": {
-                "host": qdrant_host,
-                "port": qdrant_port,
+                **qdrant_connection,
                 "embedding_model_dims": 1536,
                 "collection_name": "mem0-nyra",
             },

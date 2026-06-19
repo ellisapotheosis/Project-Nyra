@@ -1,18 +1,27 @@
-version: 2
-purpose: Canonical host split for Portainer migration
+version: 3
+purpose: Canonical host split for Project Nyra orchestration
+infra_structure_doc: infra/CLAUDE.md
 
 bootstrap_order:
   - oracle-vps
   - orchestrator
   - worker-hosts
-  - homeassistant
+
+# Canonical infra/ categories (do not create top-level dirs outside these):
+#   hosts/      — docker-compose files per host
+#   images/     — Dockerfiles and build contexts
+#   configs/    — service runtime configs
+#   scripts/    — operational scripts
+#   env/        — environment / secret files
+#   docs/       — infrastructure documentation
+#   cloudflare/ — Cloudflare IaC
 
 host_constraints:
   orchestrator:
     resources:
       ram_gb: 16
     policy:
-      - Keep latency-sensitive UI/API routing services local (gateway, router, Open WebUI/OpenClaw UI).
+      - Keep latency-sensitive UI/API routing local (gateway, router, Open WebUI/OpenClaw UI).
       - Keep write-heavy orchestration control loops local.
   oracle-vps:
     resources:
@@ -22,40 +31,76 @@ host_constraints:
     policy:
       - Prefer internet-facing and durable/stateful services (CRM, database replicas, backups, async automations).
       - Avoid GPU-bound and ultra-low-latency interactive control loops.
+
 hosts:
   orchestrator:
     owner: control-plane
     compose_files:
-      - infra/docker-compose.yml
-      - infra/compose/overrides/docker-compose.orchestrator.override.yml
+      - infra/hosts/orchestrator/docker-compose.yml
+      - infra/hosts/orchestrator/docker-compose.cloudflared.yml
+      - infra/hosts/orchestrator/docker-compose.voice.yml
+      - infra/hosts/orchestrator/docker-compose.observability.yml
+      - infra/hosts/orchestrator/docker-compose.clawteam.yml
+      - infra/hosts/orchestrator/docker-compose.llxprt.yml
+      - infra/hosts/orchestrator/docker-compose.bitnet.yml
+      - infra/hosts/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml
     env_files:
-      - infra/env/.env.orchestrator
+      - .env
+
   worker-hosts:
     owner: gpu-workers
+    voice_setups:
+      standalone: docker-compose.voice.yml # one complete unmute per worker
+      distributed: docker-compose.distributed-voice.yml # STT(3060)/TTS(3090ti)/LLM(5090)
     nodes:
       worker-rtx5090:
+        vram_gb: 32
+        role: primary-vllm + distributed-voice-llm
         compose_files:
-          - infra/workers/worker-rtx5090/docker-compose.worker.yml
-        env_files:
-          - infra/env/.env.worker-rtx5090
+          - infra/hosts/worker-rtx5090/docker-compose.yml
+          - infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
+          - infra/hosts/worker-rtx5090/docker-compose.gpu.yml
+          - infra/hosts/worker-rtx5090/docker-compose.voice.yml
+          - infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
+          - infra/hosts/worker-rtx5090/docker-compose.clawteam.yml
+          - infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
+          - infra/hosts/worker-rtx5090/docker-compose.nerve.yml
       worker-rtx3090ti:
+        vram_gb: 24
+        role: secondary-vllm + distributed-voice-tts
         compose_files:
-          - infra/workers/worker-rtx3090ti/docker-compose.worker.yml
-        env_files:
-          - infra/env/.env.worker-rtx3090ti
+          - infra/hosts/worker-rtx3090ti/docker-compose.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.voice.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.clawteam.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
       worker-rtx3060:
+        vram_gb: 12
+        role: ollama-inference + distributed-voice-stt
         compose_files:
-          - infra/workers/worker-rtx3060/docker-compose.worker.yml
-          - infra/compose/overrides/docker-compose.worker-rtx3060.override.yml
-        env_files:
-          - infra/env/.env.worker-rtx3060
+          - infra/hosts/worker-rtx3060/docker-compose.yml
+          - infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
+          - infra/hosts/worker-rtx3060/docker-compose.gpu.yml
+          - infra/hosts/worker-rtx3060/docker-compose.voice.yml
+          - infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
+          - infra/hosts/worker-rtx3060/docker-compose.clawteam.yml
+          - infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
+
   oracle-vps:
     owner: cloud
     compose_files:
-      - infra/oracle/docker-compose.oracle.yml
-  homeassistant:
-    owner: home-lab-ops
-    dashboard_files:
-      - infra/hosts/homeassistant/config/dashboards/nyra-ops-ui-links.yaml
-    package_files:
-      - infra/hosts/homeassistant/config/packages/nyra-stack-recommendations.yaml
+      - infra/hosts/oracle-vps/docker-compose.yml
+      - infra/hosts/oracle-vps/docker-compose.oracle.yml
+      - infra/hosts/oracle-vps/docker-compose.memory.yml
+      - infra/hosts/oracle-vps/docker-compose.apps.yml
+      - infra/hosts/oracle-vps/docker-compose.gitea.yml
+      - infra/hosts/oracle-vps/docker-compose.letta-mcp.yml
+      - infra/hosts/oracle-vps/docker-compose.clawteam.yml
+      - infra/hosts/oracle-vps/docker-compose.activepieces-mcp.yml
+    optional_overlays:
+      - infra/hosts/oracle-vps/docker-compose.memory-extra.yml
+      - infra/hosts/oracle-vps/docker-compose.paperclip.yml
+      - infra/hosts/oracle-vps/docker-compose.restoration.yml

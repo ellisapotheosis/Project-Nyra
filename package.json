@@ -13,18 +13,23 @@
     "packages/*"
   ],
   "scripts": {
+    "prepare": "husky",
     "dev": "turbo run dev --concurrency=30",
     "build": "turbo run build",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm exec vitest --config vitest.smoke.config.mjs run",
+    "test:unit": "bash scripts/testing/run-unit-tests.sh",
     "test:all": "pnpm exec vitest --config vitest.config.mjs run",
-    "docker:up": "docker compose -f infra/docker-compose.yml up -d",
-    "docker:down": "docker compose -f infra/docker-compose.yml down",
-    "twenty:setup": "docker compose -f infra/docker-compose.twenty.yml up -d",
-    "twenty:down": "docker compose -f infra/docker-compose.twenty.yml down",
+    "docker:up": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d",
+    "docker:down": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml down",
+    "twenty:setup": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d twenty twenty-worker twenty-db",
+    "twenty:down": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml stop twenty twenty-worker twenty-db",
     "twenty:dev": "turbo run dev --filter=twenty-crm",
     "admin:dev": "turbo run dev --filter=nyra-admin",
-    "all:dev": "turbo run dev --parallel"
+    "all:dev": "turbo run dev --parallel",
+    "typecheck": "turbo run typecheck",
+    "test:contracts": "pnpm -C packages/domain-models test && pnpm -C packages/integration-adapters test",
+    "docs:check": "ls docs/*.md && ls docs/ops/*.md"
   },
   "dependencies": {
     "zod": "^4.3.5"
@@ -35,6 +40,8 @@
     "@typescript-eslint/eslint-plugin": "^8.57.0",
     "@typescript-eslint/parser": "^8.58.2",
     "eslint": "^10.0.3",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.4.2",
     "turbo": "^2.8.15",
     "typescript": "^5.7.0",

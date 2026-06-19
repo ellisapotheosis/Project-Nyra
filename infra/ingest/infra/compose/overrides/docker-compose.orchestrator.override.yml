@@ -1,9 +1,0 @@
-version: '3.8'
-
-# This override file selects which service profiles run on the orchestrator.
-# The `COMPOSE_PROFILES` environment variable in `.env.orchestrator` determines
-# which services are started.  No additional services are defined here.
-
-services:
-  # You can add orchestrator-specific overrides here (e.g. custom commands,
-  # labels, extra environment variables).

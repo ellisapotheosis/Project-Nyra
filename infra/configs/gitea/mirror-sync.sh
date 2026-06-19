@@ -9,11 +9,33 @@ set -e
 echo "=== GitHub Mirror Sync ==="
 echo "GitHub Repo: ${GITHUB_REPO}"
 echo "Gitea URL: ${GITEA_URL}"
+echo "Gitea Repo: ${GITEA_REPO:-nyra-admin/Project-Nyra}"
 
 # Check for required environment variables
 if [ -z "$GITHUB_TOKEN" ]; then
-  echo "ERROR: GITHUB_TOKEN is not set"
-  exit 1
+  echo "WARN: GITHUB_TOKEN is not set; skipping this mirror cycle"
+  exit 0
+fi
+
+GITEA_REPO="${GITEA_REPO:-nyra-admin/Project-Nyra}"
+GITEA_OWNER="${GITEA_REPO%%/*}"
+GITEA_NAME="${GITEA_REPO#*/}"
+GITEA_CLONE_URL="${GITEA_URL}/${GITEA_REPO}.git"
+
+if [ -n "$GITEA_TOKEN" ]; then
+  echo "Ensuring Gitea repository exists..."
+  curl -fsS \
+    -H "Authorization: token ${GITEA_TOKEN}" \
+    -H "Content-Type: application/json" \
+    "${GITEA_URL}/api/v1/repos/${GITEA_OWNER}/${GITEA_NAME}" >/dev/null 2>&1 || \
+  curl -fsS \
+    -X POST \
+    -H "Authorization: token ${GITEA_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -d "{\"name\":\"${GITEA_NAME}\",\"private\":true,\"auto_init\":false}" \
+    "${GITEA_URL}/api/v1/user/repos" >/dev/null
+
+  GITEA_CLONE_URL="$(printf '%s' "$GITEA_CLONE_URL" | sed "s#://#://oauth2:${GITEA_TOKEN}@#")"
 fi
 
 # Configure git
@@ -26,7 +48,7 @@ WORK_DIR=$(mktemp -d)
 cd "$WORK_DIR"
 
 echo "Cloning from Gitea..."
-git clone --mirror "${GITEA_URL}/nyra/Project-Nyra.git" repo.git
+git clone --mirror "${GITEA_CLONE_URL}" repo.git
 cd repo.git
 
 # Add GitHub as remote

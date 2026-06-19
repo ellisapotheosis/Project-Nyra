@@ -34,10 +34,8 @@ describe('IntelligentPrefetchSystem - Missing Critical Coverage', () => {
 
       const warmingKeys = await prefetchSystem.generateStartupWarmingKeys(context);
 
-      // TODO: Test actual implementation when available
       expect(warmingKeys).toBeDefined();
-      // Should prioritize critical application data
-      // expect(warmingKeys.length).toBeGreaterThan(0);
+      expect(warmingKeys.length).toBeGreaterThan(0);
     });
 
     it('should generate scheduled warming keys based on time patterns', async () => {
@@ -50,9 +48,8 @@ describe('IntelligentPrefetchSystem - Missing Critical Coverage', () => {
 
       const scheduledKeys = await prefetchSystem.generateScheduledWarmingKeys(schedule);
 
-      // TODO: Implement test when method is available
       expect(scheduledKeys).toBeDefined();
-      // Should generate keys based on temporal patterns
+      expect(scheduledKeys).toEqual(expect.arrayContaining(['morning-rush:daily']));
     });
 
     it('should generate predictive warming keys using ML models', async () => {
@@ -66,9 +63,8 @@ describe('IntelligentPrefetchSystem - Missing Critical Coverage', () => {
 
       const predictiveKeys = await prefetchSystem.generatePredictiveWarmingKeys(predictionContext);
 
-      // TODO: Test ML-based prediction when implemented
       expect(predictiveKeys).toBeDefined();
-      // Should use machine learning to predict future accesses
+      expect(predictiveKeys).toEqual(expect.arrayContaining(['profile:123', 'settings:123']));
     });
   });
 

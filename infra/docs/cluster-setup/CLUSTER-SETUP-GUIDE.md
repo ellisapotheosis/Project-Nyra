@@ -3,6 +3,7 @@
 ## Overview
 
 This guide covers setting up the Project Nyra 4-PC LAN cluster with:
+
 - **Tailscale**: Secure mesh VPN for inter-PC communication
 - **Cloudflared**: Cloudflare Tunnel for exposing services to the internet
 - **Ollama**: Local LLM inference on GPU workers
@@ -11,16 +12,17 @@ This guide covers setting up the Project Nyra 4-PC LAN cluster with:
 
 Based on CLAUDE.md specifications:
 
-| PC Name | Role | GPU | VRAM | Purpose |
-|---------|------|-----|------|---------|
-| **orchestrator-mini** | Coordinator | Integrated | 2-8GB | Claude Flow, n8n, TwentyCRM, coordination |
-| **worker-5090** | Primary Worker | RTX 5090 | 48GB | DeepSeek-R1 236B, Qwen 2.5 72B |
-| **worker-3090** | Secondary Worker | RTX 3090 Ti | 24GB | Llama 3.1 70B, Mistral Large 123B |
-| **worker-3060** | Tertiary Worker | RTX 3060 | 12GB | CodeLlama 34B, Qwen 32B, Gemma 2 27B |
+| PC Name               | Role             | GPU         | VRAM  | Purpose                                   |
+| --------------------- | ---------------- | ----------- | ----- | ----------------------------------------- |
+| **orchestrator-mini** | Coordinator      | Integrated  | 2-8GB | Claude Flow, n8n, TwentyCRM, coordination |
+| **worker-5090**       | Primary Worker   | RTX 5090    | 48GB  | DeepSeek-R1 236B, Qwen 2.5 72B            |
+| **worker-3090**       | Secondary Worker | RTX 3090 Ti | 24GB  | Llama 3.1 70B, Mistral Large 123B         |
+| **worker-3060**       | Tertiary Worker  | RTX 3060    | 12GB  | CodeLlama 34B, Qwen 32B, Gemma 2 27B      |
 
 ### Current Status (As of 2026-01-22)
 
 **Connected PCs (2/4)**:
+
 1. ✅ **AlienApotheosis** (worker-rtx3060)
    - Hostname: `AlienApotheosis`
    - Model: Alienware m15 R7
@@ -34,10 +36,10 @@ Based on CLAUDE.md specifications:
    - Status: Tailscale connected (idle)
    - Note: Need to verify Ollama installation
 
-**Missing PCs (2/4)**:
-3. ❓ **worker-5090** (RTX 5090)
-   - Status: Not yet connected to Tailscale
-   - Action needed: Install Tailscale, configure Ollama
+**Missing PCs (2/4)**: 3. ❓ **worker-5090** (RTX 5090)
+
+- Status: Not yet connected to Tailscale
+- Action needed: Install Tailscale, configure Ollama
 
 4. ❓ **worker-3090** (RTX 3090 Ti)
    - Status: Not yet connected to Tailscale
@@ -51,6 +53,7 @@ Based on CLAUDE.md specifications:
 **MagicDNS**: Enabled
 
 Each PC gets:
+
 - A unique `100.x.x.x` IP address
 - MagicDNS hostname: `<hostname>.tail558973.ts.net`
 - Automatic WireGuard-encrypted peer-to-peer connections
@@ -58,6 +61,7 @@ Each PC gets:
 ### Cloudflare Tunnels
 
 **Existing Tunnels**:
+
 - `M15R7` (ID: 1dd404f8-31e0-4c56-bf3f-6befde8d5c1d)
 - `Project-Nyra-CF-Tunnel` (ID: 505504bb-c6c6-46d7-b713-3ee0f8fba1ee)
 - `mcp-github` (ID: 8e8a44e0-204a-4333-843e-5e6300fd8f79)
@@ -80,6 +84,7 @@ cd C:\Dev\Projects\Repos\Project-Nyra\infra\cluster-setup
 ```
 
 This creates a file `PC-INFO-<hostname>-<timestamp>.txt` with:
+
 - Hostname and user
 - GPU information
 - Network interfaces (IP, MAC addresses)
@@ -94,6 +99,7 @@ This creates a file `PC-INFO-<hostname>-<timestamp>.txt` with:
 #### On Windows PCs:
 
 1. **Install Tailscale**:
+
    ```powershell
    # Option 1: Using scoop (recommended)
    scoop install tailscale
@@ -102,6 +108,7 @@ This creates a file `PC-INFO-<hostname>-<timestamp>.txt` with:
    ```
 
 2. **Login and connect**:
+
    ```powershell
    tailscale login
    # Opens browser for authentication
@@ -195,18 +202,21 @@ ollama --version
 #### Pull models based on VRAM:
 
 **worker-5090 (48GB VRAM)**:
+
 ```bash
 ollama pull deepseek-r1:236b
 ollama pull qwen2.5:72b
 ```
 
 **worker-3090 (24GB VRAM)**:
+
 ```bash
 ollama pull llama3.1:70b
 ollama pull mistral-large:123b
 ```
 
 **worker-3060 (12GB VRAM)**:
+
 ```bash
 ollama pull codellama:34b
 ollama pull qwen2.5:32b
@@ -220,34 +230,37 @@ ollama pull gemma2:27b
 Create `~/.cloudflared/config.yaml` on **each GPU worker**:
 
 **worker-5090**:
+
 ```yaml
 tunnel: <worker-5090-tunnel-id>
 credentials-file: ~/.cloudflared/<worker-5090-tunnel-id>.json
 
 ingress:
-  - hostname: worker-5090.ratehunter.net
+  - hostname: worker-5090.projectnyra.com
     service: http://localhost:11434
   - service: http_status:404
 ```
 
 **worker-3090**:
+
 ```yaml
 tunnel: <worker-3090-tunnel-id>
 credentials-file: ~/.cloudflared/<worker-3090-tunnel-id>.json
 
 ingress:
-  - hostname: worker-3090.ratehunter.net
+  - hostname: worker-3090.projectnyra.com
     service: http://localhost:11434
   - service: http_status:404
 ```
 
 **worker-3060**:
+
 ```yaml
 tunnel: <worker-3060-tunnel-id>
 credentials-file: ~/.cloudflared/<worker-3060-tunnel-id>.json
 
 ingress:
-  - hostname: worker-3060.ratehunter.net
+  - hostname: worker-3060.projectnyra.com
     service: http://localhost:11434
   - service: http_status:404
 ```
@@ -281,9 +294,9 @@ curl http://<worker-ip>.tail558973.ts.net:11434/api/tags
 
 ```bash
 # From anywhere on the internet (once DNS is configured)
-curl https://worker-5090.ratehunter.net/api/tags
-curl https://worker-3090.ratehunter.net/api/tags
-curl https://worker-3060.ratehunter.net/api/tags
+curl https://worker-5090.projectnyra.com/api/tags
+curl https://worker-3090.projectnyra.com/api/tags
+curl https://worker-3060.projectnyra.com/api/tags
 ```
 
 #### Test LLM inference:
@@ -297,7 +310,7 @@ curl http://worker-5090.tail558973.ts.net:11434/api/generate -d '{
 }'
 
 # Via Cloudflare Tunnel (public)
-curl https://worker-5090.ratehunter.net/api/generate -d '{
+curl https://worker-5090.projectnyra.com/api/generate -d '{
   "model": "deepseek-r1:236b",
   "prompt": "Why is the sky blue?",
   "stream": false

@@ -16,7 +16,6 @@ services:
       - LMCACHE_REDIS_HOST=redis-cache
       - LMCACHE_REDIS_PORT=6379
     ports:
-      - "127.0.0.1:${VLLM_PORT:-8000}:8000"
       - "0.0.0.0:8000:8000"  # Expose on all interfaces for Tailscale
     volumes:
       - /root/.cache/huggingface:/root/.cache/huggingface

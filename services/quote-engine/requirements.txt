@@ -1,10 +1,10 @@
 # Quote Engine Dependencies
 # FastAPI mortgage quote calculation service
 
-fastapi==0.115.0
+fastapi==0.136.1
 uvicorn[standard]==0.32.0
-pydantic==2.9.2
-pydantic-settings==2.6.0
+pydantic==2.13.4
+pydantic-settings==2.14.1
 python-multipart==0.0.31
 httpx==0.27.2
 requests==2.33.1

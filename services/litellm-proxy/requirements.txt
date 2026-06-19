@@ -11,15 +11,16 @@ redis==5.2.1
 hiredis==3.1.0
 
 # API Framework
-fastapi==0.115.6
+fastapi==0.124.4
 uvicorn[standard]==0.34.0
 python-multipart==0.0.32
-httpx==0.27.2
+httpx==0.28.1
 
 # Authentication & Security
-python-jose[cryptography]==3.4.0
+python-jose[cryptography]==3.5.0
+pyasn1==0.6.3
 passlib[bcrypt]==1.7.4
-python-dotenv==1.2.2
+python-dotenv==1.0.1
 
 # Monitoring & Metrics
 prometheus-client==0.21.1
@@ -32,8 +33,8 @@ python-json-logger==3.2.1
 loguru==0.7.3
 
 # Utilities
-pydantic==2.10.5
-pydantic-settings==2.7.1
+pydantic==2.12.5
+pydantic-settings==2.14.1
 tenacity==9.0.0
 python-dateutil==2.9.0
 pytz==2024.2
@@ -46,7 +47,7 @@ pytest-asyncio==0.25.2
 pytest-cov==6.0.0
 
 # Provider-specific SDKs (optional)
-openai==1.60.1
-anthropic==0.42.0
+openai==2.30.0
+anthropic==0.100.0
 boto3==1.36.7  # For AWS Bedrock
 azure-identity==1.20.0

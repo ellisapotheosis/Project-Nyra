@@ -1,21 +1,16 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { SecurityConfigService } from '../services/security-config';
+import { MetricsCollectorService } from '../services/metrics-collector';
 import { oauth2Middleware } from '../middleware/oauth2';
 import { createLogger } from '../utils/logger';
 import { asyncHandler, BadRequestError, NotFoundError } from '../middleware/error-handler';
-import {
-  OAuth2ConfigUpdateRequest,
-  PermissionsUpdateRequest,
-  GroupCreateRequest,
-  GroupUpdateRequest,
-  TokenTestRequest,
-  SecurityHealth,
-} from '../types/security';
+import { SecurityHealth } from '../types/security';
 
 const logger = createLogger('security-route');
 const router = Router();
 const securityConfig = SecurityConfigService.getInstance();
+const metricsCollector = MetricsCollectorService.getInstance();
 
 // ============================================================================
 // Validation Schemas
@@ -422,13 +417,24 @@ router.get(
     const oauth2Config = await securityConfig.getOAuth2Config();
     const permissions = await securityConfig.getPermissionsMatrix();
     const groups = await securityConfig.listGroups();
+    const jwksReachable = oauth2Config.jwksEndpoint
+      ? await checkJwksEndpoint(oauth2Config.jwksEndpoint)
+      : undefined;
+    const auditLogs = metricsCollector.getLogs(undefined, 100)
+      .filter(log => log.service === 'security');
+    const recentViolations = auditLogs.filter(log =>
+      log.level === 'warn' || log.context?.eventType === 'violation'
+    ).length;
+    const lastAuditEntry = auditLogs[0]?.timestamp
+      ? new Date(auditLogs[0].timestamp).toISOString()
+      : undefined;
 
     const health: SecurityHealth = {
       oauth2: {
         enabled: oauth2Config.enabled,
         configured:
           !!oauth2Config.jwksEndpoint && !!oauth2Config.expectedIssuer,
-        jwksReachable: undefined, // TODO: Add JWKS endpoint health check
+        jwksReachable,
       },
       permissions: {
         configured: Object.keys(permissions).length > 0,
@@ -436,8 +442,9 @@ router.get(
         groupCount: groups.length,
       },
       audit: {
-        enabled: false, // TODO: Add audit logging
-        recentViolations: 0,
+        enabled: true,
+        recentViolations,
+        lastAuditEntry,
       },
     };
 
@@ -489,6 +496,27 @@ function redactUrl(url: string): string {
     return `${parsed.protocol}//***${parsed.pathname}${parsed.search}`;
   } catch {
     return '***';
+  }
+}
+
+async function checkJwksEndpoint(jwksEndpoint: string): Promise<boolean> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+
+  try {
+    const response = await fetch(jwksEndpoint, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+    return response.ok;
+  } catch (error) {
+    logger.warn('JWKS endpoint health check failed', {
+      jwksEndpoint: redactUrl(jwksEndpoint),
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    return false;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 

@@ -1,8 +1,0 @@
-{
-  "name": "archon",
-  "description": "Channel exposing Archon orchestrator tools via MetaMCP",
-  "includes": [
-    "../always-on.json",
-    "../context-hungry.json"
-  ]
-}

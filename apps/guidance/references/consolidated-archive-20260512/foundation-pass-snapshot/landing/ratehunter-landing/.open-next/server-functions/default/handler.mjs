@@ -1,0 +1,1 @@
+export { handler } from "./apps/landing/ratehunter-landing/handler.mjs";

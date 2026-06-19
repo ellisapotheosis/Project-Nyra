@@ -1,0 +1,39 @@
+# infra/hosts/oracle-vps/docker-compose.paperclip.yml
+# 📎 Project Nyra - Paperclip MCP Gateway for Oracle-VPS
+
+services:
+  paperclip:
+    build:
+      context: ../../images/paperclip
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-mcp-gateway
+    environment:
+      - NODE_ENV=production
+      - PAPERCLIP_ROLE=gateway
+      - PAPERCLIP_HOST=oracle-vps
+      - DATABASE_URL=postgres://paperclip:${PAPERCLIP_DB_PASSWORD:-paperclip}@postgres:5432/paperclip
+      - COMPOSIO_API_KEY=${COMPOSIO_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    ports:
+      - "3100:3100"
+    volumes:
+      - paperclip_data:/data
+    networks:
+      - nyra_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 1g
+
+volumes:
+  paperclip_data:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-data

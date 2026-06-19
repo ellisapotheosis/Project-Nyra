@@ -164,9 +164,6 @@ ingress:
   - hostname: nexus.$DOMAIN
     service: http://localhost:8888
 
-  - hostname: archon-os.$DOMAIN
-    service: http://localhost:8081
-
   # ===== Database Admin =====
   - hostname: pgadmin.$DOMAIN
     service: http://localhost:5050
@@ -242,7 +239,6 @@ SERVICES=(
     "jaeger"
     "secrets"
     "nexus"
-    "archon-os"
     "pgadmin"
     "redis"
     "ratehunter"

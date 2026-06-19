@@ -16,8 +16,8 @@ Before any merge or refactor work, create safe copies of all relevant app folder
 
 ## Source Folders To Back Up
 
-- `/home/ellisapotheosis/repos/project-nyra/apps/landing`
-- `/home/ellisapotheosis/repos/project-nyra/apps/webapp`
+- `/home/ellisapotheosis/repos/project-nyra/apps/ratehunter`
+- `/home/ellisapotheosis/repos/project-nyra/apps/projectnyra`
 - `/home/ellisapotheosis/repos/project-nyra/apps/admin`
 - `/home/ellisapotheosis/repos/project-nyra/apps/mortgage-crm`
 - `/home/ellisapotheosis/repos/project-nyra/apps/twenty`
@@ -26,11 +26,13 @@ Before any merge or refactor work, create safe copies of all relevant app folder
 ## Backup Destination
 
 Create a dated backup root such as:
+
 - `/home/ellisapotheosis/repos/webapp-merge/project-nyra-apps-backup-2026-04-24/`
 
 ## Additional Context
 
 Reference materials already copied into repo:
+
 - [guidance snapshot](/home/ellisapotheosis/repos/project-nyra/apps/guidance/references/webapp-merge-snapshot)
 
 ## Deliverables
@@ -44,4 +46,3 @@ Reference materials already copied into repo:
    - known external dependencies
    - merge target recommendation
 3. Zero functional changes to apps
-

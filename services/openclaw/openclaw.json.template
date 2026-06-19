@@ -1,4 +1,7 @@
 {
+  "gateway": {
+    "mode": "local"
+  },
   "plugins": {
     "slots": {
       "memory": "openclaw-mem0"
@@ -44,14 +47,6 @@
               }
             }
           }
-        }
-      },
-      "openclaw-open-webui-channels": {
-        "enabled": true,
-        "config": {
-          "baseUrl": "http://open-webui:8080",
-          "botEmail": "${OPEN_WEBUI_BOT_EMAIL}",
-          "botPassword": "${OPEN_WEBUI_BOT_PASSWORD}"
         }
       }
     }
