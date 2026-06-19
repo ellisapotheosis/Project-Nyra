@@ -1,0 +1,112 @@
+name: nyra-dev
+
+# Standalone development stack — DB + Redis + LiteLLM + Nexus Router
+# Use with: docker compose -f infra/hosts/orchestrator/docker-compose.standalone-dev.yml --profile dev up
+# NOT intended to run alongside the main stack (port conflicts on redis/litellm).
+
+x-logging: &default_logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+networks:
+  nyra-network:
+    name: nyra-network
+    driver: bridge
+
+volumes:
+  dev_postgres_data: {}
+  dev_litellm_data: {}
+
+services:
+  db:
+    image: supabase/postgres:15.6.1.113
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-dev-db
+    profiles: ["dev", "all"]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-nyra}
+      POSTGRES_USER: ${POSTGRES_USER:-nyra}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    ports: ["54322:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - dev_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks: [nyra-network]
+    logging: *default_logging
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-dev-redis
+    profiles: ["dev", "all"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?set REDIS_PASSWORD}
+    command: ["sh", "-lc", 'redis-server --requirepass "$${REDIS_PASSWORD}"']
+    ports: ["6380:6379"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    networks: [nyra-network]
+    logging: *default_logging
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-dev-litellm
+    profiles: ["dev", "all"]
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-nyra}
+    volumes:
+      - ../../configs/litellm/config.yaml:/app/config.yaml:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [nyra-network]
+    logging: *default_logging
+
+  nexus-router:
+    build:
+      context: ../../..
+      dockerfile: infra/docker/nexus-router/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-dev-nexus-router
+    profiles: ["dev", "all"]
+    ports:
+      - "7000:7000"
+      - "8080:8080"
+      - "9091:9091"
+    volumes:
+      - ../../configs/nexus/nexus.toml:/app/nexus.toml:ro
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      MEMPALACE_URL: ${MEMPALACE_URL}
+      NEXUS_CONFIG_PATH: /app/nexus.toml
+    depends_on:
+      redis:
+        condition: service_healthy
+      litellm:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    networks: [nyra-network]
+    logging: *default_logging

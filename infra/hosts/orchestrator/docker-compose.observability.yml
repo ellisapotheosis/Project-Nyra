@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   # ============================================================================
-  # OBSERVABILITY STACK (Prometheus, Grafana, Loki)
+  # OBSERVABILITY STACK (Prometheus, Grafana, Loki, AlertManager)
   # ============================================================================
 
   prometheus:
@@ -11,7 +11,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../../configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -21,7 +21,15 @@ services:
     networks:
       - nyra-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9090/-/healthy",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -35,9 +43,13 @@ services:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
       GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: grafana-clickhouse-datasource
+      OPENLIT_DB_PASSWORD: ${OPENLIT_DB_PASSWORD:-openlit}
+      OPENLIT_DB_USER: ${OPENLIT_DB_USER:-openlit}
+      OPENLIT_DB_NAME: ${OPENLIT_DB_NAME:-openlit}
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../../configs/grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
       prometheus:
         condition: service_healthy
@@ -45,7 +57,15 @@ services:
     networks:
       - nyra-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/api/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -56,14 +76,22 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./loki-config.yml:/etc/loki/local-config.yaml:ro
+      - ../../configs/loki/loki.yml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     restart: unless-stopped
     networks:
       - nyra-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3100/ready"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3100/ready",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -82,7 +110,15 @@ services:
     networks:
       - nyra-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/healthz"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080/healthz",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -104,7 +140,45 @@ services:
     networks:
       - nyra-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9100/metrics"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9100/metrics",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-alertmanager
+    entrypoint: ["/bin/sh", "/etc/alertmanager/docker-entrypoint.sh"]
+    command: ["--web.external-url=http://localhost:9093"]
+    environment:
+      ALERTMANAGER_SLACK_WEBHOOK_URL: ${ALERTMANAGER_SLACK_WEBHOOK_URL:-}
+      ALERTMANAGER_PAGERDUTY_KEY: ${ALERTMANAGER_PAGERDUTY_KEY:-}
+    ports:
+      - "${ALERTMANAGER_PORT:-9093}:9093"
+    volumes:
+      - ../../configs/alertmanager/docker-entrypoint.sh:/etc/alertmanager/docker-entrypoint.sh:ro
+      - alertmanager_data:/alertmanager
+    restart: unless-stopped
+    networks:
+      - nyra-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9093/-/healthy",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -113,6 +187,7 @@ volumes:
   prometheus_data:
   grafana_data:
   loki_data:
+  alertmanager_data:
 
 networks:
   nyra-network:
