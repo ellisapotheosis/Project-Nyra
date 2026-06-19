@@ -1,0 +1,26 @@
+name: nyra-cloudflared-oracle
+
+# Standalone cloudflared tunnel for the Oracle VPS.
+# Token: ORACLE_TUNNEL_TOKEN (from Infisical /machines/oracle-vps)
+# Config: infra/cloudflared/config.oracle.yml
+# Start:  docker compose -f infra/hosts/oracle-vps/docker-compose.cloudflared.yml up -d
+
+services:
+  cloudflared-oracle:
+    image: cloudflare/cloudflared:2026.4.1
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cloudflared-oracle
+    command: tunnel --config /etc/cloudflared/config.yml run
+    restart: unless-stopped
+    environment:
+      TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN:?set ORACLE_TUNNEL_TOKEN}
+    volumes:
+      - ../../cloudflared/config.oracle.yml:/etc/cloudflared/config.yml:ro
+      - ../../cloudflared/credentials:/etc/cloudflared/credentials:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - nyra-network
+
+networks:
+  nyra-network:
+    external: true
