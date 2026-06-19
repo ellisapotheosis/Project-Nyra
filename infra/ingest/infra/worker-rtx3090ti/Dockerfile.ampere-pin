@@ -1,7 +1,0 @@
-# Version-pinned variant for reproducibility
-FROM vllm/vllm-openai:v0.6.6
-ENV PIP_NO_CACHE_DIR=1 PYTHONUNBUFFERED=1
-RUN pip install --no-cache-dir "lmcache>=0.2.0"
-COPY ../workers/common/start_vllm_lmcache.sh /usr/local/bin/start_vllm_lmcache.sh
-RUN chmod +x /usr/local/bin/start_vllm_lmcache.sh
-ENTRYPOINT ["/usr/local/bin/start_vllm_lmcache.sh"]

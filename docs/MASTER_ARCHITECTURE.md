@@ -2,147 +2,90 @@
 
 Authoritative architecture reference for Project Nyra.
 
-This document exists to give future agents and humans one top-to-bottom picture of the current target system.
-
-## 1. System overview
+## 1. System Overview
 
 Project Nyra is an AI-powered mortgage lead automation platform with a strict separation between:
 
-- **control plane** → orchestrator-hosted routing, workflows, memory policy, observability, admin surfaces
-- **compute plane** → GPU workers serving private local models
+- **Control Plane**: Orchestrator-hosted routing, workflows, memory policy, observability, and admin surfaces.
+- **Compute Plane**: GPU workers serving private local models.
 
-Nyra’s product objective is to automate lead intake, follow-up, quote generation, and broker assistance without making the workflow engine or the assistant the system of record.
+## 2. Core Design Principles
 
-## 2. Core design principles
+- **CRM is the System of Record**: Twenty CRM owns core business records.
+- **n8n is Replaceable**: Use n8n for execution glue, not for the business brain.
+- **Assistant is Bounded**: OpenClaw is the assistant surface. All critical mutations happen through Nyra services.
+- **Compliance First**: STOP, reply pauses, unsubscribe, quiet hours, and audit logging are platform features.
 
-### 2.1 CRM is the system of record
-Twenty CRM owns core business records.
+## 3. Node Roles
 
-### 2.2 n8n is replaceable
-Use n8n for execution glue, not for the business brain.
+### Orchestrator
 
-### 2.3 Assistant is bounded
-OpenClaw is the assistant surface. All critical mutations happen through Nyra services.
+- Always-on control plane (MinisForum).
+- Public ingress via Cloudflared.
+- Routing, observability, CRM integration boundary, memory aggregation.
 
-### 2.4 Compliance first
-STOP, reply pauses, unsubscribe, quiet hours, and audit logging are platform features.
+### Oracle-VPS
 
-## 3. Node roles
+- Durable cloud services (ARM64 Ubuntu).
+- Twenty CRM, Gitea, Activepieces, n8n, Gitea.
+- Database services (Postgres, Redis, Qdrant, FalkorDB).
 
-### orchestrator
-- always-on control plane
-- public ingress via Cloudflared
-- internal services and dashboards
-- routing, observability, CRM, memory substrate
+### Workers (GPU)
 
-### worker-rtx5090
-- primary vLLM node
-- mobile admin battlestation if needed
+- **worker-rtx5090**: Primary vLLM node.
+- **worker-rtx3090ti**: Secondary vLLM node.
+- **worker-rtx3060**: Ollama utility node (summarization, extraction, small models).
 
-### worker-rtx3090ti
-- secondary vLLM node
-- heavy offline/reasoning jobs
+## 4. Control Plane Services
 
-### worker-rtx3060
-- Ollama utility node
-- summarization, extraction, small models, ingestion helpers
-
-## 4. Control plane services
-
-These should live on the orchestrator:
+These live on the **Orchestrator**:
 
 - Nexus Router
 - LiteLLM
 - Langfuse
-- Prometheus
-- Loki
-- Grafana
+- Prometheus / Loki / Grafana
 - Portainer Server
-- n8n
-- Twenty CRM
-- Archon OS
-- OpenClaw Gateway
-- OpenClaw Studio
-- Open WebUI
-- Mem0
-- FalkorDB
-- Postgres
-- Redis
+- OpenClaw Gateway + Studio
 - Cloudflared
 
-## 5. Networking model
+These live on the **Oracle-VPS**:
 
-### Private
-- Tailscale mesh
-- MagicDNS hostnames preferred
-- worker services remain private
+- Twenty CRM
+- n8n / Activepieces
+- Gitea
+- Postgres / Redis / Qdrant / FalkorDB
+- Letta / Mem0
 
-### Public
-- Cloudflare Tunnel only from orchestrator
-- admin surfaces behind Cloudflare Access
+## 5. Networking Model
 
-## 6. Memory model
+- **Private**: Tailscale mesh with MagicDNS hostnames.
+- **Public**: Cloudflare Tunnel from Orchestrator and Oracle-VPS. Admin surfaces behind Cloudflare Access.
 
-Use:
-- Archon OS as workflow/context/project memory manager
-- Mem0 for selected assistant/runtime memory
-- FalkorDB as graph backend where graph memory is needed
+## 6. Memory Model
 
-Do not reintroduce:
-- RuVector
-- Graphiti
-- Letta / letta
-- openmemory / openmemory MCP
+- **Mem0**: Primary assistant/runtime memory.
+- **OpenMemory MCP**: Shared MCP memory tools.
+- **Letta**: Long-term agent memory integration.
+- **Nexus Router**: Singular aggregation endpoint for memory and tools.
 
-## 7. Model serving and routing
+## 7. App Surfaces
 
-### Local model serving
-- vLLM on 5090 and 3090 Ti
-- Ollama on 3060
+- **apps/projectnyra**: Canonical broker/customer web application (Control Surface).
+- **apps/ratehunter**: Marketing and lead capture.
+- **OpenClaw**: Broker/customer assistant surface.
 
-### Cloud model use
-- Claude Code remains the primary coding engine
-- Codex CLI can consume ChatGPT / Codex subscription usage in parallel
-- Gemini CLI can consume Google subscription / free quota in parallel
+## 8. Repo Placement Guidance
 
-### Routing approach
-- one frontend session should route one request to one backend at a time
-- parallel subagents are preferred over trying to make one conversation span all GPUs directly
+- `apps/*` → Frontends
+- `services/*` → Business services
+- `packages/*` → Shared libs
+- `workflows/n8n/*` → Workflow JSON
+- `infra/hosts/<host-name>/*` → Infra per host; the only valid Docker Compose source location.
+- `ops/*` → Scripts, tmux, profiles.
+- `docs/*` → Architecture and execution plans.
 
-## 8. App surfaces
+## 9. Non-goals
 
-### apps/admin
-Internal operator/admin UI.
-
-### apps/webapp
-Broker/customer web application.
-
-### apps/landing
-Marketing and lead capture.
-
-### OpenClaw
-Broker/customer assistant surface.
-
-### OpenClaw Studio
-Assistant dashboard.
-
-### Open WebUI
-Internal-only LLM workbench.
-
-## 9. Repo placement guidance
-
-- `apps/*` → frontends
-- `services/*` → business services
-- `packages/*` → shared libs
-- `workflows/n8n/*` → workflow JSON
-- `deploy/*` → infra per node
-- `ops/*` → scripts, tmux, profiles
-- `docs/*` → architecture and execution plans
-
-## 10. Non-goals
-
-- no Docker Swarm for now
-- no Kubernetes for now
-- no public worker inference
-- no assistant-direct database mutations
-- no resurrecting deprecated memory stack pieces
+- No Docker Swarm or Kubernetes for now.
+- No public worker inference endpoints.
+- No assistant-direct database mutations.

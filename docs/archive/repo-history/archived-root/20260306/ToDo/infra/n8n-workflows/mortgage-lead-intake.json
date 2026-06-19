@@ -1,7 +1,0 @@
-{
-  "name": "Mortgage Lead Intake",
-  "description": "Webhook for capturing and validating mortgage leads.",
-  "nodes": [],
-  "connections": {},
-  "active": false
-}

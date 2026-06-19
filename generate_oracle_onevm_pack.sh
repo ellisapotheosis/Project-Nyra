@@ -56,12 +56,12 @@ write_file infra/oracle/.env.example <<'ENVEOF'
 
 # Domains (Cloudflared + Access recommended)
 NYRA_DOMAIN=ratehunter.net
-SERVER_URL=https://crm.ratehunter.net
-ADMIN_URL=https://admin.ratehunter.net
-APP_URL=https://app.ratehunter.net
-N8N_URL=https://n8n.ratehunter.net
-MOLTBOT_URL=https://bot.ratehunter.net
-QUOTE_API_URL=https://api.ratehunter.net
+SERVER_URL=https://crm.projectnyra.com
+ADMIN_URL=https://admin.projectnyra.com
+APP_URL=https://app.projectnyra.com
+N8N_URL=https://n8n.projectnyra.com
+MOLTBOT_URL=https://bot.projectnyra.com
+QUOTE_API_URL=https://api.projectnyra.com
 
 # -------------------------
 # RuVector-Postgres (single Postgres hosting multiple DBs)
@@ -98,7 +98,7 @@ N8N_BASIC_AUTH_USER=admin
 N8N_BASIC_AUTH_PASSWORD=CHANGE_ME_STRONG_PASSWORD
 # Generate: openssl rand -base64 32
 N8N_ENCRYPTION_KEY=CHANGE_ME_32B_SECRET
-N8N_HOST=n8n.ratehunter.net
+N8N_HOST=n8n.projectnyra.com
 N8N_PORT=5678
 N8N_PROTOCOL=https
 WEBHOOK_URL=${N8N_URL}

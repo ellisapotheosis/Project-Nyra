@@ -72,11 +72,11 @@ worker:
     cloudflared:
       enabled: false
       hostnames:
-        ollama: worker-5090.ratehunter.net
-        litellm: litellm-5090.ratehunter.net
-        models: models-5090.ratehunter.net
-        metrics: metrics-5090.ratehunter.net
-        health: health-5090.ratehunter.net
+        ollama: worker-5090.projectnyra.com
+        litellm: litellm-5090.projectnyra.com
+        models: models-5090.projectnyra.com
+        metrics: metrics-5090.projectnyra.com
+        health: health-5090.projectnyra.com
 
   monitoring:
     prometheus:
@@ -200,20 +200,20 @@ worker:
 
     firewall:
       allow_ips:
-        - 100.0.0.0/8  # Tailscale
-        - 172.16.0.0/12  # Docker networks
-        - 192.168.0.0/16  # Local LAN
+        - 100.0.0.0/8 # Tailscale
+        - 172.16.0.0/12 # Docker networks
+        - 192.168.0.0/16 # Local LAN
 
       deny_public: true
 
   maintenance:
     auto_update:
       enabled: false
-      schedule: "0 3 * * 0"  # 3 AM on Sundays
+      schedule: "0 3 * * 0" # 3 AM on Sundays
 
     backup:
       enabled: true
-      schedule: "0 2 * * *"  # 2 AM daily
+      schedule: "0 2 * * *" # 2 AM daily
       retention_days: 7
       targets:
         - ollama_models
@@ -222,7 +222,7 @@ worker:
 
     cleanup:
       enabled: true
-      schedule: "0 4 * * *"  # 4 AM daily
+      schedule: "0 4 * * *" # 4 AM daily
       actions:
         - old_logs
         - unused_models

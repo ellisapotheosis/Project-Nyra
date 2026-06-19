@@ -1,0 +1,74 @@
+layout {
+    default_tab_template {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    tab name="Agents" focus=true {
+        pane split_direction="vertical" {
+            pane split_direction="horizontal" size="50%" {
+                pane name="llxprt-jefe" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh llxprt-jefe 'cd ~/repos/project-nyra && (npx -y @vybestack/llxprt-jefe || llxprt-jefe || bash)'"
+                }
+                pane name="llxprt-code" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh llxprt-code 'cd ~/repos/project-nyra && (npx -y @vybestack/llxprt-code --expert || llxprt-code --expert || bash)'"
+                }
+            }
+            pane split_direction="horizontal" size="50%" {
+                pane name="codex-cli" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh codex-cli 'cd ~/repos/project-nyra && codex'"
+                }
+                pane name="gemini-cli" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh gemini-cli 'cd ~/repos/project-nyra && gemini'"
+                }
+                pane name="claude-code" command="bash" {
+                    args "-lc" "scripts/nyra-zellij-pane.sh claude-code 'cd ~/repos/project-nyra && claude'"
+                }
+            }
+        }
+    }
+
+    tab name="OpenClaw" {
+        pane split_direction="horizontal" {
+            pane name="5090 OpenClaw" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh worker-5090-openclaw 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=5 worker-rtx5090.trex-fiordland.ts.net \"docker logs -f worker-5090-openclaw\" || bash'"
+            }
+            pane name="3090 OpenClaw" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh worker-3090-openclaw 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=5 worker-rtx3090ti.trex-fiordland.ts.net \"docker logs -f worker-3090-openclaw\" || bash'"
+            }
+            pane name="3060 OpenClaw" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh worker-3060-openclaw 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=5 worker-rtx3060.trex-fiordland.ts.net \"docker logs -f worker-3060-openclaw\" || bash'"
+            }
+        }
+    }
+
+    tab name="GPU" {
+        pane split_direction="horizontal" {
+            pane name="5090 GPU" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh worker-5090-gpu 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=5 worker-rtx5090.trex-fiordland.ts.net \"nvidia-smi -l 1\" || bash'"
+            }
+            pane name="3090 GPU" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh worker-3090-gpu 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=5 worker-rtx3090ti.trex-fiordland.ts.net \"nvidia-smi -l 1\" || bash'"
+            }
+            pane name="3060 GPU" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh worker-3060-gpu 'ssh -A -t -o BatchMode=yes -o ConnectTimeout=5 worker-rtx3060.trex-fiordland.ts.net \"nvidia-smi -l 1\" || bash'"
+            }
+        }
+    }
+
+    tab name="Ops" {
+        pane split_direction="vertical" {
+            pane name="cluster-status" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh cluster-status 'cd ~/repos/project-nyra && while true; do clear; make wave-stack-status; sleep 10; done'"
+            }
+            pane name="cloudflare-tail" command="bash" {
+                args "-lc" "scripts/nyra-zellij-pane.sh cloudflare-tail 'cd ~/repos/project-nyra && (npx wrangler pages deployment tail project-nyra || wrangler pages deployment tail project-nyra || bash)'"
+            }
+        }
+    }
+}

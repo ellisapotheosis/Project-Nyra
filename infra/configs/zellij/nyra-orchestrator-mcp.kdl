@@ -1,0 +1,115 @@
+// infra/zellij/nyra-orchestrator-mcp.kdl
+// 🌊 ULTIMATE ORCHESTRATOR: Project Nyra with Letta-MCP + Composio + Full CLI Swarm
+// Hidden daemon layer + 3 visible CLI panes (stdio MCP injection) + 2 SSH GPU workers
+// Auto-restart on crash, full MCP bridge to memory + SaaS integrations
+
+layout {
+    default_tab_template {
+        pane size=1 borderless=true {
+            plugin location="zellij:tab-bar"
+        }
+        children
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+
+    // =========================================================================
+    // TAB 0: DAEMON LAYER (HIDDEN - Controlled via Cmd+Shift+D)
+    // llxprt-jefe + llxprt-code (API proxy) + Rust Letta-MCP server
+    // Auto-restart on crash; logs piped to ~/.nyra/daemon.log
+    // =========================================================================
+    tab name="[DAEMON] Ghost_Layer" hide_floating_panes=true {
+        pane split_direction="vertical" {
+            pane name="llxprt-jefe [DAEMON]" command="bash" {
+                args "-c" "mkdir -p ~/.nyra; exec > ~/.nyra/jefe.log 2>&1; cd ~/repos/project-nyra && while true; do ./scripts/run-llxprt-jefe.sh || true; sleep 2; done"
+            }
+            pane name="llxprt-code [CODEX]" command="bash" {
+                args "-c" "mkdir -p ~/.nyra; exec > ~/.nyra/code-proxy.log 2>&1; cd ~/repos/project-nyra && while true; do ./scripts/run-llxprt-code.sh --profile-load codex || true; sleep 2; done"
+            }
+            pane name="letta-mcp-server [RUST]" command="bash" {
+                args "-c" "mkdir -p ~/.nyra; exec > ~/.nyra/letta-mcp.log 2>&1; if [ ! -f ./target/release/letta-mcp-server ]; then echo 'Building Letta-MCP...'; cargo build --release --manifest-path mcp-servers/letta-mcp/Cargo.toml || exit 1; fi; exec ./target/release/letta-mcp-server"
+            }
+        }
+    }
+
+    // =========================================================================
+    // TAB 1: COCKPIT (VISIBLE - The Main Battle Station)
+    // Upper section: 3 CLI panes with Letta-MCP + Composio stdio injection
+    // Lower section: 2 SSH GPU worker panes with live resource monitoring
+    // =========================================================================
+    tab name="[COCKPIT] Multi_CLI_Swarm" focus=true {
+        pane split_direction="vertical" {
+            // ==== UPPER: 3 CLI Panes with Full MCP Bridge ====
+            pane split_direction="horizontal" size="65%" {
+                pane name="[CLAUDE] claude-code" command="bash" {
+                    args "-c" "export MCP_HTTP_URL=http://oracle.trex-fiordland.ts.net:6000/mcp; cd ~/repos/project-nyra && claude"
+                }
+                pane name="[GEMINI] gemini-cli" command="bash" {
+                    args "-c" "export MCP_HTTP_URL=http://oracle.trex-fiordland.ts.net:6000/mcp; cd ~/repos/project-nyra && gemini"
+                }
+                pane name="[CODEX] codex-cli" command="bash" {
+                    args "-c" "cd ~/repos/project-nyra && codex"
+                }
+            }
+
+            // ==== LOWER: 2 SSH Worker Panes with GPU Monitoring ====
+            pane split_direction="horizontal" size="35%" {
+                pane name="[GPU] RTX-5090 (DeepSeek/OpenClaw)" command="bash" {
+                    args "-c" "export WORKER=worker-rtx5090; ssh -t ${WORKER}-win 'echo \"=== RTX 5090 - DeepSeek vLLM ===\"; watch -n 1 \"nvidia-smi --query-gpu=index,utilization.gpu,utilization.memory,memory.used,memory.total --format=csv,noheader,nounits && echo \"\" && docker ps --filter label=gpu=5090 --format table\"' || bash"
+                }
+                pane name="[GPU] RTX-3090Ti (Llama/OpenClaw)" command="bash" {
+                    args "-c" "export WORKER=worker-rtx3090ti; ssh -t ${WORKER}-win 'echo \"=== RTX 3090 Ti - Llama/Gemma vLLM ===\"; watch -n 1 \"nvidia-smi --query-gpu=index,utilization.gpu,utilization.memory,memory.used,memory.total --format=csv,noheader,nounits && echo \"\" && docker ps --filter label=gpu=3090ti --format table\"' || bash"
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // TAB 2: MONITORING (Live Cluster State + Oracle VPS)
+    // Real-time dashboards for orchestrator, workers, oracle-vps
+    // =========================================================================
+    tab name="[MONITOR] Cluster_Health" {
+        pane split_direction="vertical" {
+            pane split_direction="horizontal" size="50%" {
+                pane name="Orchestrator Stack" command="bash" {
+                    args "-c" "while true; do clear; echo '=== ORCHESTRATOR (localhost) ==='; docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | grep -E 'nexus|litellm|openclaw|loki|prometheus'; sleep 5; done"
+                }
+                pane name="Oracle-VPS Apps" command="bash" {
+                    args "-c" "while true; do clear; echo '=== ORACLE-VPS (Cloud) ==='; docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.yml -f infra/hosts/oracle-vps/docker-compose.apps.yml ps --filter 'status=running' --format 'table {{.Service}}\t{{.Status}}' 2>/dev/null || echo 'Connection pending...'; sleep 5; done"
+                }
+            }
+            pane split_direction="horizontal" size="50%" {
+                pane name="Worker Cluster (GPU Mesh)" command="bash" {
+                    args "-c" "while true; do clear; echo '=== WORKER GPU MESH ==='; for ctx in worker-rtx5090 worker-rtx3090ti worker-rtx3060; do echo \"[${ctx}]\"; docker --context ${ctx} ps --format 'table {{.Names}}\t{{.Status}}' 2>/dev/null | head -3; echo ''; done; sleep 5; done"
+                }
+                pane name="Nexus Router State" command="bash" {
+                    args "-c" "while true; do clear; echo '=== NEXUS ROUTER (Port 6000) ==='; curl -s http://localhost:6000/health | jq . 2>/dev/null || echo 'Router offline'; echo ''; echo 'Active Routes:'; curl -s http://localhost:6000/routes | jq '.routes[] | {model, endpoint}' 2>/dev/null || true; sleep 5; done"
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // TAB 3: LOGS (Aggregated daemon + worker logs)
+    // =========================================================================
+    tab name="[LOGS] Daemon_Tail" {
+        pane split_direction="vertical" {
+            pane split_direction="horizontal" size="33%" {
+                pane name="Jefe Logs" command="bash" {
+                    args "-c" "mkdir -p ~/.nyra && tail -f ~/.nyra/jefe.log"
+                }
+            }
+            pane split_direction="horizontal" size="33%" {
+                pane name="Code Proxy Logs" command="bash" {
+                    args "-c" "mkdir -p ~/.nyra && tail -f ~/.nyra/code-proxy.log"
+                }
+            }
+            pane split_direction="horizontal" size="34%" {
+                pane name="Letta-MCP Logs" command="bash" {
+                    args "-c" "mkdir -p ~/.nyra && tail -f ~/.nyra/letta-mcp.log"
+                }
+            }
+        }
+    }
+}

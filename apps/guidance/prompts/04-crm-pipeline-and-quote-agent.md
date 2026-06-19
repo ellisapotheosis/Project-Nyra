@@ -4,7 +4,7 @@ You are integrating the useful broker-facing functionality from the admin and mo
 
 ## Canonical Destination
 
-- [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
+- [apps/projectnyra](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra)
 
 ## Primary Source Apps
 
@@ -15,7 +15,7 @@ You are integrating the useful broker-facing functionality from the admin and mo
   [apps/mortgage-crm](/home/ellisapotheosis/repos/project-nyra/apps/mortgage-crm)
 
 - current internal webapp:
-  [apps/webapp/app](/home/ellisapotheosis/repos/project-nyra/apps/webapp/app)
+  [apps/projectnyra](/home/ellisapotheosis/repos/project-nyra/apps/projectnyra)
 
 ## Important Product Context
 
@@ -47,7 +47,7 @@ You are integrating the useful broker-facing functionality from the admin and mo
   - `/applications`
   - `/crm`
 
-- Validate current “CRM connected” assumptions from `apps/webapp/app`
+- Validate current “CRM connected” assumptions from `apps/projectnyra`
 - Use `apps/twenty-crm` only as integration/config reference, not as frontend to merge
 
 ## Known Issues To Resolve Intelligently
@@ -62,4 +62,3 @@ You are integrating the useful broker-facing functionality from the admin and mo
 2. Quote desk functionality extracted and integrated
 3. Pipeline stats integrated
 4. Notes on which parts are using real TwentyCRM-backed data vs stubs
-

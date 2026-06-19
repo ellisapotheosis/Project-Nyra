@@ -1,7 +1,7 @@
 # ============================================================================
 # Assistant Stack - Worker RTX 3090 Ti
 # ============================================================================
-# Nous Hermes 2 + OpenClaw + Hermes UI
+# OpenClaw + Nerve UI
 # Optimized for local GPU inference
 # ============================================================================
 
@@ -36,23 +36,6 @@ services:
               capabilities: [gpu]
     networks:
       - worker-network
-      - assistant-mesh
-
-  # ============================================================================
-  # Hermes UI - Modern Interface for Nous Hermes 2
-  # ============================================================================
-  hermes-ui:
-    image: ghcr.io/nousresearch/hermes-ui:latest
-    container_name: assistant-hermes-ui
-    restart: unless-stopped
-    ports:
-      - '${HERMES_UI_PORT:-3080}:3000'
-    environment:
-      - BACKEND_URL=http://openclaw:18789
-      - DEFAULT_MODEL=nous-hermes2-solar:10.7b
-    depends_on:
-      - openclaw
-    networks:
       - assistant-mesh
 
 networks:

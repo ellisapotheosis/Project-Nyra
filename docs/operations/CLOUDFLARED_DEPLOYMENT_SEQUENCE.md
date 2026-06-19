@@ -8,22 +8,26 @@
 6. Verify hostname routing + Access behavior.
 
 ## Orchestrator commands
+
 ```bash
 make up-orchestrator
 make cloudflared-up-orchestrator
 ```
 
 ## Oracle commands
+
 ```bash
 make up-oracle
 make cloudflared-up-oracle
 ```
 
 ## Verification
+
 ```bash
 make cloudflared-validate
-curl -I https://nyra.ratehunter.net
-curl -I https://gitea.ratehunter.net
+curl -I https://app.projectnyra.com
+curl -I https://gitea.projectnyra.com
 ```
+
 - Public endpoint should return app response.
 - Access-gated endpoint should require Cloudflare Access session.

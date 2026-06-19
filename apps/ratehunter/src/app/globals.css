@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --font-inter:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  background-color: black;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: black;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest py-3 px-8 rounded-xl transition-all duration-200 shadow-xl shadow-indigo-500/20 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent hover:bg-indigo-500/5 text-indigo-400 font-black uppercase tracking-widest py-3 px-8 rounded-xl border border-indigo-500/20 transition-all duration-200;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-indigo-500/5 border border-indigo-500/20 rounded-xl text-white placeholder:text-white/20 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 outline-none transition-all font-black uppercase text-xs tracking-widest;
+  }
+
+  .card {
+    @apply bg-indigo-500/5 backdrop-blur-xl rounded-3xl border border-indigo-500/10 p-8 hover:border-indigo-500/30 transition-all duration-300;
+  }
+}

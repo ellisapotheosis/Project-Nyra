@@ -63,7 +63,7 @@ Add this line at the end:
 
 ```typescript
 // Export security types
-export * from './security';
+export * from "./security";
 ```
 
 ## Step 4: Register Security Router
@@ -73,14 +73,14 @@ export * from './security';
 ### 4a. Add Import (around line 27)
 
 ```typescript
-import { securityRouter } from './routes/security';
+import { securityRouter } from "./routes/security";
 ```
 
 ### 4b. Register Route (around line 106)
 
 ```typescript
 // Add after existing app.use() calls
-app.use('/api/security', securityRouter);
+app.use("/api/security", securityRouter);
 ```
 
 ### 4c. Update Root Endpoint Documentation (around line 130)
@@ -105,6 +105,7 @@ npm run build
 ```
 
 Expected output:
+
 ```
 ✓ Type checking passed
 ✓ Compilation successful
@@ -117,6 +118,7 @@ npm run dev
 ```
 
 Expected output:
+
 ```
 🚀 Nexus Router running on port 8000
 📊 Strategy: cost-optimized
@@ -228,15 +230,16 @@ To protect routes with OAuth2 authentication:
 **Example:** Protect MCP routes
 
 ```typescript
-import { authenticate, requireGroups } from './middleware/oauth2';
+import { authenticate, requireGroups } from "./middleware/oauth2";
 
 // Protect all MCP routes
-app.use('/mcp', authenticate, mcpRouter);
+app.use("/mcp", authenticate, mcpRouter);
 
 // Or protect specific endpoints
-app.post('/mcp/tools/call',
+app.post(
+  "/mcp/tools/call",
   authenticate,
-  requireGroups(['admin', 'developers']),
+  requireGroups(["admin", "developers"]),
   toolCallHandler
 );
 ```
@@ -245,7 +248,7 @@ app.post('/mcp/tools/call',
 
 ```bash
 # Get a JWT token from your OAuth2 provider first
-TOKEN="eyJhbGciOiJSUzI1NiIs..."
+TOKEN="<oauth-jwt-token>"
 
 # Test token validation
 curl -X POST http://localhost:8000/api/security/oauth2/test \
@@ -283,9 +286,9 @@ REDIS_URL=redis://localhost:6379
 Allow both authenticated and unauthenticated requests:
 
 ```typescript
-import { optionalAuthenticate } from './middleware/oauth2';
+import { optionalAuthenticate } from "./middleware/oauth2";
 
-app.use('/api/public', optionalAuthenticate, publicRouter);
+app.use("/api/public", optionalAuthenticate, publicRouter);
 ```
 
 ### Pattern 2: Group-Based Access
@@ -293,13 +296,9 @@ app.use('/api/public', optionalAuthenticate, publicRouter);
 Require specific groups:
 
 ```typescript
-import { authenticate, requireGroups } from './middleware/oauth2';
+import { authenticate, requireGroups } from "./middleware/oauth2";
 
-app.use('/api/admin',
-  authenticate,
-  requireGroups(['admin']),
-  adminRouter
-);
+app.use("/api/admin", authenticate, requireGroups(["admin"]), adminRouter);
 ```
 
 ### Pattern 3: Permission-Based Access
@@ -307,11 +306,12 @@ app.use('/api/admin',
 Require specific permissions:
 
 ```typescript
-import { authenticate, requirePermissions } from './middleware/oauth2';
+import { authenticate, requirePermissions } from "./middleware/oauth2";
 
-app.delete('/api/data/:id',
+app.delete(
+  "/api/data/:id",
   authenticate,
-  requirePermissions(['delete']),
+  requirePermissions(["delete"]),
   deleteHandler
 );
 ```
@@ -321,10 +321,11 @@ app.delete('/api/data/:id',
 Check permissions dynamically based on request context:
 
 ```typescript
-import { authenticate } from './middleware/oauth2';
-import { SecurityConfigService } from './services/security-config';
+import { authenticate } from "./middleware/oauth2";
+import { SecurityConfigService } from "./services/security-config";
 
-app.post('/mcp/tools/call',
+app.post(
+  "/mcp/tools/call",
   authenticate,
   async (req, res, next) => {
     const securityConfig = SecurityConfigService.getInstance();
@@ -334,16 +335,16 @@ app.post('/mcp/tools/call',
       permissions: req.userPermissions!,
       serverId: req.body.serverId,
       toolId: req.body.toolName,
-      action: 'execute'
+      action: "execute",
     });
 
     if (!decision.allowed) {
       return res.status(403).json({
         error: {
-          message: decision.reason || 'Access denied',
-          type: 'permission_error',
-          code: 403
-        }
+          message: decision.reason || "Access denied",
+          type: "permission_error",
+          code: 403,
+        },
       });
     }
 
@@ -358,6 +359,7 @@ app.post('/mcp/tools/call',
 ### Issue: TypeScript compilation errors
 
 **Solution:**
+
 ```bash
 # Clear build cache
 rm -rf dist/
@@ -372,6 +374,7 @@ Verify file exists: `services/nexus-router/src/routes/security.ts`
 ### Issue: Security routes return 404
 
 **Solution:**
+
 1. Check route registration in `src/index.ts`
 2. Verify server restarted after changes
 3. Check logs for startup errors
@@ -380,6 +383,7 @@ Verify file exists: `services/nexus-router/src/routes/security.ts`
 
 **Solution:**
 Service works without Redis (uses in-memory cache). To fix Redis:
+
 ```bash
 # Start Redis
 docker run -d -p 6379:6379 redis
@@ -421,10 +425,12 @@ After integration, verify:
 ## Support
 
 For detailed API documentation, see:
+
 - [SECURITY-API.md](./SECURITY-API.md) - Complete API reference
 - [SECURITY-ARCHITECTURE.md](./SECURITY-ARCHITECTURE.md) - Security architecture (if created)
 
 For issues:
+
 - Check server logs: `npm run dev` output
 - Review TypeScript errors: `npm run type-check`
 - Test endpoints manually: Use curl or Postman
@@ -435,6 +441,7 @@ For issues:
 If all verification steps pass, the Security API is successfully integrated! 🎉
 
 You can now:
+
 - ✅ Configure OAuth2 authentication
 - ✅ Manage user groups and permissions
 - ✅ Protect routes with authentication

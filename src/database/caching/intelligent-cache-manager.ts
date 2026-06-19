@@ -765,11 +765,82 @@ export class IntelligentCacheManager extends EventEmitter {
     return this.createEmptyStatistics();
   }
 
-  // Placeholder implementations for complex methods
-  private async triggerPredictivePrefetch(cacheId: string, key: string, entry: CacheEntry): Promise<void> {}
-  private async learnFromMiss(cacheId: string, key: string): Promise<void> {}
-  private async updateSpatialLocality(cacheId: string, key: string): Promise<void> {}
-  private async trainModels(cacheId: string, entry: CacheEntry): Promise<void> {}
+  async triggerPredictivePrefetch(cacheId: string, key: string, entry?: CacheEntry): Promise<PredictionResult[]> {
+    const cacheEntry = entry || this.getCache(cacheId).get(key);
+    if (!cacheEntry) return [];
+
+    const strategy = this.getStrategy(cacheId);
+    if (!strategy.prefetchPolicy.enabled) return [];
+
+    const predictions = await this.generatePrefetchPredictions(cacheId, [key]);
+    const selected = predictions
+      .filter(prediction => prediction.confidence >= strategy.prefetchPolicy.confidence_threshold)
+      .slice(0, strategy.prefetchPolicy.maxPrefetchSize);
+
+    if (selected.length > 0) {
+      const stats = this.getStatistics(cacheId);
+      stats.operationCounts.prefetches += selected.length;
+      cacheEntry.accessPattern.predictedNextAccess = selected[0].estimatedAccessTime;
+      this.emit('prefetchPredicted', cacheId, key, selected);
+    }
+
+    return selected;
+  }
+
+  async learnFromMiss(cacheId: string, key: string): Promise<{ cacheId: string; key: string; missCount: number }> {
+    const stats = this.getStatistics(cacheId);
+    stats.operationCounts.gets += 1;
+
+    const cache = this.getCache(cacheId);
+    const relatedPrefix = key.includes(':') ? key.split(':')[0] : key.replace(/\d+$/, '');
+    const relatedKeys = Array.from(cache.keys()).filter(candidate =>
+      candidate !== key && relatedPrefix && candidate.startsWith(relatedPrefix)
+    );
+
+    this.emit('cacheMissLearned', cacheId, key, relatedKeys);
+    return { cacheId, key, missCount: stats.operationCounts.gets };
+  }
+
+  async updateSpatialLocality(cacheId: string, key: string, relatedKeys?: string[]): Promise<string[]> {
+    const cache = this.getCache(cacheId);
+    const entry = cache.get(key);
+    if (!entry) return [];
+
+    const prefix = key.includes(':') ? key.split(':')[0] : key.replace(/\d+$/, '');
+    const inferredRelatedKeys = relatedKeys || Array.from(cache.keys()).filter(candidate =>
+      candidate !== key && prefix && candidate.startsWith(prefix)
+    );
+    entry.accessPattern.spatialLocality = [...new Set([
+      ...entry.accessPattern.spatialLocality,
+      ...inferredRelatedKeys.filter(candidate => candidate !== key)
+    ])].slice(0, 25);
+
+    return entry.accessPattern.spatialLocality;
+  }
+
+  async trainModels(cacheIdOrData: string | any, entry?: CacheEntry): Promise<{ trained: boolean; samples: number }> {
+    if (typeof cacheIdOrData !== 'string') {
+      this.emit('modelsTrained', cacheIdOrData);
+      return { trained: true, samples: Array.isArray(cacheIdOrData?.accessPatterns) ? cacheIdOrData.accessPatterns.length : 1 };
+    }
+
+    if (!entry) return { trained: false, samples: 0 };
+
+    const model = this.predictiveModels.get(cacheIdOrData);
+    model?.predictions.set(entry.key, {
+      key: entry.key,
+      probability: Math.min(1, entry.accessPattern.accessCount / 10),
+      estimatedAccessTime: new Date(Date.now() + 60_000),
+      confidence: 0.5,
+      features: {
+        accessCount: entry.accessPattern.accessCount,
+        importance: entry.metadata.importance,
+        size: entry.size
+      }
+    });
+    this.emit('modelsTrained', cacheIdOrData, entry.key);
+    return { trained: true, samples: 1 };
+  }
   private async cleanupRelatedData(cacheId: string, key: string): Promise<void> {}
   private async generatePrefetchPredictions(cacheId: string, keys: string[]): Promise<PredictionResult[]> { return []; }
   private applyStrategy(cacheId: string, strategy: CacheStrategy): void {}

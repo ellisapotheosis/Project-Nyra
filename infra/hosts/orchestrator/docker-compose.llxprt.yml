@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  llxprt-jefe:
+    build:
+      context: ../../../external/llxprt-jefe
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-llxprt-jefe
+    restart: unless-stopped
+    environment:
+      JEFE_PORT: 8080
+      HOME: /tmp
+    volumes:
+      - ${HOME:-/home/ellisapotheosis}/.config:/tmp/.config:ro
+      - ${HOME:-/home/ellisapotheosis}/.cache:/tmp/.cache
+    networks:
+      - nyra-network
+
+  llxprt-code:
+    image: node:20-slim
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-llxprt-code
+    restart: unless-stopped
+    environment:
+      HOME: /tmp
+    command:
+      - /bin/sh
+      - -c
+      - "npx --yes @vybestack/llxprt-code --help >/tmp/llxprt-help.txt && tail -f /dev/null"
+    volumes:
+      - ${HOME:-/home/ellisapotheosis}/.config:/tmp/.config:ro
+    networks:
+      - nyra-network
+
+networks:
+  nyra-network:
+    external: true

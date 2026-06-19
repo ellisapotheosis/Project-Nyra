@@ -1,4 +1,0 @@
-services:
-  ollama:
-    environment:
-      OLLAMA_DEBUG: "1"

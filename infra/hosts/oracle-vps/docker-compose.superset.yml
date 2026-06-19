@@ -1,0 +1,52 @@
+name: nyra-network
+
+services:
+  superset:
+    profiles: ["superset"]
+    image: apache/superset:${SUPERSET_IMAGE_TAG:-latest}
+    container_name: nyra-network-nyra-superset
+    restart: unless-stopped
+    environment:
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?set SUPERSET_SECRET_KEY via Infisical or an ignored host env file}
+      SUPERSET_LOAD_EXAMPLES: ${SUPERSET_LOAD_EXAMPLES:-no}
+      SUPERSET_ENV: ${SUPERSET_ENV:-production}
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_FIRSTNAME: ${SUPERSET_ADMIN_FIRSTNAME:-Nyra}
+      SUPERSET_ADMIN_LASTNAME: ${SUPERSET_ADMIN_LASTNAME:-Admin}
+      SUPERSET_ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL:-admin@ratehunter.com}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:?set SUPERSET_ADMIN_PASSWORD via Infisical or an ignored host env file}
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        superset db upgrade
+        superset fab create-admin \
+          --username "$$SUPERSET_ADMIN_USERNAME" \
+          --firstname "$$SUPERSET_ADMIN_FIRSTNAME" \
+          --lastname "$$SUPERSET_ADMIN_LASTNAME" \
+          --email "$$SUPERSET_ADMIN_EMAIL" \
+          --password "$$SUPERSET_ADMIN_PASSWORD" || true
+        superset init
+        exec superset run -h 0.0.0.0 -p 8088
+    ports:
+      - "${SUPERSET_BIND_IP:-127.0.0.1}:${SUPERSET_PORT:-8088}:8088"
+    volumes:
+      - superset_home:/app/superset_home
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'python -c "import urllib.request; urllib.request.urlopen(''http://localhost:8088/health'', timeout=5)"',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+    networks: [nyra_net]
+
+networks:
+  nyra_net:
+
+volumes:
+  superset_home:
