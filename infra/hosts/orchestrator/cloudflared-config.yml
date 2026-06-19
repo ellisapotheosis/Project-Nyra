@@ -21,18 +21,6 @@ ingress:
     service: http://100.64.0.2:3007
 
   # Private UIs - protect every hostname in this group with Cloudflare Access.
-  - hostname: litellm.projectnyra.com
-    service: http://oracle.trex-fiordland.ts.net:4000
-
-  - hostname: nexus.projectnyra.com
-    service: http://oracle.trex-fiordland.ts.net:6000
-
-  - hostname: nexus-router.projectnyra.com
-    service: http://oracle.trex-fiordland.ts.net:6000
-
-  - hostname: letta.projectnyra.com
-    service: http://oracle.trex-fiordland.ts.net:8283
-
   - hostname: openclaw-gateway.projectnyra.com
     service: http://nyra-openclaw-gateway:8001
 

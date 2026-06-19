@@ -1,0 +1,82 @@
+# Project Nyra — OpenLIT AI Observability Stack
+# Deploy: docker compose -f infra/hosts/orchestrator/docker-compose.openlit.yml --profile observability up -d
+# Endpoints: Web UI :3004 | OTLP HTTP :4318 | OTLP gRPC :4317 | OTel metrics :8888
+# OpenLIT requires ClickHouse — PostgreSQL cannot be substituted.
+
+name: nyra-openlit
+
+x-logging: &default_logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+networks:
+  nyra-network:
+    external: true
+
+volumes:
+  openlit_clickhouse_data: {}
+  openlit_app_data: {}
+
+services:
+  openlit-clickhouse:
+    image: clickhouse/clickhouse-server:24.4.1
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openlit-clickhouse
+    profiles: ["observability", "openlit", "all"]
+    environment:
+      CLICKHOUSE_USER: ${OPENLIT_DB_USER:-default}
+      CLICKHOUSE_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}
+      CLICKHOUSE_DATABASE: ${OPENLIT_DB_NAME:-openlit}
+      CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS: "true"
+    volumes:
+      - openlit_clickhouse_data:/var/lib/clickhouse
+      - ../../configs/openlit/assets/clickhouse-config.xml:/etc/clickhouse-server/config.d/custom-config.xml:ro
+      - ../../configs/openlit/assets/clickhouse-init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+    expose: ["8123", "9000"]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "clickhouse-client --user=$${CLICKHOUSE_USER} --password=$${CLICKHOUSE_PASSWORD} --query='SELECT 1' || exit 1",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 100s
+    restart: unless-stopped
+    networks: [nyra-network]
+    logging: *default_logging
+
+  openlit:
+    image: ghcr.io/openlit/openlit:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openlit
+    profiles: ["observability", "openlit", "all"]
+    environment:
+      INIT_DB_HOST: openlit-clickhouse
+      INIT_DB_PORT: "8123"
+      INIT_DB_DATABASE: ${OPENLIT_DB_NAME:-openlit}
+      INIT_DB_USERNAME: ${OPENLIT_DB_USER:-default}
+      INIT_DB_PASSWORD: ${OPENLIT_DB_PASSWORD:-OPENLIT}
+      SQLITE_DATABASE_URL: "file:/app/client/data/data.db"
+      PORT: ${OPENLIT_HOST_PORT:-3004}
+      DOCKER_PORT: ${OPENLIT_HOST_PORT:-3004}
+      NEXTAUTH_URL: ${OPENLIT_NEXTAUTH_URL:-http://localhost:3004}
+      NEXTAUTH_SECRET: ${OPENLIT_NEXTAUTH_SECRET:?set OPENLIT_NEXTAUTH_SECRET}
+      OPENLIT_VAULT_ENCRYPTION_KEY: ${OPENLIT_VAULT_ENCRYPTION_KEY:-}
+      OPENLIT_ALLOWED_CORS_ORIGINS: ${OPENLIT_ALLOWED_CORS_ORIGINS:-https://openlit.projectnyra.com}
+      TELEMETRY_ENABLED: ${OPENLIT_TELEMETRY_ENABLED:-false}
+    ports:
+      - "${OPENLIT_HOST_PORT:-3004}:${OPENLIT_HOST_PORT:-3004}"
+      - "${OPENLIT_OTLP_GRPC_PORT:-4317}:4317"
+      - "${OPENLIT_OTLP_HTTP_PORT:-4318}:4318"
+      - "8888:8888"
+    volumes:
+      - openlit_app_data:/app/client/data
+      - ../../configs/openlit/assets/otel-collector-config.yaml:/etc/otel/otel-collector-config.yaml:ro
+    depends_on:
+      openlit-clickhouse:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [nyra-network]
+    logging: *default_logging

@@ -61,20 +61,20 @@ ingress:
   - hostname: nexus-ui.projectnyra.com
     service: http://nexus-ui:3016
 
-  - hostname: litellm.projectnyra.com
-    service: http://litellm:4000
-
   - hostname: nexus.projectnyra.com
+    service: http://nexus-ui:3016
+
+  - hostname: nexus-router.projectnyra.com
     service: http://nexus:3000
 
-  - hostname: clawteam.projectnyra.com
-    service: http://clawteam:8080
+  - hostname: litellm.projectnyra.com
+    service: http://litellm:4000
 
   - hostname: paperclip.projectnyra.com
     service: http://paperclip:3100
 
   - hostname: letta.projectnyra.com
-    service: http://oracle.trex-fiordland.ts.net:8283
+    service: http://letta:8283
 
   - hostname: portainer-oracle.projectnyra.com
     service: https://portainer:9443

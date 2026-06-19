@@ -9,7 +9,7 @@
 
 ## Phase 2: Logic Wiring & Data Sync
 
-- [ ] Task: Write Tests: Verify lead data normalization and ingestion validation
+- [x] Task: Write Tests: Verify lead data normalization and ingestion validation [f259733]
 - [ ] Task: Implement: Connect `apps/ratehunter` lead wizard to live `capture.projectnyra.com` API
 - [ ] Task: Implement: Wire `KanbanBoard` to real GraphQL subscriptions in `apps/projectnyra`
 - [ ] Task: Implement: Import campaign sequences into Activepieces automation runtime
