@@ -371,7 +371,7 @@ export function LeadCaptureWizard() {
             </div>
             <h2 className="text-2xl font-bold">Quote Requested!</h2>
             <p className="text-muted-foreground text-sm">
-              Nyra is analyzing your scenario and the current rate sheets.
+              The system is analyzing your scenario and the current rate sheets.
               Expect an email with your professional quote in the next 2
               minutes.
             </p>
