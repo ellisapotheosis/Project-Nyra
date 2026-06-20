@@ -1,0 +1,283 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import * as path from 'node:path';
+import {
+  type Config,
+  IDEConnectionStatus,
+  IDE_DEFINITIONS,
+  getIdeInstaller,
+  type IdeClient,
+  type File,
+  ideContext,
+  LLXPRT_CODE_COMPANION_EXTENSION_NAME,
+} from '@vybestack/llxprt-code-core';
+import {
+  type CommandContext,
+  type SlashCommand,
+  type SlashCommandActionReturn,
+  CommandKind,
+} from './types.js';
+import { SettingScope } from '../../config/settings.js';
+
+function formatFileList(openFiles: File[]): string {
+  const basenameCounts = new Map<string, number>();
+  for (const file of openFiles) {
+    const basename = path.basename(file.path);
+    basenameCounts.set(basename, (basenameCounts.get(basename) ?? 0) + 1);
+  }
+
+  const fileList = openFiles
+    .map((file: File) => {
+      const basename = path.basename(file.path);
+      const isDuplicate = (basenameCounts.get(basename) ?? 0) > 1;
+      const parentDir = path.basename(path.dirname(file.path));
+      const displayName = isDuplicate
+        ? `${basename} (/${parentDir})`
+        : basename;
+
+      return `  - ${displayName}${file.isActive === true ? ' (active)' : ''}`;
+    })
+    .join('\n');
+
+  const infoMessage = `
+(Note: The file list is limited to a number of recently accessed files within your workspace and only includes local files on disk)`;
+
+  return `\n\nOpen files:\n${fileList}\n${infoMessage}`;
+}
+
+async function getIdeStatusMessageWithFiles(ideClient: IdeClient): Promise<{
+  messageType: 'info' | 'error';
+  content: string;
+}> {
+  const connection = ideClient.getConnectionStatus();
+  switch (connection.status) {
+    case IDEConnectionStatus.Connected: {
+      let content = `[CONNECTED] Connected to ${ideClient.getDetectedIdeDisplayName()}`;
+      try {
+        const context = ideContext.getIdeContext();
+        const openFiles = context?.workspaceState?.openFiles;
+
+        if (openFiles && openFiles.length > 0) {
+          content += formatFileList(openFiles);
+        }
+      } catch {
+        // Ignore
+      }
+      return {
+        messageType: 'info',
+        content,
+      };
+    }
+    case IDEConnectionStatus.Connecting:
+      return {
+        messageType: 'info',
+        content: `[CONNECTING] Connecting...`,
+      };
+    default: {
+      let content = `[DISCONNECTED] Disconnected`;
+      if (connection.details) {
+        content += `: ${connection.details}`;
+      }
+      return {
+        messageType: 'error',
+        content,
+      };
+    }
+  }
+}
+
+function buildStatusCommand(ideClient: IdeClient): SlashCommand {
+  return {
+    name: 'status',
+    description: 'check status of IDE integration',
+    kind: CommandKind.BUILT_IN,
+    autoExecute: true,
+    action: async (): Promise<SlashCommandActionReturn> => {
+      const { messageType, content } =
+        await getIdeStatusMessageWithFiles(ideClient);
+      return {
+        type: 'message',
+        messageType,
+        content,
+      } as const;
+    },
+  };
+}
+
+async function pollForConnection(
+  config: Config,
+  ideClient: IdeClient,
+): Promise<void> {
+  for (let i = 0; i < 10; i++) {
+    config.setIdeMode(true);
+    await ideClient.connect();
+    if (
+      ideClient.getConnectionStatus().status === IDEConnectionStatus.Connected
+    ) {
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+}
+
+function buildInstallCommand(
+  config: Config,
+  ideClient: IdeClient,
+  currentIDE: NonNullable<ReturnType<IdeClient['getCurrentIde']>>,
+): SlashCommand {
+  return {
+    name: 'install',
+    description: `install required IDE companion for ${ideClient.getDetectedIdeDisplayName()}`,
+    kind: CommandKind.BUILT_IN,
+    autoExecute: true,
+    action: async (context) => {
+      const installer = getIdeInstaller(currentIDE);
+      if (!installer) {
+        context.ui.addItem(
+          {
+            type: 'error',
+            text: `No installer is available for ${ideClient.getDetectedIdeDisplayName()}. Please install the '${LLXPRT_CODE_COMPANION_EXTENSION_NAME}' extension manually from the marketplace.`,
+          },
+          Date.now(),
+        );
+        return;
+      }
+
+      context.ui.addItem(
+        {
+          type: 'info',
+          text: `Installing IDE companion from marketplace...`,
+        },
+        Date.now(),
+      );
+
+      const result = await installer.install();
+      context.ui.addItem(
+        {
+          type: result.success ? 'info' : 'error',
+          text: result.message,
+        },
+        Date.now(),
+      );
+      if (result.success) {
+        context.services.settings.setValue(
+          SettingScope.User,
+          'ui.ideMode',
+          true,
+        );
+        await pollForConnection(config, ideClient);
+
+        const { messageType, content } =
+          await getIdeStatusMessageWithFiles(ideClient);
+        if (messageType === 'error') {
+          context.ui.addItem(
+            {
+              type: messageType,
+              text: `Failed to automatically enable IDE integration. To fix this, run the CLI in a new terminal window.`,
+            },
+            Date.now(),
+          );
+        } else {
+          context.ui.addItem(
+            {
+              type: messageType,
+              text: content,
+            },
+            Date.now(),
+          );
+        }
+      }
+    },
+  };
+}
+
+function buildEnableCommand(config: Config): SlashCommand {
+  return {
+    name: 'enable',
+    description: 'enable IDE integration',
+    kind: CommandKind.BUILT_IN,
+    autoExecute: true,
+    action: async (context: CommandContext) => {
+      context.services.settings.setValue(SettingScope.User, 'ui.ideMode', true);
+      config.setIdeMode(true);
+      config.setIdeClientConnected();
+    },
+  };
+}
+
+function buildDisableCommand(config: Config): SlashCommand {
+  return {
+    name: 'disable',
+    description: 'disable IDE integration',
+    kind: CommandKind.BUILT_IN,
+    autoExecute: true,
+    action: async (context: CommandContext) => {
+      context.services.settings.setValue(
+        SettingScope.User,
+        'ui.ideMode',
+        false,
+      );
+      config.setIdeMode(false);
+      config.setIdeClientDisconnected();
+    },
+  };
+}
+
+export const ideCommand = (config: Config | null): SlashCommand | null => {
+  if (!config) {
+    return null;
+  }
+  const ideClient = config.getIdeClient();
+  if (!ideClient) {
+    return null;
+  }
+  const currentIDE = ideClient.getCurrentIde();
+  if (!currentIDE) {
+    return {
+      name: 'ide',
+      description: 'manage IDE integration',
+      kind: CommandKind.BUILT_IN,
+      action: (): SlashCommandActionReturn =>
+        ({
+          type: 'message',
+          messageType: 'error',
+          content: `IDE integration is not supported in your current environment. To use this feature, run LLxprt Code in one of these supported IDEs: ${Object.values(
+            IDE_DEFINITIONS,
+          )
+            .map((ide) => ide.displayName)
+            .join(', ')}`,
+        }) as const,
+    };
+  }
+
+  const statusCommand = buildStatusCommand(ideClient);
+  const installCommand = buildInstallCommand(config, ideClient, currentIDE);
+  const enableCommand = buildEnableCommand(config);
+  const disableCommand = buildDisableCommand(config);
+
+  const ideSlashCommand: SlashCommand = {
+    name: 'ide',
+    description: 'manage IDE integration',
+    kind: CommandKind.BUILT_IN,
+    subCommands: [],
+  };
+
+  const { status } = ideClient.getConnectionStatus();
+  const isConnected = status === IDEConnectionStatus.Connected;
+
+  if (isConnected) {
+    ideSlashCommand.subCommands = [statusCommand, disableCommand];
+  } else {
+    ideSlashCommand.subCommands = [
+      enableCommand,
+      statusCommand,
+      installCommand,
+    ];
+  }
+
+  return ideSlashCommand;
+};

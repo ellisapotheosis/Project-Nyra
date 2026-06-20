@@ -1,0 +1,436 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import * as fs from 'fs';
+import * as path from 'path';
+import { tmpdir } from 'os';
+import type {
+  ConfigParameters,
+  ContentGeneratorConfig,
+} from '@vybestack/llxprt-code-core';
+import {
+  Config,
+  DEFAULT_FILE_FILTERING_OPTIONS,
+} from '@vybestack/llxprt-code-core';
+import type { Settings } from './settings.js';
+
+const TEST_CONTENT_GENERATOR_CONFIG: ContentGeneratorConfig = {
+  apiKey: 'test-key',
+  model: 'test-model',
+  userAgent: 'test-agent',
+};
+
+// Mock file discovery service and tool registry
+vi.mock('@vybestack/llxprt-code-core', async () => {
+  const actual = await vi.importActual('@vybestack/llxprt-code-core');
+  return {
+    ...actual,
+    FileDiscoveryService: vi.fn().mockImplementation(() => ({
+      initialize: vi.fn(),
+    })),
+    createToolRegistry: vi.fn().mockResolvedValue({}),
+  };
+});
+
+describe('Configuration Integration Tests', () => {
+  let tempDir: string;
+  let originalEnv: NodeJS.ProcessEnv;
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(tmpdir(), 'gemini-cli-test-'));
+    originalEnv = { ...process.env };
+    process.env.GEMINI_API_KEY = 'test-api-key';
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
+    if (fs.existsSync(tempDir)) {
+      fs.rmSync(tempDir, { recursive: true });
+    }
+  });
+
+  describe('File Filtering Configuration', () => {
+    it('should load default file filtering settings', async () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        fileFilteringRespectGitIgnore: undefined, // Should default to  DEFAULT_FILE_FILTERING_OPTIONS
+      };
+
+      const config = new Config(configParams);
+
+      expect(config.getFileFilteringRespectGitIgnore()).toBe(
+        DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
+      );
+    });
+
+    it('should load custom file filtering settings from configuration', async () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        fileFiltering: {
+          respectGitIgnore: false,
+        },
+      };
+
+      const config = new Config(configParams);
+
+      expect(config.getFileFilteringRespectGitIgnore()).toBe(false);
+    });
+
+    it('should merge user and workspace file filtering settings', async () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        fileFiltering: {
+          respectGitIgnore: true,
+        },
+      };
+
+      const config = new Config(configParams);
+
+      expect(config.getFileFilteringRespectGitIgnore()).toBe(true);
+    });
+  });
+
+  describe('Configuration Integration', () => {
+    it('should handle partial configuration objects gracefully', async () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        fileFiltering: {
+          respectGitIgnore: false,
+        },
+      };
+
+      const config = new Config(configParams);
+
+      // Specified settings should be applied
+      expect(config.getFileFilteringRespectGitIgnore()).toBe(false);
+    });
+
+    it('should handle empty configuration objects gracefully', async () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        fileFiltering: {},
+      };
+
+      const config = new Config(configParams);
+
+      // All settings should use defaults
+      expect(config.getFileFilteringRespectGitIgnore()).toBe(
+        DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
+      );
+    });
+
+    it('should handle missing configuration sections gracefully', async () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        // Missing fileFiltering configuration
+      };
+
+      const config = new Config(configParams);
+
+      // All git-aware settings should use defaults
+      expect(config.getFileFilteringRespectGitIgnore()).toBe(
+        DEFAULT_FILE_FILTERING_OPTIONS.respectGitIgnore,
+      );
+    });
+  });
+
+  describe('Real-world Configuration Scenarios', () => {
+    it('should handle a security-focused configuration', async () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        fileFiltering: {
+          respectGitIgnore: true,
+        },
+      };
+
+      const config = new Config(configParams);
+
+      expect(config.getFileFilteringRespectGitIgnore()).toBe(true);
+    });
+
+    it('should handle a CI/CD environment configuration', async () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        fileFiltering: {
+          respectGitIgnore: false,
+        }, // CI might need to see all files
+      };
+
+      const config = new Config(configParams);
+
+      expect(config.getFileFilteringRespectGitIgnore()).toBe(false);
+    });
+  });
+
+  describe('Checkpointing Configuration', () => {
+    it('should enable checkpointing when the setting is true', async () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        checkpointing: true,
+      };
+
+      const config = new Config(configParams);
+
+      expect(config.getCheckpointingEnabled()).toBe(true);
+    });
+  });
+
+  describe('Extension Context Files', () => {
+    it('should have an empty array for extension context files by default', () => {
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+      };
+      const config = new Config(configParams);
+      expect(config.getExtensionContextFilePaths()).toStrictEqual([]);
+    });
+
+    it('should correctly store and return extension context file paths', () => {
+      const contextFiles = ['/path/to/file1.txt', '/path/to/file2.js'];
+      const configParams: ConfigParameters = {
+        cwd: '/tmp',
+        contentGeneratorConfig: TEST_CONTENT_GENERATOR_CONFIG,
+        embeddingModel: 'test-embedding-model',
+        sandbox: false,
+        targetDir: tempDir,
+        debugMode: false,
+        extensionContextFilePaths: contextFiles,
+      };
+      const config = new Config(configParams);
+      expect(config.getExtensionContextFilePaths()).toStrictEqual(contextFiles);
+    });
+  });
+
+  describe('Approval Mode Integration Tests', () => {
+    let parseArguments: typeof import('./cliArgParser').parseArguments;
+
+    beforeEach(async () => {
+      // Import the argument parsing function for integration testing
+      const { parseArguments: parseArgs } = await import('./cliArgParser');
+      parseArguments = parseArgs;
+    });
+
+    it('should parse --approval-mode=auto_edit correctly through the full argument parsing flow', async () => {
+      const originalArgv = process.argv;
+
+      try {
+        process.argv = [
+          'node',
+          'script.js',
+          '--approval-mode',
+          'auto_edit',
+          '-p',
+          'test',
+        ];
+
+        const argv = await parseArguments({} as Settings);
+
+        // Verify that the argument was parsed correctly
+        expect(argv.approvalMode).toBe('auto_edit');
+        expect(argv.prompt).toBe('test');
+        expect(argv.yolo).toBe(false);
+      } finally {
+        process.argv = originalArgv;
+      }
+    });
+
+    it('should parse --approval-mode=yolo correctly through the full argument parsing flow', async () => {
+      const originalArgv = process.argv;
+
+      try {
+        process.argv = [
+          'node',
+          'script.js',
+          '--approval-mode',
+          'yolo',
+          '-p',
+          'test',
+        ];
+
+        const argv = await parseArguments({} as Settings);
+
+        expect(argv.approvalMode).toBe('yolo');
+        expect(argv.prompt).toBe('test');
+        expect(argv.yolo).toBe(false); // Should NOT be set when using --approval-mode
+      } finally {
+        process.argv = originalArgv;
+      }
+    });
+
+    it('should parse --approval-mode=default correctly through the full argument parsing flow', async () => {
+      const originalArgv = process.argv;
+
+      try {
+        process.argv = [
+          'node',
+          'script.js',
+          '--approval-mode',
+          'default',
+          '-p',
+          'test',
+        ];
+
+        const argv = await parseArguments({} as Settings);
+
+        expect(argv.approvalMode).toBe('default');
+        expect(argv.prompt).toBe('test');
+        expect(argv.yolo).toBe(false);
+      } finally {
+        process.argv = originalArgv;
+      }
+    });
+
+    it('should parse legacy --yolo flag correctly', async () => {
+      const originalArgv = process.argv;
+
+      try {
+        process.argv = ['node', 'script.js', '--yolo', '-p', 'test'];
+
+        const argv = await parseArguments({} as Settings);
+
+        expect(argv.yolo).toBe(true);
+        expect(argv.approvalMode).toBeUndefined(); // Should NOT be set when using --yolo
+        expect(argv.prompt).toBe('test');
+      } finally {
+        process.argv = originalArgv;
+      }
+    });
+
+    it('should reject invalid approval mode values during argument parsing', async () => {
+      const originalArgv = process.argv;
+
+      try {
+        process.argv = ['node', 'script.js', '--approval-mode', 'invalid_mode'];
+
+        // Should throw during argument parsing due to yargs validation
+        await expect(parseArguments({} as Settings)).rejects.toThrow(Error);
+      } finally {
+        process.argv = originalArgv;
+      }
+    });
+
+    it('should reject conflicting --yolo and --approval-mode flags', async () => {
+      const originalArgv = process.argv;
+
+      try {
+        process.argv = [
+          'node',
+          'script.js',
+          '--yolo',
+          '--approval-mode',
+          'default',
+        ];
+
+        // Should throw during argument parsing due to conflict validation
+        await expect(parseArguments({} as Settings)).rejects.toThrow(Error);
+      } finally {
+        process.argv = originalArgv;
+      }
+    });
+
+    it('should handle backward compatibility with mixed scenarios', async () => {
+      const originalArgv = process.argv;
+
+      try {
+        // Test that no approval mode arguments defaults to no flags set
+        process.argv = ['node', 'script.js', '-p', 'test'];
+
+        const argv = await parseArguments({} as Settings);
+
+        expect(argv.approvalMode).toBeUndefined();
+        expect(argv.yolo).toBe(false);
+        expect(argv.prompt).toBe('test');
+      } finally {
+        process.argv = originalArgv;
+      }
+    });
+  });
+
+  describe('CLI --set argument parsing', () => {
+    let parseArguments: typeof import('./cliArgParser').parseArguments;
+
+    beforeEach(async () => {
+      const { parseArguments: parseArgs } = await import('./cliArgParser');
+      parseArguments = parseArgs;
+    });
+
+    it('collects repeated --set key=value pairs', async () => {
+      const originalArgv = process.argv;
+      const settings: Settings = {};
+
+      try {
+        process.argv = [
+          'node',
+          'script.js',
+          '--set',
+          'context-limit=32000',
+          '--set',
+          'tool-output-max-tokens=4096',
+        ];
+
+        const argv = await parseArguments(settings);
+
+        expect(argv.set).toStrictEqual([
+          'context-limit=32000',
+          'tool-output-max-tokens=4096',
+        ]);
+      } finally {
+        process.argv = originalArgv;
+      }
+    });
+  });
+});

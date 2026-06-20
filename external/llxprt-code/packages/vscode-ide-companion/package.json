@@ -1,0 +1,166 @@
+{
+  "name": "llxprt-code-vscode-ide-companion",
+  "displayName": "LLxprt Code Companion",
+  "description": "Enable LLxprt Code with direct access to your IDE workspace.",
+  "version": "0.10.0",
+  "publisher": "vybestack",
+  "icon": "assets/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acoliver/llxprt-code.git",
+    "directory": "packages/vscode-ide-companion"
+  },
+  "bugs": {
+    "url": "https://github.com/acoliver/llxprt-code/issues"
+  },
+  "homepage": "https://github.com/acoliver/llxprt-code#readme",
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "license": "Apache-2.0",
+  "preview": true,
+  "categories": [
+    "AI",
+    "Programming Languages",
+    "Other"
+  ],
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "keywords": [
+    "llxprt-code",
+    "llxprt cli",
+    "llxprt",
+    "llxprt code",
+    "cli",
+    "ide integration",
+    "ide companion"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "Gemini CLI",
+      "properties": {
+        "gemini-cli.debug.logging.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable detailed logging for debugging the Gemini CLI Companion."
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "llxprt-diff-editable"
+      }
+    ],
+    "commands": [
+      {
+        "command": "llxprt.diff.accept",
+        "title": "LLxprt Code: Accept Diff",
+        "icon": "$(check)"
+      },
+      {
+        "command": "llxprt.diff.cancel",
+        "title": "LLxprt Code: Close Diff Editor",
+        "icon": "$(close)"
+      },
+      {
+        "command": "llxprt-code.runLLxprtCode",
+        "title": "LLxprt Code: Run"
+      },
+      {
+        "command": "llxprt-code.showNotices",
+        "title": "LLxprt Code: View Third-Party Notices"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "llxprt.diff.accept",
+          "when": "llxprt.diff.isVisible"
+        },
+        {
+          "command": "llxprt.diff.cancel",
+          "when": "llxprt.diff.isVisible"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "llxprt.diff.accept",
+          "when": "llxprt.diff.isVisible",
+          "group": "navigation"
+        },
+        {
+          "command": "llxprt.diff.cancel",
+          "when": "llxprt.diff.isVisible",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "llxprt.diff.accept",
+        "key": "ctrl+s",
+        "when": "llxprt.diff.isVisible"
+      },
+      {
+        "command": "llxprt.diff.accept",
+        "key": "cmd+s",
+        "when": "llxprt.diff.isVisible"
+      }
+    ]
+  },
+  "main": "./dist/extension.cjs",
+  "type": "module",
+  "scripts": {
+    "prepackage": "npm run generate:notices && npm run check-types && npm run lint && npm run build:prod",
+    "build": "npm run build:dev",
+    "build:dev": "npm run check-types && npm run lint && node esbuild.js",
+    "build:prod": "node esbuild.js --production",
+    "generate:notices": "node ./scripts/generate-notices.js",
+    "prepare": "npm run generate:notices",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "watch": "npm-run-all2 -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "vsce package --no-dependencies",
+    "test": "vitest run",
+    "test:ci": "vitest run --coverage",
+    "validate:notices": "node ./scripts/validate-notices.js"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.99.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.3",
+    "eslint": "^9.25.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@dqbd/tiktoken": "^1.0.21",
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "cors": "^2.8.5",
+    "express": "^5.2.0",
+    "semver": "^7.6.3",
+    "zod": "^3.25.76"
+  },
+  "overrides": {
+    "js-yaml": "4.1.1",
+    "@textlint/linter-formatter": {
+      "js-yaml": "npm:js-yaml@4.1.1"
+    },
+    "rc-config-loader": {
+      "js-yaml": "npm:js-yaml@4.1.1"
+    }
+  }
+}

@@ -1,0 +1,400 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import * as fs from 'node:fs';
+import {
+  enableKittyKeyboardProtocol,
+  disableKittyKeyboardProtocol,
+  enableModifyOtherKeys,
+  disableModifyOtherKeys,
+  enableBracketedPasteMode,
+  disableBracketedPasteMode,
+  DebugLogger,
+} from '@vybestack/llxprt-code-core';
+
+const debugLogger = new DebugLogger('llxprt:terminal-capability');
+
+export type TerminalBackgroundColor = string | undefined;
+
+export class TerminalCapabilityManager {
+  private static instance: TerminalCapabilityManager | undefined;
+
+  private static readonly KITTY_QUERY = '\x1b[?u';
+  private static readonly OSC_11_QUERY = '\x1b]11;?\x1b\\';
+  private static readonly TERMINAL_NAME_QUERY = '\x1b[>q';
+  private static readonly DEVICE_ATTRIBUTES_QUERY = '\x1b[c';
+  private static readonly MODIFY_OTHER_KEYS_QUERY = '\x1b[>4;?m';
+
+  // Kitty keyboard flags: CSI ? flags u
+  // eslint-disable-next-line no-control-regex
+  private static readonly KITTY_REGEX = /\x1b\[\?(\d+)u/;
+  // Terminal Name/Version response: DCS > | text ST (or BEL)
+  // eslint-disable-next-line no-control-regex
+  private static readonly TERMINAL_NAME_REGEX = /\x1bP>\|(.+?)(\x1b\\|\x07)/;
+  // Primary Device Attributes: CSI ? ID ; ... c
+  // eslint-disable-next-line no-control-regex, sonarjs/regular-expr -- Static regex reviewed for lint hardening; behavior preserved.
+  private static readonly DEVICE_ATTRIBUTES_REGEX = /\x1b\[\?(\d+)(;\d+)*c/;
+  // OSC 11 response: OSC 11 ; rgb:rrrr/gggg/bbbb ST (or BEL)
+  private static readonly OSC_11_REGEX =
+    // eslint-disable-next-line no-control-regex, sonarjs/regular-expr -- Static regex reviewed for lint hardening; behavior preserved.
+    /\x1b\]11;rgb:([0-9a-fA-F]{1,4})\/([0-9a-fA-F]{1,4})\/([0-9a-fA-F]{1,4})(\x1b\\|\x07)?/;
+  // modifyOtherKeys response: CSI > 4 ; level m
+  // eslint-disable-next-line no-control-regex
+  private static readonly MODIFY_OTHER_KEYS_REGEX = /\x1b\[>4;(\d+)m/;
+
+  private detectionComplete = false;
+  private terminalBackgroundColor: TerminalBackgroundColor;
+  private kittySupported = false;
+  private kittyEnabled = false;
+  private modifyOtherKeysSupported?: boolean;
+  private modifyOtherKeysEnabled = false;
+  private bracketedPasteEnabled = false;
+  private terminalName: string | undefined;
+  private deviceAttributesSupported = false;
+  private cleanupOnExitHandler?: () => void;
+  private disableKittyProtocolOnExitHandler?: () => void;
+
+  private constructor() {}
+
+  static getInstance(): TerminalCapabilityManager {
+    this.instance ??= new TerminalCapabilityManager();
+    return this.instance;
+  }
+
+  static resetInstanceForTesting(): void {
+    this.instance?.resetForTesting();
+    this.instance = undefined;
+  }
+
+  /**
+   * Detects terminal capabilities (Kitty protocol support, terminal name,
+   * background color).
+   * This should be called once at app startup.
+   */
+  async detectCapabilities(): Promise<void> {
+    if (this.detectionComplete) return undefined;
+
+    if (!process.stdin.isTTY || !process.stdout.isTTY) {
+      this.detectionComplete = true;
+      return undefined;
+    }
+
+    return this.runDetection();
+  }
+
+  private runDetection(): Promise<void> {
+    return new Promise((resolve) => {
+      this.removeProcessListeners();
+
+      const cleanupOnExit = () => {
+        disableKittyKeyboardProtocol();
+        disableModifyOtherKeys();
+        this.disableBracketedPasteMode();
+      };
+      this.cleanupOnExitHandler = cleanupOnExit;
+      process.on('exit', cleanupOnExit);
+      process.on('SIGTERM', cleanupOnExit);
+      process.on('SIGINT', cleanupOnExit);
+
+      const originalRawMode = process.stdin.isRaw;
+      if (!originalRawMode) {
+        process.stdin.setRawMode(true);
+      }
+
+      let buffer = '';
+      let kittyKeyboardReceived = false;
+      let terminalNameReceived = false;
+      let deviceAttributesReceived = false;
+      let bgReceived = false;
+      let modifyOtherKeysReceived = false;
+      // eslint-disable-next-line prefer-const
+      let timeoutId: NodeJS.Timeout | undefined;
+
+      const cleanup = () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        process.stdin.removeListener('data', onData);
+        if (!originalRawMode) {
+          process.stdin.setRawMode(false);
+        }
+        this.detectionComplete = true;
+
+        this.enableSupportedModes();
+        if (this.kittyEnabled && !this.disableKittyProtocolOnExitHandler) {
+          this.disableKittyProtocolOnExitHandler = () =>
+            this.disableKittyProtocolOnExit();
+          process.once('exit', this.disableKittyProtocolOnExitHandler);
+        }
+
+        resolve();
+      };
+
+      const onTimeout = () => {
+        cleanup();
+      };
+
+      timeoutId = setTimeout(onTimeout, 1000);
+
+      const onData = (data: Buffer) => {
+        buffer += data.toString();
+
+        bgReceived = this.parseBgColor(buffer, bgReceived);
+        kittyKeyboardReceived = this.parseKittyKeyboard(
+          buffer,
+          kittyKeyboardReceived,
+        );
+        modifyOtherKeysReceived = this.parseModifyOtherKeys(
+          buffer,
+          modifyOtherKeysReceived,
+        );
+        terminalNameReceived = this.parseTerminalName(
+          buffer,
+          terminalNameReceived,
+        );
+        deviceAttributesReceived = this.parseDeviceAttributes(
+          buffer,
+          deviceAttributesReceived,
+          cleanup,
+        );
+      };
+
+      process.stdin.on('data', onData);
+
+      try {
+        fs.writeSync(
+          process.stdout.fd,
+          TerminalCapabilityManager.KITTY_QUERY +
+            TerminalCapabilityManager.OSC_11_QUERY +
+            TerminalCapabilityManager.TERMINAL_NAME_QUERY +
+            TerminalCapabilityManager.MODIFY_OTHER_KEYS_QUERY +
+            TerminalCapabilityManager.DEVICE_ATTRIBUTES_QUERY,
+        );
+      } catch {
+        cleanup();
+      }
+    });
+  }
+
+  private parseBgColor(buffer: string, alreadyReceived: boolean): boolean {
+    if (alreadyReceived) return true;
+    const match = buffer.match(TerminalCapabilityManager.OSC_11_REGEX);
+    if (match) {
+      this.terminalBackgroundColor = this.parseColor(
+        match[1],
+        match[2],
+        match[3],
+      );
+      return true;
+    }
+    return false;
+  }
+
+  private parseKittyKeyboard(
+    buffer: string,
+    alreadyReceived: boolean,
+  ): boolean {
+    if (alreadyReceived) return true;
+    if (TerminalCapabilityManager.KITTY_REGEX.test(buffer)) {
+      this.kittySupported = true;
+      return true;
+    }
+    return false;
+  }
+
+  private parseModifyOtherKeys(
+    buffer: string,
+    alreadyReceived: boolean,
+  ): boolean {
+    if (alreadyReceived) return true;
+    const match = buffer.match(
+      TerminalCapabilityManager.MODIFY_OTHER_KEYS_REGEX,
+    );
+    if (match) {
+      const level = parseInt(match[1], 10);
+      this.modifyOtherKeysSupported = level >= 2;
+      debugLogger.log(
+        `Detected modifyOtherKeys support: ${this.modifyOtherKeysSupported} (level ${level})`,
+      );
+      return true;
+    }
+    return false;
+  }
+
+  private parseTerminalName(buffer: string, alreadyReceived: boolean): boolean {
+    if (alreadyReceived) return true;
+    const match = buffer.match(TerminalCapabilityManager.TERMINAL_NAME_REGEX);
+    if (match) {
+      this.terminalName = match[1];
+      return true;
+    }
+    return false;
+  }
+
+  private parseDeviceAttributes(
+    buffer: string,
+    alreadyReceived: boolean,
+    onDone: () => void,
+  ): boolean {
+    if (alreadyReceived) return true;
+    const match = buffer.match(
+      TerminalCapabilityManager.DEVICE_ATTRIBUTES_REGEX,
+    );
+    if (match) {
+      this.deviceAttributesSupported = true;
+      onDone();
+      return true;
+    }
+    return false;
+  }
+
+  enableSupportedModes() {
+    try {
+      if (this.kittySupported) {
+        enableKittyKeyboardProtocol();
+        this.kittyEnabled = true;
+      } else if (
+        this.modifyOtherKeysSupported === true ||
+        // If device attributes were received it's safe to try enabling
+        // anyways, since it will be ignored if unsupported
+        (this.modifyOtherKeysSupported === undefined &&
+          this.deviceAttributesSupported)
+      ) {
+        enableModifyOtherKeys();
+      }
+      // Always enable bracketed paste since it'll be ignored if unsupported.
+      this.enableBracketedPasteMode();
+    } catch (e) {
+      debugLogger.warn('Failed to enable keyboard protocols:', e);
+    }
+  }
+
+  enableBracketedPasteMode(): void {
+    enableBracketedPasteMode();
+    this.bracketedPasteEnabled = true;
+  }
+
+  disableBracketedPasteMode(): void {
+    disableBracketedPasteMode();
+    this.bracketedPasteEnabled = false;
+  }
+
+  getTerminalBackgroundColor(): TerminalBackgroundColor {
+    return this.terminalBackgroundColor;
+  }
+
+  getTerminalName(): string | undefined {
+    return this.terminalName;
+  }
+
+  isKittyProtocolEnabled(): boolean {
+    return this.kittyEnabled;
+  }
+
+  isBracketedPasteEnabled(): boolean {
+    return this.bracketedPasteEnabled;
+  }
+
+  isModifyOtherKeysEnabled(): boolean {
+    return this.modifyOtherKeysEnabled;
+  }
+
+  enableKittyProtocol(): void {
+    try {
+      if (this.kittySupported) {
+        enableKittyKeyboardProtocol();
+        this.kittyEnabled = true;
+      }
+    } catch {
+      // Ignore errors during enable (terminal may not support these modes)
+    }
+  }
+
+  disableKittyProtocol(): void {
+    try {
+      if (this.kittyEnabled) {
+        disableKittyKeyboardProtocol();
+        this.kittyEnabled = false;
+      }
+    } catch {
+      // Ignore errors during disable (terminal may already be closed)
+    }
+  }
+
+  disableKittyProtocolOnExit(): void {
+    try {
+      if (this.kittyEnabled) {
+        if (process.stdout.isTTY && typeof process.stdout.fd === 'number') {
+          // Kitty progressive enhancement flags are managed per screen buffer.
+          // We may have enabled in main screen but be cleaning up while still in
+          // alternate screen, so we deliberately send the `<u` sequence twice:
+          // once for the alternate-screen context and once for the main-screen context.
+          // Synchronous write is required for process.on('exit') reliability.
+          fs.writeSync(process.stdout.fd, '\x1b[<u');
+          fs.writeSync(process.stdout.fd, '\x1b[?1049l');
+          fs.writeSync(process.stdout.fd, '\x1b[<u');
+          // Explicitly reset all progressive enhancement flags (mode 1) to cover
+          // terminals that implement flag-setting but not stack pop semantics.
+          fs.writeSync(process.stdout.fd, '\x1b[=0;1u');
+          fs.writeSync(process.stdout.fd, '\x1b[?1006l');
+        }
+        this.kittyEnabled = false;
+      }
+    } catch {
+      // Ignore errors during disable (terminal may already be closed)
+    }
+  }
+
+  private removeProcessListeners(): void {
+    if (this.cleanupOnExitHandler) {
+      process.removeListener('exit', this.cleanupOnExitHandler);
+      process.removeListener('SIGTERM', this.cleanupOnExitHandler);
+      process.removeListener('SIGINT', this.cleanupOnExitHandler);
+      this.cleanupOnExitHandler = undefined;
+    }
+
+    if (this.disableKittyProtocolOnExitHandler) {
+      process.removeListener('exit', this.disableKittyProtocolOnExitHandler);
+      this.disableKittyProtocolOnExitHandler = undefined;
+    }
+  }
+
+  private resetForTesting(): void {
+    this.removeProcessListeners();
+    try {
+      if (this.kittyEnabled) {
+        disableKittyKeyboardProtocol();
+        this.kittyEnabled = false;
+      }
+      disableModifyOtherKeys();
+      this.disableBracketedPasteMode();
+    } catch {
+      // Ignore teardown failures in tests.
+    }
+    this.modifyOtherKeysEnabled = false;
+  }
+
+  private parseColor(rHex: string, gHex: string, bHex: string): string {
+    const parseComponent = (hex: string) => {
+      const val = parseInt(hex, 16);
+      if (hex.length === 1) return (val / 15) * 255;
+      if (hex.length === 2) return val;
+      if (hex.length === 3) return (val / 4095) * 255;
+      if (hex.length === 4) return (val / 65535) * 255;
+      return val;
+    };
+
+    const r = parseComponent(rHex);
+    const g = parseComponent(gHex);
+    const b = parseComponent(bHex);
+
+    const toHex = (c: number) => Math.round(c).toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  }
+}
+
+export const terminalCapabilityManager =
+  TerminalCapabilityManager.getInstance();

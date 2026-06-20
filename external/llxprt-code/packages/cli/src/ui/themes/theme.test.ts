@@ -1,0 +1,349 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { describe, it, expect } from 'vitest';
+import * as themeModule from './theme.js';
+import { themeManager } from './theme-manager.js';
+
+const { validateCustomTheme, createCustomTheme } = themeModule;
+type CustomTheme = themeModule.CustomTheme;
+
+describe('createCustomTheme', () => {
+  const baseTheme: CustomTheme = {
+    type: 'custom',
+    name: 'Test Theme',
+    Background: '#000000',
+    Foreground: '#ffffff',
+    LightBlue: '#ADD8E6',
+    AccentBlue: '#0000FF',
+    AccentPurple: '#800080',
+    AccentCyan: '#00FFFF',
+    AccentGreen: '#008000',
+    AccentYellow: '#FFFF00',
+    AccentRed: '#FF0000',
+    DiffAdded: '#00FF00',
+    DiffRemoved: '#FF0000',
+    Comment: '#808080',
+    Gray: '#cccccc',
+    // DarkGray intentionally omitted to test fallback
+  };
+
+  it('should interpolate DarkGray when not provided', () => {
+    const theme = createCustomTheme(baseTheme);
+    // Interpolate between Gray (#cccccc) and Background (#000000) at 0.5
+    // #cccccc is RGB(204, 204, 204)
+    // #000000 is RGB(0, 0, 0)
+    // Midpoint is RGB(102, 102, 102) which is #666666
+    expect(theme.colors.DarkGray).toBe('#666666');
+  });
+
+  it('should use provided DarkGray', () => {
+    const theme = createCustomTheme({
+      ...baseTheme,
+      DarkGray: '#123456',
+    });
+    expect(theme.colors.DarkGray).toBe('#123456');
+  });
+
+  it('should interpolate DarkGray when text.secondary is provided but DarkGray is not', () => {
+    const customTheme: CustomTheme = {
+      type: 'custom',
+      name: 'Test',
+      text: {
+        secondary: '#cccccc', // Gray source
+      },
+      background: {
+        primary: '#000000', // Background source
+      },
+    };
+    const theme = createCustomTheme(customTheme);
+    // Should be interpolated between #cccccc and #000000 at 0.5 -> #666666
+    expect(theme.colors.DarkGray).toBe('#666666');
+  });
+
+  it('should prefer text.secondary over Gray for interpolation', () => {
+    const customTheme: CustomTheme = {
+      type: 'custom',
+      name: 'Test',
+      text: {
+        secondary: '#cccccc', // Should be used
+      },
+      Gray: '#aaaaaa', // Should be ignored
+      background: {
+        primary: '#000000',
+      },
+    };
+    const theme = createCustomTheme(customTheme);
+    // Interpolate between #cccccc and #000000 -> #666666
+    expect(theme.colors.DarkGray).toBe('#666666');
+  });
+});
+
+describe('validateCustomTheme', () => {
+  const validTheme: CustomTheme = {
+    type: 'custom',
+    name: 'My Custom Theme',
+    Background: '#FFFFFF',
+    Foreground: '#000000',
+    LightBlue: '#ADD8E6',
+    AccentBlue: '#0000FF',
+    AccentPurple: '#800080',
+    AccentCyan: '#00FFFF',
+    AccentGreen: '#008000',
+    AccentYellow: '#FFFF00',
+    AccentRed: '#FF0000',
+    DiffAdded: '#00FF00',
+    DiffRemoved: '#FF0000',
+    Comment: '#808080',
+    DimComment: '#606060',
+    Gray: '#808080',
+  };
+
+  it('should return isValid: true for a valid theme', () => {
+    const result = validateCustomTheme(validTheme);
+    expect(result.isValid).toBe(true);
+    expect(result.error).toBeUndefined();
+  });
+
+  it('should return isValid: false for a theme with a missing required field', () => {
+    const invalidTheme = {
+      ...validTheme,
+      name: undefined as unknown as string,
+    };
+    const result = validateCustomTheme(invalidTheme);
+    expect(result.isValid).toBe(false);
+    expect(result.error).toBe('Missing required field: name');
+  });
+
+  it('should return isValid: false for a theme with an invalid color format', () => {
+    const invalidTheme = { ...validTheme, Background: 'not-a-color' };
+    const result = validateCustomTheme(invalidTheme);
+    expect(result.isValid).toBe(false);
+    expect(result.error).toBe(
+      'Invalid color format for Background: not-a-color',
+    );
+  });
+
+  it('should return isValid: false for a theme with an invalid name', () => {
+    const invalidTheme = { ...validTheme, name: ' ' };
+    const result = validateCustomTheme(invalidTheme);
+    expect(result.isValid).toBe(false);
+    expect(result.error).toBe('Invalid theme name:  ');
+  });
+
+  it('should return isValid: true for a theme missing optional DiffAdded and DiffRemoved colors', () => {
+    const legacyTheme: Partial<CustomTheme> = { ...validTheme };
+    delete legacyTheme.DiffAdded;
+    delete legacyTheme.DiffRemoved;
+    const result = validateCustomTheme(legacyTheme);
+    expect(result.isValid).toBe(true);
+    expect(result.error).toBeUndefined();
+  });
+
+  it('should return a warning if DiffAdded and DiffRemoved are missing', () => {
+    const legacyTheme: Partial<CustomTheme> = { ...validTheme };
+    delete legacyTheme.DiffAdded;
+    delete legacyTheme.DiffRemoved;
+    const result = validateCustomTheme(legacyTheme);
+    expect(result.isValid).toBe(true);
+    expect(result.warning).toBe('Missing field(s) DiffAdded, DiffRemoved');
+  });
+
+  it('should return a warning if only DiffRemoved is missing', () => {
+    const legacyTheme: Partial<CustomTheme> = { ...validTheme };
+    delete legacyTheme.DiffRemoved;
+    const result = validateCustomTheme(legacyTheme);
+    expect(result.isValid).toBe(true);
+    expect(result.warning).toBe('Missing field(s) DiffRemoved');
+  });
+
+  it('should return isValid: false for a theme with an invalid DiffAdded color', () => {
+    const invalidTheme = { ...validTheme, DiffAdded: 'invalid' };
+    const result = validateCustomTheme(invalidTheme);
+    expect(result.isValid).toBe(false);
+    expect(result.error).toBe('Invalid color format for DiffAdded: invalid');
+  });
+
+  it('should return isValid: false for a theme with an invalid DiffRemoved color', () => {
+    const invalidTheme = { ...validTheme, DiffRemoved: 'invalid' };
+    const result = validateCustomTheme(invalidTheme);
+    expect(result.isValid).toBe(false);
+    expect(result.error).toBe('Invalid color format for DiffRemoved: invalid');
+  });
+
+  it('should return isValid: false for a theme with a very long name', () => {
+    const invalidTheme = { ...validTheme, name: 'a'.repeat(51) };
+    const result = validateCustomTheme(invalidTheme);
+    expect(result.isValid).toBe(false);
+    expect(result.error).toBe(`Invalid theme name: ${'a'.repeat(51)}`);
+  });
+});
+
+describe('themeManager.loadCustomThemes', () => {
+  const baseTheme: Omit<CustomTheme, 'DiffAdded' | 'DiffRemoved'> & {
+    DiffAdded?: string;
+    DiffRemoved?: string;
+  } = {
+    type: 'custom',
+    name: 'Test Theme',
+    Background: '#FFF',
+    Foreground: '#000',
+    LightBlue: '#ADD8E6',
+    AccentBlue: '#00F',
+    AccentPurple: '#808',
+    AccentCyan: '#0FF',
+    AccentGreen: '#080',
+    AccentYellow: '#FF0',
+    AccentRed: '#F00',
+    DiffAdded: '#0F0',
+    DiffRemoved: '#F00',
+    Comment: '#888',
+    Gray: '#888',
+  };
+
+  it('should use values from DEFAULT_THEME when DiffAdded and DiffRemoved are not provided', () => {
+    // In llxprt-code, the DEFAULT_THEME is GreenScreen, not darkTheme
+    const legacyTheme: Partial<CustomTheme> = { ...baseTheme };
+    delete legacyTheme.DiffAdded;
+    delete legacyTheme.DiffRemoved;
+
+    themeManager.loadCustomThemes({ 'Legacy Custom Theme': legacyTheme });
+    const result = themeManager.getTheme('Legacy Custom Theme')!;
+
+    // Should use GreenScreen colors for missing fields
+    expect(result.colors.DiffAdded).toBe('#00ff00'); // GreenScreen DiffAdded
+    expect(result.colors.DiffRemoved).toBe('#6a9955'); // GreenScreen DiffRemoved
+    expect(result.colors.AccentBlue).toBe(legacyTheme.AccentBlue);
+    expect(result.name).toBe(legacyTheme.name);
+  });
+});
+
+describe('pickDefaultThemeName', () => {
+  const { pickDefaultThemeName } = themeModule;
+  const mockThemes = [
+    { name: 'Ayu', type: 'dark' as const, colors: { Background: '#0a0e14' } },
+    {
+      name: 'Ayu Light',
+      type: 'light' as const,
+      colors: { Background: '#fafafa' },
+    },
+    {
+      name: 'Dracula',
+      type: 'dark' as const,
+      colors: { Background: '#282a36' },
+    },
+    {
+      name: 'Default Light',
+      type: 'light' as const,
+      colors: { Background: '#ffffff' },
+    },
+    {
+      name: 'Green Screen',
+      type: 'ansi' as const,
+      colors: { Background: 'black' },
+    },
+  ] as const;
+
+  it('should pick dark theme for dark terminal background', () => {
+    expect(
+      pickDefaultThemeName('#000000', mockThemes, 'Ayu', 'Default Light'),
+    ).toBe('Ayu');
+  });
+
+  it('should pick light theme for light terminal background', () => {
+    expect(
+      pickDefaultThemeName('#FFFFFF', mockThemes, 'Ayu', 'Default Light'),
+    ).toBe('Default Light');
+  });
+
+  it('should return fallback when terminalBackgroundColor is undefined', () => {
+    expect(
+      pickDefaultThemeName(undefined, mockThemes, 'Ayu', 'Default Light'),
+    ).toBe('Ayu');
+  });
+
+  it('should return fallback when no matching theme type found', () => {
+    const onlyDarkThemes = [
+      { name: 'Ayu', type: 'dark' as const, colors: { Background: '#0a0e14' } },
+    ];
+    expect(
+      pickDefaultThemeName('#FFFFFF', onlyDarkThemes, 'Ayu', 'Default Light'),
+    ).toBe('Default Light');
+  });
+
+  it('should return fallback when detection fails (malformed color)', () => {
+    expect(
+      pickDefaultThemeName('#FFF', mockThemes, 'Ayu', 'Default Light'),
+    ).toBe('Ayu');
+  });
+
+  it('should prefer fallback dark theme over first matching dark theme', () => {
+    const themes = [
+      {
+        name: 'Dracula',
+        type: 'dark' as const,
+        colors: { Background: '#282a36' },
+      },
+      {
+        name: 'Green Screen',
+        type: 'dark' as const,
+        colors: { Background: '#000000' },
+      },
+    ];
+    expect(
+      pickDefaultThemeName('#000000', themes, 'Green Screen', 'Default Light'),
+    ).toBe('Green Screen');
+  });
+
+  it('should prefer fallback light theme over first matching light theme', () => {
+    const themes = [
+      {
+        name: 'Ayu Light',
+        type: 'light' as const,
+        colors: { Background: '#fafafa' },
+      },
+      {
+        name: 'Default Light',
+        type: 'light' as const,
+        colors: { Background: '#ffffff' },
+      },
+    ];
+    expect(
+      pickDefaultThemeName('#FFFFFF', themes, 'Ayu', 'Default Light'),
+    ).toBe('Default Light');
+  });
+
+  it('should fall back to first matching theme when fallback is not in list', () => {
+    const themes = [
+      {
+        name: 'Dracula',
+        type: 'dark' as const,
+        colors: { Background: '#282a36' },
+      },
+    ];
+    expect(
+      pickDefaultThemeName('#000000', themes, 'Missing Theme', 'Default Light'),
+    ).toBe('Dracula');
+  });
+
+  it('should ignore fallback name when its type does not match terminal type', () => {
+    const themes = [
+      {
+        name: 'Green Screen',
+        type: 'light' as const,
+        colors: { Background: '#ffffff' },
+      },
+      {
+        name: 'Dracula',
+        type: 'dark' as const,
+        colors: { Background: '#282a36' },
+      },
+    ];
+    expect(
+      pickDefaultThemeName('#000000', themes, 'Green Screen', 'Default Light'),
+    ).toBe('Dracula');
+  });
+});

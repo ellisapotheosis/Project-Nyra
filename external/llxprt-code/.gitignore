@@ -1,0 +1,96 @@
+
+# API keys and secrets
+.env
+.env~
+
+# llxprt-code settings
+# We want to keep the .llxprt in the root of the repo and ignore any .llxprt
+# in subdirectories. In our root .llxprt we want to allow for version control
+# for commands and skills.
+**/.llxprt/
+!/.llxprt/
+.llxprt/*
+!.llxprt/config.yaml
+!.llxprt/commands/
+!.llxprt/skills/
+!.llxprt/settings.json
+!.llxprt/LLXPRT.md
+
+# Note: .llxprt-clipboard/ is NOT in gitignore so LLxprt can access pasted images
+
+# Dependency directory
+node_modules
+bower_components
+
+# yalc local packages
+.yalc/
+**/.yalc/
+yalc.lock
+**/yalc.lock
+
+# Editors
+.idea
+*.iml
+.vscode/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# TypeScript build info files
+*.tsbuildinfo
+
+# Ignore built ts files
+dist
+
+# Docker folder to help skip auth refreshes
+.docker
+
+bundle
+
+# Test report files
+junit.xml
+junit.*.xml
+packages/*/coverage/
+
+# NPM package tarballs
+*.tgz
+
+# Generated files
+packages/cli/src/generated/
+.integration-tests/
+
+# Added by Gemini
+reports/
+prompts/
+
+# Reference directory
+reference/
+!docs/reference/
+research/
+
+# VSCode extension packages
+packages/vscode-ide-companion/*.vsix
+tmp/
+
+#Luther directory
+luther/
+
+# Stryker mutation testing temporary files
+.stryker-tmp/
+**/.stryker-tmp/
+
+# Test and debug files (should not be committed)
+test-*.txt
+test-*.sh
+debug-*.js
+temp-*
+tmp-*
+packages/core/.llxprt/debug/*.jsonl
+
+# GHA credentials
+gha-creds-*.json
+
+# Evals output
+evals/logs/
+.evals/

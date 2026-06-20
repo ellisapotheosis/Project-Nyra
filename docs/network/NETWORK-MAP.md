@@ -8,6 +8,9 @@
 | Worker (RTX 3060)   | `worker-3060.projectnyra.com`   | `100.64.0.11` | Ollama / GPU compute worker, hosts `ollama` at 11434                       |
 | Worker (RTX 5090)   | `worker-5090.projectnyra.com`   | `100.64.0.12` | vLLM / Kyutai TTS node, serves rate-sensitive inference workloads          |
 | Worker (RTX 3090Ti) | `worker-3090ti.projectnyra.com` | `100.64.0.13` | Ollama / Medium compute with GPU acceleration                              |
+| MCP (spline-mcp)    | `spline-mcp.trex-fiordland.ts.net` | TBD after registration | Spline 3D design MCP; Split DNS: `spline-mcp.projectnyra.com`; port 8779 |
+| MCP (meshy-mcp)     | `meshy-mcp.trex-fiordland.ts.net`  | TBD after registration | Meshy AI 3D gen MCP; Split DNS: `meshy-mcp.projectnyra.com`; port 8780 |
+| MCP (loki-website-mcp) | `loki-website-mcp.trex-fiordland.ts.net` | TBD after registration | Loki website builder MCP; Split DNS: `loki-website-mcp.projectnyra.com`; port 8781 |
 
 ## Cloudflare Tunnels (ratehunter.net namespace)
 

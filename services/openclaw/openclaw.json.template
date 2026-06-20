@@ -4,9 +4,19 @@
   },
   "plugins": {
     "slots": {
-      "memory": "openclaw-mem0"
+      "memory": "${OPENCLAW_MEMORY_SLOT:-openclaw-memos}"
     },
     "entries": {
+      "openclaw-memos": {
+        "enabled": true,
+        "package": "@memorytensor/openclaw-memos",
+        "config": {
+          "baseUrl": "${MEMOS_BASE_URL:-https://memos.projectnyra.com}",
+          "userId": "nyra",
+          "autoRecall": true,
+          "autoCapture": true
+        }
+      },
       "openclaw-mem0": {
         "enabled": true,
         "config": {

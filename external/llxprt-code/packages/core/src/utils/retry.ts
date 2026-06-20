@@ -1,0 +1,997 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ * @plan PLAN-20250909-TOKTRACK.P08
+ */
+
+import type { GenerateContentResponse } from '@google/genai';
+import { ApiError } from '@google/genai';
+import { DebugLogger } from '../debug/index.js';
+import { delay, createAbortError } from './delay.js';
+import { RetryableQuotaError } from './googleQuotaErrors.js';
+
+export interface HttpError extends Error {
+  status?: number;
+}
+
+export interface RetryOptions {
+  maxAttempts: number;
+  initialDelayMs: number;
+  maxDelayMs: number;
+  shouldRetryOnError: (error: Error, retryFetchErrors?: boolean) => boolean;
+  shouldRetryOnContent?: (content: GenerateContentResponse) => boolean;
+  onPersistent429?: (error?: unknown) => Promise<string | boolean | null>;
+  trackThrottleWaitTime?: (waitTimeMs: number) => void;
+  retryFetchErrors?: boolean;
+  signal?: AbortSignal;
+  /**
+   * Callback invoked on 401/403 auth errors before retry.
+   * Allows for cache invalidation and force-refresh.
+   * @fix issue1861
+   */
+  onAuthError?: (context: { errorStatus: number }) => Promise<void>;
+}
+
+const DEFAULT_RETRY_OPTIONS: RetryOptions = {
+  maxAttempts: 5,
+  initialDelayMs: 5000,
+  maxDelayMs: 30000, // 30 seconds
+  shouldRetryOnError: isRetryableError,
+};
+
+export const STREAM_INTERRUPTED_ERROR_CODE = 'LLXPRT_STREAM_INTERRUPTED';
+
+/**
+ * Network-level transient errors that are ALWAYS safe to retry.
+ * These represent infrastructure failures, not application-level errors.
+ */
+const TRANSIENT_ERROR_PHRASES = [
+  'connection error',
+  'connection terminated',
+  'terminated',
+  'connection reset',
+  'socket hang up',
+  'socket hung up',
+  'socket closed',
+  'socket timeout',
+  'network timeout',
+  'network error',
+  'request aborted',
+  'request timeout',
+  'stream closed',
+  'stream prematurely closed',
+  'read econnreset',
+  'write econnreset',
+];
+
+const TRANSIENT_ERROR_REGEXES = [
+  /econn(reset|refused|aborted)/i,
+  /etimedout/i,
+  /und_err_(socket|connect|headers_timeout|body_timeout)/i,
+  /tcp connection.*(reset|closed)/i,
+];
+
+const TRANSIENT_ERROR_CODES = new Set([
+  'ECONNRESET',
+  'ECONNREFUSED',
+  'ECONNABORTED',
+  'ENETUNREACH',
+  'EHOSTUNREACH',
+  'ENOTFOUND',
+  'ETIMEDOUT',
+  'EPIPE',
+  'EAI_AGAIN',
+  'UND_ERR_SOCKET',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_HEADERS_TIMEOUT',
+  'UND_ERR_BODY_TIMEOUT',
+  STREAM_INTERRUPTED_ERROR_CODE,
+]);
+
+function collectErrorDetails(error: unknown): {
+  messages: string[];
+  codes: string[];
+} {
+  const messages: string[] = [];
+  const codes: string[] = [];
+  const stack: unknown[] = [error];
+  const visited = new Set<unknown>();
+
+  // eslint-disable-next-line sonarjs/too-many-break-or-continue-in-loop -- Existing structure is intentionally preserved; refactoring this boundary is outside the lint slice.
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (current === null || current === undefined) {
+      continue;
+    }
+
+    if (typeof current === 'string') {
+      messages.push(current);
+      continue;
+    }
+
+    if (typeof current !== 'object') {
+      continue;
+    }
+
+    if (visited.has(current)) {
+      continue;
+    }
+    visited.add(current);
+
+    const errorObject = current as {
+      message?: unknown;
+      code?: unknown;
+      cause?: unknown;
+      originalError?: unknown;
+      error?: unknown;
+    };
+
+    if ('message' in errorObject && typeof errorObject.message === 'string') {
+      messages.push(errorObject.message);
+    }
+    if ('code' in errorObject && typeof errorObject.code === 'string') {
+      codes.push(errorObject.code);
+    }
+
+    const possibleNestedErrors = [
+      errorObject.cause,
+      errorObject.originalError,
+      errorObject.error,
+    ];
+    for (const nested of possibleNestedErrors) {
+      if (nested !== undefined && nested !== null && nested !== current) {
+        stack.push(nested);
+      }
+    }
+  }
+
+  return { messages, codes };
+}
+
+export function createStreamInterruptionError(
+  message: string,
+  details?: Record<string, unknown>,
+  cause?: unknown,
+): Error {
+  const error = new Error(message);
+  error.name = 'StreamInterruptionError';
+  (error as { code?: string }).code = STREAM_INTERRUPTED_ERROR_CODE;
+  if (details != null) {
+    (error as { details?: Record<string, unknown> }).details = details;
+  }
+  if (cause != null && (error as { cause?: unknown }).cause == null) {
+    (error as { cause?: unknown }).cause = cause;
+  }
+  return error;
+}
+
+export function getErrorCode(error: unknown): string | undefined {
+  if (typeof error === 'object' && error !== null) {
+    if (
+      'code' in error &&
+      typeof (error as { code?: unknown }).code === 'string'
+    ) {
+      return (error as { code: string }).code;
+    }
+
+    if (
+      // eslint-disable-next-line sonarjs/expression-complexity -- Existing structure is intentionally preserved; refactoring this boundary is outside the lint slice.
+      'error' in error &&
+      typeof (error as { error?: unknown }).error === 'object' &&
+      (error as { error?: unknown }).error !== null &&
+      'code' in (error as { error?: { code?: unknown } }).error! &&
+      typeof (
+        (error as { error?: { code?: unknown } }).error as {
+          code?: unknown;
+        }
+      ).code === 'string'
+    ) {
+      return (
+        (error as { error?: { code?: unknown } }).error as {
+          code?: string;
+        }
+      ).code;
+    }
+  }
+
+  return undefined;
+}
+
+export function isNetworkTransientError(error: unknown): boolean {
+  const { messages, codes } = collectErrorDetails(error);
+
+  const lowerMessages = messages.map((msg) => msg.toLowerCase());
+  if (
+    lowerMessages.some((msg) =>
+      TRANSIENT_ERROR_PHRASES.some((phrase) => msg.includes(phrase)),
+    )
+  ) {
+    return true;
+  }
+
+  if (
+    messages.some((msg) =>
+      TRANSIENT_ERROR_REGEXES.some((regex) => regex.test(msg)),
+    )
+  ) {
+    return true;
+  }
+
+  if (
+    codes
+      .map((code) => code.toUpperCase())
+      .some((code) => TRANSIENT_ERROR_CODES.has(code))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Predicate function to determine if a retry should be attempted.
+ * @plan PLAN-20250219-GMERGE021.R13.P01
+ * @requirement REQ-R13-001 Network error codes retried unconditionally
+ * @requirement REQ-R13-002 isRetryableError exported for reuse
+ *
+ * Decision precedence (CRITICAL - do not reorder):
+ * 1. Network error codes (ETIMEDOUT, ECONNRESET, etc.) → ALWAYS retry (regardless of retryFetchErrors)
+ * 2. retryFetchErrors=true + generic "fetch failed" message → retry
+ * 3. ApiError with status 400 → NEVER retry
+ * 4. ApiError or generic status 429 or 5xx → retry
+ * 5. All others → do not retry
+ *
+ * @param error The error object.
+ * @param retryFetchErrors Whether to retry generic fetch failures (default: false).
+ * @returns True if the error is retryable, false otherwise.
+ */
+export function isRetryableError(
+  error: Error | unknown,
+  retryFetchErrors?: boolean,
+): boolean {
+  // PRIORITY 1: Network error codes are ALWAYS retryable (transient infrastructure failures)
+  // This check MUST come before retryFetchErrors to ensure network errors retry unconditionally
+  if (isNetworkTransientError(error)) {
+    return true;
+  }
+
+  // PRIORITY 2: RetryableQuotaError is always retryable
+  if (error instanceof RetryableQuotaError) {
+    return true;
+  }
+
+  // PRIORITY 3: Generic "fetch failed" messages only retry when explicitly enabled
+  if (retryFetchErrors === true) {
+    const { messages } = collectErrorDetails(error);
+    if (messages.some((msg) => msg.toLowerCase().includes('fetch failed'))) {
+      return true;
+    }
+  }
+
+  // PRIORITY 4: ApiError with deterministic 400 is NEVER retryable
+  if (error instanceof ApiError) {
+    if (error.status === 400) return false;
+    return (
+      // eslint-disable-next-line sonarjs/expression-complexity -- Existing structure is intentionally preserved; refactoring this boundary is outside the lint slice.
+      error.status === 401 ||
+      error.status === 403 ||
+      error.status === 429 ||
+      (error.status >= 500 && error.status < 600)
+    );
+  }
+
+  // PRIORITY 5: Generic status-based retry (handles non-ApiError shapes)
+  const status = getErrorStatus(error);
+  if (status !== undefined) {
+    return (
+      // eslint-disable-next-line sonarjs/expression-complexity -- Existing structure is intentionally preserved; refactoring this boundary is outside the lint slice.
+      status === 401 ||
+      status === 403 ||
+      status === 429 ||
+      (status >= 500 && status < 600)
+    );
+  }
+
+  return false;
+}
+
+/**
+ * Retries a function with exponential backoff and jitter.
+ * @param fn The asynchronous function to retry.
+ * @param options Optional retry configuration.
+ * @returns A promise that resolves with the result of the function if successful.
+ * @throws The last error encountered if all attempts fail.
+ */
+/** State tracked across retry loop iterations. */
+interface RetryLoopState {
+  attempt: number;
+  currentDelay: number;
+  consecutive429s: number;
+  consecutiveAuthErrors: number;
+}
+
+/** Classifies an error into categories used by retry logic. */
+function classifyError(error: unknown) {
+  const errorStatus = getErrorStatus(error);
+  const isOverload = isOverloadError(error);
+  const is429 = errorStatus === 429 || isOverload;
+  const is402 = errorStatus === 402;
+  const isAuthError = errorStatus === 401 || errorStatus === 403;
+  const is500 =
+    errorStatus !== undefined && errorStatus >= 500 && errorStatus < 600;
+  return { errorStatus, isOverload, is429, is402, isAuthError, is500 };
+}
+
+/**
+ * Handle content-based retry decision (when shouldRetryOnContent returns true).
+ * Returns true if the caller should `continue` the loop.
+ */
+async function handleContentRetry<T>(
+  result: T,
+  shouldRetryOnContent:
+    | ((content: GenerateContentResponse) => boolean)
+    | undefined,
+  state: RetryLoopState,
+  maxDelayMs: number,
+  initialDelayMs: number,
+  signal?: AbortSignal,
+): Promise<boolean> {
+  if (shouldRetryOnContent?.(result as GenerateContentResponse) !== true) {
+    return false;
+  }
+  const jitter = state.currentDelay * 0.3 * (Math.random() * 2 - 1);
+  const delayWithJitter = Math.max(0, state.currentDelay + jitter);
+  await delay(delayWithJitter, signal);
+  state.currentDelay = Math.min(maxDelayMs, state.currentDelay * 2);
+  return true;
+}
+
+/**
+ * Updates consecutive error counters and returns refresh-retry flag.
+ */
+function updateErrorCounters(
+  is429: boolean,
+  isAuthError: boolean,
+  canAttemptFailover: boolean,
+  failoverThreshold: number,
+  state: RetryLoopState,
+  logger: DebugLogger,
+): { shouldAttemptRefreshRetry: boolean } {
+  if (is429) {
+    state.consecutive429s++;
+    logger.debug(
+      () =>
+        `429 error detected, consecutive count: ${state.consecutive429s}/${failoverThreshold}`,
+    );
+  } else {
+    state.consecutive429s = 0;
+  }
+
+  if (isAuthError) {
+    state.consecutiveAuthErrors++;
+  } else {
+    state.consecutiveAuthErrors = 0;
+  }
+
+  const shouldAttemptRefreshRetry =
+    isAuthError && canAttemptFailover && state.consecutiveAuthErrors === 1;
+
+  return { shouldAttemptRefreshRetry };
+}
+
+/**
+ * Invoke onAuthError callback if applicable (first auth error in sequence, another attempt remains).
+ */
+async function invokeAuthErrorCallback(
+  isAuthError: boolean,
+  consecutiveAuthErrors: number,
+  options: Partial<RetryOptions> | undefined,
+  attempt: number,
+  maxAttempts: number,
+  errorStatus: number | undefined,
+  logger: DebugLogger,
+): Promise<void> {
+  if (
+    !isAuthError ||
+    consecutiveAuthErrors !== 1 ||
+    !options?.onAuthError ||
+    attempt >= maxAttempts
+  ) {
+    return;
+  }
+  try {
+    logger.debug(
+      () =>
+        `Calling onAuthError callback for status ${errorStatus} before retry`,
+    );
+    await options.onAuthError({ errorStatus: errorStatus ?? 401 });
+  } catch (handlerError) {
+    logger.debug(
+      () =>
+        `onAuthError callback failed, continuing with retry: ${handlerError}`,
+    );
+  }
+}
+
+/**
+ * Attempt bucket failover if conditions are met.
+ * Returns 'continue' (reset state, decrement attempt, loop),
+ * 'throw' (no more buckets), or 'proceed' (continue with normal retry).
+ */
+async function attemptFailover(
+  error: unknown,
+  is429: boolean,
+  is402: boolean,
+  isAuthError: boolean,
+  errorStatus: number | undefined,
+  options: Partial<RetryOptions> | undefined,
+  state: RetryLoopState,
+  initialDelayMs: number,
+  failoverThreshold: number,
+  logger: DebugLogger,
+): Promise<'continue' | 'throw' | 'proceed'> {
+  const canAttemptFailover = Boolean(options?.onPersistent429);
+  const thresholdReached = is429 && state.consecutive429s >= failoverThreshold;
+  const authFailoverReached = isAuthError && state.consecutiveAuthErrors > 1;
+  const shouldAttemptFailover =
+    canAttemptFailover && (thresholdReached || is402 || authFailoverReached);
+
+  logger.debug(
+    () =>
+      `[issue1029] Failover decision: errorStatus=${errorStatus}, is429=${is429}, is402=${is402}, isAuthError=${isAuthError}, ` +
+      `consecutive429s=${state.consecutive429s}, consecutiveAuthErrors=${state.consecutiveAuthErrors}, ` +
+      `canAttemptFailover=${canAttemptFailover}, shouldAttemptFailover=${shouldAttemptFailover}`,
+  );
+
+  if (!shouldAttemptFailover || !options?.onPersistent429) {
+    if (is429 && !canAttemptFailover) {
+      logger.debug(
+        () =>
+          `[issue1029] Got 429 error but canAttemptFailover=false (no onPersistent429 callback). ` +
+          `This means bucket failover is not wired for this request.`,
+      );
+    }
+    return 'proceed';
+  }
+
+  const failoverReason = is429
+    ? `${state.consecutive429s} consecutive 429 errors`
+    : `status ${errorStatus}`;
+  logger.debug(() => `Attempting bucket failover after ${failoverReason}`);
+  const failoverResult = await options.onPersistent429(error);
+
+  logger.debug(
+    () =>
+      `[issue1029] onPersistent429 callback returned: ${failoverResult ?? 'null (no handler)'}`,
+  );
+
+  if (failoverResult === true || typeof failoverResult === 'string') {
+    logger.debug(() => `Bucket failover successful, resetting retry state`);
+    state.consecutive429s = 0;
+    state.consecutiveAuthErrors = 0;
+    state.currentDelay = initialDelayMs;
+    state.attempt--;
+    return 'continue';
+  }
+  if (failoverResult === false) {
+    logger.debug(
+      () => `No more buckets available for failover, stopping retry`,
+    );
+    return 'throw';
+  }
+  logger.debug(
+    () =>
+      `[issue1029] Failover returned null - no failover handler configured, continuing with normal retry`,
+  );
+  return 'proceed';
+}
+
+/**
+ * Check whether we should stop retrying (max attempts) and throw if so.
+ * Returns true if the caller should continue with delay logic.
+ */
+function checkMaxAttemptsAndThrow(
+  error: unknown,
+  classifiedError: unknown,
+  is500: boolean,
+  isRetryableQuotaError: boolean,
+  attempt: number,
+  maxAttempts: number,
+  shouldAttemptRefreshRetry: boolean,
+  logger: DebugLogger,
+): 'throw' | 'decrement-and-continue' | 'continue' {
+  if (
+    (isRetryableQuotaError || is500) &&
+    attempt >= maxAttempts &&
+    !shouldAttemptRefreshRetry
+  ) {
+    const errorMessage =
+      classifiedError instanceof Error ? classifiedError.message : '';
+    logger.warn(
+      () =>
+        `Attempt ${attempt} failed${errorMessage ? `: ${errorMessage}` : ''}. Max attempts reached`,
+    );
+    return 'throw';
+  }
+
+  if (attempt >= maxAttempts && !shouldAttemptRefreshRetry) {
+    return 'throw';
+  }
+
+  if (attempt >= maxAttempts && shouldAttemptRefreshRetry) {
+    return 'decrement-and-continue';
+  }
+
+  return 'continue';
+}
+
+/**
+ * Handle RetryableQuotaError with explicit retryDelayMs.
+ * Returns true if the error was handled (caller should `continue`).
+ */
+async function handleQuotaErrorRetry(
+  classifiedError: unknown,
+  options: Partial<RetryOptions> | undefined,
+  state: RetryLoopState,
+  initialDelayMs: number,
+  signal: AbortSignal | undefined,
+  logger: DebugLogger,
+): Promise<boolean> {
+  if (
+    !(classifiedError instanceof RetryableQuotaError) ||
+    classifiedError.retryDelayMs === undefined
+  ) {
+    return false;
+  }
+  logger.warn(
+    () =>
+      `Attempt ${state.attempt} failed: ${classifiedError.message}. Retrying after ${classifiedError.retryDelayMs}ms...`,
+  );
+  await delay(classifiedError.retryDelayMs, signal);
+  if (options?.trackThrottleWaitTime) {
+    options.trackThrottleWaitTime(classifiedError.retryDelayMs);
+  }
+  state.currentDelay = initialDelayMs;
+  return true;
+}
+
+/** Track throttle wait time if the callback is configured. */
+function trackThrottle(
+  options: Partial<RetryOptions> | undefined,
+  waitTimeMs: number,
+  source: string,
+  logger: DebugLogger,
+): void {
+  if (options?.trackThrottleWaitTime) {
+    logger.debug(
+      () => `Tracking throttle wait time from ${source}: ${waitTimeMs}ms`,
+    );
+    options.trackThrottleWaitTime(waitTimeMs);
+  }
+}
+
+/**
+ * Apply the appropriate delay strategy (Retry-After header or exponential backoff).
+ */
+async function applyDelay(
+  error: unknown,
+  errorStatus: number | undefined,
+  attempt: number,
+  state: RetryLoopState,
+  maxDelayMs: number,
+  initialDelayMs: number,
+  options: Partial<RetryOptions> | undefined,
+  signal: AbortSignal | undefined,
+  logger: DebugLogger,
+): Promise<void> {
+  const { delayDurationMs, errorStatus: delayErrorStatus } =
+    getDelayDurationAndStatus(error);
+
+  if (delayDurationMs > 0) {
+    logger.debug(
+      () =>
+        `Attempt ${attempt} failed with status ${delayErrorStatus ?? 'unknown'}. Retrying after explicit delay of ${delayDurationMs}ms... Error: ${error}`,
+    );
+    await delay(delayDurationMs, signal);
+    trackThrottle(options, delayDurationMs, 'Retry-After header', logger);
+    state.currentDelay = initialDelayMs;
+  } else {
+    logRetryAttempt(attempt, error, errorStatus);
+    const jitter = state.currentDelay * 0.3 * (Math.random() * 2 - 1);
+    const delayWithJitter = Math.max(0, state.currentDelay + jitter);
+    await delay(delayWithJitter, signal);
+    trackThrottle(options, delayWithJitter, 'exponential backoff', logger);
+    state.currentDelay = Math.min(maxDelayMs, state.currentDelay * 2);
+  }
+}
+
+interface RetryContext {
+  maxAttempts: number;
+  initialDelayMs: number;
+  maxDelayMs: number;
+  shouldRetryOnError: (error: Error, retryFetchErrors?: boolean) => boolean;
+  retryFetchErrors: boolean | undefined;
+  signal: AbortSignal | undefined;
+  options: Partial<RetryOptions> | undefined;
+  logger: DebugLogger;
+  failoverThreshold: number;
+}
+
+async function runRetryGuards(
+  error: unknown,
+  state: RetryLoopState,
+  context: RetryContext,
+  classified: ReturnType<typeof classifyError>,
+  shouldAttemptRefreshRetry: boolean,
+): Promise<void> {
+  await invokeAuthErrorCallback(
+    classified.isAuthError,
+    state.consecutiveAuthErrors,
+    context.options,
+    state.attempt,
+    context.maxAttempts,
+    classified.errorStatus,
+    context.logger,
+  );
+
+  const failoverAction = await attemptFailover(
+    error,
+    classified.is429,
+    classified.is402,
+    classified.isAuthError,
+    classified.errorStatus,
+    context.options,
+    state,
+    context.initialDelayMs,
+    context.failoverThreshold,
+    context.logger,
+  );
+  if (failoverAction === 'continue') {
+    return;
+  }
+  if (failoverAction === 'throw') {
+    throw error;
+  }
+
+  const shouldRetry = context.shouldRetryOnError(
+    error as Error,
+    context.retryFetchErrors,
+  );
+  if (shouldRetry !== true && !shouldAttemptRefreshRetry) {
+    throw error;
+  }
+
+  const maxAction = checkMaxAttemptsAndThrow(
+    error,
+    error,
+    classified.is500,
+    error instanceof RetryableQuotaError,
+    state.attempt,
+    context.maxAttempts,
+    shouldAttemptRefreshRetry,
+    context.logger,
+  );
+  if (maxAction === 'throw') {
+    throw error;
+  }
+  if (maxAction === 'decrement-and-continue') {
+    state.attempt--;
+  }
+}
+
+async function handleRetryFailure(
+  error: unknown,
+  state: RetryLoopState,
+  context: RetryContext,
+): Promise<void> {
+  if (error instanceof Error && error.name === 'AbortError') {
+    throw error;
+  }
+
+  const classified = classifyError(error);
+  const { shouldAttemptRefreshRetry } = updateErrorCounters(
+    classified.is429,
+    classified.isAuthError,
+    context.options?.onPersistent429 !== undefined,
+    context.failoverThreshold,
+    state,
+    context.logger,
+  );
+
+  if (shouldAttemptRefreshRetry) {
+    context.logger.debug(
+      () =>
+        `401/403 error detected, retrying once to allow refresh before bucket failover`,
+    );
+  }
+
+  await runRetryGuards(
+    error,
+    state,
+    context,
+    classified,
+    shouldAttemptRefreshRetry,
+  );
+
+  if (
+    await handleQuotaErrorRetry(
+      error,
+      context.options,
+      state,
+      context.initialDelayMs,
+      context.signal,
+      context.logger,
+    )
+  ) {
+    return;
+  }
+
+  await applyDelay(
+    error,
+    classified.errorStatus,
+    state.attempt,
+    state,
+    context.maxDelayMs,
+    context.initialDelayMs,
+    context.options,
+    context.signal,
+    context.logger,
+  );
+}
+
+export async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  options?: Partial<RetryOptions>,
+): Promise<T> {
+  if (options?.signal?.aborted === true) {
+    throw createAbortError();
+  }
+
+  if (options?.maxAttempts !== undefined && options.maxAttempts <= 0) {
+    throw new Error('maxAttempts must be a positive number.');
+  }
+
+  const cleanOptions = Object.fromEntries(
+    Object.entries((options ?? {}) as Record<string, unknown>).filter(
+      ([, value]) => value !== undefined,
+    ),
+  ) as Partial<RetryOptions>;
+
+  const {
+    maxAttempts,
+    initialDelayMs,
+    maxDelayMs,
+    shouldRetryOnError,
+    shouldRetryOnContent,
+    retryFetchErrors,
+    signal,
+  } = {
+    ...DEFAULT_RETRY_OPTIONS,
+    ...cleanOptions,
+  };
+
+  const logger = new DebugLogger('llxprt:retry');
+  const context: RetryContext = {
+    maxAttempts,
+    initialDelayMs,
+    maxDelayMs,
+    shouldRetryOnError,
+    retryFetchErrors,
+    signal,
+    options,
+    logger,
+    failoverThreshold: 1,
+  };
+  const state: RetryLoopState = {
+    attempt: 0,
+    currentDelay: initialDelayMs,
+    consecutive429s: 0,
+    consecutiveAuthErrors: 0,
+  };
+
+  while (state.attempt < maxAttempts) {
+    if (signal?.aborted === true) {
+      throw createAbortError();
+    }
+    state.attempt++;
+    try {
+      const result = await fn();
+      state.consecutive429s = 0;
+      state.consecutiveAuthErrors = 0;
+
+      if (
+        await handleContentRetry(
+          result,
+          shouldRetryOnContent,
+          state,
+          maxDelayMs,
+          initialDelayMs,
+          signal,
+        )
+      ) {
+        continue;
+      }
+
+      return result;
+    } catch (error) {
+      await handleRetryFailure(error, state, context);
+    }
+  }
+  throw new Error('Retry attempts exhausted');
+}
+
+/**
+ * Determines if an error is an Anthropic overloaded_error or rate_limit_error.
+ * Anthropic returns overloaded_error and rate_limit_error as error types (not HTTP status):
+ * {"type":"error","error":{"type":"overloaded_error","message":"Overloaded"}}
+ * {"type":"error","error":{"type":"rate_limit_error","message":"Rate limited"}}
+ * @param error The error object.
+ * @returns True if the error is an overloaded_error or rate_limit_error, false otherwise.
+ */
+export function isOverloadError(error: unknown): boolean {
+  if (error !== null && error !== undefined && typeof error === 'object') {
+    const errorObj = error as {
+      error?: { type?: string; message?: string };
+      type?: string;
+    };
+    const errorType = errorObj.error?.type ?? errorObj.type;
+    return errorType === 'overloaded_error' || errorType === 'rate_limit_error';
+  }
+  return false;
+}
+
+/**
+ * Extracts the HTTP status code from an error object.
+ * @param error The error object.
+ * @returns The HTTP status code, or undefined if not found.
+ */
+export function getErrorStatus(error: unknown): number | undefined {
+  if (typeof error === 'object' && error !== null) {
+    if ('status' in error && typeof error.status === 'number') {
+      return error.status;
+    }
+    // Check for error.response.status (common in axios errors)
+    if (
+      'response' in error &&
+      typeof (error as { response?: unknown }).response === 'object' &&
+      (error as { response?: unknown }).response !== null
+    ) {
+      const response = (
+        error as { response: { status?: unknown; headers?: unknown } }
+      ).response;
+      if ('status' in response && typeof response.status === 'number') {
+        return response.status;
+      }
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Extracts the Retry-After delay from an error object's headers.
+ * @param error The error object.
+ * @returns The delay in milliseconds, or 0 if not found or invalid.
+ */
+function getRetryAfterDelayMs(error: unknown): number {
+  // Check for error.response.headers (common in axios errors)
+  if (
+    // eslint-disable-next-line sonarjs/expression-complexity -- Existing structure is intentionally preserved; refactoring this boundary is outside the lint slice.
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error &&
+    typeof (error as { response?: unknown }).response === 'object' &&
+    (error as { response?: unknown }).response !== null
+  ) {
+    const response = (error as { response: { headers?: unknown } }).response;
+    if (
+      'headers' in response &&
+      typeof response.headers === 'object' &&
+      response.headers !== null
+    ) {
+      const headers = response.headers as {
+        'retry-after'?: unknown;
+        get?: (name: string) => string | null;
+      };
+      // Support both plain object and Fetch Headers API
+      const retryAfterHeader =
+        typeof headers.get === 'function'
+          ? headers.get('retry-after')
+          : headers['retry-after'];
+      if (typeof retryAfterHeader === 'string') {
+        const retryAfterSeconds = parseInt(retryAfterHeader, 10);
+        // eslint-disable-next-line sonarjs/nested-control-flow -- Existing structure is intentionally preserved; refactoring this boundary is outside the lint slice.
+        if (!isNaN(retryAfterSeconds)) {
+          return retryAfterSeconds * 1000;
+        }
+        // It might be an HTTP date
+        const retryAfterDate = new Date(retryAfterHeader);
+        // eslint-disable-next-line sonarjs/nested-control-flow -- Existing structure is intentionally preserved; refactoring this boundary is outside the lint slice.
+        if (!isNaN(retryAfterDate.getTime())) {
+          return Math.max(0, retryAfterDate.getTime() - Date.now());
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+/**
+ * Determines the delay duration based on the error, prioritizing Retry-After header.
+ * @param error The error object.
+ * @returns An object containing the delay duration in milliseconds and the error status.
+ */
+function getDelayDurationAndStatus(error: unknown): {
+  delayDurationMs: number;
+  errorStatus: number | undefined;
+} {
+  const errorStatus = getErrorStatus(error);
+  const isOverload = isOverloadError(error);
+  let delayDurationMs = 0;
+
+  if (errorStatus === 429 || isOverload) {
+    delayDurationMs = getRetryAfterDelayMs(error);
+  }
+  return { delayDurationMs, errorStatus };
+}
+
+/**
+ * Logs a message for a retry attempt when using exponential backoff.
+ * @param attempt The current attempt number.
+ * @param error The error that caused the retry.
+ * @param errorStatus The HTTP status code of the error, if available.
+ */
+function logRetryAttempt(
+  attempt: number,
+  error: unknown,
+  errorStatus?: number,
+): void {
+  const logger = new DebugLogger('llxprt:retry');
+  let message = `Attempt ${attempt} failed. Retrying with backoff...`;
+  if (errorStatus !== undefined && errorStatus !== 0) {
+    message = `Attempt ${attempt} failed with status ${errorStatus}. Retrying with backoff...`;
+  }
+
+  if (errorStatus === 429) {
+    logger.debug(() => `${message} Error: ${error}`);
+  } else if (
+    errorStatus !== undefined &&
+    errorStatus !== 0 &&
+    errorStatus >= 500 &&
+    errorStatus < 600
+  ) {
+    logger.error(() => `${message} Error: ${error}`);
+  } else if (error instanceof Error) {
+    // Fallback for errors that might not have a status but have a message
+    if (error.message.includes('429')) {
+      logger.debug(
+        () =>
+          `Attempt ${attempt} failed with 429 error (no Retry-After header). Retrying with backoff... Error: ${error}`,
+      );
+    } else if (error.message.match(/5\d{2}/)) {
+      logger.error(
+        () =>
+          `Attempt ${attempt} failed with 5xx error. Retrying with backoff... Error: ${error}`,
+      );
+    } else {
+      logger.debug(() => `${message} Error: ${error}`); // Default to debug for other errors
+    }
+  } else {
+    logger.debug(() => `${message} Error: ${error}`); // Default to debug if error type is unknown
+  }
+}
+
+// @plan marker: PLAN-20250909-TOKTRACK.P05
+
+/**
+ * Error indicating a model was not found (HTTP 404).
+ * Used by googleQuotaErrors to classify 404 responses.
+ */
+export class ModelNotFoundError extends Error {
+  code: number;
+  constructor(message: string, code?: number) {
+    super(message);
+    this.name = 'ModelNotFoundError';
+    this.code = code ?? 404;
+  }
+}

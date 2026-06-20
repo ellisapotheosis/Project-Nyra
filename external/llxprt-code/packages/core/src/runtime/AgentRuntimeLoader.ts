@@ -1,0 +1,303 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { HistoryService } from '../services/history/HistoryService.js';
+import type { Config } from '../config/config.js';
+import type { ToolRegistry } from '../tools/tool-registry.js';
+import type { RuntimeProviderManager } from './contracts/RuntimeProviderManager.js';
+import type { RuntimeProviderManager as IRuntimeProviderManager } from './contracts/RuntimeProviderManager.js';
+import {
+  createProviderAdapterFromManager,
+  createTelemetryAdapterFromConfig,
+} from './runtimeAdapters.js';
+import type {
+  AgentRuntimeContext,
+  AgentRuntimeProviderAdapter,
+  AgentRuntimeTelemetryAdapter,
+  ToolRegistryView,
+  ReadonlySettingsSnapshot,
+} from './AgentRuntimeContext.js';
+import type { AgentRuntimeState } from './AgentRuntimeState.js';
+import { createAgentRuntimeContext } from './createAgentRuntimeContext.js';
+import type { ProviderRuntimeContext } from './providerRuntimeContext.js';
+import {
+  createContentGenerator,
+  type ContentGenerator,
+  type ContentGeneratorConfig,
+} from '../core/contentGenerator.js';
+import { normalizeToolName } from '../tools/toolNameUtils.js';
+
+export interface AgentRuntimeProfileSnapshot {
+  config: Config;
+  state: AgentRuntimeState;
+  settings: ReadonlySettingsSnapshot;
+  providerRuntime: ProviderRuntimeContext;
+  contentGeneratorConfig?: ContentGeneratorConfig;
+  toolRegistry?: ToolRegistry;
+  providerManager?: RuntimeProviderManager | IRuntimeProviderManager;
+}
+
+export interface AgentRuntimeLoaderOverrides {
+  providerAdapter?: AgentRuntimeProviderAdapter;
+  telemetryAdapter?: AgentRuntimeTelemetryAdapter;
+  toolsView?: ToolRegistryView;
+  historyService?: HistoryService;
+  contentGenerator?: ContentGenerator;
+  contentGeneratorFactory?: ContentGeneratorFactory;
+}
+
+export interface AgentRuntimeLoaderOptions {
+  profile: AgentRuntimeProfileSnapshot;
+  overrides?: AgentRuntimeLoaderOverrides;
+  signal?: AbortSignal;
+}
+
+export interface AgentRuntimeLoaderResult {
+  runtimeContext: AgentRuntimeContext;
+  history: HistoryService;
+  providerAdapter: AgentRuntimeProviderAdapter;
+  telemetryAdapter: AgentRuntimeTelemetryAdapter;
+  toolsView: ToolRegistryView;
+  contentGenerator: ContentGenerator;
+  toolRegistry?: ToolRegistry;
+  settingsSnapshot?: ReadonlySettingsSnapshot;
+}
+
+export type ContentGeneratorFactory = (
+  config: ContentGeneratorConfig,
+  context: Config,
+  sessionId: string,
+) => Promise<ContentGenerator>;
+
+const defaultContentGeneratorFactory: ContentGeneratorFactory = (
+  contentConfig,
+  config,
+  sessionId,
+) => createContentGenerator(contentConfig, config, sessionId);
+
+function hydrateContentGeneratorConfig(
+  profile: AgentRuntimeProfileSnapshot,
+  contentConfig: ContentGeneratorConfig,
+): ContentGeneratorConfig {
+  const providerManager =
+    contentConfig.providerManager ??
+    profile.providerManager ??
+    profile.config.getProviderManager();
+  const configFactory =
+    providerManager == null
+      ? undefined
+      : profile.config.getContentGeneratorFactory();
+  const contentGeneratorFactory =
+    contentConfig.contentGeneratorFactory ?? configFactory;
+
+  if (providerManager == null) {
+    return contentConfig;
+  }
+
+  return {
+    ...contentConfig,
+    providerManager,
+    ...(contentGeneratorFactory == null ? {} : { contentGeneratorFactory }),
+  };
+}
+
+type ToolGovernance = {
+  allowed: Set<string>;
+  disabled: Set<string>;
+  excluded: Set<string>;
+};
+
+function buildToolGovernance(
+  profile: AgentRuntimeProfileSnapshot,
+): ToolGovernance {
+  const allowedRaw = Array.isArray(profile.settings.tools?.allowed)
+    ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Agent runtime loader config data.
+      profile.settings.tools?.allowed
+    : undefined;
+  const disabledRaw = Array.isArray(profile.settings.tools?.disabled)
+    ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Agent runtime loader config data.
+      profile.settings.tools?.disabled
+    : undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Agent runtime loader config data.
+  const excludedRaw = profile.config.getExcludeTools?.() ?? [];
+
+  return {
+    allowed: new Set(
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: normalizeToolName returns string, empty string should fall through to original tool name
+      (allowedRaw ?? []).map((tool) => normalizeToolName(tool) || tool),
+    ),
+    disabled: new Set(
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: normalizeToolName returns string, empty string should fall through to original tool name
+      (disabledRaw ?? []).map((tool) => normalizeToolName(tool) || tool),
+    ),
+    excluded: new Set(
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: normalizeToolName returns string, empty string should fall through to original tool name
+      excludedRaw.map((tool) => normalizeToolName(tool) || tool),
+    ),
+  };
+}
+
+function isToolPermitted(
+  toolName: string,
+  governance: ToolGovernance,
+): boolean {
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: normalizeToolName returns string, empty string should fall through to original toolName
+  const canonical = normalizeToolName(toolName) || toolName;
+  if (governance.excluded.has(canonical)) {
+    return false;
+  }
+  if (governance.disabled.has(canonical)) {
+    return false;
+  }
+  if (governance.allowed.size > 0 && !governance.allowed.has(canonical)) {
+    return false;
+  }
+  return true;
+}
+
+function createFilteredToolRegistryView(
+  registry: ToolRegistry | undefined,
+  governance: ToolGovernance,
+): ToolRegistryView {
+  if (!registry) {
+    return {
+      listToolNames: () => [],
+      getToolMetadata: () => undefined,
+    };
+  }
+
+  const getTools = (): ReturnType<ToolRegistry['getAllTools']> =>
+    registry.getAllTools();
+
+  return {
+    listToolNames: () =>
+      getTools()
+        .filter((tool) => isToolPermitted(tool.name, governance))
+        .map((tool) => tool.name),
+    getToolMetadata: (name) => {
+      if (!isToolPermitted(name, governance)) {
+        return undefined;
+      }
+      const tool = getTools().find((candidate) => candidate.name === name);
+      if (!tool) {
+        return undefined;
+      }
+      const schema = (tool as unknown as { schema?: Record<string, unknown> })
+        .schema;
+      const description = resolveToolDescriptionFromSchema(tool, schema);
+      const runtimeSchema = schema as
+        | { parametersJsonSchema?: Record<string, unknown> }
+        | undefined;
+      const parameterSchema = runtimeSchema?.parametersJsonSchema;
+
+      return {
+        name: (tool as { name?: string }).name ?? name,
+        description,
+        parameterSchema,
+      };
+    },
+  };
+}
+
+/**
+ * Helper function to resolve tool description from schema or tool object.
+ */
+function resolveToolDescriptionFromSchema(
+  tool: unknown,
+  schema: Record<string, unknown> | undefined,
+): string {
+  if (typeof schema?.description === 'string') {
+    return schema.description;
+  }
+  if (typeof (tool as { description?: string }).description === 'string') {
+    return (tool as { description: string }).description;
+  }
+  return '';
+}
+
+export async function loadAgentRuntime(
+  options: AgentRuntimeLoaderOptions,
+): Promise<AgentRuntimeLoaderResult> {
+  const { profile, overrides = {}, signal } = options;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Agent runtime loader config data.
+  if (profile == null) {
+    throw new Error('AgentRuntimeLoader requires a profile option.');
+  }
+
+  if (signal?.aborted === true) {
+    const error = new Error('Runtime load aborted');
+    error.name = 'AbortError';
+    throw error;
+  }
+
+  const history = overrides.historyService ?? new HistoryService();
+
+  const providerAdapter: AgentRuntimeProviderAdapter =
+    overrides.providerAdapter ??
+    createProviderAdapterFromManager(
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Agent runtime loader config data.
+      profile.providerManager ?? profile.config.getProviderManager?.(),
+    );
+
+  const telemetryAdapter: AgentRuntimeTelemetryAdapter =
+    overrides.telemetryAdapter ??
+    createTelemetryAdapterFromConfig(profile.config);
+
+  const governance = buildToolGovernance(profile);
+  const toolsView: ToolRegistryView =
+    overrides.toolsView ??
+    createFilteredToolRegistryView(
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Agent runtime loader config data.
+      profile.toolRegistry ?? profile.config.getToolRegistry?.(),
+      governance,
+    );
+
+  const runtimeContext = createAgentRuntimeContext({
+    state: profile.state,
+    settings: profile.settings,
+    provider: providerAdapter,
+    telemetry: telemetryAdapter,
+    tools: toolsView,
+    history,
+    providerRuntime: profile.providerRuntime,
+  });
+
+  let contentGenerator: ContentGenerator;
+  if (overrides.contentGenerator) {
+    contentGenerator = overrides.contentGenerator;
+  } else {
+    const contentConfig = profile.contentGeneratorConfig;
+    if (!contentConfig) {
+      throw new Error(
+        'AgentRuntimeLoader requires contentGeneratorConfig when no contentGenerator override is supplied.',
+      );
+    }
+
+    const hydratedConfig = hydrateContentGeneratorConfig(
+      profile,
+      contentConfig,
+    );
+
+    const factory =
+      overrides.contentGeneratorFactory ?? defaultContentGeneratorFactory;
+    contentGenerator = await factory(
+      hydratedConfig,
+      profile.config,
+      profile.state.sessionId,
+    );
+  }
+
+  return {
+    runtimeContext,
+    history,
+    providerAdapter,
+    telemetryAdapter,
+    toolsView,
+    contentGenerator,
+    toolRegistry: profile.toolRegistry,
+    settingsSnapshot: profile.settings,
+  };
+}

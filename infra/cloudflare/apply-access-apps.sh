@@ -60,7 +60,12 @@ make_payload() {
           include: [
             {email: {email: "ellisandersen@ratehunter.com"}},
             {email: {email: "apotheosis@ratehunter.com"}},
-            {email: {email: "edaneandersen@gmail.com"}}
+            {email: {email: "edaneandersen@gmail.com"}},
+            {email: {email: "andersenj949@gmail.com"}},
+            {email_domain: {domain: "ratehunter.com"}},
+            {email_domain: {domain: "ratehunter.net"}},
+            {email_domain: {domain: "monitapu.com"}},
+            {any_valid_service_token: {}}
           ],
           exclude: [],
           require: []
@@ -84,9 +89,13 @@ make_payload() {
           precedence: 1,
           include: [
             {email_domain: {domain: "ratehunter.com"}},
+            {email_domain: {domain: "ratehunter.net"}},
             {email_domain: {domain: "westcaplending.com"}},
             {email_domain: {domain: "westcapitallending.com"}},
-            {email: {email: "edaneandersen@gmail.com"}}
+            {email_domain: {domain: "monitapu.com"}},
+            {email: {email: "edaneandersen@gmail.com"}},
+            {email: {email: "andersenj949@gmail.com"}},
+            {any_valid_service_token: {}}
           ],
           exclude: [],
           require: []
@@ -111,6 +120,11 @@ Nyra Oracle Portainer	portainer-oracle.projectnyra.com	owner
 Nyra Links	links.projectnyra.com	team
 Nyra Linkwarden Alias	linkwarden.projectnyra.com	team
 Nyra OpenClaw Gateway	openclaw-gateway.projectnyra.com	team
+Nyra Agent Vault	infisical.projectnyra.com	team
+Nyra Agent Vault	agent-vault.projectnyra.com	team
+Nyra Letta Memory	letta.projectnyra.com	team
+Nyra Nexus Router MCP	nexus-router.projectnyra.com	team
+Nyra Composio	composio.projectnyra.com	team
 EOF
 
 current="$(api GET "/accounts/${ACCOUNT_ID}/access/apps?per_page=500")"
