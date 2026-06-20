@@ -12,7 +12,7 @@ interface ChatMessage {
 }
 
 const DEFAULT_GREETING =
-  "Hi, I am Nyra. I can help explain mortgage options, required documents, and next steps.";
+  "Hi, I am your personal mortgage assistant. I can help explain mortgage options, required documents, and next steps.";
 
 const DEFAULT_QUICK_PROMPTS = [
   "What documents do I need for pre-approval?",
@@ -104,7 +104,7 @@ export function BorrowerChatWidget() {
         <section className="w-[min(92vw,380px)] rounded-[1.8rem] border border-[rgba(13,83,120,0.18)] bg-[rgba(10,28,45,0.96)] shadow-2xl backdrop-blur">
           <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
             <div>
-              <p className="text-sm font-semibold text-[#f6d6c2]">Ask Nyra</p>
+              <p className="text-sm font-semibold text-[#f6d6c2]">Ask AI</p>
               <p className="text-xs text-white/60">Borrower assistant</p>
             </div>
             <button
@@ -137,7 +137,7 @@ export function BorrowerChatWidget() {
               </div>
             ))}
             {isLoading ? (
-              <p className="text-xs text-white/55">Nyra is typing...</p>
+              <p className="text-xs text-white/55">Assistant is typing...</p>
             ) : null}
           </div>
 
@@ -178,7 +178,7 @@ export function BorrowerChatWidget() {
           onClick={() => setOpen(true)}
           className="rounded-full border border-[rgba(13,83,120,0.18)] bg-[var(--brand-deep)] px-5 py-3 text-sm font-semibold text-white shadow-lg"
         >
-          Ask Nyra
+          Ask AI
         </button>
       )}
     </div>
