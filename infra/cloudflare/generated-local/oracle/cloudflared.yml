@@ -44,6 +44,12 @@ ingress:
     service: http://paperclip:3100
   - hostname: clawteam.projectnyra.com
     service: http://clawteam:8080
+  - hostname: agent-vault.projectnyra.com
+    service: http://agent-vault:8080
+  - hostname: infisical.projectnyra.com
+    service: http://agent-vault:8080
+  - hostname: letta.projectnyra.com
+    service: http://letta:8283
   - hostname: portainer-oracle.projectnyra.com
     service: https://portainer:9443
     originRequest:

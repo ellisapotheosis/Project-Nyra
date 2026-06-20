@@ -1,0 +1,562 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import type {
+  Settings,
+  SettingScope,
+  LoadedSettings,
+} from '../config/settings.js';
+import { dynamicSettingsRegistry } from './dynamicSettings.js';
+import type {
+  SettingDefinition,
+  SettingsSchema,
+} from '../config/settingsSchema.js';
+import { SETTINGS_SCHEMA } from '../config/settingsSchema.js';
+import { getV2NamespacedSettingPath } from '../config/settingsMerge.js';
+
+// The schema is now nested, but many parts of the UI and logic work better
+// with a flattened structure and dot-notation keys. This section flattens the
+// schema into a map for easier lookups.
+
+type FlattenedSettingDefinition = SettingDefinition & { key: string };
+
+type FlattenedSettingsSchema = Record<
+  string,
+  FlattenedSettingDefinition | undefined
+>;
+
+function flattenSchema(
+  schema: SettingsSchema,
+  prefix = '',
+): FlattenedSettingsSchema {
+  let result: FlattenedSettingsSchema = {};
+  for (const [key, definition] of Object.entries(schema)) {
+    const newKey = prefix ? `${prefix}.${key}` : key;
+    result[newKey] = { ...definition, key: newKey };
+    if (definition.properties) {
+      result = { ...result, ...flattenSchema(definition.properties, newKey) };
+    }
+  }
+  return result;
+}
+
+const FLATTENED_SCHEMA = flattenSchema(SETTINGS_SCHEMA);
+
+function getStaticSettings(): FlattenedSettingDefinition[] {
+  return Object.values(FLATTENED_SCHEMA).filter(
+    (definition): definition is FlattenedSettingDefinition =>
+      definition !== undefined,
+  );
+}
+
+function getOrCreateCategory(
+  categories: Partial<Record<string, FlattenedSettingDefinition[]>>,
+  category: string,
+): FlattenedSettingDefinition[] {
+  const existingCategory = categories[category];
+  if (existingCategory !== undefined) {
+    return existingCategory;
+  }
+
+  const newCategory: FlattenedSettingDefinition[] = [];
+  categories[category] = newCategory;
+  return newCategory;
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+/**
+ * Get all settings grouped by category
+ */
+export function getSettingsByCategory(): Record<
+  string,
+  FlattenedSettingDefinition[]
+> {
+  const categories: Partial<Record<string, FlattenedSettingDefinition[]>> = {};
+
+  getStaticSettings().forEach((definition) => {
+    const category = definition.category;
+    getOrCreateCategory(categories, category).push(definition);
+  });
+
+  return categories as Record<string, FlattenedSettingDefinition[]>;
+}
+
+/**
+ * Get a setting definition by key
+ */
+export function getSettingDefinition(
+  key: string,
+): FlattenedSettingDefinition | undefined {
+  // First check static settings
+  const staticDef = FLATTENED_SCHEMA[key];
+  if (staticDef !== undefined) return staticDef;
+
+  // Then check dynamic settings
+  const dynamicDef = dynamicSettingsRegistry.get(key);
+  if (dynamicDef) {
+    return { ...dynamicDef, key };
+  }
+
+  return undefined;
+}
+
+/**
+ * Check if a setting requires restart
+ */
+export function requiresRestart(key: string): boolean {
+  // First check static settings
+  if (FLATTENED_SCHEMA[key]?.requiresRestart === true) {
+    return true;
+  }
+
+  // Then check dynamic settings
+  return dynamicSettingsRegistry.requiresRestart(key);
+}
+
+/**
+ * Get the default value for a setting
+ */
+export function getDefaultValue(key: string): SettingDefinition['default'] {
+  // First check static settings
+  const staticDefault = FLATTENED_SCHEMA[key]?.default;
+  if (staticDefault !== undefined) {
+    return staticDefault;
+  }
+
+  // Then check dynamic settings
+  const dynamicDef = dynamicSettingsRegistry.get(key);
+  return dynamicDef?.default;
+}
+
+/**
+ * Get all setting keys that require restart
+ */
+export function getRestartRequiredSettings(): string[] {
+  const staticKeys = getStaticSettings()
+    .filter((definition) => definition.requiresRestart)
+    .map((definition) => definition.key);
+
+  // Add dynamic settings that require restart
+  const dynamicKeys = dynamicSettingsRegistry.getAllRestartRequiredKeys();
+
+  return [...staticKeys, ...dynamicKeys];
+}
+
+/**
+ * Recursively gets a value from a nested object using a key path array.
+ */
+export function getNestedValue(
+  obj: Record<string, unknown>,
+  path: string[],
+): unknown {
+  const [first, ...rest] = path;
+  if (!first || !(first in obj)) {
+    return undefined;
+  }
+  const value = obj[first];
+  if (rest.length === 0) {
+    return value;
+  }
+  if (isObjectRecord(value)) {
+    return getNestedValue(value, rest);
+  }
+  return undefined;
+}
+
+function getSettingStoragePaths(key: string): string[][] {
+  const legacyPath = key.split('.');
+  const namespacedKey = getV2NamespacedSettingPath(key);
+  if (namespacedKey === key) {
+    return [legacyPath];
+  }
+  return [namespacedKey.split('.'), legacyPath];
+}
+
+function getSettingValueFromStoragePaths(
+  settings: Record<string, unknown>,
+  key: string,
+): unknown {
+  for (const path of getSettingStoragePaths(key)) {
+    const value = getNestedValue(settings, path);
+    if (value !== undefined) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Get the effective value for a setting, considering inheritance from higher scopes
+ * Always returns a value (never undefined) - falls back to default if not set anywhere
+ */
+export function getEffectiveValue(
+  key: string,
+  settings: Settings,
+  mergedSettings: Settings,
+): SettingDefinition['default'] {
+  const definition = getSettingDefinition(key);
+  if (!definition) {
+    return undefined;
+  }
+
+  // Check the current scope's settings first
+  let value = getSettingValueFromStoragePaths(
+    settings as Record<string, unknown>,
+    key,
+  );
+  if (value !== undefined) {
+    return value as SettingDefinition['default'];
+  }
+
+  // Check the merged settings for an inherited value
+  value = getSettingValueFromStoragePaths(
+    mergedSettings as Record<string, unknown>,
+    key,
+  );
+  if (value !== undefined) {
+    return value as SettingDefinition['default'];
+  }
+
+  // Return default value if no value is set anywhere
+  return definition.default;
+}
+
+/**
+ * Get all setting keys
+ */
+export function getAllSettingKeys(): string[] {
+  return Object.keys(FLATTENED_SCHEMA);
+}
+
+/**
+ * Get all setting keys that should be shown in dialog
+ */
+export function getDialogSettingKeys(): string[] {
+  return getStaticSettings()
+    .filter((definition) => definition.showInDialog !== false)
+    .map((definition) => definition.key);
+}
+
+/**
+ * Get settings by type
+ */
+export function getSettingsByType(
+  type: SettingDefinition['type'],
+): FlattenedSettingDefinition[] {
+  return getStaticSettings().filter((definition) => definition.type === type);
+}
+
+/**
+ * Get settings that require restart
+ */
+export function getSettingsRequiringRestart(): FlattenedSettingDefinition[] {
+  return getStaticSettings().filter((definition) => definition.requiresRestart);
+}
+
+/**
+ * Validate if a setting key exists in the schema
+ */
+export function isValidSettingKey(key: string): boolean {
+  return key in FLATTENED_SCHEMA;
+}
+
+/**
+ * Get the category for a setting
+ */
+export function getSettingCategory(key: string): string | undefined {
+  return FLATTENED_SCHEMA[key]?.category;
+}
+
+/**
+ * Check if a setting should be shown in the settings dialog
+ */
+export function shouldShowInDialog(key: string): boolean {
+  return FLATTENED_SCHEMA[key]?.showInDialog ?? true; // Default to true for backward compatibility
+}
+
+/**
+ * Get all settings that should be shown in the dialog, grouped by category
+ */
+export function getDialogSettingsByCategory(): Record<
+  string,
+  FlattenedSettingDefinition[]
+> {
+  const categories: Partial<Record<string, FlattenedSettingDefinition[]>> = {};
+
+  getStaticSettings()
+    .filter((definition) => definition.showInDialog !== false)
+    .forEach((definition) => {
+      const category = definition.category;
+      getOrCreateCategory(categories, category).push(definition);
+    });
+
+  return categories as Record<string, FlattenedSettingDefinition[]>;
+}
+
+/**
+ * Get settings by type that should be shown in the dialog
+ */
+export function getDialogSettingsByType(
+  type: SettingDefinition['type'],
+): FlattenedSettingDefinition[] {
+  return getStaticSettings().filter(
+    (definition) =>
+      definition.type === type && definition.showInDialog !== false,
+  );
+}
+
+/**
+ * Get all setting keys that require restart
+ */
+// ============================================================================
+// BUSINESS LOGIC UTILITIES (Higher-level utilities for setting operations)
+// ============================================================================
+
+/**
+ * Get the current value for a setting in a specific scope
+ * Always returns a value (never undefined) - falls back to default if not set anywhere
+ */
+export function getSettingValue(
+  key: string,
+  settings: Settings,
+  mergedSettings: Settings,
+): boolean {
+  const definition = getSettingDefinition(key);
+  if (!definition) {
+    return false; // Default fallback for invalid settings
+  }
+
+  const value = getEffectiveValue(key, settings, mergedSettings);
+  // Ensure we return a boolean value, converting from the more general type
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  // Fall back to default value, ensuring it's a boolean
+  const defaultValue = definition.default;
+  if (typeof defaultValue === 'boolean') {
+    return defaultValue;
+  }
+  return false; // Final fallback
+}
+
+/**
+ * Check if a setting value is modified from its default
+ */
+export function isSettingModified(key: string, value: boolean): boolean {
+  const defaultValue = getDefaultValue(key);
+  // Handle type comparison properly
+  if (typeof defaultValue === 'boolean') {
+    return value !== defaultValue;
+  }
+  // If default is not a boolean, consider it modified if value is true
+  return value === true;
+}
+
+/**
+ * Check if a setting exists in the original settings file for a scope
+ */
+export function settingExistsInScope(
+  key: string,
+  scopeSettings: Settings,
+): boolean {
+  return (
+    getSettingValueFromStoragePaths(
+      scopeSettings as Record<string, unknown>,
+      key,
+    ) !== undefined
+  );
+}
+
+/**
+ * Recursively sets a value in a nested object using a key path array.
+ * This function is used internally by saveSingleSetting and is not exported
+ * as a public utility to prevent misuse. External modules should use
+ * saveSingleSetting instead.
+ */
+function setNestedValue(
+  obj: Record<string, unknown>,
+  path: string[],
+  value: unknown,
+): Record<string, unknown> {
+  const [first, ...rest] = path;
+  if (!first) {
+    return obj;
+  }
+
+  if (rest.length === 0) {
+    obj[first] = value;
+    return obj;
+  }
+
+  const child = obj[first];
+  if (isObjectRecord(child)) {
+    setNestedValue(child, rest, value);
+    return obj;
+  }
+
+  const newChild: Record<string, unknown> = {};
+  obj[first] = newChild;
+  setNestedValue(newChild, rest, value);
+  return obj;
+}
+
+/**
+ * Set a setting value in the pending settings
+ */
+export function setPendingSettingValue(
+  key: string,
+  value: boolean,
+  pendingSettings: Settings,
+): Settings {
+  const path = key.split('.');
+  const newSettings = JSON.parse(JSON.stringify(pendingSettings));
+  setNestedValue(newSettings, path, value);
+  return newSettings;
+}
+
+/**
+ * Generic setter: Set a setting value (boolean, number, string, etc.) in the pending settings
+ */
+export function setPendingSettingValueAny(
+  key: string,
+  value: unknown,
+  pendingSettings: Settings,
+): Settings {
+  const path = key.split('.');
+  const newSettings = structuredClone(pendingSettings);
+  setNestedValue(newSettings, path, value);
+  return newSettings;
+}
+
+/**
+ * Check if any modified settings require a restart
+ */
+export function hasRestartRequiredSettings(
+  modifiedSettings: Set<string>,
+): boolean {
+  return Array.from(modifiedSettings).some((key) => requiresRestart(key));
+}
+
+/**
+ * Get the restart required settings from a set of modified settings
+ */
+export function getRestartRequiredFromModified(
+  modifiedSettings: Set<string>,
+): string[] {
+  return Array.from(modifiedSettings).filter((key) => requiresRestart(key));
+}
+
+import { saveSingleSetting } from './singleSettingSaver.js';
+
+/**
+ * Save modified settings to the appropriate scope
+ */
+export function saveModifiedSettings(
+  modifiedSettings: Set<string>,
+  pendingSettings: Settings,
+  loadedSettings: LoadedSettings,
+  scope: SettingScope,
+): void {
+  modifiedSettings.forEach((settingKey) => {
+    const path = settingKey.split('.');
+    const value = getNestedValue(
+      pendingSettings as Record<string, unknown>,
+      path,
+    );
+
+    if (value === undefined) {
+      return;
+    }
+
+    const existsInOriginalFile = settingExistsInScope(
+      settingKey,
+      loadedSettings.forScope(scope).settings,
+    );
+
+    const defaultValue = getDefaultValue(settingKey);
+    const isDefaultValue = Object.is(value, defaultValue);
+
+    if (existsInOriginalFile || !isDefaultValue) {
+      saveSingleSetting(settingKey, value, loadedSettings, scope);
+    }
+  });
+}
+
+/**
+ * Get the display value for a setting, showing current scope value with default change indicator
+ */
+export function getDisplayValue(
+  key: string,
+  settings: Settings,
+  _mergedSettings: Settings,
+  modifiedSettings: Set<string>,
+  pendingSettings?: Settings,
+): string {
+  // Prioritize pending changes if user has modified this setting
+  let value: boolean;
+  if (pendingSettings && settingExistsInScope(key, pendingSettings)) {
+    // Show the value from the pending (unsaved) edits when it exists
+    value = getSettingValue(key, pendingSettings, {});
+  } else if (settingExistsInScope(key, settings)) {
+    // Show the value defined at the current scope if present
+    value = getSettingValue(key, settings, {});
+  } else {
+    // Fall back to the schema default when the key is unset in this scope
+    const defaultValue = getDefaultValue(key);
+    value = typeof defaultValue === 'boolean' ? defaultValue : false;
+  }
+
+  const valueString = String(value);
+
+  // Check if value is different from default OR if it's in modified settings OR if there are pending changes
+  const defaultValue = getDefaultValue(key);
+  const isChangedFromDefault =
+    typeof defaultValue === 'boolean' ? value !== defaultValue : value === true;
+  const isInModifiedSettings = modifiedSettings.has(key);
+
+  // Mark as modified if setting exists in current scope OR is in modified settings
+  if (settingExistsInScope(key, settings) || isInModifiedSettings) {
+    return `${valueString}*`; // * indicates setting is set in current scope
+  }
+  if (isChangedFromDefault) {
+    return `${valueString}*`; // * indicates changed from default value
+  }
+
+  return valueString;
+}
+
+/**
+ * Check if a setting doesn't exist in current scope (should be greyed out)
+ */
+export function isDefaultValue(key: string, settings: Settings): boolean {
+  return !settingExistsInScope(key, settings);
+}
+
+/**
+ * Check if a setting value is inherited (not set at current scope)
+ */
+export function isValueInherited(
+  key: string,
+  settings: Settings,
+  _mergedSettings: Settings,
+): boolean {
+  return !settingExistsInScope(key, settings);
+}
+
+/**
+ * Get the effective value for display, considering inheritance
+ * Always returns a boolean value (never undefined)
+ */
+export function getEffectiveDisplayValue(
+  key: string,
+  settings: Settings,
+  mergedSettings: Settings,
+): boolean {
+  return getSettingValue(key, settings, mergedSettings);
+}

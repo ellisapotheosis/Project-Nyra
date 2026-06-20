@@ -1,11 +1,21 @@
 {
   "plugins": {
     "slots": {
-      "memory": "openclaw-mem0"
+      "memory": "openclaw-memos"
     },
     "entries": {
-      "openclaw-mem0": {
+      "openclaw-memos": {
         "enabled": true,
+        "package": "@memorytensor/openclaw-memos",
+        "config": {
+          "baseUrl": "https://memos.projectnyra.com",
+          "userId": "nyra",
+          "autoRecall": true,
+          "autoCapture": true
+        }
+      },
+      "openclaw-mem0": {
+        "enabled": false,
         "config": {
           "mode": "open-source",
           "userId": "nyra",
@@ -20,7 +30,7 @@
               "config": {
                 "model": "text-embedding-3-small",
                 "api_key": "REPLACE_WITH_LITELLM_API_KEY",
-                "base_url": "http://REPLACE_WITH_ORCHESTRATOR_TAILSCALE_IP:4000/v1"
+                "base_url": "https://litellm.projectnyra.com/v1"
               }
             },
             "vectorStore": {
@@ -30,8 +40,8 @@
             "graphStore": {
               "provider": "falkordb",
               "config": {
-                "host": "REPLACE_WITH_ORACLE_TAILSCALE_IP",
-                "port": 6380,
+                "host": "falkordb.projectnyra.com",
+                "port": 6379,
                 "graphName": "mem0"
               }
             },
@@ -40,7 +50,7 @@
               "config": {
                 "model": "gpt-4o-mini",
                 "api_key": "REPLACE_WITH_LITELLM_API_KEY",
-                "base_url": "http://REPLACE_WITH_ORCHESTRATOR_TAILSCALE_IP:4000/v1"
+                "base_url": "https://litellm.projectnyra.com/v1"
               }
             }
           }

@@ -1,0 +1,191 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { aboutCommand } from './aboutCommand.js';
+import { type CommandContext } from './types.js';
+import { createMockCommandContext } from '../../test-utils/mockCommandContext.js';
+import * as versionUtils from '../../utils/version.js';
+import { MessageType } from '../types.js';
+import { MockFileSystem } from '../../providers/IFileSystem.js';
+import {
+  setFileSystem,
+  resetProviderManager,
+} from '../../providers/providerManagerInstance.js';
+import { USER_SETTINGS_PATH } from '../../config/settings.js';
+
+import type { IdeClient } from '../../../../core/src/ide/ide-client.js';
+
+const runtimeMocks = vi.hoisted(() => ({
+  getRuntimeApiMock: vi.fn(),
+}));
+
+vi.mock('../contexts/RuntimeContext.js', () => ({
+  getRuntimeApi: runtimeMocks.getRuntimeApiMock,
+}));
+
+vi.mock('../../utils/version.js', () => ({
+  getCliVersion: vi.fn(),
+}));
+
+describe('aboutCommand', () => {
+  const getRuntimeApiMock = runtimeMocks.getRuntimeApiMock;
+  let mockContext: CommandContext;
+  let mockFileSystem: MockFileSystem;
+  const originalPlatform = process.platform;
+  const originalEnv = { ...process.env };
+
+  beforeEach(() => {
+    getRuntimeApiMock.mockReturnValue({
+      getRuntimeDiagnosticsSnapshot: () => ({
+        providerName: null,
+        modelName: null,
+        profileName: null,
+        modelParams: {},
+        ephemeralSettings: {},
+      }),
+      getActiveProviderName: () => '',
+      getCliProviderManager: () => ({
+        getActiveProvider: () => undefined,
+      }),
+      getEphemeralSetting: () => undefined,
+    });
+
+    mockFileSystem = new MockFileSystem();
+    setFileSystem(mockFileSystem);
+
+    // Set up mock settings file with controlled content
+    mockFileSystem.setMockFile(USER_SETTINGS_PATH, JSON.stringify({}));
+    mockContext = createMockCommandContext({
+      services: {
+        config: {
+          getModel: vi.fn(),
+          getIdeClient: vi.fn(),
+          getIdeMode: vi.fn().mockReturnValue(true),
+        },
+        settings: {
+          merged: {},
+        },
+      },
+      ui: {
+        addItem: vi.fn(),
+      },
+    } as unknown as CommandContext);
+
+    vi.mocked(versionUtils.getCliVersion).mockResolvedValue('test-version');
+    vi.spyOn(mockContext.services.config!, 'getModel').mockReturnValue(
+      'test-model',
+    );
+    process.env.GOOGLE_CLOUD_PROJECT = 'test-gcp-project';
+    Object.defineProperty(process, 'platform', {
+      value: 'test-os',
+    });
+    vi.spyOn(mockContext.services.config!, 'getIdeClient').mockReturnValue({
+      getDetectedIdeDisplayName: vi.fn().mockReturnValue('test-ide'),
+    } as Partial<IdeClient> as IdeClient);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    Object.defineProperty(process, 'platform', {
+      value: originalPlatform,
+    });
+    process.env = originalEnv;
+    vi.clearAllMocks();
+    getRuntimeApiMock.mockReset();
+    resetProviderManager();
+  });
+
+  it('should have the correct name and description', () => {
+    expect(aboutCommand.name).toBe('about');
+    expect(aboutCommand.description).toBe('show version info');
+  });
+
+  it('should call addItem with all version info', async () => {
+    process.env.SANDBOX = '';
+    // eslint-disable-next-line vitest/no-conditional-in-test -- intentional: narrowing/filter/parameterized-test context
+    if (!aboutCommand.action) {
+      throw new Error('The about command must have an action.');
+    }
+
+    await aboutCommand.action(mockContext, '');
+
+    expect(mockContext.ui.addItem).toHaveBeenCalledWith({
+      type: MessageType.ABOUT,
+      cliVersion: 'test-version',
+      osVersion: 'test-os',
+      sandboxEnv: 'no sandbox',
+      modelVersion: 'test-model',
+      gcpProject: 'test-gcp-project',
+      keyfile: '',
+      key: '',
+      ideClient: 'test-ide',
+      provider: 'Unknown',
+      baseURL: '',
+    });
+  });
+
+  it('should show the correct sandbox environment variable', async () => {
+    process.env.SANDBOX = 'gemini-sandbox';
+    // eslint-disable-next-line vitest/no-conditional-in-test -- intentional: narrowing/filter/parameterized-test context
+    if (!aboutCommand.action) {
+      throw new Error('The about command must have an action.');
+    }
+
+    await aboutCommand.action(mockContext, '');
+
+    expect(mockContext.ui.addItem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sandboxEnv: 'gemini-sandbox',
+      }),
+    );
+  });
+
+  it('should show sandbox-exec profile when applicable', async () => {
+    process.env.SANDBOX = 'sandbox-exec';
+    process.env.SEATBELT_PROFILE = 'test-profile';
+    // eslint-disable-next-line vitest/no-conditional-in-test -- intentional: narrowing/filter/parameterized-test context
+    if (!aboutCommand.action) {
+      throw new Error('The about command must have an action.');
+    }
+
+    await aboutCommand.action(mockContext, '');
+
+    expect(mockContext.ui.addItem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        sandboxEnv: 'sandbox-exec (test-profile)',
+      }),
+    );
+  });
+
+  it('should not show ide client when it is not detected', async () => {
+    vi.spyOn(mockContext.services.config!, 'getIdeClient').mockReturnValue({
+      getDetectedIdeDisplayName: vi.fn().mockReturnValue(undefined),
+    } as Partial<IdeClient> as IdeClient);
+
+    process.env.SANDBOX = '';
+    // eslint-disable-next-line vitest/no-conditional-in-test -- intentional: narrowing/filter/parameterized-test context
+    if (!aboutCommand.action) {
+      throw new Error('The about command must have an action.');
+    }
+
+    await aboutCommand.action(mockContext, '');
+
+    expect(mockContext.ui.addItem).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: MessageType.ABOUT,
+        cliVersion: 'test-version',
+        osVersion: 'test-os',
+        sandboxEnv: 'no sandbox',
+        modelVersion: 'test-model',
+        gcpProject: 'test-gcp-project',
+        ideClient: '',
+        provider: 'Unknown',
+        baseURL: '',
+      }),
+    );
+  });
+});

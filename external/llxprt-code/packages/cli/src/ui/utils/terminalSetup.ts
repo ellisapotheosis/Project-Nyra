@@ -1,0 +1,398 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* eslint-disable complexity, eslint-comments/disable-enable-pair -- Phase 5: legacy UI boundary retained while larger decomposition continues. */
+
+/**
+ * Terminal setup utility for configuring Shift+Enter and Ctrl+Enter support.
+ *
+ * This module provides automatic detection and configuration of various terminal
+ * emulators to support multiline input through modified Enter keys.
+ *
+ * Supported terminals:
+ * - VS Code: Configures keybindings.json to send \\\r\n
+ * - Cursor: Configures keybindings.json to send \\\r\n (VS Code fork)
+ * - Windsurf: Configures keybindings.json to send \\\r\n (VS Code fork)
+ * - Antigravity: Configures keybindings.json to send \\\r\n (VS Code fork)
+ *
+ * For VS Code and its forks:
+ * - Shift+Enter: Sends \\\r\n (backslash followed by CRLF)
+ * - Ctrl+Enter: Sends \\\r\n (backslash followed by CRLF)
+ *
+ * The module will not modify existing shift+enter or ctrl+enter keybindings
+ * to avoid conflicts with user customizations.
+ */
+
+import { promises as fs } from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import { terminalCapabilityManager } from './terminalCapabilityManager.js';
+import { VSCODE_SHIFT_ENTER_SEQUENCE } from './platformConstants.js';
+import { debugLogger } from '@vybestack/llxprt-code-core';
+
+const execAsync = promisify(exec);
+
+/**
+ * Removes single-line JSON comments (// ...) from a string to allow parsing
+ * VS Code style JSON files that may contain comments.
+ */
+function stripJsonComments(content: string): string {
+  // Remove single-line comments (// ...)
+  // eslint-disable-next-line sonarjs/regular-expr, sonarjs/slow-regex -- Static regex reviewed for lint hardening; bounded inputs preserve behavior.
+  return content.replace(/^\s*\/\/.*$/gm, '');
+}
+
+export interface TerminalSetupResult {
+  success: boolean;
+  message: string;
+  requiresRestart?: boolean;
+}
+
+type SupportedTerminal = 'vscode' | 'cursor' | 'windsurf' | 'antigravity';
+
+// Terminal detection
+async function detectTerminal(): Promise<SupportedTerminal | null> {
+  const termProgram = process.env.TERM_PROGRAM;
+
+  // Check VS Code and its forks - check forks first to avoid false positives
+  // Check for Cursor-specific indicators
+  if (
+    (process.env.CURSOR_TRACE_ID !== undefined &&
+      process.env.CURSOR_TRACE_ID !== '') ||
+    process.env.VSCODE_GIT_ASKPASS_MAIN?.toLowerCase().includes('cursor') ===
+      true
+  ) {
+    return 'cursor';
+  }
+  // Check for Windsurf-specific indicators
+  if (
+    process.env.VSCODE_GIT_ASKPASS_MAIN?.toLowerCase().includes('windsurf') ===
+    true
+  ) {
+    return 'windsurf';
+  }
+  // Check for Antigravity-specific indicators
+  if (
+    process.env['VSCODE_GIT_ASKPASS_MAIN']
+      ?.toLowerCase()
+      .includes('antigravity') === true
+  ) {
+    return 'antigravity';
+  }
+  // Check VS Code last since forks may also set VSCODE env vars
+  if (termProgram === 'vscode' || process.env.VSCODE_GIT_IPC_HANDLE) {
+    return 'vscode';
+  }
+
+  // Check parent process name
+  if (os.platform() !== 'win32') {
+    try {
+      const { stdout } = await execAsync('ps -o comm= -p $PPID');
+      const parentName = stdout.trim();
+
+      // Check forks before VS Code to avoid false positives
+      if (parentName.includes('windsurf') || parentName.includes('Windsurf'))
+        return 'windsurf';
+      if (
+        parentName.includes('antigravity') ||
+        parentName.includes('Antigravity')
+      )
+        return 'antigravity';
+      if (parentName.includes('cursor') || parentName.includes('Cursor'))
+        return 'cursor';
+      if (parentName.includes('code') || parentName.includes('Code'))
+        return 'vscode';
+    } catch (error) {
+      // Continue detection even if process check fails
+      debugLogger.debug('Parent process detection failed:', error);
+    }
+  }
+
+  return null;
+}
+
+// Backup file helper
+async function backupFile(filePath: string): Promise<void> {
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupPath = `${filePath}.backup.${timestamp}`;
+    await fs.copyFile(filePath, backupPath);
+  } catch (error) {
+    // Log backup errors but continue with operation
+    debugLogger.warn(`Failed to create backup of ${filePath}:`, error);
+  }
+}
+
+// Helper function to get VS Code-style config directory
+function getVSCodeStyleConfigDir(appName: string): string | null {
+  const platform = os.platform();
+
+  if (platform === 'darwin') {
+    return path.join(
+      os.homedir(),
+      'Library',
+      'Application Support',
+      appName,
+      'User',
+    );
+  } else if (platform === 'win32') {
+    if (!process.env.APPDATA) {
+      return null;
+    }
+    return path.join(process.env.APPDATA, appName, 'User');
+  }
+  return path.join(os.homedir(), '.config', appName, 'User');
+}
+
+/**
+ * Parses keybindings file content, stripping comments if present.
+ */
+type KeybindingsParseResult =
+  | { ok: true; value: unknown[] }
+  | { ok: false; error: unknown };
+
+function parseKeybindings(
+  content: string,
+  terminalName: string,
+  keybindingsFile: string,
+): KeybindingsParseResult {
+  try {
+    const cleanContent = stripJsonComments(content);
+    return { ok: true, value: JSON.parse(cleanContent) as unknown[] };
+  } catch (error) {
+    debugLogger.warn(
+      `Failed to parse ${terminalName} keybindings.json at ${keybindingsFile}`,
+    );
+    return { ok: false, error };
+  }
+}
+
+async function readExistingKeybindings(
+  keybindingsFile: string,
+  terminalName: string,
+): Promise<unknown[] | TerminalSetupResult> {
+  const readResult = await fs
+    .readFile(keybindingsFile, 'utf8')
+    .catch(() => null);
+  if (readResult === null) return [];
+
+  await backupFile(keybindingsFile);
+  const parsed = parseKeybindings(readResult, terminalName, keybindingsFile);
+  if (!parsed.ok) {
+    return {
+      success: false,
+      message:
+        `Failed to parse ${terminalName} keybindings.json. The file contains invalid JSON.\n` +
+        `Please fix the file manually or delete it to allow automatic configuration.\n` +
+        `File: ${keybindingsFile}\n` +
+        `Error: ${parsed.error}`,
+    };
+  }
+  if (!Array.isArray(parsed.value)) {
+    return {
+      success: false,
+      message:
+        `${terminalName} keybindings.json exists but is not a valid JSON array. ` +
+        `Please fix the file manually or delete it to allow automatic configuration.\n` +
+        `File: ${keybindingsFile}`,
+    };
+  }
+  return parsed.value;
+}
+
+function checkExistingKeybindings(
+  keybindings: unknown[],
+): TerminalSetupResult | null {
+  const existingShiftEnter = keybindings.find((kb) => {
+    const binding = kb as { key?: string };
+    return binding.key === 'shift+enter';
+  });
+  const existingCtrlEnter = keybindings.find((kb) => {
+    const binding = kb as { key?: string };
+    return binding.key === 'ctrl+enter';
+  });
+
+  if (existingShiftEnter === undefined && existingCtrlEnter === undefined) {
+    return null;
+  }
+
+  const messages: string[] = [];
+  if (existingShiftEnter !== undefined) {
+    messages.push(`- Shift+Enter binding already exists`);
+  }
+  if (existingCtrlEnter !== undefined) {
+    messages.push(`- Ctrl+Enter binding already exists`);
+  }
+  return {
+    success: false,
+    message:
+      `Existing keybindings detected. Will not modify to avoid conflicts.\n` +
+      messages.join('\n') +
+      '\n' +
+      `Please check and modify manually if needed: `,
+  };
+}
+
+function hasOurSpecificBinding(keybindings: unknown[], key: string): boolean {
+  return keybindings.some((kb) => {
+    const binding = kb as {
+      command?: string;
+      args?: { text?: string };
+      key?: string;
+    };
+    return (
+      binding.key === key &&
+      binding.command === 'workbench.action.terminal.sendSequence' &&
+      binding.args?.text === '\\\r\n'
+    );
+  });
+}
+
+// Generic VS Code-style terminal configuration
+async function configureVSCodeStyle(
+  terminalName: string,
+  appName: string,
+): Promise<TerminalSetupResult> {
+  const configDir = getVSCodeStyleConfigDir(appName);
+
+  if (!configDir) {
+    return {
+      success: false,
+      message: `Could not determine ${terminalName} config path on Windows: APPDATA environment variable is not set.`,
+    };
+  }
+
+  const keybindingsFile = path.join(configDir, 'keybindings.json');
+
+  try {
+    await fs.mkdir(configDir, { recursive: true });
+
+    const result = await readExistingKeybindings(keybindingsFile, terminalName);
+    if ('success' in result) return result;
+    const keybindings = result;
+
+    const conflict = checkExistingKeybindings(keybindings);
+    if (conflict) {
+      return {
+        ...conflict,
+        message: conflict.message + keybindingsFile,
+      };
+    }
+
+    const shiftEnterBinding = {
+      key: 'shift+enter',
+      command: 'workbench.action.terminal.sendSequence',
+      when: 'terminalFocus',
+      args: { text: VSCODE_SHIFT_ENTER_SEQUENCE },
+    };
+    const ctrlEnterBinding = {
+      key: 'ctrl+enter',
+      command: 'workbench.action.terminal.sendSequence',
+      when: 'terminalFocus',
+      args: { text: VSCODE_SHIFT_ENTER_SEQUENCE },
+    };
+
+    const hasShiftEnter = hasOurSpecificBinding(keybindings, 'shift+enter');
+    const hasCtrlEnter = hasOurSpecificBinding(keybindings, 'ctrl+enter');
+
+    if (!hasShiftEnter || !hasCtrlEnter) {
+      if (!hasShiftEnter) keybindings.unshift(shiftEnterBinding);
+      if (!hasCtrlEnter) keybindings.unshift(ctrlEnterBinding);
+
+      await fs.writeFile(keybindingsFile, JSON.stringify(keybindings, null, 4));
+      return {
+        success: true,
+        message: `Added Shift+Enter and Ctrl+Enter keybindings to ${terminalName}.\nModified: ${keybindingsFile}`,
+        requiresRestart: true,
+      };
+    }
+    return {
+      success: true,
+      message: `${terminalName} keybindings already configured.`,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `Failed to configure ${terminalName}.\nFile: ${keybindingsFile}\nError: ${error}`,
+    };
+  }
+}
+
+// Terminal-specific configuration functions
+
+async function configureVSCode(): Promise<TerminalSetupResult> {
+  return configureVSCodeStyle('VS Code', 'Code');
+}
+
+async function configureCursor(): Promise<TerminalSetupResult> {
+  return configureVSCodeStyle('Cursor', 'Cursor');
+}
+
+async function configureWindsurf(): Promise<TerminalSetupResult> {
+  return configureVSCodeStyle('Windsurf', 'Windsurf');
+}
+
+async function configureAntigravity(): Promise<TerminalSetupResult> {
+  return configureVSCodeStyle('Antigravity', 'Antigravity');
+}
+
+/**
+ * Main terminal setup function that detects and configures the current terminal.
+ *
+ * This function:
+ * 1. Detects the current terminal emulator
+ * 2. Applies appropriate configuration for Shift+Enter and Ctrl+Enter support
+ * 3. Creates backups of configuration files before modifying them
+ *
+ * @returns Promise<TerminalSetupResult> Result object with success status and message
+ *
+ * @example
+ * const result = await terminalSetup();
+ * if (result.success) {
+ *   debugLogger.log(result.message);
+ *   if (result.requiresRestart) {
+ *     debugLogger.log('Please restart your terminal');
+ *   }
+ * }
+ */
+export async function terminalSetup(): Promise<TerminalSetupResult> {
+  // Check if terminal already has optimal keyboard support
+  if (terminalCapabilityManager.isKittyProtocolEnabled()) {
+    return {
+      success: true,
+      message:
+        'Your terminal is already configured for an optimal experience with multiline input (Shift+Enter and Ctrl+Enter).',
+    };
+  }
+
+  const terminal = await detectTerminal();
+
+  if (!terminal) {
+    return {
+      success: false,
+      message:
+        'Could not detect terminal type. Supported terminals: VS Code, Cursor, Windsurf, and Antigravity.',
+    };
+  }
+
+  switch (terminal) {
+    case 'vscode':
+      return configureVSCode();
+    case 'cursor':
+      return configureCursor();
+    case 'windsurf':
+      return configureWindsurf();
+    case 'antigravity':
+      return configureAntigravity();
+    default:
+      return {
+        success: false,
+        message: `Terminal "${terminal}" is not supported yet.`,
+      };
+  }
+}

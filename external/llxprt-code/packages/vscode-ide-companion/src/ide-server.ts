@@ -1,0 +1,622 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import * as vscode from 'vscode';
+import { IdeContextNotificationSchema } from './ide-schemas.js';
+import { z } from 'zod';
+import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import express, {
+  type Express,
+  type Request,
+  type Response,
+  type NextFunction,
+} from 'express';
+import cors from 'cors';
+import { randomUUID } from 'node:crypto';
+import { type Server as HTTPServer } from 'node:http';
+import * as path from 'node:path';
+import * as fs from 'node:fs/promises';
+import * as os from 'node:os';
+import type { DiffManager } from './diff-manager.js';
+import { OpenFilesManager } from './open-files-manager.js';
+
+class CORSError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CORSError';
+  }
+}
+
+const MCP_SESSION_ID_HEADER = 'mcp-session-id';
+const IDE_SERVER_PORT_ENV_VAR = 'LLXPRT_CODE_IDE_SERVER_PORT';
+const IDE_WORKSPACE_PATH_ENV_VAR = 'LLXPRT_CODE_IDE_WORKSPACE_PATH';
+const IDE_AUTH_TOKEN_ENV_VAR = 'LLXPRT_CODE_IDE_AUTH_TOKEN';
+
+interface WritePortAndWorkspaceArgs {
+  context: vscode.ExtensionContext;
+  port: number;
+  portFile: string | undefined;
+  authToken: string;
+  log: (message: string) => void;
+}
+
+async function writePortAndWorkspace({
+  context,
+  port,
+  portFile,
+  authToken,
+  log,
+}: WritePortAndWorkspaceArgs): Promise<void> {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  const workspacePath =
+    workspaceFolders && workspaceFolders.length > 0
+      ? workspaceFolders.map((folder) => folder.uri.fsPath).join(path.delimiter)
+      : '';
+
+  context.environmentVariableCollection.replace(
+    IDE_SERVER_PORT_ENV_VAR,
+    port.toString(),
+  );
+  context.environmentVariableCollection.replace(
+    IDE_WORKSPACE_PATH_ENV_VAR,
+    workspacePath,
+  );
+  context.environmentVariableCollection.replace(
+    IDE_AUTH_TOKEN_ENV_VAR,
+    authToken,
+  );
+
+  const content = JSON.stringify({
+    port,
+    workspacePath,
+    authToken,
+  });
+
+  if (!portFile) {
+    log('Missing portFile, cannot write port and workspace info.');
+    return;
+  }
+
+  log(`Writing port file to: ${portFile}`);
+
+  try {
+    await fs.writeFile(portFile, content).then(() => fs.chmod(portFile, 0o600));
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    log(`Failed to write port to file: ${message}`);
+  }
+}
+
+function sendIdeContextUpdateNotification(
+  transport: StreamableHTTPServerTransport,
+  log: (message: string) => void,
+  openFilesManager: OpenFilesManager,
+) {
+  const ideContext = openFilesManager.state;
+
+  const notification = IdeContextNotificationSchema.parse({
+    jsonrpc: '2.0',
+    method: 'ide/contextUpdate',
+    params: ideContext,
+  });
+
+  void transport.send(notification);
+}
+
+export class IDEServer {
+  private server: HTTPServer | undefined;
+  private context: vscode.ExtensionContext | undefined;
+  private log: (message: string) => void;
+  private portFile: string | undefined;
+  private port: number | undefined;
+  private authToken: string | undefined;
+  private transports: Map<string, StreamableHTTPServerTransport> = new Map();
+  private openFilesManager: OpenFilesManager | undefined;
+  diffManager: DiffManager;
+
+  constructor(log: (message: string) => void, diffManager: DiffManager) {
+    this.log = log;
+    this.diffManager = diffManager;
+  }
+
+  start(context: vscode.ExtensionContext): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.context = context;
+      this.authToken = randomUUID();
+      const sessionsWithInitialNotification = new Set<string>();
+      const app = express();
+      app.use(express.json({ limit: '10mb' }));
+
+      this.registerCors(app);
+      this.registerHostValidation(app);
+      this.registerAuthorization(app);
+
+      const mcpServer = createMcpServer(this.diffManager, this.log);
+      this.openFilesManager = new OpenFilesManager(context);
+      this.registerIdeChangeSubscriptions(context);
+      this.registerMcpRoutes(app, mcpServer, sessionsWithInitialNotification);
+      this.registerErrorHandler(app);
+      this.startHttpServer(app, context, resolve, reject);
+    });
+  }
+
+  private registerCors(app: Express) {
+    app.use(
+      cors({
+        origin: (origin, callback) => {
+          // Only allow non-browser requests with no origin.
+          if (!origin) {
+            return callback(null, true);
+          }
+          return callback(
+            new CORSError('Request denied by CORS policy.'),
+            false,
+          );
+        },
+      }),
+    );
+  }
+
+  private registerHostValidation(app: Express) {
+    app.use((req, res, next) => {
+      const host = req.headers.host ?? '';
+      const allowedHosts = [`localhost:${this.port}`, `127.0.0.1:${this.port}`];
+      if (!allowedHosts.includes(host)) {
+        res.status(403).json({ error: 'Invalid Host header' });
+        return;
+      }
+      next();
+    });
+  }
+
+  private registerAuthorization(app: Express) {
+    app.use((req, res, next) => {
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        this.log('Missing Authorization header. Rejecting request.');
+        res.status(401).send('Unauthorized');
+        return;
+      }
+      const parts = authHeader.split(' ');
+      if (parts.length !== 2 || parts[0] !== 'Bearer') {
+        this.log('Malformed Authorization header. Rejecting request.');
+        res.status(401).send('Unauthorized');
+        return;
+      }
+      const token = parts[1];
+      if (token !== this.authToken) {
+        this.log('Invalid auth token provided. Rejecting request.');
+        res.status(401).send('Unauthorized');
+        return;
+      }
+      next();
+    });
+  }
+
+  private registerIdeChangeSubscriptions(context: vscode.ExtensionContext) {
+    const onDidChangeSubscription = this.openFilesManager!.onDidChange(() => {
+      this.broadcastIdeContextUpdate();
+    });
+    context.subscriptions.push(onDidChangeSubscription);
+    const onDidChangeDiffSubscription = this.diffManager.onDidChange(
+      (notification) => {
+        for (const transport of this.transports.values()) {
+          void transport.send(notification);
+        }
+      },
+    );
+    context.subscriptions.push(onDidChangeDiffSubscription);
+  }
+
+  private registerMcpRoutes(
+    app: Express,
+    mcpServer: McpServer,
+    sessionsWithInitialNotification: Set<string>,
+  ) {
+    app.post('/mcp', (req: Request, res: Response, next: NextFunction) => {
+      this.handleMcpPostRequest(
+        req,
+        res,
+        mcpServer,
+        sessionsWithInitialNotification,
+      ).catch(next);
+    });
+
+    app.get('/mcp', (req: Request, res: Response, next: NextFunction) => {
+      this.handleSessionRequest(
+        req,
+        res,
+        sessionsWithInitialNotification,
+      ).catch(next);
+    });
+  }
+
+  private async handleMcpPostRequest(
+    req: Request,
+    res: Response,
+    mcpServer: McpServer,
+    sessionsWithInitialNotification: Set<string>,
+  ) {
+    const sessionId = req.headers[MCP_SESSION_ID_HEADER] as string | undefined;
+    const transport = this.resolvePostTransport(
+      req,
+      res,
+      mcpServer,
+      sessionId,
+      sessionsWithInitialNotification,
+    );
+    if (transport === undefined) {
+      return;
+    }
+
+    try {
+      await transport.handleRequest(req, res, req.body);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.log(`Error handling MCP request: ${errorMessage}`);
+      if (!res.headersSent) {
+        res.status(500).json({
+          jsonrpc: '2.0' as const,
+          error: { code: -32603, message: 'Internal server error' },
+          id: null,
+        });
+      }
+    }
+
+    this.sendInitialSessionNotification(
+      transport,
+      sessionId,
+      sessionsWithInitialNotification,
+    );
+  }
+
+  private resolvePostTransport(
+    req: Request,
+    res: Response,
+    mcpServer: McpServer,
+    sessionId: string | undefined,
+    sessionsWithInitialNotification: Set<string>,
+  ): StreamableHTTPServerTransport | undefined {
+    const transportForSession =
+      sessionId === undefined ? undefined : this.transports.get(sessionId);
+    if (transportForSession !== undefined) {
+      return transportForSession;
+    }
+    if (isInitializeRequest(req.body)) {
+      return this.createSessionTransport(
+        mcpServer,
+        sessionsWithInitialNotification,
+      );
+    }
+
+    this.log(
+      'Bad Request: No valid session ID provided for non-initialize request.',
+    );
+    res.status(400).json({
+      jsonrpc: '2.0',
+      error: {
+        code: -32000,
+        message:
+          'Bad Request: No valid session ID provided for non-initialize request.',
+      },
+      id: null,
+    });
+    return undefined;
+  }
+
+  private createSessionTransport(
+    mcpServer: McpServer,
+    sessionsWithInitialNotification: Set<string>,
+  ): StreamableHTTPServerTransport {
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: () => randomUUID(),
+      onsessioninitialized: (newSessionId) => {
+        this.log(`New session initialized: ${newSessionId}`);
+        this.transports.set(newSessionId, transport);
+      },
+    });
+
+    this.configureKeepAlive(transport, sessionsWithInitialNotification);
+    void mcpServer.connect(transport);
+    return transport;
+  }
+
+  private configureKeepAlive(
+    transport: StreamableHTTPServerTransport,
+    sessionsWithInitialNotification: Set<string>,
+  ) {
+    let missedPings = 0;
+    const keepAlive = setInterval(() => {
+      const sessionId = transport.sessionId ?? 'unknown';
+      transport
+        .send({ jsonrpc: '2.0', method: 'ping' })
+        .then(() => {
+          missedPings = 0;
+        })
+        .catch((error: Error) => {
+          missedPings++;
+          this.log(
+            `Failed to send keep-alive ping for session ${sessionId}. Missed pings: ${missedPings}. Error: ${error.message}`,
+          );
+          if (missedPings >= 3) {
+            this.log(
+              `Session ${sessionId} missed ${missedPings} pings. Closing connection and cleaning up interval.`,
+            );
+            clearInterval(keepAlive);
+          }
+        });
+    }, 60000); // 60 sec
+
+    transport.onclose = () => {
+      clearInterval(keepAlive);
+      if (transport.sessionId) {
+        this.log(`Session closed: ${transport.sessionId}`);
+        sessionsWithInitialNotification.delete(transport.sessionId);
+        this.transports.delete(transport.sessionId);
+      }
+    };
+  }
+
+  private async handleSessionRequest(
+    req: Request,
+    res: Response,
+    sessionsWithInitialNotification: Set<string>,
+  ) {
+    const sessionId = req.headers[MCP_SESSION_ID_HEADER] as string | undefined;
+    const transport = sessionId ? this.transports.get(sessionId) : undefined;
+    if (!sessionId || !transport) {
+      this.log('Invalid or missing session ID');
+      res.status(400).send('Invalid or missing session ID');
+      return;
+    }
+
+    try {
+      await transport.handleRequest(req, res);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.log(`Error handling session request: ${errorMessage}`);
+      if (!res.headersSent) {
+        res.status(400).send('Bad Request');
+      }
+    }
+
+    this.sendInitialSessionNotification(
+      transport,
+      sessionId,
+      sessionsWithInitialNotification,
+    );
+  }
+
+  private sendInitialSessionNotification(
+    transport: StreamableHTTPServerTransport,
+    sessionId: string | undefined,
+    sessionsWithInitialNotification: Set<string>,
+  ) {
+    if (
+      this.openFilesManager &&
+      sessionId &&
+      !sessionsWithInitialNotification.has(sessionId)
+    ) {
+      sendIdeContextUpdateNotification(
+        transport,
+        this.log.bind(this),
+        this.openFilesManager,
+      );
+      sessionsWithInitialNotification.add(sessionId);
+    }
+  }
+
+  private registerErrorHandler(app: Express) {
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      this.log(`Error processing request: ${err.message}`);
+      this.log(`Stack trace: ${err.stack}`);
+      if (err instanceof CORSError) {
+        res.status(403).json({ error: 'Request denied by CORS policy.' });
+      } else {
+        next(err);
+      }
+    });
+  }
+
+  private startHttpServer(
+    app: Express,
+    context: vscode.ExtensionContext,
+    resolve: () => void,
+    reject: (reason?: unknown) => void,
+  ) {
+    this.server = app.listen(0, '127.0.0.1', () => {
+      void this.writeInitialPortFile(context, resolve, reject);
+    });
+
+    this.server.on('close', () => {
+      this.log('IDE server connection closed.');
+    });
+
+    this.server.on('error', (error) => {
+      this.log(`IDE server error: ${error.message}`);
+    });
+  }
+
+  private async writeInitialPortFile(
+    context: vscode.ExtensionContext,
+    resolve: () => void,
+    reject: (reason?: unknown) => void,
+  ) {
+    try {
+      const address = (this.server as HTTPServer).address();
+      if (address !== null && typeof address !== 'string') {
+        this.port = address.port;
+        this.log(`IDE server listening on http://127.0.0.1:${this.port}`);
+        await this.createPortFile();
+        await writePortAndWorkspace({
+          context,
+          port: this.port,
+          portFile: this.portFile,
+          authToken: this.authToken ?? '',
+          log: this.log,
+        });
+      }
+      resolve();
+    } catch (err) {
+      reject(err instanceof Error ? err : new Error(String(err)));
+    }
+  }
+
+  private async createPortFile() {
+    try {
+      const portDir = path.join(os.tmpdir(), 'llxprt', 'ide');
+      await fs.mkdir(portDir, { recursive: true });
+      this.portFile = path.join(
+        portDir,
+        `llxprt-ide-server-${process.ppid}-${this.port}.json`,
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.log(`Failed to create IDE port file: ${message}`);
+    }
+  }
+
+  broadcastIdeContextUpdate() {
+    if (!this.openFilesManager) {
+      return;
+    }
+    for (const transport of this.transports.values()) {
+      sendIdeContextUpdateNotification(
+        transport,
+        this.log.bind(this),
+        this.openFilesManager,
+      );
+    }
+  }
+
+  async syncEnvVars(): Promise<void> {
+    if (
+      this.context !== undefined &&
+      this.server !== undefined &&
+      this.port !== undefined &&
+      this.authToken !== undefined
+    ) {
+      await writePortAndWorkspace({
+        context: this.context,
+        port: this.port,
+        portFile: this.portFile,
+        authToken: this.authToken,
+        log: this.log,
+      });
+      this.broadcastIdeContextUpdate();
+    }
+  }
+
+  async stop(): Promise<void> {
+    if (this.server) {
+      await new Promise<void>((resolve, reject) => {
+        this.server!.close((err?: Error) => {
+          if (err) {
+            this.log(`Error shutting down IDE server: ${err.message}`);
+            reject(err);
+            return;
+          }
+          this.log(`IDE server shut down`);
+          resolve();
+        });
+      });
+      this.server = undefined;
+    }
+
+    if (this.context) {
+      this.context.environmentVariableCollection.clear();
+    }
+    if (this.portFile) {
+      try {
+        await fs.unlink(this.portFile);
+      } catch {
+        // File may not exist; cleanup is best-effort.
+      }
+    }
+  }
+}
+
+const createMcpServer = (
+  diffManager: DiffManager,
+  log: (message: string) => void,
+) => {
+  const server = new McpServer(
+    {
+      name: 'llxprt-code-companion-mcp-server',
+      version: '1.0.0',
+    },
+    { capabilities: { logging: {} } },
+  );
+  server.registerTool(
+    'openDiff',
+    {
+      description:
+        '(IDE Tool) Open a diff view to create or modify a file. Returns a notification once the diff has been accepted or rejected.',
+      inputSchema: z.object({
+        filePath: z.string(),
+        // Task(chrstn): determine if this should be required or not.
+        newContent: z.string().optional(),
+      }).shape,
+    },
+    async ({
+      filePath,
+      newContent,
+    }: {
+      filePath: string;
+      newContent?: string;
+    }) => {
+      log(`openDiff tool invoked for filePath=${filePath}`);
+      await diffManager.showDiff(filePath, newContent ?? '');
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Showing diff for ${filePath}`,
+          },
+        ],
+      };
+    },
+  );
+  server.registerTool(
+    'closeDiff',
+    {
+      description: '(IDE Tool) Close an open diff view for a specific file.',
+      inputSchema: z.object({
+        filePath: z.string(),
+        suppressNotification: z.boolean().optional(),
+      }).shape,
+    },
+    async ({
+      filePath,
+      suppressNotification,
+    }: {
+      filePath: string;
+      suppressNotification?: boolean;
+    }) => {
+      log(
+        `closeDiff tool invoked for filePath=${filePath}, suppressNotification=${suppressNotification}`,
+      );
+      const content = await diffManager.closeDiff(
+        filePath,
+        suppressNotification,
+      );
+      const response = { content: content ?? undefined };
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(response),
+          },
+        ],
+      };
+    },
+  );
+  return server;
+};

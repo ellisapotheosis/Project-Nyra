@@ -1,47 +1,71 @@
 model_list:
+  # ── Local GPU Inference — RTX 5090 (32 GB vLLM) ───────────────────────────
   - model_name: local/gemma-4
     litellm_params:
       model: openai/google/gemma-4-26B-A4B-it
-      api_base: http://worker-rtx5090.trex-fiordland.ts.net:8000/v1
+      api_base: http://worker-rtx5090.projectnyra.com:8000/v1
       api_key: "not-needed"
       timeout: 120
-
-  - model_name: local/qwen-coder-32b
-    litellm_params:
-      model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
-      api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1
-      api_key: "not-needed"
-      timeout: 120
-
-  - model_name: local/qwen2.5-4b
-    litellm_params:
-      model: ollama/qwen2.5:4b
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
-
-  - model_name: local/llama3.2-3b
-    litellm_params:
-      model: ollama/llama3.2:3b
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
-
-  - model_name: local/embeddings
-    litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: http://worker-rtx3060.trex-fiordland.ts.net:11434
 
   - model_name: local/vybestack-jefe
     litellm_params:
       model: openai/google/gemma-4-26B-A4B-it
-      api_base: http://worker-rtx5090.trex-fiordland.ts.net:8000/v1
+      api_base: http://worker-rtx5090.projectnyra.com:8000/v1
+      api_key: "not-needed"
+      timeout: 120
+
+  # ── Local GPU Inference — RTX 3090Ti (24 GB vLLM) ─────────────────────────
+  - model_name: local/qwen-coder-32b
+    litellm_params:
+      model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
+      api_base: http://worker-rtx3090ti.projectnyra.com:8000/v1
       api_key: "not-needed"
       timeout: 120
 
   - model_name: local/vybestack-coder
     litellm_params:
       model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
-      api_base: http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1
+      api_base: http://worker-rtx3090ti.projectnyra.com:8000/v1
       api_key: "not-needed"
       timeout: 120
 
+  # ── Local GPU Inference — RTX 3060 (12 GB Ollama) ─────────────────────────
+  - model_name: local/qwen2.5-4b
+    litellm_params:
+      model: ollama/qwen2.5:4b
+      api_base: http://worker-rtx3060.projectnyra.com:11434
+
+  - model_name: local/llama3.2-3b
+    litellm_params:
+      model: ollama/llama3.2:3b
+      api_base: http://worker-rtx3060.projectnyra.com:11434
+
+  - model_name: local/embeddings
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: http://worker-rtx3060.projectnyra.com:11434
+
+  # ── OpenClaw Gateway (OpenAI-compatible agentic API) ──────────────────────
+  # OpenClaw exposes /v1/chat/completions and wraps calls with its agent runtime.
+  # 3090Ti clawteam compose: host port 8001. 3060 openclaw compose: host port 8003.
+  - model_name: claw/openclaw-3090ti
+    litellm_params:
+      model: openai/openclaw
+      api_base: http://worker-rtx3090ti.projectnyra.com:8001/v1
+      api_key: "not-needed"
+      timeout: 180
+
+  - model_name: claw/openclaw-3060
+    litellm_params:
+      model: openai/openclaw
+      api_base: http://worker-rtx3060.projectnyra.com:8003/v1
+      api_key: "not-needed"
+      timeout: 120
+
+  # ── Paid Subscriptions via llxprt bridge (port 8091) ──────────────────────
+  # Bridge: socat proxy → host.docker.internal:8091 on oracle-vps.
+  # Each model ID routes to the matching llxprt CLI provider.
+  # $100/mo each — prefer local/free tiers; fallback chains enforce this.
   - model_name: subscription/codex
     litellm_params:
       model: openai/llxprt-codex
@@ -62,6 +86,100 @@ model_list:
       api_base: http://host.docker.internal:8091/v1
       api_key: os.environ/LLXPRT_BRIDGE_API_KEY
       timeout: 900
+
+  # ── Free CLI Providers via llxprt bridge ──────────────────────────────────
+  # Requires the llxprt bridge to support these model IDs.
+  # Verify with: curl http://localhost:8091/v1/models
+  # Add missing providers by extending the bridge's llxprt profile config.
+  - model_name: free/kimi
+    litellm_params:
+      model: openai/llxprt-kimi
+      api_base: http://host.docker.internal:8091/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 120
+
+  - model_name: free/qwen-cli
+    litellm_params:
+      model: openai/llxprt-qwen-cli
+      api_base: http://host.docker.internal:8091/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 120
+
+  - model_name: free/cerebras
+    litellm_params:
+      model: openai/llxprt-cerebras
+      api_base: http://host.docker.internal:8091/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 60
+
+  # ── OpenRouter Free Tier ───────────────────────────────────────────────────
+  # Requires OPENROUTER_API_KEY in Infisical at /nyra:
+  #   infisical secrets set OPENROUTER_API_KEY=sk-or-v1-... --env=dev --path=/nyra
+  # Get key at: https://openrouter.ai/keys
+  # Free models have rate limits but zero cost. Used as third-tier fallback.
+  - model_name: openrouter/gemini-flash
+    litellm_params:
+      model: openrouter/google/gemini-2.0-flash-exp:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 60
+
+  - model_name: openrouter/deepseek
+    litellm_params:
+      model: openrouter/deepseek/deepseek-chat:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 90
+
+  - model_name: openrouter/qwen3
+    litellm_params:
+      model: openrouter/qwen/qwen3-30b-a3b:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 120
+
+  - model_name: openrouter/llama4
+    litellm_params:
+      model: openrouter/meta-llama/llama-4-scout:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 60
+
+  - model_name: openrouter/mistral
+    litellm_params:
+      model: openrouter/mistralai/mistral-7b-instruct:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 45
+
+  - model_name: openrouter/cohere
+    litellm_params:
+      model: openrouter/cohere/command-r-08-2024:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 60
+
+  - model_name: openrouter/groq-llama
+    litellm_params:
+      model: openrouter/meta-llama/llama-3.1-8b-instant
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 30
+
+# ── Routing & Fallbacks ───────────────────────────────────────────────────────
+# Priority order: local GPU → free CLI (llxprt) → OpenRouter free → paid subscriptions
+# Fallbacks fire automatically on timeout, rate-limit error, or HTTP 5xx.
+# usage-based-routing-v2 tracks request counts to distribute load across same-named models.
+router_settings:
+  routing_strategy: usage-based-routing-v2
+
+  fallbacks:
+    # Heavy reasoning: local 5090 → free CLI → OpenRouter → paid Claude
+    - {"local/gemma-4": ["free/kimi", "openrouter/qwen3", "subscription/claude"]}
+    # Code tasks: local 3090Ti → free qwen-cli → OpenRouter deepseek → paid Codex
+    - {"local/qwen-coder-32b": ["free/qwen-cli", "openrouter/deepseek", "subscription/codex"]}
+    # Fast/small tasks: 3060 → cerebras → OpenRouter mistral
+    - {"local/llama3.2-3b": ["free/cerebras", "openrouter/mistral"]}
+    - {"local/qwen2.5-4b": ["free/cerebras", "openrouter/mistral"]}
+    # Subscription fallbacks: degrade to local before burning more budget
+    - {"subscription/claude": ["local/gemma-4", "openrouter/qwen3"]}
+    - {"subscription/codex": ["local/qwen-coder-32b", "openrouter/deepseek"]}
+    - {"subscription/gemini": ["local/gemma-4", "openrouter/gemini-flash"]}
+    # OpenClaw fallbacks
+    - {"claw/openclaw-3090ti": ["claw/openclaw-3060", "local/qwen-coder-32b"]}
 
 litellm_settings:
   set_verbose: false

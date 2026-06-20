@@ -1,0 +1,350 @@
+/* eslint-disable no-console */
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import * as fsPromises from 'fs/promises';
+import * as path from 'path';
+import * as os from 'os';
+import { bfsFileSearch } from './bfsFileSearch.js';
+import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
+
+describe('bfsFileSearch', () => {
+  let testRootDir: string;
+
+  async function createEmptyDir(...pathSegments: string[]) {
+    const fullPath = path.join(testRootDir, ...pathSegments);
+    await fsPromises.mkdir(fullPath, { recursive: true });
+    return fullPath;
+  }
+
+  async function createTestFile(content: string, ...pathSegments: string[]) {
+    const fullPath = path.join(testRootDir, ...pathSegments);
+    await fsPromises.mkdir(path.dirname(fullPath), { recursive: true });
+    await fsPromises.writeFile(fullPath, content);
+    return fullPath;
+  }
+
+  beforeEach(async () => {
+    testRootDir = await fsPromises.mkdtemp(
+      path.join(os.tmpdir(), 'bfs-file-search-test-'),
+    );
+  });
+
+  afterEach(async () => {
+    await fsPromises.rm(testRootDir, { recursive: true, force: true });
+  });
+
+  it('should find a file in the root directory', async () => {
+    const targetFilePath = await createTestFile('content', 'target.txt');
+    const result = await bfsFileSearch(testRootDir, { fileName: 'target.txt' });
+    expect(result).toStrictEqual([targetFilePath]);
+  });
+
+  it('should find a file in a nested directory', async () => {
+    const targetFilePath = await createTestFile(
+      'content',
+      'a',
+      'b',
+      'target.txt',
+    );
+    const result = await bfsFileSearch(testRootDir, { fileName: 'target.txt' });
+    expect(result).toStrictEqual([targetFilePath]);
+  });
+
+  it('should find multiple files with the same name', async () => {
+    const targetFilePath1 = await createTestFile('content1', 'a', 'target.txt');
+    const targetFilePath2 = await createTestFile('content2', 'b', 'target.txt');
+    const result = await bfsFileSearch(testRootDir, { fileName: 'target.txt' });
+    result.sort();
+    expect(result).toStrictEqual([targetFilePath1, targetFilePath2].sort());
+  });
+
+  it('should return an empty array if no file is found', async () => {
+    await createTestFile('content', 'other.txt');
+    const result = await bfsFileSearch(testRootDir, { fileName: 'target.txt' });
+    expect(result).toStrictEqual([]);
+  });
+
+  it('should ignore directories specified in ignoreDirs', async () => {
+    await createTestFile('content', 'ignored', 'target.txt');
+    const targetFilePath = await createTestFile(
+      'content',
+      'not-ignored',
+      'target.txt',
+    );
+    const result = await bfsFileSearch(testRootDir, {
+      fileName: 'target.txt',
+      ignoreDirs: ['ignored'],
+    });
+    expect(result).toStrictEqual([targetFilePath]);
+  });
+
+  it('should respect the maxDirs limit and not find the file', async () => {
+    await createTestFile('content', 'a', 'b', 'c', 'target.txt');
+    const result = await bfsFileSearch(testRootDir, {
+      fileName: 'target.txt',
+      maxDirs: 3,
+    });
+    expect(result).toStrictEqual([]);
+  });
+
+  it('should respect the maxDirs limit and find the file', async () => {
+    const targetFilePath = await createTestFile(
+      'content',
+      'a',
+      'b',
+      'c',
+      'target.txt',
+    );
+    const result = await bfsFileSearch(testRootDir, {
+      fileName: 'target.txt',
+      maxDirs: 4,
+    });
+    expect(result).toStrictEqual([targetFilePath]);
+  });
+
+  it('should only find files in root directory when maxDepth is 0', async () => {
+    const rootFile = await createTestFile('content', 'target.txt');
+    await createTestFile('content', 'a', 'target.txt');
+    await createTestFile('content', 'a', 'b', 'target.txt');
+
+    const result = await bfsFileSearch(testRootDir, {
+      fileName: 'target.txt',
+      maxDepth: 0,
+    });
+    expect(result).toStrictEqual([rootFile]);
+  });
+
+  it('should find files up to one level deep when maxDepth is 1', async () => {
+    const rootFile = await createTestFile('content', 'target.txt');
+    const level1File = await createTestFile('content', 'a', 'target.txt');
+    await createTestFile('content', 'a', 'b', 'target.txt');
+
+    const result = await bfsFileSearch(testRootDir, {
+      fileName: 'target.txt',
+      maxDepth: 1,
+    });
+    result.sort();
+    expect(result).toStrictEqual([rootFile, level1File].sort());
+  });
+
+  it('should find files at all depths when maxDepth is undefined', async () => {
+    const rootFile = await createTestFile('content', 'target.txt');
+    const level1File = await createTestFile('content', 'a', 'target.txt');
+    const level2File = await createTestFile('content', 'a', 'b', 'target.txt');
+
+    const result = await bfsFileSearch(testRootDir, {
+      fileName: 'target.txt',
+    });
+    result.sort();
+    expect(result).toStrictEqual([rootFile, level1File, level2File].sort());
+  });
+
+  it('should find files at all depths when maxDepth is very large', async () => {
+    const rootFile = await createTestFile('content', 'target.txt');
+    const level1File = await createTestFile('content', 'a', 'target.txt');
+    const level2File = await createTestFile('content', 'a', 'b', 'target.txt');
+
+    const result = await bfsFileSearch(testRootDir, {
+      fileName: 'target.txt',
+      maxDepth: 999999,
+    });
+    result.sort();
+    expect(result).toStrictEqual([rootFile, level1File, level2File].sort());
+  });
+
+  it('should work correctly when maxDepth and maxDirs are both set', async () => {
+    const rootFile = await createTestFile('content', 'target.txt');
+    // Create many dirs at level 1 to test maxDirs interaction
+    for (let i = 0; i < 10; i++) {
+      await createTestFile('content', `dir${i}`, 'target.txt');
+    }
+    await createTestFile('content', 'dir0', 'deep', 'target.txt');
+
+    // maxDepth=1 limits depth, maxDirs=5 limits total dirs scanned
+    const result = await bfsFileSearch(testRootDir, {
+      fileName: 'target.txt',
+      maxDepth: 1,
+      maxDirs: 5,
+    });
+    // Should find root file + up to 4 level-1 files (maxDirs=5 total dirs scanned)
+    // Should NOT find dir0/deep/target.txt because maxDepth=1
+    for (const file of result) {
+      expect(file).not.toContain(path.join('deep', 'target.txt'));
+    }
+    expect(result).toContain(rootFile);
+    // maxDirs=5 means at most 5 directories scanned (root + up to 4 subdirs)
+    expect(result.length).toBeLessThanOrEqual(5);
+  });
+
+  describe('with FileDiscoveryService', () => {
+    let projectRoot: string;
+
+    beforeEach(async () => {
+      projectRoot = await createEmptyDir('project');
+    });
+
+    it('should ignore gitignored files', async () => {
+      await createEmptyDir('project', '.git');
+      await createTestFile('node_modules/', 'project', '.gitignore');
+      await createTestFile('content', 'project', 'node_modules', 'target.txt');
+      const targetFilePath = await createTestFile(
+        'content',
+        'project',
+        'not-ignored',
+        'target.txt',
+      );
+
+      const fileService = new FileDiscoveryService(projectRoot);
+      const result = await bfsFileSearch(projectRoot, {
+        fileName: 'target.txt',
+        fileService,
+        fileFilteringOptions: {
+          respectGitIgnore: true,
+          respectLlxprtIgnore: true,
+        },
+      });
+
+      expect(result).toStrictEqual([targetFilePath]);
+    });
+
+    it('should ignore llxprtignored files', async () => {
+      await createTestFile('node_modules/', 'project', '.llxprtignore');
+      await createTestFile('content', 'project', 'node_modules', 'target.txt');
+      const targetFilePath = await createTestFile(
+        'content',
+        'project',
+        'not-ignored',
+        'target.txt',
+      );
+
+      const fileService = new FileDiscoveryService(projectRoot);
+      const result = await bfsFileSearch(projectRoot, {
+        fileName: 'target.txt',
+        fileService,
+        fileFilteringOptions: {
+          respectGitIgnore: false,
+          respectLlxprtIgnore: true,
+        },
+      });
+
+      expect(result).toStrictEqual([targetFilePath]);
+    });
+
+    it('should not ignore files if respect flags are false', async () => {
+      await createEmptyDir('project', '.git');
+      await createTestFile('node_modules/', 'project', '.gitignore');
+      const target1 = await createTestFile(
+        'content',
+        'project',
+        'node_modules',
+        'target.txt',
+      );
+      const target2 = await createTestFile(
+        'content',
+        'project',
+        'not-ignored',
+        'target.txt',
+      );
+
+      const fileService = new FileDiscoveryService(projectRoot);
+      const result = await bfsFileSearch(projectRoot, {
+        fileName: 'target.txt',
+        fileService,
+        fileFilteringOptions: {
+          respectGitIgnore: false,
+          respectLlxprtIgnore: false,
+        },
+      });
+
+      expect(result.sort()).toStrictEqual([target1, target2].sort());
+    });
+  });
+
+  it('should perform parallel directory scanning efficiently (performance test)', async () => {
+    // Create a more complex directory structure for performance testing
+    console.log('\n🚀 Testing Parallel BFS Performance...');
+
+    // Create 50 directories with multiple levels for faster test execution
+    for (let i = 0; i < 50; i++) {
+      await createEmptyDir(`dir${i}`);
+      await createEmptyDir(`dir${i}`, 'subdir1');
+      await createEmptyDir(`dir${i}`, 'subdir2');
+      await createEmptyDir(`dir${i}`, 'subdir1', 'deep');
+      if (i < 10) {
+        // Add target files in some directories
+        await createTestFile('content', `dir${i}`, 'GEMINI.md');
+        await createTestFile('content', `dir${i}`, 'subdir1', 'GEMINI.md');
+      }
+    }
+
+    // Run multiple iterations to ensure consistency
+    const iterations = 3;
+    const durations: number[] = [];
+    let foundFiles = 0;
+    let firstResultSorted: string[] | undefined;
+
+    for (let i = 0; i < iterations; i++) {
+      const searchStartTime = performance.now();
+      const result = await bfsFileSearch(testRootDir, {
+        fileName: 'GEMINI.md',
+        maxDirs: 200,
+        debug: false,
+      });
+      const duration = performance.now() - searchStartTime;
+      durations.push(duration);
+
+      // Verify consistency: all iterations should find the exact same files
+      const sortedResult = result.sort();
+      if (firstResultSorted === undefined) {
+        foundFiles = result.length;
+        firstResultSorted = sortedResult;
+      }
+      // Verify consistency across all iterations
+      expect(sortedResult).toStrictEqual(firstResultSorted);
+
+      console.log(`📊 Iteration ${i + 1}: ${duration.toFixed(2)}ms`);
+    }
+
+    const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
+    const maxDuration = Math.max(...durations);
+    const minDuration = Math.min(...durations);
+
+    console.log(`📊 Average Duration: ${avgDuration.toFixed(2)}ms`);
+    console.log(
+      `📊 Min/Max Duration: ${minDuration.toFixed(2)}ms / ${maxDuration.toFixed(2)}ms`,
+    );
+    console.log(`📁 Found ${foundFiles} GEMINI.md files`);
+    console.log(
+      `🏎️  Processing ~${Math.round(200 / (avgDuration / 1000))} dirs/second`,
+    );
+
+    // Verify we found the expected files
+    expect(foundFiles).toBe(20); // 10 dirs * 2 files each
+
+    // Performance expectation: check consistency rather than absolute time
+    const variance = maxDuration - minDuration;
+    const consistencyRatio = variance / avgDuration;
+
+    // Ensure reasonable performance (generous limit for CI environments)
+    expect(avgDuration).toBeLessThan(2000); // Very generous limit
+
+    // Ensure consistency across runs (variance should not be too high)
+    // I/O-bound operations under load can have high variance due to:
+    // - Filesystem cache state differences between runs
+    // - OS I/O scheduling with other processes competing for disk
+    // - Node.js async task queue depth variations
+    // A regression would show consistently slow times (high avgDuration),
+    // not just variance, so we use generous consistency thresholds.
+    const maxConsistencyRatio = process.env.CI ? 3.0 : 2.5;
+    expect(consistencyRatio).toBeLessThan(maxConsistencyRatio);
+
+    console.log(
+      `✅ Performance test passed: avg=${avgDuration.toFixed(2)}ms, consistency=${(consistencyRatio * 100).toFixed(1)}% (threshold: ${(maxConsistencyRatio * 100).toFixed(0)}%)`,
+    );
+  });
+});

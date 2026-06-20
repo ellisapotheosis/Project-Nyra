@@ -1,0 +1,48 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+export enum TelemetryTarget {
+  GCP = 'gcp',
+  LOCAL = 'local',
+}
+
+const DEFAULT_TELEMETRY_TARGET = TelemetryTarget.LOCAL;
+const DEFAULT_OTLP_ENDPOINT = 'http://localhost:4317';
+
+export { DEFAULT_TELEMETRY_TARGET, DEFAULT_OTLP_ENDPOINT };
+export {
+  initializeTelemetry,
+  shutdownTelemetry,
+  isTelemetrySdkInitialized,
+  flushTelemetry,
+} from './sdk.js';
+export {
+  logCliConfiguration,
+  logUserPrompt,
+  logToolCall,
+  logHookCall,
+  logApiRequest,
+  logApiError,
+  logApiResponse,
+  logSlashCommand,
+  logKittySequenceOverflow,
+} from './loggers.js';
+export {
+  StartSessionEvent,
+  EndSessionEvent,
+  UserPromptEvent,
+  ToolCallEvent,
+  HookCallEvent,
+  ApiRequestEvent,
+  ApiErrorEvent,
+  ApiResponseEvent,
+  SlashCommandEvent,
+  KittySequenceOverflowEvent,
+} from './types.js';
+export type { TelemetryEvent } from './types.js';
+export { SpanStatusCode, ValueType } from '@opentelemetry/api';
+export { SemanticAttributes } from '@opentelemetry/semantic-conventions';
+export * from './uiTelemetry.js';

@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`App UI > should render the initial UI correctly 1`] = `
+"
+ The first rule of Fight Club is: you do not talk about Fight Club. (esc to cancel, 0s)
+
+
+                                               Context: 0.0k/1049k | TPM: 0.00 | Wait: 0ms
+/test/dir  [no sandbox (see /docs)]                                 gemini-pro | Tokens: 0"
+`;

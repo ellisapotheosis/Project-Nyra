@@ -492,6 +492,130 @@ This is normal! Windows and WSL are separate network stacks. Both need Tailscale
 
 ---
 
+## 🛰️ Tailscale-Served MCP Services (Split DNS)
+
+Some MCP servers are intentionally NOT exposed via Cloudflare. They get private access
+through Tailscale only — both a MagicDNS hostname (`*.trex-fiordland.ts.net`) and a
+private Split DNS subdomain (`*.projectnyra.com`, resolved inside the tailnet only).
+
+Currently configured Tailscale-private MCP services:
+
+| Service            | MagicDNS                                | Split DNS                           | Port |
+| ------------------ | --------------------------------------- | ----------------------------------- | ---- |
+| `spline-mcp`       | `spline-mcp.trex-fiordland.ts.net`      | `spline-mcp.projectnyra.com`        | 8779 |
+| `meshy-mcp`        | `meshy-mcp.trex-fiordland.ts.net`       | `meshy-mcp.projectnyra.com`         | 8780 |
+| `loki-website-mcp` | `loki-website-mcp.trex-fiordland.ts.net`| `loki-website-mcp.projectnyra.com`  | 8781 |
+
+### Step A: Give Each MCP Its Own MagicDNS Hostname (Tailscale Sidecar Pattern)
+
+Each service needs to register as its own Tailscale device to get a unique `ts.net` hostname.
+Add a Tailscale sidecar container to the MCP's Docker Compose service:
+
+```yaml
+# docker-compose fragment (repeat per MCP, changing TS_HOSTNAME and port)
+services:
+  spline-mcp-ts:
+    image: tailscale/tailscale:latest
+    hostname: spline-mcp
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY_SPLINE_MCP}   # ephemeral key, tag:mcp-server
+      - TS_HOSTNAME=spline-mcp
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_SERVE_CONFIG=/config/serve.json     # optional: auto-configure tailscale serve
+    volumes:
+      - spline-mcp-ts-state:/var/lib/tailscale
+    cap_add: [NET_ADMIN, SYS_MODULE]
+    network_mode: service:spline-mcp           # shares network namespace with the MCP container
+
+  spline-mcp:
+    image: your-spline-mcp-image
+    ports:
+      - "8779:8779"
+```
+
+After starting the sidecar, the device `spline-mcp` appears in the Tailscale admin console
+and gets MagicDNS hostname `spline-mcp.trex-fiordland.ts.net` automatically.
+
+### Step B: Expose the Port via `tailscale serve` (Optional — HTTPS on MagicDNS)
+
+From inside the sidecar (or from the orchestrator WSL shell after `tailscale set --hostname spline-mcp`):
+
+```bash
+# Expose the MCP's HTTP port as HTTPS on the MagicDNS hostname
+tailscale serve --bg https / http://localhost:8779
+
+# Verify:
+tailscale serve status
+# Output should show: https://spline-mcp.trex-fiordland.ts.net/ -> http://localhost:8779
+```
+
+Repeat for meshy-mcp (8780) and loki-website-mcp (8781).
+
+### Step C: Configure Tailscale Split DNS for `projectnyra.com`
+
+Split DNS makes `spline-mcp.projectnyra.com` resolve privately inside the tailnet to the
+MCP's Tailscale IP — without touching Cloudflare or public DNS.
+
+**Option 1 — Point Split DNS to MagicDNS resolver (simplest)**
+
+In the Tailscale admin console (login.tailscale.com/admin/dns):
+1. Under "Nameservers" → "Add nameserver" → "Custom"
+2. Set nameserver IP to `100.100.100.100` (Tailscale's own MagicDNS resolver)
+3. Set the restricted domain to `projectnyra.com`
+4. Save
+
+Tailscale will now resolve `*.projectnyra.com` queries via MagicDNS inside the tailnet.
+This means `spline-mcp.projectnyra.com` resolves to the Tailscale IP of the `spline-mcp`
+device (same as `spline-mcp.trex-fiordland.ts.net`).
+
+**Option 2 — Local CoreDNS with explicit A records (more control)**
+
+Run a CoreDNS container on the orchestrator:
+
+```yaml
+# infra/docker-compose/coredns.yml fragment
+services:
+  coredns:
+    image: coredns/coredns:latest
+    ports:
+      - "53:53/udp"
+    volumes:
+      - ./coredns/Corefile:/Corefile
+      - ./coredns/zones:/zones
+```
+
+`/zones/projectnyra.com.db`:
+```zone
+$ORIGIN projectnyra.com.
+@ 300 IN SOA ns1 admin 1 3600 900 604800 300
+spline-mcp       300 IN A <tailscale-ip-of-spline-mcp>
+meshy-mcp        300 IN A <tailscale-ip-of-meshy-mcp>
+loki-website-mcp 300 IN A <tailscale-ip-of-loki-website-mcp>
+```
+
+Then in Tailscale admin DNS, set Split DNS nameserver for `projectnyra.com` to the
+orchestrator's Tailscale IP (e.g., `100.64.0.10`) on port 53.
+
+### Verification
+
+```bash
+# From any device on the tailnet:
+tailscale status | grep -E "spline|meshy|loki-website"
+# Should show the three nodes as connected
+
+# DNS resolution:
+dig spline-mcp.trex-fiordland.ts.net        # MagicDNS
+dig spline-mcp.projectnyra.com              # Split DNS (private only)
+
+# Reachability:
+curl http://spline-mcp.trex-fiordland.ts.net:8779/
+curl http://spline-mcp.projectnyra.com:8779/
+```
+
+Full setup reference: `docs/network/TAILSCALE-SERVICES.md`
+
+---
+
 ## 📝 Next Steps
 
 After completing this setup:
@@ -501,6 +625,7 @@ After completing this setup:
 3. **Configure Cloudflare Access**: Setup authentication for admin services
 4. **Setup Monitoring**: Import Grafana dashboards for Tailscale and Cloudflared metrics
 5. **Test End-to-End**: Submit a test workload from orchestrator to workers
+6. **Deploy MCP Tailscale sidecars**: Follow the Split DNS steps above for spline-mcp, meshy-mcp, loki-website-mcp
 
 ---
 

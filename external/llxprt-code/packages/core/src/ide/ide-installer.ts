@@ -1,0 +1,165 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import * as child_process from 'node:child_process';
+import * as process from 'node:process';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import { IDE_DEFINITIONS, type IdeInfo } from './detect-ide.js';
+import { LLXPRT_CODE_COMPANION_EXTENSION_NAME } from './constants.js';
+
+function getVsCodeCommand(platform: NodeJS.Platform = process.platform) {
+  return platform === 'win32' ? 'code.cmd' : 'code';
+}
+
+export interface IdeInstaller {
+  install(): Promise<InstallResult>;
+}
+
+export interface InstallResult {
+  success: boolean;
+  message: string;
+}
+
+async function findVsCodeCommand(
+  platform: NodeJS.Platform = process.platform,
+): Promise<string | null> {
+  // 1. Check PATH first.
+  const vscodeCommand = getVsCodeCommand(platform);
+  try {
+    if (platform === 'win32') {
+      // eslint-disable-next-line sonarjs/os-command -- Project intentionally invokes platform tooling at this trusted boundary; arguments remain explicit and behavior is preserved.
+      const result = child_process
+        .execSync(`where.exe ${vscodeCommand}`)
+        .toString()
+        .trim();
+      // `where.exe` can return multiple paths. Return the first one.
+      const firstPath = result.split(/\r?\n/)[0];
+      if (firstPath) {
+        return firstPath;
+      }
+    } else {
+      // eslint-disable-next-line sonarjs/os-command -- Project intentionally invokes platform tooling at this trusted boundary; arguments remain explicit and behavior is preserved.
+      child_process.execSync(`command -v ${vscodeCommand}`, {
+        stdio: 'ignore',
+      });
+      return vscodeCommand;
+    }
+  } catch {
+    // Not in PATH, continue to check common locations.
+  }
+
+  // 2. Check common installation locations.
+  const locations: string[] = [];
+  const homeDir = os.homedir();
+
+  if (platform === 'darwin') {
+    // macOS
+    locations.push(
+      '/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code',
+      path.join(homeDir, 'Library/Application Support/Code/bin/code'),
+    );
+  } else if (platform === 'linux') {
+    // Linux
+    locations.push(
+      '/usr/share/code/bin/code',
+      '/snap/bin/code',
+      path.join(homeDir, '.local/share/code/bin/code'),
+    );
+  } else if (platform === 'win32') {
+    // Windows
+    locations.push(
+      path.join(
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: env var may be empty string, fallback to default path
+        process.env.ProgramFiles || 'C:\\Program Files',
+        'Microsoft VS Code',
+        'bin',
+        'code.cmd',
+      ),
+      path.join(
+        homeDir,
+        'AppData',
+        'Local',
+        'Programs',
+        'Microsoft VS Code',
+        'bin',
+        'code.cmd',
+      ),
+    );
+  }
+
+  for (const location of locations) {
+    if (fs.existsSync(location)) {
+      return location;
+    }
+  }
+
+  return null;
+}
+
+class VsCodeInstaller implements IdeInstaller {
+  private vsCodeCommand: Promise<string | null>;
+
+  constructor(
+    readonly ideInfo: IdeInfo,
+    readonly platform = process.platform,
+  ) {
+    this.vsCodeCommand = findVsCodeCommand(platform);
+  }
+
+  async install(): Promise<InstallResult> {
+    const commandPath = await this.vsCodeCommand;
+    if (!commandPath) {
+      return {
+        success: false,
+        message: `${this.ideInfo.displayName} CLI not found. Please ensure 'code' is in your system's PATH. For help, see https://code.visualstudio.com/docs/configure/command-line#_code-is-not-recognized-as-an-internal-or-external-command. You can also install the '${LLXPRT_CODE_COMPANION_EXTENSION_NAME}' extension manually from the VS Code marketplace.`,
+      };
+    }
+
+    try {
+      const result = child_process.spawnSync(
+        commandPath,
+        [
+          '--install-extension',
+          'vybestack.llxprt-code-vscode-ide-companion',
+          '--force',
+        ],
+        { stdio: 'pipe', shell: this.platform === 'win32' },
+      );
+
+      if (result.status !== 0) {
+        throw new Error(
+          `Failed to install extension: ${result.stderr.toString()}`,
+        );
+      }
+
+      return {
+        success: true,
+        message: `${this.ideInfo.displayName} companion extension was installed successfully.`,
+      };
+    } catch {
+      // Extension installation failed - user must install manually
+      return {
+        success: false,
+        message: `Failed to install ${this.ideInfo.displayName} companion extension. Please try installing '${LLXPRT_CODE_COMPANION_EXTENSION_NAME}' manually from the ${this.ideInfo.displayName} extension marketplace.`,
+      };
+    }
+  }
+}
+
+export function getIdeInstaller(
+  ide: IdeInfo,
+  platform = process.platform,
+): IdeInstaller | null {
+  switch (ide.name) {
+    case IDE_DEFINITIONS.vscode.name:
+    case IDE_DEFINITIONS.firebasestudio.name:
+      return new VsCodeInstaller(ide, platform);
+    default:
+      return null;
+  }
+}

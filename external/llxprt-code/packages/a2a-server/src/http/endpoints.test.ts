@@ -1,0 +1,187 @@
+/* eslint-disable no-console */
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import request from 'supertest';
+import type express from 'express';
+import { createApp, updateCoderAgentCardUrl } from './app.js';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
+import type { Server } from 'node:http';
+import type { TaskMetadata } from '../types.js';
+import type { AddressInfo } from 'node:net';
+
+// Mock the logger to avoid polluting test output
+// Comment out to help debug
+vi.mock('../utils/logger.js', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
+
+// Mock loadConfig to avoid authentication requirements
+vi.mock('../config/config.js', () => ({
+  loadConfig: vi.fn().mockImplementation(async () => ({
+    // Return a minimal Config-like object that satisfies test needs
+    getContentGeneratorConfig: vi.fn().mockReturnValue({ model: 'gemini-pro' }),
+    getSessionId: () => 'test-session',
+    getModel: () => 'gemini-pro',
+  })),
+  loadSettings: vi.fn().mockReturnValue({}),
+  loadExtensions: vi.fn().mockReturnValue([]),
+  loadEnvironment: vi.fn(),
+  setTargetDir: vi
+    .fn()
+    .mockImplementation((settings) => settings?.workspacePath ?? process.cwd()),
+}));
+
+// Mock Task.create to avoid its complex setup
+vi.mock('../agent/task.js', () => {
+  class MockTask {
+    id: string;
+    contextId: string;
+    taskState = 'submitted';
+    config = {
+      getContentGeneratorConfig: vi
+        .fn()
+        .mockReturnValue({ model: 'gemini-pro' }),
+    };
+    geminiClient = {
+      initialize: vi.fn().mockResolvedValue(undefined),
+    };
+    constructor(id: string, contextId: string) {
+      this.id = id;
+      this.contextId = contextId;
+    }
+    static create = vi
+      .fn()
+      .mockImplementation((id, contextId) =>
+        Promise.resolve(new MockTask(id, contextId)),
+      );
+    getMetadata = vi.fn().mockImplementation(async () => ({
+      id: this.id,
+      contextId: this.contextId,
+      taskState: this.taskState,
+      model: 'gemini-pro',
+      mcpServers: [],
+      availableTools: [],
+    }));
+  }
+  return { Task: MockTask };
+});
+
+describe('Agent Server Endpoints', () => {
+  let app: express.Express;
+  let server: Server;
+  let testWorkspace: string;
+
+  const createTask = (contextId: string) =>
+    request(app)
+      .post('/tasks')
+      .send({
+        contextId,
+        agentSettings: {
+          kind: 'agent-settings',
+          workspacePath: testWorkspace,
+        },
+      })
+      .set('Content-Type', 'application/json');
+
+  beforeAll(async () => {
+    // Create a unique temporary directory for the workspace to avoid conflicts
+    testWorkspace = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'gemini-agent-test-'),
+    );
+    app = await createApp();
+    await new Promise<void>((resolve) => {
+      server = app.listen(0, () => {
+        const port = (server.address() as AddressInfo).port;
+        updateCoderAgentCardUrl(port);
+        resolve();
+      });
+    });
+
+    // On Windows, give the server a moment to fully initialize
+    const initDelay = process.platform === 'win32' ? 100 : 0;
+    if (initDelay > 0) {
+      await new Promise((resolve) => setTimeout(resolve, initDelay));
+    }
+  });
+
+  afterAll(async () => {
+    await new Promise<void>((resolve, reject) => {
+      server.close((err) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve();
+      });
+    });
+
+    // On Windows, give the server a moment to fully close before cleanup
+    const closeDelay = process.platform === 'win32' ? 100 : 0;
+    if (closeDelay > 0) {
+      await new Promise((resolve) => setTimeout(resolve, closeDelay));
+    }
+
+    if (testWorkspace) {
+      try {
+        fs.rmSync(testWorkspace, { recursive: true, force: true });
+      } catch (e) {
+        console.warn(`Could not remove temp dir '${testWorkspace}':`, e);
+      }
+    }
+  });
+
+  it(
+    'should create a new task via POST /tasks',
+    async () => {
+      const response = await createTask('test-context');
+      expect(response.status).toBe(201);
+      expect(response.body).toBeTypeOf('string'); // Should return the task ID
+    },
+    process.platform === 'win32' ? 12000 : 7000,
+  );
+
+  it(
+    'should get metadata for a specific task via GET /tasks/:taskId/metadata',
+    async () => {
+      const createResponse = await createTask('test-context-2');
+      const taskId = createResponse.body;
+      const response = await request(app).get(`/tasks/${taskId}/metadata`);
+      expect(response.status).toBe(200);
+      expect(response.body.metadata.id).toBe(taskId);
+    },
+    process.platform === 'win32' ? 10000 : 6000,
+  );
+
+  it('should get metadata for all tasks via GET /tasks/metadata', async () => {
+    const createResponse = await createTask('test-context-3');
+    const taskId = createResponse.body;
+    const response = await request(app).get('/tasks/metadata');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThan(0);
+    const taskMetadata = response.body.find(
+      (m: TaskMetadata) => m.id === taskId,
+    );
+    expect(taskMetadata).toBeDefined();
+  });
+
+  it('should return 404 for a non-existent task', async () => {
+    const response = await request(app).get('/tasks/fake-task/metadata');
+    expect(response.status).toBe(404);
+  });
+
+  it('should return agent metadata via GET /.well-known/agent-card.json', async () => {
+    const response = await request(app).get('/.well-known/agent-card.json');
+    const port = (server.address() as AddressInfo).port;
+    expect(response.status).toBe(200);
+    expect(response.body.name).toBe('Gemini SDLC Agent');
+    expect(response.body.url).toBe(`http://localhost:${port}/`);
+  });
+});
