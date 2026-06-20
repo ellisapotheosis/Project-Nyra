@@ -150,11 +150,7 @@ rotate_secret "ENCRYPTION_KEY" "/shared/security" gen_password
 # ============================================================================
 print_section "3/5: Rotating MCP Server Tokens"
 
-echo "ruv-swarm MCP token..."
-rotate_secret "MCP_RUV_SWARM_TOKEN" "/shared/mcp" "echo mcp_$(openssl rand -hex 32)"
-
-echo "flow-nexus MCP token..."
-rotate_secret "MCP_FLOW_NEXUS_TOKEN" "/shared/mcp" "echo mcp_$(openssl rand -hex 32)"
+# Note: Custom MCP server token rotation has been simplified under Nerve/OpenClaw.
 
 # ============================================================================
 # Rotate API Keys (if managed in Infisical)

@@ -456,3 +456,237 @@ import/reference:
 
 Create or update the two tunnels, import or enter the public hostname mappings, and apply Access
 policies to every private UI before use.
+
+---
+
+## Orchestrator Docker Desktop Recovery (URGENT)
+
+Docker Desktop on MiniApotheosis (orchestrator/dev-laptop) has its Linux engine stuck: the
+`dockerDesktopLinuxEngine` named pipe returns HTTP 500 for every API call. The `com.docker.service`
+Windows service (runs as SYSTEM) keeps restarting Docker processes, preventing a clean restart via
+SSH. All orchestrator Control Plane containers (Nexus, LiteLLM, OpenClaw, n8n, monitoring) are
+down until this is resolved.
+
+**Steps (requires Windows desktop or elevated remote session):**
+
+1. Open PowerShell **as Administrator** on MiniApotheosis.
+2. Stop Docker completely:
+   ```powershell
+   Stop-Service com.docker.service -Force
+   Get-Process | Where-Object { $_.Name -like '*docker*' } | Stop-Process -Force -ErrorAction SilentlyContinue
+   wsl --terminate docker-desktop
+   wsl --terminate docker-data
+   ```
+3. Wait 10 seconds, then restart:
+   ```powershell
+   Start-Service com.docker.service
+   Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+   ```
+4. Wait ~90 seconds, then verify: `docker ps`
+5. If still failing, **reboot MiniApotheosis** — most reliable fix for a stuck `dockerDesktopLinuxEngine`.
+6. All stacks have `restart: unless-stopped` and will recover automatically after Docker is healthy.
+
+---
+
+## Apply Cloudflare DNS for new subdomains
+
+Several new DNS records were added to `infra/cloudflare/generated-remote/dns-records.desired.json`:
+- `nexus-ui` CNAME → oracle tunnel (Nexus UI dashboard)
+- `mcp-gateway` CNAME → oracle tunnel (MCP Gateway Worker)
+- `switcher-3090` A record → 100.64.0.13 (worker-rtx3090ti Tailscale IP, grey-cloud)
+
+Apply with:
+
+```bash
+export CLOUDFLARE_EMAIL=edaneandersen@gmail.com
+export CLOUDFLARE_API_KEY=<global-api-key>
+export CF_ZONE_ID=e745a08b...
+export CF_ACCOUNT_ID=<account-id>
+export ORACLE_TUNNEL_ID=02fa18b6-ffcd-4b37-91ba-409642d5fb8f
+export ORCHESTRATOR_TUNNEL_ID=ae0bd53a-f22e-4414-8593-5b765dcd044b
+
+bash infra/cloudflare/apply-cloudflare-desired-state.sh
+```
+
+Or add the three records manually in the Cloudflare DNS dashboard.
+
+---
+
+## MCP Gateway — Deploy CF Worker and Set Secrets
+
+The MCP Gateway is a Cloudflare Worker at `mcp-gateway.projectnyra.com` that sits in front of the
+Nexus Router. CF Access is intentionally NOT applied to this hostname — the Worker validates Bearer
+tokens itself and then injects the CF Access service-token headers when forwarding to the protected
+`nexus-router.projectnyra.com` origin.
+
+Source: `infra/cloudflare/workers/mcp-gateway/index.js`
+Config: `infra/cloudflare/workers/mcp-gateway/wrangler.toml`
+
+### Step 1 — Create CF Access service token for the Worker
+
+1. Cloudflare Zero Trust → Access → Service Tokens → **Create Service Token**.
+2. Name it `mcp-gateway-worker`.
+3. Save the **Client ID** and **Client Secret** — you need these for the Worker secrets below.
+4. In the Access app for `nexus-router.projectnyra.com` (or the "Nyra Service APIs" app), add a
+   policy rule that allows this service token.
+
+### Step 2 — Deploy the Worker
+
+```bash
+cd infra/cloudflare/workers/mcp-gateway
+
+# Install wrangler if not already installed
+npm install -g wrangler
+
+# Authenticate with Cloudflare
+wrangler login
+
+# Set Worker secrets (never committed to the repo)
+wrangler secret put MCP_BEARER_TOKEN
+# → enter a strong random string; this is the API key you give to ChatGPT
+
+wrangler secret put CF_ACCESS_CLIENT_ID
+# → paste the Client ID from Step 1
+
+wrangler secret put CF_ACCESS_CLIENT_SECRET
+# → paste the Client Secret from Step 1
+
+# Deploy the Worker
+wrangler deploy
+```
+
+### Step 3 — Add Worker route in Cloudflare dashboard
+
+If the `routes` entry in `wrangler.toml` does not auto-create the route, add it manually:
+
+1. Cloudflare Dashboard → Workers & Pages → `mcp-gateway` → Triggers → Custom Domains.
+2. Add `mcp-gateway.projectnyra.com`.
+
+### Step 4 — Verify the Worker
+
+```bash
+# Should return 401 (no auth)
+curl -I https://mcp-gateway.projectnyra.com/mcp
+
+# Should return 200 (valid API key)
+curl -H "Authorization: Bearer <MCP_BEARER_TOKEN>" https://mcp-gateway.projectnyra.com/health
+
+# OAuth discovery (for ChatGPT)
+curl https://mcp-gateway.projectnyra.com/.well-known/oauth-authorization-server
+```
+
+### Step 5 — Add to ChatGPT as an MCP Connector
+
+ChatGPT supports remote MCP servers (ChatGPT Plus / Teams / Enterprise):
+
+1. Open ChatGPT → Settings → Connected apps → **Add custom MCP server** (or go to
+   chatgpt.com/settings/connectors).
+2. **MCP server URL**: `https://mcp-gateway.projectnyra.com/mcp`
+3. **Authentication**: Bearer token → paste the `MCP_BEARER_TOKEN` value from Step 2.
+4. ChatGPT will auto-discover available tools from Nexus Router and present them in chat.
+
+If ChatGPT prompts for OAuth instead of a manual token, it will read
+`/.well-known/oauth-authorization-server` and redirect you through Cloudflare Access login —
+complete the Cloudflare Access auth and ChatGPT stores the resulting JWT.
+
+### Step 6 — Tailscale direct access (bypass Cloudflare for LAN clients)
+
+For devices on the Tailscale mesh, Nexus Router is reachable directly without going through
+Cloudflare at all. On oracle VPS, run:
+
+```bash
+# Expose nexus:3000 as a Tailscale-native HTTPS endpoint
+tailscale serve --bg https+insecure://localhost:3000
+```
+
+This makes `https://oracle.trex-fiordland.ts.net` serve Nexus Router within the Tailscale network
+(no CF Access, no Bearer token needed from Tailscale-authenticated clients).
+
+For a clean `mcp-gateway.projectnyra.com` hostname inside Tailscale:
+
+1. Tailscale Admin Console → DNS → **Add nameserver** → Custom.
+2. Add a split-DNS rule for `projectnyra.com` pointing to a resolver on oracle VPS.
+3. Configure the oracle resolver to return `100.64.0.31` (oracle Tailscale IP) for
+   `mcp-gateway.projectnyra.com`.
+
+Or simply use the Tailscale hostname directly: `https://oracle.trex-fiordland.ts.net/mcp`.
+
+---
+
+## TwentyCRM API Key — Nexus Router
+
+The Nexus Router config references `TWENTYCRM_API_KEY` for the Twenty CRM MCP server at
+`http://100.64.0.31:3000/mcp`. The current value in Infisical `/clients/nexus` is a placeholder.
+
+**Steps:**
+
+1. Log in to Twenty CRM at `https://twenty.projectnyra.com`.
+2. Navigate to Settings → API & Webhooks → API Keys → **Generate API Key**.
+3. Copy the key and store it:
+
+```bash
+infisical secrets set TWENTYCRM_API_KEY="<your-key>" \
+  --path /clients/nexus \
+  --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
+  --env dev
+
+infisical secrets set TWENTYCRM_API_KEY="<your-key>" \
+  --path /clients/nexus \
+  --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
+  --env staging
+
+infisical secrets set TWENTYCRM_API_KEY="<your-key>" \
+  --path /clients/nexus \
+  --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
+  --env prod
+```
+
+---
+
+## Home Assistant — Long-Lived Access Token
+
+The `ha-mcp` container (Home Assistant MCP bridge) requires a long-lived access token in
+`/machines/homeassistant` → `HASS_TOKEN` in Infisical.
+
+**Steps:**
+
+1. Log in to Home Assistant.
+2. Click your user icon (bottom-left) → **Long-Lived Access Tokens** → **Create Token**.
+3. Name it `nyra-ha-mcp` and copy the token.
+4. Store it:
+
+```bash
+infisical secrets set HASS_TOKEN="<your-token>" \
+  --path /machines/homeassistant \
+  --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
+  --env dev
+
+infisical secrets set HASS_TOKEN="<your-token>" \
+  --path /machines/homeassistant \
+  --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
+  --env staging
+
+infisical secrets set HASS_TOKEN="<your-token>" \
+  --path /machines/homeassistant \
+  --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
+  --env prod
+```
+
+---
+
+## AlertManager — Slack Webhook and PagerDuty Key (Optional)
+
+The AlertManager `docker-entrypoint.sh` gracefully skips these if unset — the stack deploys and
+runs with a null receiver. Set them when ready to enable alert routing.
+
+Infisical path: `/monitoring/grafana-loki-prometheus-alertmanager`
+
+Keys: `ALERTMANAGER_SLACK_WEBHOOK_URL`, `ALERTMANAGER_PAGERDUTY_KEY`
+
+```bash
+# Example — Slack
+infisical secrets set ALERTMANAGER_SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..." \
+  --path /monitoring/grafana-loki-prometheus-alertmanager \
+  --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
+  --env prod
+```
