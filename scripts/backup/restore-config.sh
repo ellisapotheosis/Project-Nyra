@@ -14,7 +14,4 @@ echo "[RESTORE] Restoring configuration files..."
 # Restore docker-compose files
 cp "$BACKUP_DIR"/*.yml "$PROJECT_ROOT/infra/" 2>/dev/null || true
 
-# Restore Claude Flow config
-[ -f "$BACKUP_DIR/archon-os.config.json" ] && cp "$BACKUP_DIR/archon-os.config.json" "$PROJECT_ROOT/"
-
 echo "[SUCCESS] Configuration restored from $BACKUP_DIR"

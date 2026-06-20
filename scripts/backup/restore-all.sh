@@ -47,12 +47,6 @@ bash "$SCRIPT_DIR/restore-database.sh" "$BACKUP_DIR" || warn "Database restore h
 log "Restoring Docker volumes..."
 bash "$SCRIPT_DIR/restore-volumes.sh" "$BACKUP_DIR" || warn "Volume restore had warnings"
 
-# Restore Claude Flow memory
-if [ -f "$BACKUP_DIR/memory-backup.json" ]; then
-    log "Restoring Claude Flow memory..."
-    npx @archon-os/cli@latest memory import --input "$BACKUP_DIR/memory-backup.json" 2>/dev/null || warn "Memory restore failed"
-fi
-
 # Restart services
 log "Restarting services..."
 npm run start:all || warn "Some services failed to start"

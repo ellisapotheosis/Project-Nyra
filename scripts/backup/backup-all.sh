@@ -35,10 +35,6 @@ bash "$SCRIPT_DIR/backup-volumes.sh" "$BACKUP_DIR" || true
 log "Backing up configuration..."
 bash "$SCRIPT_DIR/backup-config.sh" "$BACKUP_DIR" || true
 
-# Claude Flow memory backup
-log "Backing up Claude Flow memory..."
-npx @archon-os/cli@latest memory export --output "$BACKUP_DIR/memory-backup.json" 2>/dev/null || true
-
 # Create backup manifest
 cat > "$BACKUP_DIR/MANIFEST.txt" << MANIFEST
 Project Nyra Backup

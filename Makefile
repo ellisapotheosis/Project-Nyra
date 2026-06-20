@@ -11,9 +11,6 @@ COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 CF_ORCH_COMPOSE  := infra/hosts/orchestrator/docker-compose.cloudflared.yml
 ORACLE_APPS_COMPOSE := infra/hosts/oracle-vps/docker-compose.apps.yml
 
-# Service Specific Compose Files
-ARCHON_ENV_FILE ?= external/archon/nyra-configs/env/archon.env
-
 # Host Specific Compose Files
 ORCHESTRATOR_LLXPRT_COMPOSE := infra/hosts/orchestrator/docker-compose.llxprt.yml
 WORKER_3060_LLXPRT_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
