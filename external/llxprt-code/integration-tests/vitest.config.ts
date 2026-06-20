@@ -1,0 +1,19 @@
+/**
+ * @license
+ * Copyright 2024 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    testTimeout: 300000, // 5 minutes
+    globalSetup: './globalSetup.ts',
+    setupFiles: ['./setup-fast-check.ts'],
+    reporters: ['default'],
+    include: ['**/*.test.ts'],
+    retry: 2,
+    fileParallelism: false,
+  },
+});

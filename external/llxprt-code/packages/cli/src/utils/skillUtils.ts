@@ -1,0 +1,227 @@
+/**
+ * @license
+ * Copyright Vybestack LLC, 2026
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* eslint-disable eslint-comments/disable-enable-pair -- Phase 5: legacy CLI boundary retained while larger decomposition continues. */
+
+import { SettingScope } from '../config/settings.js';
+import type { SkillActionResult } from './skillSettings.js';
+import {
+  Storage,
+  loadSkillsFromDir,
+  type SkillDefinition,
+} from '@vybestack/llxprt-code-core';
+import { cloneFromGit } from '../config/extensions/github.js';
+import extract from 'extract-zip';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import * as os from 'node:os';
+
+/**
+ * Shared logic for building the core skill action message while allowing the
+ * caller to control how each scope and its path are rendered (e.g., bolding or
+ * dimming).
+ *
+ * This function ONLY returns the description of what happened. It is up to the
+ * caller to append any interface-specific guidance (like "Use /skills reload"
+ * or "Restart required").
+ */
+export function renderSkillActionFeedback(
+  result: SkillActionResult,
+  formatScope: (label: string, path: string) => string,
+): string {
+  const { skillName, action, status, error } = result;
+
+  if (status === 'error') {
+    return (
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: empty error message should fall back to generic message
+      error ||
+      `An error occurred while attempting to ${action} skill "${skillName}".`
+    );
+  }
+
+  if (status === 'no-op') {
+    return `Skill "${skillName}" is already ${action === 'enable' ? 'enabled' : 'disabled'}.`;
+  }
+
+  const isEnable = action === 'enable';
+  const actionVerb = isEnable ? 'enabled' : 'disabled';
+  const preposition = isEnable
+    ? 'by removing it from the disabled list in'
+    : 'by adding it to the disabled list in';
+
+  const formatScopeItem = (s: { scope: SettingScope; path: string }) => {
+    const label =
+      s.scope === SettingScope.Workspace ? 'workspace' : s.scope.toLowerCase();
+    return formatScope(label, s.path);
+  };
+
+  const totalAffectedScopes = [
+    ...result.modifiedScopes,
+    ...result.alreadyInStateScopes,
+  ];
+
+  if (totalAffectedScopes.length === 2) {
+    const s1 = formatScopeItem(totalAffectedScopes[0]);
+    const s2 = formatScopeItem(totalAffectedScopes[1]);
+
+    if (isEnable) {
+      return `Skill "${skillName}" ${actionVerb} ${preposition} ${s1} and ${s2} settings.`;
+    }
+    return `Skill "${skillName}" is now disabled in both ${s1} and ${s2} settings.`;
+  }
+
+  const s = formatScopeItem(totalAffectedScopes[0]);
+  return `Skill "${skillName}" ${actionVerb} ${preposition} ${s} settings.`;
+}
+
+/**
+ * Resolves the source path for a skill, cloning or extracting as needed.
+ * Returns the resolved local path and the temp directory to clean up (if any).
+ */
+async function resolveSkillSource(
+  source: string,
+  onLog: (msg: string) => void,
+): Promise<{ sourcePath: string; tempDirToClean: string | undefined }> {
+  const isGitUrl =
+    source.startsWith('git@') ||
+    source.startsWith('http://') ||
+    source.startsWith('https://');
+
+  const isSkillFile = source.toLowerCase().endsWith('.skill');
+
+  if (isGitUrl) {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'llxprt-skill-'));
+    onLog(`Cloning skill from ${source}...`);
+    await cloneFromGit({ source, type: 'git' }, tempDir);
+    return { sourcePath: tempDir, tempDirToClean: tempDir };
+  }
+
+  if (isSkillFile) {
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'llxprt-skill-'));
+    onLog(`Extracting skill from ${source}...`);
+    // eslint-disable-next-line sonarjs/no-unsafe-unzip -- Skill archives are extracted into a fresh temp directory and validated before copy.
+    await extract(path.resolve(source), { dir: tempDir });
+    return { sourcePath: tempDir, tempDirToClean: tempDir };
+  }
+
+  return { sourcePath: source, tempDirToClean: undefined };
+}
+
+/**
+ * Copies resolved skills into the target directory, overwriting if needed.
+ */
+async function copySkillsToTarget(
+  skills: SkillDefinition[],
+  targetDir: string,
+  onLog: (msg: string) => void,
+): Promise<Array<{ name: string; location: string }>> {
+  const installedSkills: Array<{ name: string; location: string }> = [];
+
+  for (const skill of skills) {
+    const skillName = skill.name;
+    const skillDir = path.dirname(skill.location);
+    const destPath = path.join(targetDir, skillName);
+
+    const exists = await fs.stat(destPath).catch(() => null);
+    if (exists) {
+      onLog(`Skill "${skillName}" already exists. Overwriting...`);
+      await fs.rm(destPath, { recursive: true, force: true });
+    }
+
+    await fs.cp(skillDir, destPath, { recursive: true });
+    installedSkills.push({ name: skillName, location: destPath });
+  }
+
+  return installedSkills;
+}
+
+/**
+ * Central logic for installing a skill from a remote URL or local path.
+ */
+export async function installSkill(
+  source: string,
+  scope: 'user' | 'workspace',
+  subpath: string | undefined,
+  onLog: (msg: string) => void,
+  requestConsent: (
+    skills: SkillDefinition[],
+    targetDir: string,
+  ) => Promise<boolean>,
+): Promise<Array<{ name: string; location: string }>> {
+  const { sourcePath: rawSourcePath, tempDirToClean } =
+    await resolveSkillSource(source, onLog);
+
+  try {
+    let sourcePath = rawSourcePath;
+    if (subpath) {
+      sourcePath = path.join(sourcePath, subpath);
+    }
+
+    sourcePath = path.resolve(sourcePath);
+
+    if (tempDirToClean) {
+      const tempRoot = path.resolve(tempDirToClean);
+      const relative = path.relative(tempRoot, sourcePath);
+      if (relative.startsWith('..') || path.isAbsolute(relative)) {
+        throw new Error('Invalid path: Directory traversal not allowed.');
+      }
+    }
+
+    onLog(`Searching for skills in ${sourcePath}...`);
+    const skills = await loadSkillsFromDir(sourcePath);
+
+    if (skills.length === 0) {
+      const subpathMessage = subpath ? ` at path "${subpath}"` : '';
+      throw new Error(
+        `No valid skills found in ${source}${subpathMessage}. Ensure a SKILL.md file exists with valid frontmatter.`,
+      );
+    }
+
+    const workspaceDir = process.cwd();
+    const storage = new Storage(workspaceDir);
+    const targetDir =
+      scope === 'workspace'
+        ? storage.getProjectSkillsDir()
+        : Storage.getUserSkillsDir();
+
+    if (!(await requestConsent(skills, targetDir))) {
+      throw new Error('Skill installation cancelled by user.');
+    }
+
+    await fs.mkdir(targetDir, { recursive: true });
+    return await copySkillsToTarget(skills, targetDir, onLog);
+  } finally {
+    if (tempDirToClean) {
+      await fs.rm(tempDirToClean, { recursive: true, force: true });
+    }
+  }
+}
+
+/**
+ * Central logic for uninstalling a skill by name.
+ */
+export async function uninstallSkill(
+  name: string,
+  scope: 'user' | 'workspace',
+): Promise<{ location: string } | null> {
+  const workspaceDir = process.cwd();
+  const storage = new Storage(workspaceDir);
+  const targetDir =
+    scope === 'workspace'
+      ? storage.getProjectSkillsDir()
+      : Storage.getUserSkillsDir();
+
+  const skillPath = path.join(targetDir, name);
+
+  const exists = await fs.stat(skillPath).catch(() => null);
+
+  if (!exists) {
+    return null;
+  }
+
+  await fs.rm(skillPath, { recursive: true, force: true });
+  return { location: skillPath };
+}

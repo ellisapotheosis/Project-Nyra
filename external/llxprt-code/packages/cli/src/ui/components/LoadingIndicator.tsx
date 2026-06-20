@@ -1,0 +1,96 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import type { ThoughtSummary } from '@vybestack/llxprt-code-core';
+import type React from 'react';
+import { Box, Text } from 'ink';
+import { Colors } from '../colors.js';
+import { useStreamingContext } from '../contexts/StreamingContext.js';
+import { StreamingState } from '../types.js';
+import { GeminiRespondingSpinner } from './GeminiRespondingSpinner.js';
+import { formatDuration } from '../utils/formatters.js';
+import { INTERACTIVE_SHELL_WAITING_PHRASE } from '../hooks/usePhraseCycler.js';
+
+/**
+ * Format timer text for display.
+ */
+function formatTimerText(elapsedTime: number): string {
+  return elapsedTime < 60
+    ? `${elapsedTime}s`
+    : formatDuration(elapsedTime * 1000);
+}
+
+interface LoadingIndicatorProps {
+  currentLoadingPhrase?: string;
+  elapsedTime: number;
+  rightContent?: React.ReactNode;
+  thought?: ThoughtSummary | null;
+}
+
+export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
+  currentLoadingPhrase,
+  elapsedTime,
+  rightContent,
+  thought,
+}) => {
+  const streamingState = useStreamingContext();
+
+  if (streamingState === StreamingState.Idle) {
+    return null;
+  }
+
+  const isShellFocusHint =
+    currentLoadingPhrase === INTERACTIVE_SHELL_WAITING_PHRASE;
+  const isActionRequired =
+    streamingState === StreamingState.WaitingForConfirmation ||
+    isShellFocusHint;
+  const primaryText = isActionRequired
+    ? currentLoadingPhrase
+    : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: empty subject should fall back to loading phrase
+      thought?.subject || currentLoadingPhrase;
+
+  const timerText =
+    streamingState === StreamingState.WaitingForConfirmation
+      ? ''
+      : ` (esc to cancel, ${formatTimerText(elapsedTime)})`;
+
+  const lineText = primaryText
+    ? `${primaryText}${timerText}`
+    : timerText.trimStart();
+
+  return (
+    <Box marginTop={1} paddingLeft={0} flexDirection="column">
+      {/* Main loading line */}
+      <Box width="100%" flexDirection="row">
+        <Box marginRight={1}>
+          <GeminiRespondingSpinner
+            nonRespondingDisplay={
+              streamingState === StreamingState.WaitingForConfirmation
+                ? '⠏'
+                : ''
+            }
+          />
+        </Box>
+        <Box flexGrow={1} flexShrink={1} minWidth={0}>
+          {lineText && (
+            <Text
+              color={Colors.AccentPurple}
+              wrap={timerText ? 'truncate-middle' : 'truncate-end'}
+            >
+              {lineText}
+            </Text>
+          )}
+        </Box>
+        {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions -- Preserve React conditional rendering semantics for ReactNode values. */}
+        {rightContent ? (
+          <Box marginLeft={1} flexShrink={0}>
+            {rightContent}
+          </Box>
+        ) : null}
+      </Box>
+    </Box>
+  );
+};

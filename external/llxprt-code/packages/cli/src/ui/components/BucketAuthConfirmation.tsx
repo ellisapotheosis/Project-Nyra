@@ -1,0 +1,208 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Box, Text } from 'ink';
+import { MessageBusType, DebugLogger } from '@vybestack/llxprt-code-core';
+import type {
+  MessageBus,
+  BucketAuthConfirmationRequest,
+} from '@vybestack/llxprt-code-core';
+import type { RadioSelectItem } from './shared/RadioButtonSelect.js';
+import { RadioButtonSelect } from './shared/RadioButtonSelect.js';
+
+import { Colors } from '../colors.js';
+import { useKeypress } from '../hooks/useKeypress.js';
+
+const logger = new DebugLogger('llxprt:bucket:confirmation:ui');
+
+interface BucketAuthConfirmationProps {
+  messageBus?: MessageBus;
+  isFocused?: boolean;
+}
+
+interface PendingRequest {
+  correlationId: string;
+  provider: string;
+  bucket: string;
+  bucketIndex: number;
+  totalBuckets: number;
+}
+
+type ConfirmOption = 'proceed' | 'cancel';
+
+const CONFIRMATION_OPTIONS: Array<RadioSelectItem<ConfirmOption>> = [
+  {
+    label: 'Yes, open browser',
+    value: 'proceed',
+    key: 'proceed',
+  },
+  {
+    label: 'Cancel (esc)',
+    value: 'cancel',
+    key: 'cancel',
+  },
+];
+
+interface BucketAuthHeaderProps {
+  bucketIndex: number;
+  totalBuckets: number;
+  bucket: string;
+  provider: string;
+}
+
+const BucketAuthHeader: React.FC<BucketAuthHeaderProps> = ({
+  bucketIndex,
+  totalBuckets,
+  bucket,
+  provider,
+}) => (
+  <>
+    <Box marginBottom={1}>
+      <Text color={Colors.AccentCyan} bold>
+        OAuth Bucket Authentication
+      </Text>
+    </Box>
+
+    <Box flexDirection="column" marginBottom={1}>
+      <Text color={Colors.Foreground}>
+        Bucket {bucketIndex} of {totalBuckets}:{' '}
+        <Text color={Colors.AccentGreen}>{bucket}</Text>
+      </Text>
+      <Text color={Colors.DimComment}>Provider: {provider}</Text>
+    </Box>
+
+    <Box marginBottom={1}>
+      <Text color={Colors.AccentGreen}>
+        Open browser to authenticate this bucket?
+      </Text>
+    </Box>
+  </>
+);
+
+function useBucketAuthConfirmation(
+  messageBus: MessageBus | undefined,
+): [PendingRequest | null, () => void] {
+  const [pendingRequest, setPendingRequest] = useState<PendingRequest | null>(
+    null,
+  );
+
+  useEffect(() => {
+    logger.debug('BucketAuthConfirmation useEffect running', {
+      hasMessageBus: !!messageBus,
+    });
+    if (!messageBus) {
+      logger.debug('No message bus available, skipping subscription');
+      return undefined;
+    }
+
+    logger.debug('Subscribing to BUCKET_AUTH_CONFIRMATION_REQUEST');
+    const unsubscribe = messageBus.subscribe<BucketAuthConfirmationRequest>(
+      MessageBusType.BUCKET_AUTH_CONFIRMATION_REQUEST,
+      (request) => {
+        logger.debug('Received bucket auth confirmation request', {
+          provider: request.provider,
+          bucket: request.bucket,
+          bucketIndex: request.bucketIndex,
+          totalBuckets: request.totalBuckets,
+        });
+        setPendingRequest({
+          correlationId: request.correlationId,
+          provider: request.provider,
+          bucket: request.bucket,
+          bucketIndex: request.bucketIndex,
+          totalBuckets: request.totalBuckets,
+        });
+      },
+    );
+
+    return () => {
+      logger.debug('Unsubscribing from BUCKET_AUTH_CONFIRMATION_REQUEST');
+      unsubscribe();
+    };
+  }, [messageBus]);
+
+  const clearPendingRequest = useCallback(() => {
+    setPendingRequest(null);
+  }, []);
+
+  return [pendingRequest, clearPendingRequest];
+}
+
+/**
+ * @plan PLAN-20260309-MESSAGEBUS-DI-REMEDIATION.P11
+ * @requirement REQ-D01-002
+ * @requirement REQ-D01-003
+ * @pseudocode lines 122-133
+ */
+export const BucketAuthConfirmation: React.FC<BucketAuthConfirmationProps> = ({
+  messageBus,
+  isFocused = true,
+}) => {
+  const [pendingRequest, clearPendingRequest] =
+    useBucketAuthConfirmation(messageBus);
+
+  const handleConfirm = useCallback(
+    (confirmed: boolean) => {
+      if (!pendingRequest || !messageBus) {
+        return;
+      }
+
+      messageBus.respondToBucketAuthConfirmation(
+        pendingRequest.correlationId,
+        confirmed,
+      );
+
+      clearPendingRequest();
+    },
+    [messageBus, pendingRequest, clearPendingRequest],
+  );
+
+  useKeypress(
+    (key) => {
+      if (!pendingRequest || !isFocused) return;
+      if (key.name === 'escape' || (key.ctrl && key.name === 'c')) {
+        handleConfirm(false);
+      }
+    },
+    { isActive: !!pendingRequest && isFocused },
+  );
+
+  const handleSelect = useCallback(
+    (option: ConfirmOption) => {
+      handleConfirm(option === 'proceed');
+    },
+    [handleConfirm],
+  );
+
+  if (!pendingRequest) {
+    return null;
+  }
+
+  return (
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor={Colors.AccentCyan}
+      padding={1}
+      marginY={1}
+    >
+      <BucketAuthHeader
+        bucketIndex={pendingRequest.bucketIndex}
+        totalBuckets={pendingRequest.totalBuckets}
+        bucket={pendingRequest.bucket}
+        provider={pendingRequest.provider}
+      />
+
+      <RadioButtonSelect
+        items={CONFIRMATION_OPTIONS}
+        onSelect={handleSelect}
+        isFocused={isFocused}
+      />
+    </Box>
+  );
+};

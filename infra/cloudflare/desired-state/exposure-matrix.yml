@@ -27,6 +27,14 @@ pages:
   - hostname: www.ratehunter.net
     target: cloudflare_pages
     access: public
+  - hostname: projectnyra.com
+    target: cloudflare_pages
+    access: public
+    notes: Public landing page for projectnyra.com. Separate Pages project from app.projectnyra.com.
+  - hostname: www.projectnyra.com
+    target: cloudflare_pages
+    access: public
+    notes: www redirect alias for projectnyra.com landing page.
 
 routes:
   - hostname: app.projectnyra.com
@@ -104,6 +112,21 @@ routes:
     origin: http://clawteam:8080
     exposure: public_auth
     notes: Requires optional clawteam compose overlay to be running.
+  - hostname: agent-vault.projectnyra.com
+    tunnel: oracle
+    origin: http://agent-vault:8080
+    exposure: public_auth
+    notes: Infisical self-hosted secret vault. Protect with Cloudflare Access.
+  - hostname: infisical.projectnyra.com
+    tunnel: oracle
+    origin: http://agent-vault:8080
+    exposure: public_auth
+    notes: Alias for agent-vault.projectnyra.com.
+  - hostname: letta.projectnyra.com
+    tunnel: oracle
+    origin: http://letta:8283
+    exposure: public_auth
+    notes: Letta long-term agent memory server. Requires nyra_net added to memory compose.
   - hostname: portainer-oracle.projectnyra.com
     tunnel: oracle
     origin: https://portainer:9443
@@ -180,3 +203,32 @@ not_tunneled:
   - worker-vllm
   - worker-ollama
   - docker-socket
+
+tailscale_private:
+  note: >
+    Services listed here are NOT exposed via Cloudflare tunnels or public hostnames.
+    They are accessible only within the Tailscale tailnet (trex-fiordland.ts.net) via
+    MagicDNS and via Tailscale Split DNS (*.projectnyra.com resolved privately inside
+    the tailnet). Do not add these to Cloudflare tunnels. Each service runs as its own
+    Tailscale node (Docker sidecar) to obtain a unique *.trex-fiordland.ts.net hostname.
+    Split DNS setup: Tailscale admin → DNS → Add nameserver for projectnyra.com pointing
+    to the orchestrator's internal CoreDNS/dnsmasq instance. See docs/network/TAILSCALE-SERVICES.md.
+  services:
+    - name: spline-mcp
+      magicdns: spline-mcp.trex-fiordland.ts.net
+      split_dns: spline-mcp.projectnyra.com
+      origin: http://spline-mcp:8779
+      port: 8779
+      description: Spline 3D design tool MCP server
+    - name: meshy-mcp
+      magicdns: meshy-mcp.trex-fiordland.ts.net
+      split_dns: meshy-mcp.projectnyra.com
+      origin: http://meshy-mcp:8780
+      port: 8780
+      description: Meshy AI 3D generation MCP server
+    - name: loki-website-mcp
+      magicdns: loki-website-mcp.trex-fiordland.ts.net
+      split_dns: loki-website-mcp.projectnyra.com
+      origin: http://loki-website-mcp:8781
+      port: 8781
+      description: Loki website builder MCP server (not Grafana Loki log aggregator)

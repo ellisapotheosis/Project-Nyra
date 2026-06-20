@@ -28,6 +28,8 @@ services:
       - ./openclaw:/home/node/.openclaw
       - assistant-memory:/home/node/.memory
       - nyra_secrets:/run/nyra-secrets:ro
+    entrypoint: >
+      sh -c "openclaw plugins install @memorytensor/openclaw-memos && exec openclaw gateway --port 18789"
     deploy:
       resources:
         reservations:

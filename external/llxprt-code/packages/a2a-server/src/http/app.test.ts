@@ -1,0 +1,922 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import type {
+  Config,
+  ToolCallConfirmationDetails,
+} from '@vybestack/llxprt-code-core';
+import {
+  GeminiEventType,
+  ApprovalMode,
+  debugLogger,
+} from '@vybestack/llxprt-code-core';
+import { MockTool } from '@vybestack/llxprt-code-core/test-utils/mock-tool.js';
+import type {
+  TaskStatusUpdateEvent,
+  SendStreamingMessageSuccessResponse,
+} from '@a2a-js/sdk';
+import type express from 'express';
+import type { Server } from 'node:http';
+import request from 'supertest';
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+import { createApp } from './app.js';
+import { commandRegistry } from '../commands/command-registry.js';
+import {
+  assertUniqueFinalEventIsLast,
+  assertTaskCreationAndWorkingStatus,
+  createStreamMessageRequest,
+  createMockConfig,
+} from '../utils/testing_utils.js';
+import type { Command, CommandContext } from '../commands/types.js';
+import type { AgentExecutionEvent } from '@a2a-js/sdk/server';
+
+const mockToolConfirmationFn = async () =>
+  ({}) as unknown as ToolCallConfirmationDetails;
+
+const streamToSSEEvents = (
+  stream: string,
+): SendStreamingMessageSuccessResponse[] =>
+  stream
+    .split('\n\n')
+    .filter(Boolean) // Remove empty strings from trailing newlines
+    .map((chunk) => {
+      const dataLine = chunk
+        .split('\n')
+        .find((line) => line.startsWith('data: '));
+      if (!dataLine) {
+        throw new Error(`Invalid SSE chunk found: "${chunk}"`);
+      }
+      return JSON.parse(dataLine.substring(6));
+    });
+
+function streamToSSEEventsForCommand(
+  data: string,
+): Array<{ result: AgentExecutionEvent }> {
+  return data
+    .split('\n')
+    .filter((line) => line.startsWith('data: '))
+    .map((line) => JSON.parse(line.substring(6)));
+}
+
+// Mock the logger to avoid polluting test output
+// Comment out to debug tests
+vi.mock('../utils/logger.js', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
+
+let config: Config;
+const getToolRegistrySpy = vi.fn().mockReturnValue(ApprovalMode.DEFAULT);
+const getApprovalModeSpy = vi.fn();
+const getExtensionsSpy = vi.fn();
+
+vi.mock('../config/config.js', async () => {
+  const actual = await vi.importActual('../config/config.js');
+  return {
+    ...actual,
+    loadConfig: vi.fn().mockImplementation(async () => {
+      const mockConfig = createMockConfig({
+        getToolRegistry: getToolRegistrySpy,
+        getApprovalMode: getApprovalModeSpy,
+        getExtensions: getExtensionsSpy,
+      });
+      config = mockConfig as Config;
+      return config;
+    }),
+  };
+});
+
+// Mock the GeminiClient to avoid actual API calls
+const sendMessageStreamSpy = vi.fn();
+vi.mock('@vybestack/llxprt-code-core', async () => {
+  const actual = await vi.importActual('@vybestack/llxprt-code-core');
+  return {
+    ...actual,
+    createRuntimeStateFromConfig: actual.createRuntimeStateFromConfig,
+    MockTool: actual.MockTool, // Explicitly export MockTool
+    GeminiClient: vi.fn().mockImplementation(() => ({
+      sendMessageStream: sendMessageStreamSpy,
+      getUserTier: vi.fn().mockReturnValue('free'),
+      initialize: vi.fn(),
+    })),
+  };
+});
+
+describe('E2E Tests', () => {
+  let app: express.Express;
+  let server: Server;
+
+  beforeAll(async () => {
+    app = await createApp();
+    server = app.listen(0); // Listen on a random available port
+  });
+
+  beforeEach(() => {
+    getApprovalModeSpy.mockReturnValue(ApprovalMode.DEFAULT);
+  });
+
+  afterAll(
+    () =>
+      new Promise<void>((resolve) => {
+        server.close(() => {
+          resolve();
+        });
+      }),
+  );
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should create a new task and stream status updates (text-content) via POST /', async () => {
+    sendMessageStreamSpy.mockImplementation(async function* () {
+      yield* [{ type: 'content', value: 'Hello how are you?' }];
+    });
+
+    const agent = request.agent(app);
+    const res = await agent
+      .post('/')
+      .send(createStreamMessageRequest('hello', 'a2a-test-message'))
+      .set('Content-Type', 'application/json')
+      .expect(200);
+
+    const events = streamToSSEEvents(res.text);
+
+    assertTaskCreationAndWorkingStatus(events);
+
+    // Status update: text-content
+    const textContentEvent = events[2].result as TaskStatusUpdateEvent;
+    expect(textContentEvent.kind).toBe('status-update');
+    expect(textContentEvent.status.state).toBe('working');
+    expect(textContentEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'text-content',
+    });
+    expect(textContentEvent.status.message?.parts).toMatchObject([
+      { kind: 'text', text: 'Hello how are you?' },
+    ]);
+
+    // Status update: input-required (final)
+    const finalEvent = events[3].result as TaskStatusUpdateEvent;
+    expect(finalEvent.kind).toBe('status-update');
+    expect(finalEvent.status.state).toBe('input-required');
+    expect(finalEvent.final).toBe(true);
+
+    assertUniqueFinalEventIsLast(events);
+    expect(events.length).toBe(4);
+  });
+
+  it('should create a new task, schedule a tool call, and wait for approval', async () => {
+    // First call yields the tool request
+    sendMessageStreamSpy.mockImplementationOnce(async function* () {
+      yield* [
+        {
+          type: GeminiEventType.ToolCallRequest,
+          value: {
+            callId: 'test-call-id',
+            name: 'test-tool',
+            args: {},
+          },
+        },
+      ];
+    });
+    // Subsequent calls yield nothing
+    sendMessageStreamSpy.mockImplementation(async function* () {
+      yield* [];
+    });
+
+    const mockTool = new MockTool({
+      name: 'test-tool',
+      shouldConfirmExecute: vi.fn(mockToolConfirmationFn),
+    });
+
+    getToolRegistrySpy.mockReturnValue({
+      getAllTools: vi.fn().mockReturnValue([mockTool]),
+      getToolsByServer: vi.fn().mockReturnValue([]),
+      getTool: vi.fn().mockReturnValue(mockTool),
+    });
+
+    const agent = request.agent(app);
+    const res = await agent
+      .post('/')
+      .send(createStreamMessageRequest('run a tool', 'a2a-tool-test-message'))
+      .set('Content-Type', 'application/json')
+      .expect(200);
+
+    const events = streamToSSEEvents(res.text);
+    assertTaskCreationAndWorkingStatus(events);
+
+    // Status update: working
+    const workingEvent2 = events[2].result as TaskStatusUpdateEvent;
+    expect(workingEvent2.kind).toBe('status-update');
+    expect(workingEvent2.status.state).toBe('working');
+    expect(workingEvent2.metadata?.['coderAgent']).toMatchObject({
+      kind: 'state-change',
+    });
+
+    // Status update: tool-call-update
+    const toolCallUpdateEvent = events[3].result as TaskStatusUpdateEvent;
+    expect(toolCallUpdateEvent.kind).toBe('status-update');
+    expect(toolCallUpdateEvent.status.state).toBe('working');
+    expect(toolCallUpdateEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-update',
+    });
+    expect(toolCallUpdateEvent.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'scheduled',
+          request: { callId: 'test-call-id' },
+        },
+      },
+    ]);
+
+    // State update: awaiting_approval update
+    const toolCallConfirmationEvent = events[4].result as TaskStatusUpdateEvent;
+    expect(toolCallConfirmationEvent.kind).toBe('status-update');
+    expect(toolCallConfirmationEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-confirmation',
+    });
+    expect(toolCallConfirmationEvent.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'awaiting_approval',
+          request: { callId: 'test-call-id' },
+        },
+      },
+    ]);
+    expect(toolCallConfirmationEvent.status.state).toBe('working');
+
+    assertUniqueFinalEventIsLast(events);
+    expect(events.length).toBe(6);
+  });
+
+  it('should handle multiple tool calls in a single turn', async () => {
+    // First call yields the tool request
+    sendMessageStreamSpy.mockImplementationOnce(async function* () {
+      yield* [
+        {
+          type: GeminiEventType.ToolCallRequest,
+          value: {
+            callId: 'test-call-id-1',
+            name: 'test-tool-1',
+            args: {},
+          },
+        },
+        {
+          type: GeminiEventType.ToolCallRequest,
+          value: {
+            callId: 'test-call-id-2',
+            name: 'test-tool-2',
+            args: {},
+          },
+        },
+      ];
+    });
+    // Subsequent calls yield nothing
+    sendMessageStreamSpy.mockImplementation(async function* () {
+      yield* [];
+    });
+
+    const mockTool1 = new MockTool({
+      name: 'test-tool-1',
+      displayName: 'Test Tool 1',
+      shouldConfirmExecute: vi.fn(mockToolConfirmationFn),
+    });
+    const mockTool2 = new MockTool({
+      name: 'test-tool-2',
+      displayName: 'Test Tool 2',
+      shouldConfirmExecute: vi.fn(mockToolConfirmationFn),
+    });
+
+    getToolRegistrySpy.mockReturnValue({
+      getAllTools: vi.fn().mockReturnValue([mockTool1, mockTool2]),
+      getToolsByServer: vi.fn().mockReturnValue([]),
+      getTool: vi.fn().mockImplementation((name: string) => {
+        if (name === 'test-tool-1') return mockTool1;
+        if (name === 'test-tool-2') return mockTool2;
+        return undefined;
+      }),
+    });
+
+    const agent = request.agent(app);
+    const res = await agent
+      .post('/')
+      .send(
+        createStreamMessageRequest(
+          'run two tools',
+          'a2a-multi-tool-test-message',
+        ),
+      )
+      .set('Content-Type', 'application/json')
+      .expect(200);
+
+    const events = streamToSSEEvents(res.text);
+    assertTaskCreationAndWorkingStatus(events);
+
+    // Second working update
+    const workingEvent = events[2].result as TaskStatusUpdateEvent;
+    expect(workingEvent.kind).toBe('status-update');
+    expect(workingEvent.status.state).toBe('working');
+
+    // State Update: Scheduled each tool call
+    const toolCallScheduledEvent1 = events[3].result as TaskStatusUpdateEvent;
+    expect(toolCallScheduledEvent1.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-update',
+    });
+    expect(toolCallScheduledEvent1.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'scheduled',
+          request: { callId: 'test-call-id-1' },
+        },
+      },
+    ]);
+    const toolCallScheduledEvent2 = events[4].result as TaskStatusUpdateEvent;
+    expect(toolCallScheduledEvent2.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-update',
+    });
+    expect(toolCallScheduledEvent2.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'scheduled',
+          request: { callId: 'test-call-id-2' },
+        },
+      },
+    ]);
+
+    // State Update: Set each tool call to awaiting
+    const toolCallAwaitEvent1 = events[5].result as TaskStatusUpdateEvent;
+    expect(toolCallAwaitEvent1.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-confirmation',
+    });
+    expect(toolCallAwaitEvent1.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'awaiting_approval',
+          request: { callId: 'test-call-id-1' },
+        },
+      },
+    ]);
+    const toolCallAwaitEvent2 = events[6].result as TaskStatusUpdateEvent;
+    expect(toolCallAwaitEvent2.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-confirmation',
+    });
+    expect(toolCallAwaitEvent2.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'awaiting_approval',
+          request: { callId: 'test-call-id-2' },
+        },
+      },
+    ]);
+
+    assertUniqueFinalEventIsLast(events);
+    expect(events.length).toBe(8);
+  });
+
+  it('should handle tool calls that do not require approval', async () => {
+    // First call yields the tool request
+    sendMessageStreamSpy.mockImplementationOnce(async function* () {
+      yield* [
+        {
+          type: GeminiEventType.ToolCallRequest,
+          value: {
+            callId: 'test-call-id-no-approval',
+            name: 'test-tool-no-approval',
+            args: {},
+          },
+        },
+      ];
+    });
+    // Second call, after the tool runs, yields the final text
+    sendMessageStreamSpy.mockImplementationOnce(async function* () {
+      yield* [{ type: 'content', value: 'Tool executed successfully.' }];
+    });
+
+    const mockTool = new MockTool({
+      name: 'test-tool-no-approval',
+      displayName: 'Test Tool No Approval',
+      execute: vi.fn().mockResolvedValue({
+        llmContent: 'Tool executed successfully.',
+        returnDisplay: 'Tool executed successfully.',
+      }),
+    });
+
+    getToolRegistrySpy.mockReturnValue({
+      getAllTools: vi.fn().mockReturnValue([mockTool]),
+      getToolsByServer: vi.fn().mockReturnValue([]),
+      getTool: vi.fn().mockReturnValue(mockTool),
+    });
+
+    const agent = request.agent(app);
+    const res = await agent
+      .post('/')
+      .send(
+        createStreamMessageRequest(
+          'run a tool without approval',
+          'a2a-no-approval-test-message',
+        ),
+      )
+      .set('Content-Type', 'application/json')
+      .expect(200);
+
+    const events = streamToSSEEvents(res.text);
+    assertTaskCreationAndWorkingStatus(events);
+
+    // Status update: working
+    const workingEvent2 = events[2].result as TaskStatusUpdateEvent;
+    expect(workingEvent2.kind).toBe('status-update');
+    expect(workingEvent2.status.state).toBe('working');
+
+    // Status update: tool-call-update (scheduled)
+    const scheduledEvent = events[3].result as TaskStatusUpdateEvent;
+    expect(scheduledEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-update',
+    });
+    expect(scheduledEvent.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'scheduled',
+          request: { callId: 'test-call-id-no-approval' },
+        },
+      },
+    ]);
+
+    // Status update: tool-call-update (executing)
+    const executingEvent = events[4].result as TaskStatusUpdateEvent;
+    expect(executingEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-update',
+    });
+    expect(executingEvent.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'executing',
+          request: { callId: 'test-call-id-no-approval' },
+        },
+      },
+    ]);
+
+    // Status update: tool-call-update (success)
+    const successEvent = events[5].result as TaskStatusUpdateEvent;
+    expect(successEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-update',
+    });
+    expect(successEvent.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'success',
+          request: { callId: 'test-call-id-no-approval' },
+        },
+      },
+    ]);
+
+    // Status update: working (before sending tool result to LLM)
+    const workingEvent3 = events[6].result as TaskStatusUpdateEvent;
+    expect(workingEvent3.kind).toBe('status-update');
+    expect(workingEvent3.status.state).toBe('working');
+
+    // Status update: text-content (final LLM response)
+    const textContentEvent = events[7].result as TaskStatusUpdateEvent;
+    expect(textContentEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'text-content',
+    });
+    expect(textContentEvent.status.message?.parts).toMatchObject([
+      { text: 'Tool executed successfully.' },
+    ]);
+
+    assertUniqueFinalEventIsLast(events);
+    expect(events.length).toBe(9);
+  });
+
+  it('should bypass tool approval in YOLO mode', async () => {
+    // First call yields the tool request
+    sendMessageStreamSpy.mockImplementationOnce(async function* () {
+      yield* [
+        {
+          type: GeminiEventType.ToolCallRequest,
+          value: {
+            callId: 'test-call-id-yolo',
+            name: 'test-tool-yolo',
+            args: {},
+          },
+        },
+      ];
+    });
+    // Second call, after the tool runs, yields the final text
+    sendMessageStreamSpy.mockImplementationOnce(async function* () {
+      yield* [{ type: 'content', value: 'Tool executed successfully.' }];
+    });
+
+    // Set approval mode to yolo
+    getApprovalModeSpy.mockReturnValue(ApprovalMode.YOLO);
+
+    const mockTool = new MockTool({
+      name: 'test-tool-yolo',
+      displayName: 'Test Tool YOLO',
+      execute: vi.fn().mockResolvedValue({
+        llmContent: 'Tool executed successfully.',
+        returnDisplay: 'Tool executed successfully.',
+      }),
+    });
+
+    getToolRegistrySpy.mockReturnValue({
+      getAllTools: vi.fn().mockReturnValue([mockTool]),
+      getToolsByServer: vi.fn().mockReturnValue([]),
+      getTool: vi.fn().mockReturnValue(mockTool),
+    });
+
+    const agent = request.agent(app);
+    const res = await agent
+      .post('/')
+      .send(
+        createStreamMessageRequest(
+          'run a tool in yolo mode',
+          'a2a-yolo-mode-test-message',
+        ),
+      )
+      .set('Content-Type', 'application/json')
+      .expect(200);
+
+    const events = streamToSSEEvents(res.text);
+    assertTaskCreationAndWorkingStatus(events);
+
+    // Status update: working
+    const workingEvent2 = events[2].result as TaskStatusUpdateEvent;
+    expect(workingEvent2.kind).toBe('status-update');
+    expect(workingEvent2.status.state).toBe('working');
+
+    // Status update: tool-call-update (scheduled)
+    const scheduledEvent = events[3].result as TaskStatusUpdateEvent;
+    expect(scheduledEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-update',
+    });
+    expect(scheduledEvent.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'scheduled',
+          request: { callId: 'test-call-id-yolo' },
+        },
+      },
+    ]);
+
+    // Status update: tool-call-update (executing)
+    const executingEvent = events[4].result as TaskStatusUpdateEvent;
+    expect(executingEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-update',
+    });
+    expect(executingEvent.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'executing',
+          request: { callId: 'test-call-id-yolo' },
+        },
+      },
+    ]);
+
+    // Status update: tool-call-update (success)
+    const successEvent = events[5].result as TaskStatusUpdateEvent;
+    expect(successEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'tool-call-update',
+    });
+    expect(successEvent.status.message?.parts).toMatchObject([
+      {
+        data: {
+          status: 'success',
+          request: { callId: 'test-call-id-yolo' },
+        },
+      },
+    ]);
+
+    // Status update: working (before sending tool result to LLM)
+    const workingEvent3 = events[6].result as TaskStatusUpdateEvent;
+    expect(workingEvent3.kind).toBe('status-update');
+    expect(workingEvent3.status.state).toBe('working');
+
+    // Status update: text-content (final LLM response)
+    const textContentEvent = events[7].result as TaskStatusUpdateEvent;
+    expect(textContentEvent.metadata?.['coderAgent']).toMatchObject({
+      kind: 'text-content',
+    });
+    expect(textContentEvent.status.message?.parts).toMatchObject([
+      { text: 'Tool executed successfully.' },
+    ]);
+
+    assertUniqueFinalEventIsLast(events);
+    expect(events.length).toBe(9);
+  });
+
+  it('should include traceId in status updates when available', async () => {
+    const traceId = 'test-trace-id';
+    sendMessageStreamSpy.mockImplementation(async function* () {
+      yield* [
+        { type: 'content', value: 'Hello', traceId },
+        { type: 'thought', value: { subject: 'Thinking...' }, traceId },
+      ];
+    });
+
+    const agent = request.agent(app);
+    const res = await agent
+      .post('/')
+      .send(createStreamMessageRequest('hello', 'a2a-trace-id-test'))
+      .set('Content-Type', 'application/json')
+      .expect(200);
+
+    const events = streamToSSEEvents(res.text);
+
+    // The first two events are task-creation and working status
+    const textContentEvent = events[2].result as TaskStatusUpdateEvent;
+    expect(textContentEvent.kind).toBe('status-update');
+    expect(textContentEvent.metadata?.['traceId']).toBe(traceId);
+
+    const thoughtEvent = events[3].result as TaskStatusUpdateEvent;
+    expect(thoughtEvent.kind).toBe('status-update');
+    expect(thoughtEvent.metadata?.['traceId']).toBe(traceId);
+  });
+
+  describe('/listCommands', () => {
+    it('should return a list of top-level commands', async () => {
+      const mockCommands = [
+        {
+          name: 'test-command',
+          description: 'A test command',
+          topLevel: true,
+          arguments: [{ name: 'arg1', description: 'Argument 1' }],
+          subCommands: [
+            {
+              name: 'sub-command',
+              description: 'A sub command',
+              topLevel: false,
+              execute: vi.fn(),
+            },
+          ],
+          execute: vi.fn(),
+        },
+        {
+          name: 'another-command',
+          description: 'Another test command',
+          topLevel: true,
+          execute: vi.fn(),
+        },
+        {
+          name: 'not-top-level',
+          description: 'Not a top level command',
+          topLevel: false,
+          execute: vi.fn(),
+        },
+      ];
+
+      const getAllCommandsSpy = vi
+        .spyOn(commandRegistry, 'getAllCommands')
+        .mockReturnValue(mockCommands);
+
+      const agent = request.agent(app);
+      const res = await agent.get('/listCommands').expect(200);
+
+      expect(res.body).toStrictEqual({
+        commands: [
+          {
+            name: 'test-command',
+            description: 'A test command',
+            arguments: [{ name: 'arg1', description: 'Argument 1' }],
+            subCommands: [
+              {
+                name: 'sub-command',
+                description: 'A sub command',
+                arguments: [],
+                subCommands: [],
+              },
+            ],
+          },
+          {
+            name: 'another-command',
+            description: 'Another test command',
+            arguments: [],
+            subCommands: [],
+          },
+        ],
+      });
+
+      expect(getAllCommandsSpy).toHaveBeenCalledOnce();
+      getAllCommandsSpy.mockRestore();
+    });
+
+    it('should handle cyclic commands gracefully', async () => {
+      const warnSpy = vi
+        .spyOn(debugLogger, 'warn')
+        .mockImplementation(() => {});
+
+      const cyclicCommand: Command = {
+        name: 'cyclic-command',
+        description: 'A cyclic command',
+        topLevel: true,
+        execute: vi.fn(),
+        subCommands: [],
+      };
+      cyclicCommand.subCommands?.push(cyclicCommand); // Create cycle
+
+      const getAllCommandsSpy = vi
+        .spyOn(commandRegistry, 'getAllCommands')
+        .mockReturnValue([cyclicCommand]);
+
+      const agent = request.agent(app);
+      const res = await agent.get('/listCommands').expect(200);
+
+      expect(res.body.commands[0].name).toBe('cyclic-command');
+      expect(res.body.commands[0].subCommands).toStrictEqual([]);
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Command cyclic-command already inserted in the response, skipping',
+      );
+
+      getAllCommandsSpy.mockRestore();
+      warnSpy.mockRestore();
+    });
+  });
+
+  describe('/executeCommand', () => {
+    const mockExtensions = [{ name: 'test-extension', version: '0.0.1' }];
+
+    beforeEach(() => {
+      getExtensionsSpy.mockReturnValue(mockExtensions);
+    });
+
+    afterEach(() => {
+      getExtensionsSpy.mockClear();
+    });
+
+    it('should return extensions for valid command', async () => {
+      const agent = request.agent(app);
+      const res = await agent
+        .post('/executeCommand')
+        .send({ command: 'extensions list', args: [] })
+        .set('Content-Type', 'application/json')
+        .expect(200);
+
+      expect(res.body).toStrictEqual({
+        name: 'extensions list',
+        data: mockExtensions,
+      });
+      expect(getExtensionsSpy).toHaveBeenCalled();
+    });
+
+    it('should return 404 for invalid command', async () => {
+      const agent = request.agent(app);
+      const res = await agent
+        .post('/executeCommand')
+        .send({ command: 'invalid command' })
+        .set('Content-Type', 'application/json')
+        .expect(404);
+
+      expect(res.body.error).toBe('Command not found: invalid command');
+      expect(getExtensionsSpy).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 for missing command', async () => {
+      const agent = request.agent(app);
+      await agent
+        .post('/executeCommand')
+        .send({ args: [] })
+        .set('Content-Type', 'application/json')
+        .expect(400);
+      expect(getExtensionsSpy).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 if args is not an array', async () => {
+      const agent = request.agent(app);
+      const res = await agent
+        .post('/executeCommand')
+        .send({ command: 'extensions.list', args: 'not-an-array' })
+        .set('Content-Type', 'application/json')
+        .expect(400);
+
+      expect(res.body.error).toBe('"args" field must be an array.');
+      expect(getExtensionsSpy).not.toHaveBeenCalled();
+    });
+
+    it('should include agentExecutor in context', async () => {
+      const mockCommand = {
+        name: 'context-check-command',
+        description: 'checks context',
+        execute: vi.fn(async (context: CommandContext) => {
+          if (!context.agentExecutor) {
+            throw new Error('agentExecutor missing');
+          }
+          return { name: 'context-check-command', data: 'success' };
+        }),
+      };
+      vi.spyOn(commandRegistry, 'get').mockReturnValue(mockCommand);
+
+      const agent = request.agent(app);
+      const res = await agent
+        .post('/executeCommand')
+        .send({ command: 'context-check-command', args: [] })
+        .set('Content-Type', 'application/json')
+        .expect(200);
+
+      expect(res.body.data).toBe('success');
+    });
+
+    describe('/executeCommand streaming', () => {
+      it('should execute a streaming command and stream back events', (done: (
+        err?: unknown,
+      ) => void) => {
+        const executeSpy = vi.fn(async (context: CommandContext) => {
+          context.eventBus?.publish({
+            kind: 'status-update',
+            status: { state: 'working' },
+            taskId: 'test-task',
+            contextId: 'test-context',
+            final: false,
+          });
+          context.eventBus?.publish({
+            kind: 'status-update',
+            status: { state: 'completed' },
+            taskId: 'test-task',
+            contextId: 'test-context',
+            final: true,
+          });
+          return { name: 'stream-test', data: 'done' };
+        });
+
+        const mockStreamCommand = {
+          name: 'stream-test',
+          description: 'A test streaming command',
+          streaming: true,
+          execute: executeSpy,
+        };
+        vi.spyOn(commandRegistry, 'get').mockReturnValue(mockStreamCommand);
+
+        const agent = request.agent(app);
+        agent
+          .post('/executeCommand')
+          .send({ command: 'stream-test', args: [] })
+          .set('Content-Type', 'application/json')
+          .set('Accept', 'text/event-stream')
+          .on('response', (res) => {
+            let data = '';
+            res.on('data', (chunk: Buffer) => {
+              data += chunk.toString();
+            });
+            res.on('end', () => {
+              try {
+                const events = streamToSSEEventsForCommand(data);
+                expect(events.length).toBe(2);
+                expect(events[0].result).toStrictEqual({
+                  kind: 'status-update',
+                  status: { state: 'working' },
+                  taskId: 'test-task',
+                  contextId: 'test-context',
+                  final: false,
+                });
+                expect(events[1].result).toStrictEqual({
+                  kind: 'status-update',
+                  status: { state: 'completed' },
+                  taskId: 'test-task',
+                  contextId: 'test-context',
+                  final: true,
+                });
+                expect(executeSpy).toHaveBeenCalled();
+                done();
+              } catch (e) {
+                done(e);
+              }
+            });
+          })
+          .end();
+      });
+
+      it('should handle non-streaming commands gracefully', async () => {
+        const mockNonStreamCommand = {
+          name: 'non-stream-test',
+          description: 'A test non-streaming command',
+          execute: vi
+            .fn()
+            .mockResolvedValue({ name: 'non-stream-test', data: 'done' }),
+        };
+        vi.spyOn(commandRegistry, 'get').mockReturnValue(mockNonStreamCommand);
+
+        const agent = request.agent(app);
+        const res = await agent
+          .post('/executeCommand')
+          .send({ command: 'non-stream-test', args: [] })
+          .set('Content-Type', 'application/json')
+          .expect(200);
+
+        expect(res.body).toStrictEqual({
+          name: 'non-stream-test',
+          data: 'done',
+        });
+      });
+    });
+  });
+});

@@ -61,14 +61,23 @@ ingress:
   - hostname: nexus-ui.projectnyra.com
     service: http://nexus-ui:3016
 
+  - hostname: litellm.projectnyra.com
+    service: http://litellm:4000
+
   - hostname: nexus.projectnyra.com
     service: http://nexus-ui:3016
 
   - hostname: nexus-router.projectnyra.com
     service: http://nexus:3000
 
-  - hostname: litellm.projectnyra.com
-    service: http://litellm:4000
+  - hostname: agent-vault.projectnyra.com
+    service: http://agent-vault:8080
+
+  - hostname: infisical.projectnyra.com
+    service: http://agent-vault:8080
+
+  - hostname: clawteam.projectnyra.com
+    service: http://clawteam:8080
 
   - hostname: paperclip.projectnyra.com
     service: http://paperclip:3100

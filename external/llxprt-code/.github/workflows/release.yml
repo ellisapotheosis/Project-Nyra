@@ -1,0 +1,588 @@
+name: Release
+
+on:
+  schedule:
+    # Runs every day at midnight UTC for the nightly release.
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version to release (e.g., v0.1.11). Required for manual patch releases.'
+        required: false # Not required for scheduled runs
+        type: string
+      ref:
+        description: 'The branch or ref (full git sha) to release from.'
+        required: true
+        type: string
+        default: 'main'
+      dry_run:
+        description: >-
+          Run a dry-run of the release process; no branches, npm packages or GitHub
+          releases will be created.
+        required: true
+        type: boolean
+        default: true
+      create_nightly_release:
+        description: 'Auto apply the nightly release tag, input version is ignored.'
+        required: false
+        type: boolean
+        default: false
+      create_preview_release:
+        description: 'Create a beta release with current version (e.g., 0.1.21-beta.0).'
+        required: false
+        type: boolean
+        default: false
+      force_skip_tests:
+        description: >-
+          Select to skip the "Run Tests" step in testing. Prod releases should run tests
+        required: false
+        type: boolean
+        default: false
+      publish_vscode_only:
+        description: >-
+          Only build and publish the VS Code extension (skips npm packages, container images,
+          and GitHub release).
+        required: false
+        type: boolean
+        default: false
+      skip_vscode_publish:
+        description: >-
+          Skip building and publishing the VS Code extension.
+        required: false
+        type: boolean
+        default:
+          false
+          # Remove API provider inputs - these will come from repository secrets/variables
+
+jobs:
+  release:
+    # Pin to ubuntu-22.04 due to sharp/libspng compatibility issues on Ubuntu 24.04
+    # See: https://github.com/lovell/sharp/issues/4351
+    # Can revert to ubuntu-latest once sharp fixes Ubuntu 24.04 support
+    runs-on: ubuntu-22.04
+    environment:
+      name: production-release
+      url: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ steps.version.outputs.RELEASE_TAG }}
+    env:
+      REGISTRY: ghcr.io
+      SANDBOX_IMAGE_NAME: ${{ github.repository }}/sandbox
+    if: github.repository == 'vybestack/llxprt-code'
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+      issues: write # For creating issues on failure
+    outputs:
+      RELEASE_TAG: ${{ steps.version.outputs.RELEASE_TAG }}
+
+    steps:
+      - name: Checkout code
+        uses: 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683' # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set booleans for simplified logic
+        id: vars
+        run: |
+          is_nightly="false"
+          if [[ "${{ github.event_name }}" == "schedule" || "${{ github.event.inputs.create_nightly_release }}" == "true" ]]; then
+            is_nightly="true"
+          fi
+          echo "is_nightly=${is_nightly}" >> "$GITHUB_OUTPUT"
+
+          is_preview="false"
+          if [[ "${{ github.event.inputs.create_preview_release }}" == "true" ]]; then
+            is_preview="true"
+          fi
+          echo "is_preview=${is_preview}" >> "$GITHUB_OUTPUT"
+
+          is_dry_run="false"
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            is_dry_run="true"
+          fi
+          echo "is_dry_run=${is_dry_run}" >> "$GITHUB_OUTPUT"
+
+          publish_vscode_only="false"
+          if [[ "${{ github.event.inputs.publish_vscode_only }}" == "true" ]]; then
+            publish_vscode_only="true"
+          fi
+          echo "publish_vscode_only=${publish_vscode_only}" >> "$GITHUB_OUTPUT"
+
+          skip_vscode="false"
+          if [[ "${{ github.event.inputs.skip_vscode_publish }}" == "true" ]]; then
+            skip_vscode="true"
+          fi
+          echo "skip_vscode=${skip_vscode}" >> "$GITHUB_OUTPUT"
+
+          if [[ "$publish_vscode_only" == "true" && "$skip_vscode" == "true" ]]; then
+            echo "publish_vscode_only and skip_vscode_publish cannot both be true." >&2
+            exit 1
+          fi
+
+          should_publish_vscode="true"
+          if [[ "$skip_vscode" == "true" ]]; then
+            should_publish_vscode="false"
+          elif [[ "$is_nightly" == "true" ]]; then
+            echo "Nightly run detected; skipping VS Code Marketplace publication."
+            should_publish_vscode="false"
+          fi
+          echo "should_publish_vscode=${should_publish_vscode}" >> "$GITHUB_OUTPUT"
+
+          should_run_standard_release="true"
+          if [[ "$publish_vscode_only" == "true" ]]; then
+            should_run_standard_release="false"
+          fi
+          echo "should_run_standard_release=${should_run_standard_release}" >> "$GITHUB_OUTPUT"
+
+          # Determine if we should create a release branch
+          # Only major/minor releases (vX.Y.0) get branches, not patch releases or nightlies
+          # This will be finalized after we know the version in a later step
+          echo "should_create_branch=pending" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Setup Bun
+        uses: 'oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76' # ratchet:oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.3'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fix rollup platform dependency
+        run: |
+          npm install @rollup/rollup-linux-x64-gnu@4.59.0 --no-save || true
+
+      - name: Get the version
+        id: version
+        run: |
+          VERSION_JSON=$(node scripts/get-release-version.js)
+          {
+            echo "RELEASE_TAG=$(echo "$VERSION_JSON" | jq -r .releaseTag)"
+            echo "RELEASE_VERSION=$(echo "$VERSION_JSON" | jq -r .releaseVersion)"
+            echo "NPM_TAG=$(echo "$VERSION_JSON" | jq -r .npmTag)"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          IS_NIGHTLY: ${{ steps.vars.outputs.is_nightly }}
+          IS_PREVIEW: ${{ steps.vars.outputs.is_preview }}
+          MANUAL_VERSION: ${{ inputs.version }}
+
+      - name: Determine if release branch should be created
+        id: branch_decision
+        run: |
+          RELEASE_VERSION="${{ steps.version.outputs.RELEASE_VERSION }}"
+          IS_NIGHTLY="${{ steps.vars.outputs.is_nightly }}"
+
+          # Only create branches for major/minor releases (vX.Y.0), not for:
+          # - Nightly releases (v0.8.0-nightly.250129.abc1234)
+          # - Patch releases (v0.8.1, v0.8.2)
+          # - Preview/beta releases (v0.8.0-beta.0)
+          should_create_branch="false"
+          if [[ "$IS_NIGHTLY" == "false" && "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.0$ ]]; then
+            should_create_branch="true"
+            echo "Major/minor release detected (${RELEASE_VERSION}), will create release branch."
+          else
+            echo "Patch/nightly/preview release detected (${RELEASE_VERSION}), skipping branch creation."
+          fi
+          echo "should_create_branch=${should_create_branch}" >> "$GITHUB_OUTPUT"
+
+      - name: Check API quota and select optimal key
+        if: github.event.inputs.force_skip_tests != 'true'
+        run: node scripts/ci-quota-check.js
+        env:
+          KEY_VAR_NAME: ${{ vars.KEY_VAR_NAME }}
+          OPENAI_API_KEY: ${{ secrets[vars.KEY_VAR_NAME] }}
+          OPENAI_API_KEY_2: ${{ secrets[vars.KEY_VAR_NAME_2] }}
+
+      - name: Run Preflight Checks
+        if: github.event.inputs.force_skip_tests != 'true'
+        run: node scripts/preflight-ci.js
+        env:
+          # Provider configuration from repository secrets/variables
+          # OPENAI_API_KEY is set via GITHUB_ENV by quota check step
+          OPENAI_API_KEY_2: ${{ secrets[vars.KEY_VAR_NAME_2] }}
+          KEY_VAR_NAME: ${{ vars.KEY_VAR_NAME }}
+          OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL }}
+          LLXPRT_DEFAULT_MODEL: ${{ vars.LLXPRT_DEFAULT_MODEL }}
+          LLXPRT_DEFAULT_PROVIDER: ${{ vars.LLXPRT_DEFAULT_PROVIDER }}
+          LLXPRT_AUTH_TYPE: none
+          LLXPRT_SKIP_IMAGE_HARNESS: 'true' # Avoid libspng flake on Linux runners (issue #816)
+
+      - name: Build Bundle for Integration Tests
+        run: npm run bundle
+
+      - name: Run Integration Tests
+        if: github.event.inputs.force_skip_tests != 'true'
+        run: |
+          npm run test:integration:sandbox:none
+          # Skipping Docker tests due to flakiness
+          # npm run test:integration:sandbox:docker
+        env:
+          # Provider configuration from repository secrets/variables
+          # OPENAI_API_KEY is set via GITHUB_ENV by quota check step
+          OPENAI_API_KEY_2: ${{ secrets[vars.KEY_VAR_NAME_2] }}
+          KEY_VAR_NAME: ${{ vars.KEY_VAR_NAME }}
+          OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL }}
+          LLXPRT_DEFAULT_MODEL: ${{ vars.LLXPRT_DEFAULT_MODEL }}
+          LLXPRT_DEFAULT_PROVIDER: ${{ vars.LLXPRT_DEFAULT_PROVIDER }}
+          LLXPRT_AUTH_TYPE: none
+
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and switch to a release branch
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.branch_decision.outputs.should_create_branch == 'true' }}
+        id: release_branch
+        run: |
+          BRANCH_NAME="release/${{ steps.version.outputs.RELEASE_TAG }}"
+          git switch -c "$BRANCH_NAME"
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Update package versions
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' }}
+        run: |
+          npm run release:version ${{ steps.version.outputs.RELEASE_VERSION }}
+
+      - name: Bind release dependencies
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' }}
+        run: node scripts/bind-release-deps.js
+
+      - name: Commit and Conditionally Push package versions
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.branch_decision.outputs.should_create_branch == 'true' }}
+        run: |
+          git add package.json package-lock.json packages/*/package.json || true
+          # Check if there are changes to commit
+          if git diff --cached --quiet; then
+            echo "No version changes detected - packages already at version ${{ steps.version.outputs.RELEASE_VERSION }}"
+            # Still create an empty commit to maintain workflow consistency
+            git commit --allow-empty -m "chore(release): ${{ steps.version.outputs.RELEASE_TAG }} (no version changes)"
+          else
+            git commit -m "chore(release): ${{ steps.version.outputs.RELEASE_TAG }}"
+          fi
+          if [[ "${{ steps.vars.outputs.is_dry_run }}" == "false" ]]; then
+            echo "Pushing release branch to remote..."
+            git push --set-upstream origin ${{ steps.release_branch.outputs.BRANCH_NAME }} --follow-tags --force
+          else
+            echo "Dry run enabled. Skipping push."
+          fi
+
+      - name: Build and Prepare Packages
+        run: |
+          rm -rf packages/*/dist
+          npm run build:packages
+          npm run bundle
+          npm run prepare:package
+
+      - name: Sync VS Code extension version
+        if: ${{ steps.vars.outputs.should_publish_vscode == 'true' && steps.vars.outputs.should_run_standard_release == 'false' }}
+        run: |
+          npm version ${{ steps.version.outputs.RELEASE_VERSION }} \
+            --workspace=llxprt-code-vscode-ide-companion \
+            --no-git-tag-version \
+            --allow-same-version
+
+      - name: Package VS Code extension
+        id: vscode_package
+        if: ${{ steps.vars.outputs.should_publish_vscode == 'true' }}
+        run: |
+          rm -f packages/vscode-ide-companion/*.vsix
+          npm run build:vscode
+          VSIX_FILE=$(find packages/vscode-ide-companion -maxdepth 1 -type f -name '*.vsix' | head -n 1)
+          if [[ -z "$VSIX_FILE" ]]; then
+            echo "VSIX build did not produce a package." >&2
+            exit 1
+          fi
+          echo "VSIX_PATH=$VSIX_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Publish VS Code extension
+        if: ${{ steps.vars.outputs.should_publish_vscode == 'true' && steps.vars.outputs.is_dry_run == 'false' }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          VSIX_PATH: ${{ steps.vscode_package.outputs.VSIX_PATH }}
+        run: |
+          if [[ -z "${VSCE_PAT}" ]]; then
+            echo "VSCE_PAT secret is not configured. Set it to publish the VS Code extension." >&2
+            exit 1
+          fi
+          if [[ -z "${VSIX_PATH}" || ! -f "${VSIX_PATH}" ]]; then
+            echo "VSIX package not found at ${VSIX_PATH}." >&2
+            exit 1
+          fi
+          npx @vscode/vsce publish --packagePath "${VSIX_PATH}" --skip-duplicate
+
+      - name: Publish @vybestack/llxprt-code-core
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' }}
+        run: npm publish --workspace=@vybestack/llxprt-code-core --provenance --tag=${{ steps.version.outputs.NPM_TAG }} ${{ steps.vars.outputs.is_dry_run == 'true' && '--dry-run' || '' }}
+
+      - name: Publish @vybestack/llxprt-code-lsp
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' }}
+        run: npm publish --workspace=@vybestack/llxprt-code-lsp --access public --provenance --tag=${{ steps.version.outputs.NPM_TAG }} ${{ steps.vars.outputs.is_dry_run == 'true' && '--dry-run' || '' }}
+
+      - name: Publish @vybestack/llxprt-code-providers
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' }}
+        run: npm publish --workspace=@vybestack/llxprt-code-providers --access public --provenance --tag=${{ steps.version.outputs.NPM_TAG }} ${{ steps.vars.outputs.is_dry_run == 'true' && '--dry-run' || '' }}
+
+      - name: Publish @vybestack/llxprt-code
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' }}
+        run: npm publish --workspace=@vybestack/llxprt-code --provenance --tag=${{ steps.version.outputs.NPM_TAG }} ${{ steps.vars.outputs.is_dry_run == 'true' && '--dry-run' || '' }}
+
+      - name: Wait for npm propagation
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.vars.outputs.is_dry_run == 'false' && steps.vars.outputs.is_nightly == 'false' }}
+        run: |
+          echo "Waiting 120 seconds for npm to propagate..."
+          sleep 120
+
+      - name: Update Homebrew formula
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.vars.outputs.is_dry_run == 'false' && steps.vars.outputs.is_nightly == 'false' }}
+        continue-on-error: true
+        run: node scripts/update-homebrew-formula.js ${{ steps.version.outputs.RELEASE_VERSION }}
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.GH_SECRET }}
+
+      - name: Prepare sandbox package tarballs
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.vars.outputs.is_dry_run == 'false' }}
+        run: |
+          mkdir -p packages/cli/dist packages/core/dist packages/providers/dist
+          rm -f packages/cli/dist/vybestack-llxprt-code-*.tgz packages/core/dist/vybestack-llxprt-code-core-*.tgz packages/providers/dist/vybestack-llxprt-code-providers-*.tgz
+          npm pack -w @vybestack/llxprt-code --pack-destination ./packages/cli/dist
+          npm pack -w @vybestack/llxprt-code-core --pack-destination ./packages/core/dist
+          npm pack -w @vybestack/llxprt-code-providers --pack-destination ./packages/providers/dist
+
+      - name: Log in to Container Registry
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.vars.outputs.is_dry_run == 'false' }}
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # ratchet:docker/login-action@v3.3.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract sandbox image metadata
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.vars.outputs.is_dry_run == 'false' }}
+        id: sandbox_meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # ratchet:docker/metadata-action@v5.5.1
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.SANDBOX_IMAGE_NAME }}
+          tags: |
+            type=raw,value=${{ steps.version.outputs.RELEASE_VERSION }}
+            type=raw,value=latest,enable=${{ steps.vars.outputs.is_nightly != 'true' }}
+
+      - name: Set up Docker Buildx
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.vars.outputs.is_dry_run == 'false' }}
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # ratchet:docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+
+      - name: Build and push sandbox image
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.vars.outputs.is_dry_run == 'false' }}
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # ratchet:docker/build-push-action@v6.9.0
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.sandbox_meta.outputs.tags }}
+          labels: ${{ steps.sandbox_meta.outputs.labels }}
+          build-args: |
+            CLI_VERSION_ARG=${{ steps.version.outputs.RELEASE_VERSION }}
+
+      - name: Generate Release Notes
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.vars.outputs.is_dry_run == 'false' }}
+        id: release_notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the last stable release tag (excluding pre-release tags)
+          LAST_STABLE_TAG=$(git tag -l 'v*' | grep -v '\-' | sort -V | tail -n 1)
+          if [ -z "$LAST_STABLE_TAG" ]; then
+            # If no stable tag, get the most recent tag
+            LAST_STABLE_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          fi
+          if [ -z "$LAST_STABLE_TAG" ]; then
+            echo "No previous release tag found, using first commit"
+            LAST_STABLE_TAG=$(git rev-list --max-parents=0 HEAD)
+          fi
+
+          # Save last tag for comparison link
+          echo "LAST_TAG=$LAST_STABLE_TAG" >> "$GITHUB_OUTPUT"
+
+          # Get commit messages since last tag
+          echo "Getting commits from $LAST_STABLE_TAG to HEAD"
+          git log --pretty=format:"- %s (%h)" "$LAST_STABLE_TAG"..HEAD > commits.txt
+
+          # Start building the release notes with static header and installation
+          {
+            echo "## Release ${{ steps.version.outputs.RELEASE_TAG }}"
+            echo ""
+          } > release-notes.md
+
+          # Static installation instructions - always the same format
+          {
+            echo "### Installation"
+            echo ""
+            echo "Install or upgrade LLxprt Code using npm:"
+            echo ""
+            echo '```bash'
+            echo "npm install -g @vybestack/llxprt-code"
+            echo '```'
+            echo ""
+            echo "Or use directly with npx:"
+            echo ""
+            echo '```bash'
+            echo "npx @vybestack/llxprt-code"
+            echo '```'
+            echo ""
+          } >> release-notes.md
+
+          # Generate feature summary with LLxprt or fall back to basic format
+          echo "Attempting to generate feature summary with LLxprt Code..."
+
+          # Create a focused prompt for feature extraction only
+          PROMPT="Analyze the following git commits and identify ONLY the user-facing features and bug fixes worth highlighting.
+
+          Write your analysis to a file called 'features.md' with ONLY a '### What's New' section containing a bulleted list of the most important user-facing changes.
+
+          Here are the commits since $LAST_STABLE_TAG:
+          $(cat commits.txt)
+
+          RULES:
+          1. ONLY include features that directly affect users:
+             - New AI provider support or model support
+             - New command-line flags or options
+             - Performance improvements users will notice
+             - Bug fixes for user-facing issues
+             - New tools or tool improvements
+             - UI/UX improvements
+             - New capabilities or features
+
+          2. EXCLUDE these entirely:
+             - Test file changes
+             - Internal refactoring
+             - Build system changes
+             - CI/CD updates
+             - Dependency updates (unless they add new features)
+             - Documentation updates (unless for new features)
+             - Development tooling changes
+             - Any bugs that were both introduced AND fixed in this same release
+
+          3. Write concise, clear bullet points that explain the benefit to users
+          4. NO EMOJIS
+          5. If there are no user-facing changes, write 'No major user-facing changes in this release.'
+
+          Use the write_file tool to save ONLY the feature list to 'features.md'."
+
+          # Try LLxprt generation for features
+          set +e
+          npx @vybestack/llxprt-code@latest \
+            --provider ${{ vars.LLXPRT_DEFAULT_PROVIDER }} \
+            --model ${{ vars.LLXPRT_DEFAULT_MODEL }} \
+            --key "${{ secrets[vars.KEY_VAR_NAME] }}" \
+            --baseurl ${{ vars.OPENAI_BASE_URL }} \
+            --yolo \
+            --prompt "$PROMPT" > /dev/null 2>&1
+          LLXPRT_EXIT=$?
+          set -e
+
+          # Add features section if generation succeeded
+          if [ $LLXPRT_EXIT -eq 0 ] && [ -s features.md ]; then
+            echo "Adding LLxprt-generated feature summary"
+            cat features.md >> release-notes.md
+            echo "" >> release-notes.md
+          else
+            echo "Skipping feature summary (LLxprt generation failed)"
+          fi
+
+          # Gather contributor acknowledgements (exclude maintainer acoliver)
+          echo "Collecting contributor acknowledgements..."
+          PR_NUMBERS=$(git log "$LAST_STABLE_TAG"..HEAD --merges --pretty='%s' | sed -n 's/.*#\([0-9]\+\).*/\1/p' | sort -u)
+          CONTRIBUTORS=""
+          for PR_NUMBER in $PR_NUMBERS; do
+            if [ -z "$PR_NUMBER" ]; then
+              continue
+            fi
+            LOGIN=$(gh pr view "$PR_NUMBER" --json author --jq '.author.login' 2>/dev/null || echo "")
+            if [ -n "$LOGIN" ] && [ "$LOGIN" != "acoliver" ]; then
+              CONTRIBUTORS="${CONTRIBUTORS}"$'\n'"$LOGIN"
+            fi
+          done
+
+          CONTRIBUTORS=$(printf "%s\n" "$CONTRIBUTORS" | sed '/^$/d' | sort -u)
+          if [ -n "$CONTRIBUTORS" ]; then
+            {
+              echo "### Thanks"
+              echo ""
+              echo "Huge thanks to the following contributors for their pull requests in this release:"
+              echo ""
+            } >> release-notes.md
+            while IFS= read -r contributor; do
+              echo "- @$contributor" >> release-notes.md
+            done <<< "$CONTRIBUTORS"
+            echo "" >> release-notes.md
+          else
+            echo "No external contributors to acknowledge for this release."
+          fi
+
+          # Always add the full commit list
+          {
+            echo "### All Changes"
+            echo ""
+          } >> release-notes.md
+          cat commits.txt >> release-notes.md
+
+          # Add comparison link if we have a real previous tag
+          if [[ "$LAST_STABLE_TAG" != $(git rev-list --max-parents=0 HEAD) ]]; then
+            {
+              echo ""
+              echo "---"
+              echo ""
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${LAST_STABLE_TAG}...${{ steps.version.outputs.RELEASE_TAG }}"
+            } >> release-notes.md
+          fi
+
+          echo "Release notes generated"
+
+      - name: Create GitHub Release and Tag
+        if: ${{ steps.vars.outputs.should_run_standard_release == 'true' && steps.vars.outputs.is_dry_run == 'false' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BRANCH: ${{ steps.release_branch.outputs.BRANCH_NAME }}
+          VSIX_PATH: ${{ steps.vscode_package.outputs.VSIX_PATH }}
+          SHOULD_CREATE_BRANCH: ${{ steps.branch_decision.outputs.should_create_branch }}
+        run: |
+          # Determine target for the release: branch if created, otherwise current commit
+          if [[ "$SHOULD_CREATE_BRANCH" == "true" && -n "$RELEASE_BRANCH" ]]; then
+            TARGET_REF="$RELEASE_BRANCH"
+          else
+            TARGET_REF="${{ github.sha }}"
+          fi
+
+          if [[ -n "${VSIX_PATH}" && -f "${VSIX_PATH}" ]]; then
+            gh release create ${{ steps.version.outputs.RELEASE_TAG }} \
+              bundle/llxprt.js \
+              "${VSIX_PATH}" \
+              --target "$TARGET_REF" \
+              --title "Release ${{ steps.version.outputs.RELEASE_TAG }}" \
+              --notes-file release-notes.md
+          else
+            gh release create ${{ steps.version.outputs.RELEASE_TAG }} \
+              bundle/llxprt.js \
+              --target "$TARGET_REF" \
+              --title "Release ${{ steps.version.outputs.RELEASE_TAG }}" \
+              --notes-file release-notes.md
+          fi
+
+      - name: Create Issue on Failure
+        if: failure()
+        run: |
+          gh issue create \
+            --title "Release Failed for ${{ steps.version.outputs.RELEASE_TAG || 'N/A' }} on $(date +'%Y-%m-%d')" \
+            --body "The release workflow failed. See the full run for details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --label "ci/cd"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

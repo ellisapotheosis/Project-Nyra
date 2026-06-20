@@ -1,0 +1,675 @@
+/**
+ * @license
+ * Copyright 2025 Google LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* eslint-disable complexity, sonarjs/cognitive-complexity -- Phase 5: legacy core boundary retained while larger decomposition continues. */
+
+import path from 'node:path';
+import os from 'node:os';
+import process from 'node:process';
+import * as fs from 'node:fs/promises';
+import { isGitRepository } from '../utils/gitUtils.js';
+import { PromptService } from '../prompt-config/prompt-service.js';
+import { getSettingsService } from '../settings/settingsServiceInstance.js';
+import { getFolderStructure } from '../utils/getFolderStructure.js';
+import { DebugLogger } from '../debug/index.js';
+import {
+  getGlobalCoreMemoryFilePath,
+  getProjectCoreMemoryFilePath,
+} from '../tools/memoryTool.js';
+import { tildeifyPath } from '../utils/paths.js';
+import type {
+  PromptContext,
+  PromptEnvironment,
+} from '../prompt-config/types.js';
+
+const MAX_FOLDER_STRUCTURE_LINES = 40;
+const MAX_FOLDER_STRUCTURE_CHARS = 6000;
+const MAX_FOLDER_STRUCTURE_TOP_LEVEL = 20;
+const SESSION_STARTED_AT = new Date();
+const SESSION_STARTED_AT_LABEL = SESSION_STARTED_AT.toLocaleString();
+const logger = new DebugLogger('llxprt:core:prompts');
+
+// Singleton instance of PromptService
+let promptService: PromptService | null = null;
+let promptServiceInitialized = false;
+let promptServiceInitPromise: Promise<void> | null = null;
+
+/**
+ * Initialize the PromptService singleton
+ */
+async function initializePromptService(): Promise<void> {
+  promptServiceInitPromise ??= (async () => {
+    /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: empty string env var should fall through to default path */
+    const baseDir =
+      process.env.LLXPRT_PROMPTS_DIR ||
+      path.join(os.homedir(), '.llxprt', 'prompts');
+    /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
+    promptService = new PromptService({
+      baseDir,
+      debugMode: process.env.DEBUG === 'true',
+    });
+    await promptService.initialize();
+    promptServiceInitialized = true;
+  })();
+  return promptServiceInitPromise;
+}
+
+/**
+ * Get the singleton PromptService instance (async)
+ */
+async function getPromptService(): Promise<PromptService> {
+  if (!promptServiceInitialized) {
+    await initializePromptService();
+  }
+  return promptService!;
+}
+
+export async function drainPromptInstallerNotices(): Promise<string[]> {
+  const service = await getPromptService();
+  return service.consumeInstallerNotices();
+}
+
+/**
+ * Get tool name mapping - lazy initialization to avoid circular dependencies
+ */
+function getToolNameMapping(): Record<string, string> {
+  return {
+    list_directory: 'Ls',
+    replace: 'Edit',
+    glob: 'Glob',
+    search_file_content: 'Grep',
+    read_file: 'ReadFile',
+    read_many_files: 'ReadManyFiles',
+    run_shell_command: 'Shell',
+    write_file: 'WriteFile',
+    memory: 'Memory',
+    todo_read: 'TodoRead',
+    todo_write: 'TodoWrite',
+    google_web_fetch: 'GoogleWebFetch',
+    direct_web_fetch: 'DirectWebFetch',
+    google_web_search: 'GoogleWebSearch',
+    exa_web_search: 'ExaWebSearch',
+    codesearch: 'CodeSearch',
+    delete_line_range: 'DeleteLineRange',
+    insert_at_line: 'InsertAtLine',
+    read_line_range: 'ReadLineRange',
+    list_subagents: 'ListSubagents',
+    task: 'Task',
+  };
+}
+
+function extractFolderStructureHeader(lines: string[]): {
+  header: string[];
+  body: string[];
+} {
+  if (lines.length === 0) {
+    return { header: [], body: [] };
+  }
+
+  const header: string[] = [];
+  let index = 0;
+
+  header.push(lines[index++] ?? '');
+
+  if (index < lines.length && lines[index].trim() === '') {
+    header.push(lines[index++]);
+  }
+
+  if (index < lines.length) {
+    header.push(lines[index++]);
+  }
+
+  return { header, body: lines.slice(index) };
+}
+
+export function compactFolderStructureSnapshot(
+  structure?: string,
+): string | undefined {
+  if (!structure) {
+    return structure;
+  }
+
+  const normalized = structure.replace(/\r\n/g, '\n').trim();
+  if (!normalized) {
+    return undefined;
+  }
+
+  const lines = normalized.split('\n');
+  if (
+    lines.length <= MAX_FOLDER_STRUCTURE_LINES &&
+    normalized.length <= MAX_FOLDER_STRUCTURE_CHARS
+  ) {
+    return normalized;
+  }
+
+  const { header, body } = extractFolderStructureHeader(lines);
+  if (body.length === 0) {
+    return normalized.slice(0, MAX_FOLDER_STRUCTURE_CHARS);
+  }
+
+  const topLevelEntries = body.filter(
+    (line) => line.startsWith('├───') || line.startsWith('└───'),
+  );
+  const candidateLines = topLevelEntries.length > 0 ? topLevelEntries : body;
+  const limitedLines = candidateLines.slice(0, MAX_FOLDER_STRUCTURE_TOP_LEVEL);
+  const omittedCount = Math.max(candidateLines.length - limitedLines.length, 0);
+
+  const truncatedLine = `└───... ${omittedCount} more entries omitted (folder structure truncated for provider limits)`;
+  const snapshotLines = [...header, ...limitedLines, truncatedLine];
+
+  let snapshot = snapshotLines.join('\n');
+  if (snapshot.length > MAX_FOLDER_STRUCTURE_CHARS) {
+    const allowance = Math.max(
+      MAX_FOLDER_STRUCTURE_CHARS - truncatedLine.length - 1,
+      0,
+    );
+    const preserved = snapshotLines
+      .slice(0, snapshotLines.length - 1)
+      .join('\n')
+      .slice(0, allowance);
+    snapshot = preserved ? `${preserved}\n${truncatedLine}` : truncatedLine;
+  }
+
+  return snapshot;
+}
+
+/**
+ * Options for getCoreSystemPromptAsync
+ */
+export interface CoreSystemPromptOptions {
+  userMemory?: string;
+  coreMemory?: string;
+  mcpInstructions?: string;
+
+  model?: string;
+  tools?: string[];
+  provider?: string;
+  includeSubagentDelegation?: boolean;
+  asyncSubagentsEnabled?: boolean;
+  profileAsyncEnabled?: boolean;
+  interactionMode?: 'interactive' | 'non-interactive' | 'subagent';
+}
+
+/**
+ * Loads core (system) memory content from .LLXPRT_SYSTEM files.
+ * Reads both global (~/.llxprt/.LLXPRT_SYSTEM) and project-level
+ * (<cwd>/.llxprt/.LLXPRT_SYSTEM) files and concatenates them.
+ */
+export async function loadCoreMemoryContent(cwd: string): Promise<string> {
+  const candidates = [
+    { path: path.resolve(getGlobalCoreMemoryFilePath()), label: 'global' },
+    { path: path.resolve(getProjectCoreMemoryFilePath(cwd)), label: 'project' },
+  ];
+
+  // Dedupe in case global and project resolve to the same file (e.g. cwd is $HOME)
+  const seen = new Set<string>();
+  const paths = candidates.filter(({ path: p }) => {
+    if (seen.has(p)) return false;
+    seen.add(p);
+    return true;
+  });
+
+  const parts: string[] = [];
+  for (const { path: filePath } of paths) {
+    try {
+      const content = await fs.readFile(filePath, 'utf-8');
+      if (content.trim()) {
+        parts.push(
+          `--- Core System Memory from: ${tildeifyPath(filePath)} ---\n${content.trim()}\n--- End of Core System Memory ---`,
+        );
+      }
+    } catch (err) {
+      const error = err as Error & { code?: string };
+      if (error.code !== 'ENOENT') {
+        logger.warn(
+          () => `Failed to read core memory file ${filePath}: ${error.message}`,
+        );
+      }
+    }
+  }
+
+  return parts.join('\n\n');
+}
+function resolveFolderStructureSettings(): {
+  includeFolderStructure: boolean;
+  enableToolPrompts: boolean;
+} {
+  let includeFolderStructure = false;
+  let enableToolPrompts = false;
+  try {
+    const settingsService = getSettingsService();
+    const folderStructureSetting = settingsService.get(
+      'include-folder-structure',
+    ) as boolean | undefined;
+    if (folderStructureSetting !== undefined) {
+      includeFolderStructure = folderStructureSetting;
+    }
+    const toolPromptsSetting = settingsService.get('enable-tool-prompts') as
+      | boolean
+      | undefined;
+    if (toolPromptsSetting !== undefined) {
+      enableToolPrompts = toolPromptsSetting;
+    }
+  } catch {
+    // Settings unavailable; use defaults.
+  }
+  return { includeFolderStructure, enableToolPrompts };
+}
+
+async function resolveFolderStructure(
+  cwd: string,
+  includeFolderStructure: boolean,
+): Promise<string | undefined> {
+  if (!includeFolderStructure) return undefined;
+  try {
+    const raw = await getFolderStructure(cwd, {
+      maxItems: 100,
+    });
+    return compactFolderStructureSnapshot(raw);
+  } catch (error) {
+    logger.debug(() => `Failed to generate folder structure: ${error}`);
+    return undefined;
+  }
+}
+
+function buildEnvironment(
+  cwd: string,
+  folderStructure: string | undefined,
+  interactionMode: CoreSystemPromptOptions['interactionMode'],
+): PromptEnvironment {
+  const environment: PromptEnvironment = {
+    isGitRepository: isGitRepository(cwd),
+    isSandboxed: !!process.env.SANDBOX,
+    hasIdeCompanion: false,
+    sessionStartedAt: SESSION_STARTED_AT_LABEL,
+    workingDirectory: cwd,
+    workspaceRoot: cwd,
+    workspaceName: path.basename(cwd),
+    workspaceDirectories: [cwd],
+    folderStructure,
+    interactionMode,
+  };
+
+  if (process.env.SANDBOX === 'sandbox-exec') {
+    environment.sandboxType = 'macos-seatbelt';
+  } else if (process.env.SANDBOX) {
+    environment.sandboxType = 'generic';
+  }
+
+  if (process.env.IDE_COMPANION === 'true') {
+    environment.hasIdeCompanion = true;
+  }
+
+  return environment;
+}
+
+const DEFAULT_ENABLED_TOOLS = [
+  'Ls',
+  'Edit',
+  'Glob',
+  'Grep',
+  'ReadFile',
+  'ReadManyFiles',
+  'Shell',
+  'WriteFile',
+  'Memory',
+  'TodoRead',
+  'TodoWrite',
+  'GoogleWebFetch',
+  'DirectWebFetch',
+  'GoogleWebSearch',
+  'ExaWebSearch',
+  'delete_line_range',
+  'insert_at_line',
+  'read_line_range',
+];
+
+function resolveEnabledTools(tools?: string[]): string[] {
+  const toolMapping = getToolNameMapping();
+  if (tools === undefined) return [...DEFAULT_ENABLED_TOOLS];
+  if (tools.length === 0) return [];
+  const mappedTools = tools
+    .map((toolName) => {
+      if (toolMapping[toolName]) return toolMapping[toolName];
+      const snakeName = toolName.replace(/-/g, '_');
+      if (toolMapping[snakeName]) return toolMapping[snakeName];
+      return toolName;
+    })
+    .filter(Boolean);
+  return Array.from(new Set(mappedTools));
+}
+
+function resolveProvider(provider?: string): string {
+  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: empty string provider should fall through to 'gemini'
+  let resolvedProvider = provider || 'gemini';
+  if (!provider) {
+    try {
+      const settingsService = getSettingsService();
+      const activeProvider = settingsService.get('activeProvider') as string;
+      if (activeProvider) resolvedProvider = activeProvider;
+    } catch {
+      // Settings unavailable (e.g., during tests); use default provider.
+    }
+  }
+  return resolvedProvider;
+}
+
+function resolveAsyncSubagentSettings(
+  asyncSubagentsEnabled?: boolean,
+  profileAsyncEnabled?: boolean,
+): { asyncSubagentsEnabled: boolean; profileAsyncEnabled: boolean } {
+  let a = asyncSubagentsEnabled;
+  let p = profileAsyncEnabled;
+  if (a === undefined || p === undefined) {
+    try {
+      const settingsService = getSettingsService();
+      if (a === undefined) {
+        const globalSettings = settingsService.getAllGlobalSettings();
+        const subagentsSettings = globalSettings['subagents'] as
+          | { asyncEnabled?: boolean }
+          | undefined;
+        a = subagentsSettings?.asyncEnabled !== false;
+      }
+      if (p === undefined) {
+        const profileValue = settingsService.get('subagents.async.enabled');
+        p = profileValue !== false;
+      }
+    } catch {
+      a = a ?? true;
+      p = p ?? true;
+    }
+  }
+  return { asyncSubagentsEnabled: a, profileAsyncEnabled: p };
+}
+
+/**
+ * Build PromptContext from current environment and parameters
+ */
+async function buildPromptContext(
+  options: CoreSystemPromptOptions,
+): Promise<PromptContext> {
+  const { model, tools, provider, includeSubagentDelegation, interactionMode } =
+    options;
+  const cwd = process.cwd();
+
+  const { includeFolderStructure, enableToolPrompts } =
+    resolveFolderStructureSettings();
+  const folderStructure = await resolveFolderStructure(
+    cwd,
+    includeFolderStructure,
+  );
+  const environment = buildEnvironment(cwd, folderStructure, interactionMode);
+  const enabledTools = resolveEnabledTools(tools);
+  const resolvedProvider = resolveProvider(provider);
+  const { asyncSubagentsEnabled, profileAsyncEnabled } =
+    resolveAsyncSubagentSettings(
+      options.asyncSubagentsEnabled,
+      options.profileAsyncEnabled,
+    );
+
+  return {
+    provider: resolvedProvider,
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: empty string model should fall through to default
+    model: model || 'gemini-1.5-pro',
+    enabledTools,
+    environment,
+    enableToolPrompts,
+    includeSubagentDelegation,
+    asyncSubagentsEnabled,
+    profileAsyncEnabled,
+  };
+}
+
+/**
+ * Async version of getCoreSystemPrompt that uses the new PromptService
+ * Supports both legacy positional arguments and options object for backward compatibility
+ */
+function resolvePromptArgs(
+  userMemoryOrOptions?: string | CoreSystemPromptOptions,
+  model?: string,
+  tools?: string[],
+): {
+  userMemory: string | undefined;
+  coreMemory: string | undefined;
+  mcpInstructions: string | undefined;
+  modelArg: string | undefined;
+  toolsArg: string[] | undefined;
+  providerArg: string | undefined;
+  includeSubagentDelegation: boolean | undefined;
+  asyncSubagentsEnabledArg: boolean | undefined;
+  profileAsyncEnabledArg: boolean | undefined;
+  interactionModeArg:
+    | 'interactive'
+    | 'non-interactive'
+    | 'subagent'
+    | undefined;
+} {
+  const defaults = {
+    userMemory: undefined as string | undefined,
+    coreMemory: undefined as string | undefined,
+    mcpInstructions: undefined as string | undefined,
+    modelArg: undefined as string | undefined,
+    toolsArg: undefined as string[] | undefined,
+    providerArg: undefined as string | undefined,
+    includeSubagentDelegation: undefined as boolean | undefined,
+    asyncSubagentsEnabledArg: undefined as boolean | undefined,
+    profileAsyncEnabledArg: undefined as boolean | undefined,
+    interactionModeArg: undefined as
+      | 'interactive'
+      | 'non-interactive'
+      | 'subagent'
+      | undefined,
+  };
+
+  if (typeof userMemoryOrOptions === 'object') {
+    const opts = userMemoryOrOptions;
+    return {
+      ...defaults,
+      userMemory: opts.userMemory,
+      coreMemory: opts.coreMemory,
+      mcpInstructions: opts.mcpInstructions,
+      modelArg: opts.model,
+      toolsArg: opts.tools,
+      providerArg: opts.provider,
+      includeSubagentDelegation: opts.includeSubagentDelegation,
+      asyncSubagentsEnabledArg: opts.asyncSubagentsEnabled,
+      profileAsyncEnabledArg: opts.profileAsyncEnabled,
+      interactionModeArg: opts.interactionMode,
+    };
+  }
+
+  return {
+    ...defaults,
+    userMemory: userMemoryOrOptions,
+    modelArg: model,
+    toolsArg: tools,
+  };
+}
+
+async function resolveEffectiveMemories(
+  userMemory: string | undefined,
+  coreMemory: string | undefined,
+  mcpInstructions: string | undefined,
+): Promise<{
+  effectiveUserMemory: string | undefined;
+  effectiveCoreMemory: string | undefined;
+}> {
+  // Load core memory from disk if not explicitly provided by caller.
+  let loadedCoreMemory = coreMemory;
+  if (loadedCoreMemory === undefined) {
+    try {
+      loadedCoreMemory = await loadCoreMemoryContent(process.cwd());
+    } catch {
+      // Non-fatal: proceed without core memory
+    }
+  }
+
+  let effectiveUserMemory = userMemory;
+  let effectiveCoreMemory = loadedCoreMemory;
+  try {
+    const settingsService = getSettingsService();
+    const allMemoriesAreCore = settingsService.get(
+      'model.allMemoriesAreCore',
+    ) as boolean | undefined;
+    if (allMemoriesAreCore === true) {
+      const parts = [effectiveCoreMemory, effectiveUserMemory].filter((p) =>
+        p?.trim(),
+      );
+      effectiveCoreMemory = parts.join('\n\n') || undefined;
+      effectiveUserMemory = undefined;
+    }
+  } catch {
+    // Settings service may not be available (e.g. during tests)
+  }
+
+  if (mcpInstructions?.trim()) {
+    const parts = [effectiveCoreMemory, mcpInstructions.trim()].filter((p) =>
+      p?.trim(),
+    );
+    effectiveCoreMemory = parts.join('\n\n') || undefined;
+  }
+
+  return { effectiveUserMemory, effectiveCoreMemory };
+}
+
+export async function getCoreSystemPromptAsync(
+  userMemoryOrOptions?: string | CoreSystemPromptOptions,
+  model?: string,
+  tools?: string[],
+): Promise<string> {
+  const service = await getPromptService();
+
+  const {
+    userMemory,
+    coreMemory,
+    mcpInstructions,
+    modelArg,
+    toolsArg,
+    providerArg,
+    includeSubagentDelegation,
+    asyncSubagentsEnabledArg,
+    profileAsyncEnabledArg,
+    interactionModeArg,
+  } = resolvePromptArgs(userMemoryOrOptions, model, tools);
+
+  const { effectiveUserMemory, effectiveCoreMemory } =
+    await resolveEffectiveMemories(userMemory, coreMemory, mcpInstructions);
+
+  const context = await buildPromptContext({
+    model: modelArg,
+    tools: toolsArg,
+    provider: providerArg,
+    includeSubagentDelegation,
+    asyncSubagentsEnabled: asyncSubagentsEnabledArg,
+    profileAsyncEnabled: profileAsyncEnabledArg,
+    interactionMode: interactionModeArg,
+  });
+
+  return service.getPrompt(context, effectiveUserMemory, effectiveCoreMemory);
+}
+
+/**
+ * Initialize the prompt system - call this early in application startup
+ */
+export async function initializePromptSystem(): Promise<void> {
+  await initializePromptService();
+}
+
+/**
+ * Provides the system prompt for the history compression process.
+ * This prompt instructs the model to act as a specialized state manager,
+ * think in a scratchpad, and produce a structured XML summary.
+ */
+export function getCompressionPrompt(): string {
+  return COMPRESSION_PROMPT_TEMPLATE.trim();
+}
+
+const COMPRESSION_PROMPT_TEMPLATE = `
+You are the component that summarizes internal chat history into a given structure.
+
+When the conversation history grows too large, you will be invoked to compress the MIDDLE portion of the history into a structured XML snapshot, reducing it by approximately 50%. This snapshot will be combined with preserved messages from the top and bottom of the conversation. The agent will have access to the full context: summary + preserved top messages + preserved bottom messages.
+
+First, you will think through the middle portion of history in a private <scratchpad>. Review the user's overall goal, the agent's actions, tool outputs, file modifications, and any unresolved questions. Identify the most important information to preserve. Remember: user prompts and their exact phrasing are especially important to retain.
+
+After your reasoning is complete, generate the final <state_snapshot> XML object. Be thorough but concise. Focus on preserving essential context while eliminating redundancy. Ensure the agent has sufficient information to continue work effectively.
+
+The structure MUST be as follows:
+
+<state_snapshot>
+    <overall_goal>
+        <!-- A single, concise sentence describing the user's high-level objective. -->
+        <!-- Example: "Refactor the authentication service to use a new JWT library." -->
+    </overall_goal>
+
+    <key_knowledge>
+        <!-- Crucial facts, conventions, and constraints the agent must remember based on the conversation history and interaction with the user. Use bullet points. -->
+        <!-- Example:
+         - Build Command: \`npm run build\`
+         - Testing: Tests are run with \`npm test\`. Test files must end in \`.test.ts\`.
+         - Authentication: Uses Firebase Auth, API keys stored in \`config/keys.json\`
+        -->
+    </key_knowledge>
+
+    <current_progress>
+        <!-- What has been accomplished so far? Use bullet points. -->
+        <!-- Example:
+         - Created new authentication middleware in \`src/auth/middleware.ts\`
+         - Updated user registration endpoint to use new JWT library
+         - Started refactoring login endpoint but encountered TypeScript errors
+        -->
+    </current_progress>
+
+    <active_tasks>
+        <!-- What specific tasks need to be completed next? Use bullet points. -->
+        <!-- Example:
+         - Fix TypeScript errors in \`src/auth/login.ts\`
+         - Update unit tests for authentication middleware
+         - Remove deprecated auth helper functions
+        -->
+    </active_tasks>
+
+    <open_questions>
+        <!-- Any unresolved issues, errors, or questions that need attention? Use bullet points. -->
+        <!-- Example:
+         - Need to decide if old JWT tokens should be invalidated immediately
+         - Database migration for user table might be needed
+        -->
+    </open_questions>
+
+    <task_context>
+        <!-- For each active task or todo item, capture: why it exists, what user request originated it, what constraints apply, what approach was chosen, and what has been tried so far. -->
+        <!-- Example:
+         - Task: "Fix TypeScript errors in login.ts" — originated from user request to refactor auth. Constraint: must maintain backward compatibility. Approach: incremental migration. Tried: direct replacement (failed due to type mismatches).
+        -->
+    </task_context>
+
+    <user_directives>
+        <!-- Capture specific user feedback, corrections, and preferences. Use exact quotes where possible. -->
+        <!-- Example:
+         - User said: "Don't use any as a type, ever"
+         - User prefers: functional style over class-based
+         - User corrected: "The config file is at /etc/app.conf, not /etc/app.json"
+        -->
+    </user_directives>
+
+    <errors_encountered>
+        <!-- Record errors hit during the session: exact messages, root causes identified, and resolutions applied. -->
+        <!-- Example:
+         - Error: "Cannot find module './auth/middleware'" — Root cause: file was renamed to middleware.ts. Resolution: updated import path.
+         - Error: "Type 'string' is not assignable to type 'number'" — Root cause: API response shape changed. Resolution: added parseInt() conversion.
+        -->
+    </errors_encountered>
+
+    <code_references>
+        <!-- Preserve important code snippets, exact file paths, and function signatures that are essential for continuing work. -->
+        <!-- Example:
+         - Key file: src/auth/middleware.ts — exports: authenticateRequest(req, res, next)
+         - Modified: src/routes/login.ts lines 45-60 (JWT token generation)
+         - Config: config/keys.json (contains API keys, do not commit)
+        -->
+    </code_references>
+</state_snapshot>
+`;

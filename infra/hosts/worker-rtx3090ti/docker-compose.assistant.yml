@@ -25,8 +25,10 @@ services:
       - TWENTY_URL=${TWENTY_CRM_URL}
       - NEXUS_URL=http://orchestrator:6000
     volumes:
-      - ./config/openclaw:/home/node/.openclaw
+      - ./openclaw:/home/node/.openclaw
       - assistant-memory:/home/node/.memory
+    entrypoint: >
+      sh -c "openclaw plugins install @memorytensor/openclaw-memos && exec openclaw gateway --port 18789"
     deploy:
       resources:
         reservations:

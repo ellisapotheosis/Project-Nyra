@@ -1,0 +1,611 @@
+/**
+ * @license
+ * Copyright 2025 Vybestack LLC
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import * as fsPromises from 'fs/promises';
+import React from 'react';
+import { Text } from 'ink';
+import { Colors } from '../colors.js';
+import type {
+  CommandContext,
+  SlashCommand,
+  MessageActionReturn,
+  SlashCommandActionReturn,
+} from './types.js';
+import { CommandKind } from './types.js';
+import {
+  decodeTagName,
+  EmojiFilter,
+  type EmojiFilterMode,
+  INITIAL_HISTORY_LENGTH,
+} from '@vybestack/llxprt-code-core';
+import path from 'path';
+import type {
+  HistoryItemChatList,
+  ChatDetail,
+  HistoryItemWithoutId,
+} from '../types.js';
+import { MessageType } from '../types.js';
+import { type CommandArgumentSchema } from './schema/types.js';
+import { type Part } from '@google/genai';
+import { withFuzzyFilter } from '../utils/fuzzyFilter.js';
+
+/**
+ * Resolve emoji filter mode setting, defaulting to 'auto' for invalid values.
+ */
+function resolveEmojiFilterMode(setting: unknown): EmojiFilterMode {
+  // Check for invalid/falsy values that should default to 'auto'
+  const isInvalid =
+    setting === undefined ||
+    setting === null ||
+    setting === false ||
+    setting === '';
+  const isNumericInvalid = setting === 0 || Number.isNaN(setting);
+
+  if (isInvalid || isNumericInvalid) {
+    return 'auto';
+  }
+  return setting as EmojiFilterMode;
+}
+
+const getSavedChatTags = async (
+  context: CommandContext,
+  mtSortDesc: boolean,
+): Promise<ChatDetail[]> => {
+  const cfg = context.services.config;
+  const geminiDir = cfg?.storage.getProjectTempDir();
+  if (!geminiDir) {
+    return [];
+  }
+  try {
+    const file_head = 'checkpoint-';
+    const file_tail = '.json';
+    const files = await fsPromises.readdir(geminiDir);
+    const chatDetails: ChatDetail[] = [];
+
+    for (const file of files) {
+      if (file.startsWith(file_head) && file.endsWith(file_tail)) {
+        const filePath = path.join(geminiDir, file);
+        const stats = await fsPromises.stat(filePath);
+        const tagName = file.slice(file_head.length, -file_tail.length);
+        chatDetails.push({
+          name: decodeTagName(tagName),
+          mtime: stats.mtime.toISOString(),
+        });
+      }
+    }
+
+    chatDetails.sort((a, b) =>
+      mtSortDesc
+        ? b.mtime.localeCompare(a.mtime)
+        : a.mtime.localeCompare(b.mtime),
+    );
+
+    return chatDetails;
+  } catch {
+    return [];
+  }
+};
+
+const checkpointSuggestionDescription = 'Saved conversation checkpoint';
+const chatTagSchema: CommandArgumentSchema = [
+  {
+    kind: 'value',
+    name: 'tag',
+    description: 'Select saved checkpoint',
+    /**
+     * @plan:PLAN-20251013-AUTOCOMPLETE.P11
+     * @requirement:REQ-004
+     * Schema completer replaces legacy checkpoint completion.
+     */
+    completer: withFuzzyFilter(async (ctx) => {
+      const chatDetails = await getSavedChatTags(ctx, true);
+      return chatDetails.map((chat) => ({
+        value: chat.name,
+        description: checkpointSuggestionDescription,
+      }));
+    }),
+  },
+];
+
+const listCommand: SlashCommand = {
+  name: 'list',
+  description: 'List saved conversation checkpoints',
+  kind: CommandKind.BUILT_IN,
+  action: async (context): Promise<void> => {
+    const chatDetails = await getSavedChatTags(context, false);
+
+    const item: HistoryItemChatList = {
+      type: MessageType.CHAT_LIST,
+      chats: chatDetails,
+    };
+
+    context.ui.addItem(item);
+  },
+};
+
+const saveCommand: SlashCommand = {
+  name: 'save',
+  description:
+    'Save the current conversation as a checkpoint. Usage: /chat save <tag>',
+  kind: CommandKind.BUILT_IN,
+  action: async (context, args): Promise<SlashCommandActionReturn | void> => {
+    const tag = args.trim();
+    if (!tag) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: 'Missing tag. Usage: /chat save <tag>',
+      };
+    }
+
+    const { logger, config } = context.services;
+    await logger.initialize();
+
+    // Check for overwrite confirmation first
+    if (context.overwriteConfirmed !== true) {
+      const exists = await logger.checkpointExists(tag);
+      if (exists) {
+        return {
+          type: 'confirm_action',
+          prompt: React.createElement(
+            Text,
+            null,
+            'A checkpoint with the tag ',
+            React.createElement(Text, { color: Colors.AccentPurple }, tag),
+            ' already exists. Do you want to overwrite it?',
+          ),
+          originalInvocation: {
+            raw: context.invocation?.raw ?? `/chat save ${tag}`,
+          },
+        };
+      }
+    }
+
+    const client = config?.getGeminiClient();
+    // Check if chat is initialized before accessing it
+    if (client?.hasChatInitialized() !== true) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: 'No chat history available to save.',
+      };
+    }
+
+    const chat = client.getChat();
+    const history = chat.getHistory();
+    if (history.length > INITIAL_HISTORY_LENGTH) {
+      await logger.saveCheckpoint(history, tag);
+      return {
+        type: 'message',
+        messageType: 'info',
+        content: `Conversation checkpoint saved with tag: ${decodeTagName(tag)}.`,
+      };
+    }
+    return {
+      type: 'message',
+      messageType: 'info',
+      content: 'No conversation found to save.',
+    };
+  },
+};
+
+const resumeCommand: SlashCommand = {
+  name: 'resume',
+  altNames: ['load'],
+  description:
+    'Resume a conversation from a checkpoint. Usage: /chat resume <tag>',
+  kind: CommandKind.BUILT_IN,
+  schema: chatTagSchema,
+  autoExecute: true,
+  action: async (context, args): Promise<SlashCommandActionReturn> => {
+    const tag = args.trim();
+    if (!tag) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: 'Missing tag. Usage: /chat resume <tag>',
+      };
+    }
+
+    const { logger, config } = context.services;
+    await logger.initialize();
+
+    // Get emoji filter mode from settings
+    const emojiFilterSetting = config?.getEphemeralSetting('emojifilter');
+    // Determine emoji filter mode - use 'auto' for falsy/invalid values
+    const emojiFilterMode = resolveEmojiFilterMode(emojiFilterSetting);
+
+    // Create emoji filter if not in 'allowed' mode
+    const emojiFilter =
+      emojiFilterMode !== 'allowed'
+        ? new EmojiFilter({ mode: emojiFilterMode })
+        : undefined;
+
+    const checkpoint = await logger.loadCheckpoint(tag);
+    let conversation = checkpoint.history;
+
+    // Apply emoji filtering if needed
+    if (emojiFilter) {
+      conversation = conversation.map((item) => {
+        const filteredItem = { ...item };
+        if (Array.isArray(filteredItem.parts)) {
+          filteredItem.parts = filteredItem.parts.map((part: Part) => {
+            if (part.text) {
+              const filterResult = emojiFilter.filterText(part.text);
+              return { ...part, text: filterResult.filtered as string };
+            }
+            return part;
+          });
+        }
+        return filteredItem;
+      });
+    }
+
+    if (conversation.length === 0) {
+      return {
+        type: 'message',
+        messageType: 'info',
+        content: `No saved checkpoint found with tag: ${decodeTagName(tag)}.`,
+      };
+    }
+
+    // Convert checkpoint history to UI history items for display
+    // Use LoadHistoryActionReturn to properly sync both UI and client history
+    const uiHistory: HistoryItemWithoutId[] = conversation.map((content) => {
+      /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: empty string from join should be preserved, parts may be undefined */
+      const text =
+        content.parts
+          ?.map((part: Part) => (part.text ? part.text : ''))
+          .join('') || '';
+      /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
+      return {
+        type: content.role === 'user' ? MessageType.USER : MessageType.GEMINI,
+        text,
+      };
+    });
+
+    return {
+      type: 'load_history',
+      history: uiHistory,
+      clientHistory: conversation,
+    };
+  },
+};
+
+const deleteCommand: SlashCommand = {
+  name: 'delete',
+  altNames: ['rm', 'remove'],
+  description:
+    'Delete a conversation checkpoint. Usage: /chat delete <tag> [--force]',
+  kind: CommandKind.BUILT_IN,
+  schema: chatTagSchema,
+  autoExecute: true,
+  action: async (context, args): Promise<SlashCommandActionReturn> => {
+    const force = args.includes('--force');
+    const tag = args.replace('--force', '').trim();
+
+    if (!tag) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: 'Missing tag. Usage: /chat delete <tag>',
+      };
+    }
+
+    const { logger } = context.services;
+    await logger.initialize();
+
+    if (force === false && context.overwriteConfirmed !== true) {
+      return {
+        type: 'confirm_action',
+        prompt: React.createElement(
+          Text,
+          null,
+          'Are you sure you want to delete the checkpoint ',
+          React.createElement(Text, { color: Colors.AccentPurple }, tag),
+          '?',
+        ),
+        originalInvocation: {
+          raw: context.invocation?.raw ?? `/chat delete ${tag}`,
+        },
+      };
+    }
+
+    if (!(await logger.checkpointExists(tag))) {
+      return {
+        type: 'message',
+        messageType: 'info',
+        content: `No saved checkpoint found with tag: ${decodeTagName(tag)}.`,
+      };
+    }
+
+    await logger.deleteCheckpoint(tag);
+
+    return {
+      type: 'message',
+      messageType: 'info',
+      content: `Deleted checkpoint: ${decodeTagName(tag)}`,
+    };
+  },
+};
+
+const renameCommand: SlashCommand = {
+  name: 'rename',
+  altNames: ['mv'],
+  description:
+    'Rename a conversation checkpoint. Usage: /chat rename <old_tag> <new_tag>',
+  kind: CommandKind.BUILT_IN,
+  action: async (context, args): Promise<SlashCommandActionReturn> => {
+    const parts = args.trim().split(/\s+/);
+    if (parts.length !== 2) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: 'Usage: /chat rename <old_tag> <new_tag>',
+      };
+    }
+
+    const [oldTag, newTag] = parts;
+    const { logger } = context.services;
+    await logger.initialize();
+
+    if (!(await logger.checkpointExists(oldTag))) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: `No checkpoint found with tag: ${decodeTagName(oldTag)}`,
+      };
+    }
+
+    if (await logger.checkpointExists(newTag)) {
+      if (context.overwriteConfirmed !== true) {
+        return {
+          type: 'confirm_action',
+          prompt: React.createElement(
+            Text,
+            null,
+            'A checkpoint with the tag ',
+            React.createElement(Text, { color: Colors.AccentPurple }, newTag),
+            ' already exists. Do you want to overwrite it?',
+          ),
+          originalInvocation: {
+            raw: context.invocation?.raw ?? `/chat rename ${oldTag} ${newTag}`,
+          },
+        };
+      }
+      // If confirmed, delete the target checkpoint first
+      await logger.deleteCheckpoint(newTag);
+    }
+
+    // Implement rename by loading, saving to new tag, and deleting old
+    const checkpoint = await logger.loadCheckpoint(oldTag);
+    await logger.saveCheckpoint(checkpoint.history, newTag, checkpoint.context);
+    await logger.deleteCheckpoint(oldTag);
+
+    return {
+      type: 'message',
+      messageType: 'info',
+      content: `Renamed checkpoint from ${decodeTagName(oldTag)} to ${decodeTagName(newTag)}`,
+    };
+  },
+};
+
+const clearCommand: SlashCommand = {
+  name: 'clear',
+  description: 'Clear the current conversation history',
+  kind: CommandKind.BUILT_IN,
+  action: async (context): Promise<MessageActionReturn | void> => {
+    const client = context.services.config?.getGeminiClient();
+    // Check if chat is initialized before clearing
+    if (client?.hasChatInitialized() !== true) {
+      return {
+        type: 'message',
+        messageType: 'info',
+        content: 'No conversation to clear.',
+      };
+    }
+
+    const chat = client.getChat();
+    const history = chat.getHistory();
+    if (history.length <= INITIAL_HISTORY_LENGTH) {
+      return {
+        type: 'message',
+        messageType: 'info',
+        content: 'No conversation to clear.',
+      };
+    }
+
+    // Clear both the chat history and the UI display
+    chat.clearHistory();
+    context.ui.updateHistoryTokenCount(0);
+    context.ui.clear();
+    // Note: context.ui.clear() clears the screen, so we don't return a message
+    // The clear is visible to the user through the UI reset itself
+    return undefined;
+  },
+};
+
+/**
+ * Restore the conversation based on the number of turns to go back.
+ * @param context The slash command context.
+ * @param turns Number of turns to restore (negative number).
+ * @returns A LoadHistoryActionReturn to sync both UI and client history.
+ */
+const restoreHistory = async (
+  context: CommandContext,
+  turns: number,
+): Promise<SlashCommandActionReturn> => {
+  const client = context.services.config?.getGeminiClient();
+  if (client?.hasChatInitialized() !== true) {
+    return {
+      type: 'message',
+      messageType: 'error',
+      content: 'No chat history available to restore.',
+    };
+  }
+
+  const chat = client.getChat();
+  const currentHistory = chat.getHistory();
+  const turnsToRestore = Math.abs(turns);
+
+  if (turnsToRestore < 1) {
+    return {
+      type: 'message',
+      messageType: 'error',
+      content: 'Number of turns to restore must be greater than 0.',
+    };
+  }
+
+  // Calculate how many entries to keep
+  // Each turn typically has 2 entries (user + assistant), plus initial system/user
+  const entriesToRemove = turnsToRestore * 2;
+  const minEntries = 2; // Keep at least the initial entries
+
+  if (currentHistory.length <= minEntries + entriesToRemove) {
+    return {
+      type: 'message',
+      messageType: 'info',
+      content: 'Not enough history to restore the requested number of turns.',
+    };
+  }
+
+  // Create new history by removing the last N turns
+  const newHistory = currentHistory.slice(0, -entriesToRemove);
+
+  // Convert to UI history items for display
+  const uiHistory: HistoryItemWithoutId[] = newHistory.map((content) => {
+    /* eslint-disable @typescript-eslint/prefer-nullish-coalescing -- intentional falsy coalescing: empty string from join should be preserved, parts may be undefined */
+    const text =
+      content.parts
+        ?.map((part: Part) => (part.text ? part.text : ''))
+        .join('') || '';
+    /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
+    return {
+      type: content.role === 'user' ? MessageType.USER : MessageType.GEMINI,
+      text,
+    };
+  });
+
+  // Use LoadHistoryActionReturn to properly sync both UI and client history
+  return {
+    type: 'load_history',
+    history: uiHistory,
+    clientHistory: newHistory,
+  };
+};
+
+const restoreCommand: SlashCommand = {
+  name: 'restore',
+  altNames: ['undo'],
+  description:
+    'Restore conversation to N turns ago. Usage: /chat restore <number>',
+  kind: CommandKind.BUILT_IN,
+  action: async (context, args): Promise<SlashCommandActionReturn> => {
+    const turnsStr = args.trim();
+    if (!turnsStr) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: 'Usage: /chat restore <number>',
+      };
+    }
+
+    const turns = parseInt(turnsStr, 10);
+    if (isNaN(turns) || turns < 1) {
+      return {
+        type: 'message',
+        messageType: 'error',
+        content: 'Please provide a valid positive number of turns to restore.',
+      };
+    }
+
+    return restoreHistory(context, -turns);
+  },
+};
+
+const debugCommand: SlashCommand = {
+  name: 'debug',
+  description: 'Show chat diagnostics and debug information',
+  kind: CommandKind.BUILT_IN,
+  action: async (context): Promise<SlashCommandActionReturn> => {
+    const { config } = context.services;
+    const client = config?.getGeminiClient();
+
+    const debugInfo: string[] = [];
+
+    // Chat initialization status
+    const chatInitialized = client?.hasChatInitialized() ?? false;
+    debugInfo.push(`Chat initialized: ${chatInitialized}`);
+
+    // History information
+    if (chatInitialized && client) {
+      try {
+        const chat = client.getChat();
+        const history = chat.getHistory();
+        debugInfo.push(`History entries: ${history.length}`);
+      } catch {
+        debugInfo.push('History entries: unavailable');
+      }
+    } else {
+      debugInfo.push('History entries: 0 (chat not initialized)');
+    }
+
+    // Model information
+    if (config) {
+      try {
+        const model = config.getModel();
+        debugInfo.push(`Current model: ${model}`);
+      } catch {
+        debugInfo.push('Current model: unavailable');
+      }
+    } else {
+      debugInfo.push('Current model: unavailable (config not initialized)');
+    }
+
+    // Checkpoint directory information
+    const checkpointDir = config?.storage.getProjectTempDir();
+    if (checkpointDir) {
+      debugInfo.push(`Checkpoint directory: ${checkpointDir}`);
+    } else {
+      debugInfo.push('Checkpoint directory: unavailable');
+    }
+
+    return {
+      type: 'message',
+      messageType: 'info',
+      content: `Chat Debug Information:\n${debugInfo.map((line) => `• ${line}`).join('\n')}`,
+    };
+  },
+};
+
+export const chatCommand: SlashCommand = {
+  name: 'chat',
+  description: 'Manage conversation checkpoints',
+  kind: CommandKind.BUILT_IN,
+  subCommands: [
+    listCommand,
+    saveCommand,
+    resumeCommand,
+    deleteCommand,
+    renameCommand,
+    clearCommand,
+    restoreCommand,
+    debugCommand,
+  ],
+  action: async (): Promise<MessageActionReturn> => ({
+    type: 'message',
+    messageType: 'info',
+    content: `Available /chat commands:
+• list - List all saved conversation checkpoints
+• save <tag> - Save current conversation with a tag
+• resume <tag> - Resume a saved conversation
+• delete <tag> [--force] - Delete a saved checkpoint
+• rename <old_tag> <new_tag> - Rename a checkpoint
+• clear - Clear current conversation history
+• restore <number> - Restore conversation to N turns ago
+• debug - Show chat diagnostics and debug information`,
+  }),
+};

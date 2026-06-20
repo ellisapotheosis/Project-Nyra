@@ -1,0 +1,44 @@
+# Infisical self-hosted community edition (agent-vault)
+# Overlay onto the canonical oracle-vps compose.
+# Usage: docker --context oracle compose -f docker-compose.yml -f docker-compose.agent-vault.yml up -d agent-vault
+#
+# Requires vars in .env.agent-vault (loaded by make targets):
+#   INFISICAL_ENCRYPTION_KEY  – 64-char hex (sha256 of master password)
+#   INFISICAL_AUTH_SECRET     – JWT signing secret (base64)
+#   POSTGRES_USER / POSTGRES_PASSWORD – from .env.oracle
+#   AGENT_VAULT_ADDR          – public/tailscale SITE_URL
+
+services:
+  agent-vault:
+    image: infisical/infisical:latest-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-agent-vault
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    environment:
+      ENCRYPTION_KEY: ${INFISICAL_ENCRYPTION_KEY}
+      AUTH_SECRET: ${INFISICAL_AUTH_SECRET}
+      DB_CONNECTION_URI: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/agent_vault
+      REDIS_URL: redis://redis-cache:6379
+      SITE_URL: ${AGENT_VAULT_ADDR:-https://agent-vault.projectnyra.com}
+      TELEMETRY_ENABLED: "false"
+      HTTPS_ENABLED: "false"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    expose:
+      - "8080"
+    networks:
+      nyra_net: {}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/status | grep -q '\"date\"' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+networks:
+  nyra_net:
+    external: true
+    name: nyra_net

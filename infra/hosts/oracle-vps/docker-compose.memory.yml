@@ -41,6 +41,7 @@ services:
     networks:
       memory_private: {}
       memory_edge: {}
+      nyra_net: {}
     healthcheck:
       test:
         [
@@ -167,6 +168,9 @@ networks:
   memory_private:
     name: nyra_memory_private
     internal: true
+  nyra_net:
+    external: true
+    name: nyra_net
 
 volumes:
   letta_postgres:

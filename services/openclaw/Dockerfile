@@ -14,6 +14,9 @@ RUN npm install -g openclaw@latest
 # Install the FalkorDB mem0 memory plugin
 RUN openclaw plugins install @falkordb/openclaw-mem0
 
+# Install the MemoryTensor memOS memory plugin
+RUN openclaw plugins install @memorytensor/openclaw-memos
+
 # Install the Open WebUI channels plugin
 # RUN openclaw plugins install https://github.com/Skyzi000/openclaw-open-webui-channels
 
