@@ -1,69 +1,40 @@
-# Project Nyra Documentation
+# Project Nyra Documentation Portal
 
-**Last Updated**: 2026-01-22
-**Status**: Reorganized and production-ready
+Welcome to the centralized documentation portal for **Project Nyra**. The repository's documentation is strictly organized into **7 clean, canonical categories** to make finding system guides, operational playbooks, and design specifications fast and simple.
 
-## 📋 What's in This Folder (Root)
+---
 
-This root directory contains **ONLY**:
-- ✅ **Completion Reports** - Status reports from major initiatives
-- ✅ **Step-by-Step Guides** - Manual procedures for you to follow
-- ✅ **To-Do Lists** - Task checklists and action items
-- ✅ **This README** - Navigation guide
+## 📂 Canonical Categories
 
-All other documentation is organized in subdirectories below.
+The documentation is organized under the following directory structure:
 
-## 📂 Directory Structure
+| Category | Directory | Description & Key Contents |
+| :--- | :--- | :--- |
+| **🏗️ Architecture** | [`docs/architecture/`](./architecture/) | High-level system blueprints, 23 active Architecture Decision Records (ADRs), stack decisions, and design concepts.<br>• *Key Files:* [`STACK_DECISIONS.md`](./architecture/STACK_DECISIONS.md) |
+| **🌐 Infrastructure** | [`docs/infrastructure/`](./infrastructure/) | Server configurations, Docker Compose networks, Cloudflare tunnels, Tailscale MagicDNS mapping, Infisical secrets setup, and host environments.<br>• *Key Folders:* `deployment/`, `cloudflared/`, `security/`, `network/`, `env/` |
+| **📱 Applications** | [`docs/applications/`](./applications/) | Specification sheets, API contracts, and development guides for the TwentyCRM client, primary Webapp, public landing page, and microservices.<br>• *Key Folders:* `twenty-crm/`, `webapp/`, `landing-page/`, `development/` |
+| **⚙️ Operations** | [`docs/operations/`](./operations/) | Runbooks for manual/automatic host recovery, secret rotation playbooks, volume backup/restore scripts, CI operations, and system health-check configurations.<br>• *Key Folders:* `runbooks/`, `ci/`, `performance/`, `manual-tasks/` |
+| **🧠 Workflows** | [`docs/workflows/`](./workflows/) | Agentic coordination prompts, LLM context guides, master system instructions, developer chat rules, and task-handoff parameters.<br>• *Key Folders:* `ai/`, `ai-automatable/`, `sparc/` |
+| **🔬 Research** | [`docs/research/`](./research/) | Technical evaluations, integration adapter research, data ingestion analysis, and non-active sandbox test results.<br>• *Key Folders:* `integration/`, `integrations/`, `ingestion/` |
+| **📦 Archive** | [`docs/archive/`](./archive/) | Consolidated legacy guides, bootstrap staging plans, historical session logs, outdated configs, and deprecated migration reports.<br>• *Key Folders:* `cleanup/`, `setup/`, `bootstrap/`, `status/`, `sessions/` |
 
-| Directory | Purpose | Key Files |
-|---|---|---|
-| **architecture/** | System architecture, ADRs, diagrams | ARCHITECTURE-OVERVIEW.md, ARCHITECTURE-DECISIONS.md (23 ADRs) |
-| **api/** | API documentation, OpenAPI specs | API-REFERENCE.md |
-| **deployment/** | Deployment guides, infrastructure | SETUP-GUIDE.md, DEPLOYMENT.md |
-| **manual-tasks/** | Human-required procedures | YOUR-MANUAL-SETUP-GUIDE.md, PRODUCTION-READINESS-CHECKLIST.md |
-| **ai-automatable/** | Claude-automatable tasks | AI-AUTOMATION-GUIDE.md |
-| **development/** | Development guides, templates | CLAUDE-MD-V3-TEMPLATE-GUIDE.md |
-| **configuration/** | Configuration references | CONFIGURATION.md |
-| **sparc/** | SPARC methodology specs | SPARC-SPECIFICATIONS.md |
-| **cleanup/** | Reorganization reports | Completion reports, migration logs |
-| **archive/** | Archived/obsolete files | Historical documentation |
+---
 
 ## 🚀 Quick Navigation
 
-**Getting Started**: Start with [`manual-tasks/YOUR-MANUAL-SETUP-GUIDE.md`](manual-tasks/YOUR-MANUAL-SETUP-GUIDE.md)
+*   **System Blueprint & Overview:** See [`docs/architecture/ARCHITECTURE.md`](./architecture/ARCHITECTURE.md)
+*   **Selected Stack Decisions:** See [`docs/architecture/STACK_DECISIONS.md`](./architecture/STACK_DECISIONS.md)
+*   **Host Network Routing Map:** See [`docs/infrastructure/network/NETWORK-MAP.md`](./infrastructure/network/NETWORK-MAP.md)
+*   **Orchestrator Network Setup:** See [`docs/infrastructure/ORCHESTRATOR-NETWORKING-SETUP.md`](./infrastructure/ORCHESTRATOR-NETWORKING-SETUP.md)
+*   **Owner Manual Action Items:** See [`docs/operations/OWNER_MANUAL_ACTIONS.md`](./operations/OWNER_MANUAL_ACTIONS.md)
+*   **Agent Handoff Standards:** See [`docs/workflows/AGENT_HANDOFFS.md`](./workflows/AGENT_HANDOFFS.md)
 
-**Architecture**: See [`architecture/ARCHITECTURE-OVERVIEW.md`](architecture/ARCHITECTURE-OVERVIEW.md)
+---
 
-**API Reference**: See [`api/API-REFERENCE.md`](api/API-REFERENCE.md)
+## 📝 Rules for Adding Documentation
 
-**Deployment**: See [`deployment/SETUP-GUIDE.md`](deployment/SETUP-GUIDE.md)
+To maintain the high-density and pristine organization of this documentation portal, please adhere to the following rules:
 
-**AI Automation**: See [`ai-automatable/AI-AUTOMATION-GUIDE.md`](ai-automatable/AI-AUTOMATION-GUIDE.md)
-
-## 🔍 Finding Documentation
-
-1. **Browse by category** using directories above
-2. **Check directory README files** - each subdirectory has a README with file inventory
-3. **Search by keyword** using your IDE or `grep -r "keyword" docs/`
-
-## 📝 Adding New Documentation
-
-When creating new docs, follow these rules (enforced by `docs/CLAUDE.md`):
-
-- **Completion reports** → Save to docs root
-- **Step-by-step guides for manual execution** → Save to docs root or `manual-tasks/`
-- **Architecture docs** → `architecture/`
-- **API docs** → `api/`
-- **Deployment guides** → `deployment/`
-- **Everything else** → Appropriate subdirectory
-
-See `CLAUDE.md` for complete rules.
-
-## 🎯 Key Documents
-
-| Document | Purpose |
-|---|---|
-| [WHITEPAPER.md](WHITEPAPER.md) | Complete technical whitepaper (2,900+ lines) |
-| [YOUR-MANUAL-SETUP-GUIDE.md](manual-tasks/YOUR-MANUAL-SETUP-GUIDE.md) | Hardware/network setup guide |
-| [PRODUCTION-READINESS-CHECKLIST.md](manual-tasks/PRODUCTION-READINESS-CHECKLIST.md) | Production deployment checklist |
-| [AI-AUTOMATION-GUIDE.md](ai-automatable/AI-AUTOMATION-GUIDE.md) | What Claude can automate |
+1.  **Zero Loose Files at Root:** The root of `/docs` must contain **ONLY** this `README.md` file. All other documentation files must reside within one of the 7 canonical subdirectories listed above.
+2.  **Surgical Categorization:** Categorize new documents strictly according to the portal layout (e.g., a backup script goes to `docs/operations/`, a new API route spec to `docs/applications/`).
+3.  **Deprecation Policy:** When an infrastructure component or service is deprecated, immediately move its documentation into `docs/archive/` and update [`docs/architecture/STACK_DECISIONS.md`](./architecture/STACK_DECISIONS.md).

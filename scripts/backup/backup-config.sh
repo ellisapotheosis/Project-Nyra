@@ -18,7 +18,4 @@ cp -r "$PROJECT_ROOT/infra"/*.yml "$BACKUP_DIR/" 2>/dev/null || true
 # Copy package.json files
 find "$PROJECT_ROOT" -name "package.json" -not -path "*/node_modules/*" -exec cp --parents {} "$BACKUP_DIR/" \; 2>/dev/null || true
 
-# Copy Claude Flow config
-[ -f "$PROJECT_ROOT/archon-os.config.json" ] && cp "$PROJECT_ROOT/archon-os.config.json" "$BACKUP_DIR/"
-
 echo "[SUCCESS] Configuration backed up to $BACKUP_DIR"
