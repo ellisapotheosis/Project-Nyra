@@ -589,8 +589,8 @@ importers:
         specifier: ^1.6.0
         version: 1.12.0
       morgan:
-        specifier: ^1.10.0
-        version: 1.10.1
+        specifier: ^1.11.0
+        version: 1.11.0
       node-schedule:
         specifier: ^2.1.1
         version: 2.1.1
@@ -726,8 +726,8 @@ importers:
         specifier: ^9.0.2
         version: 9.0.3
       morgan:
-        specifier: ^1.10.0
-        version: 1.10.1
+        specifier: ^1.11.0
+        version: 1.11.0
       multer:
         specifier: ^2.2.0
         version: 2.2.0
@@ -877,8 +877,8 @@ importers:
         specifier: ^9.0.2
         version: 9.0.3
       morgan:
-        specifier: ^1.10.0
-        version: 1.10.1
+        specifier: ^1.11.0
+        version: 1.11.0
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -1320,8 +1320,8 @@ importers:
         specifier: ^18.2.1
         version: 18.2.1
       morgan:
-        specifier: ^1.10.0
-        version: 1.10.1
+        specifier: ^1.11.0
+        version: 1.11.0
       nodemailer:
         specifier: ^9.0.1
         version: 9.0.1
@@ -1640,8 +1640,8 @@ importers:
         specifier: ^9.7.1
         version: 9.7.1(@aws-sdk/credential-providers@3.1026.0)
       morgan:
-        specifier: ^1.10.0
-        version: 1.10.1
+        specifier: ^1.11.0
+        version: 1.11.0
       rate-limiter-flexible:
         specifier: ^4.0.0
         version: 4.0.1
@@ -9697,8 +9697,8 @@ packages:
     resolution: {integrity: sha512-rOCVA9ufRSdGTG6IdSqJa30avbaSBlI98zkv76xB+5xAzwCn4qvuKi26iE2BeAZrYYqcagjJRjmTA7+qEbSbYg==}
     engines: {node: '>=20.19.0'}
 
-  morgan@1.10.1:
-    resolution: {integrity: sha512-223dMRJtI/l25dJKWpgij2cMtywuG/WiUKXdvwfbhGKBhy1puASqXwFzmWZ7+K73vUPoR7SS2Qz2cI/g9MKw0A==}
+  morgan@1.11.0:
+    resolution: {integrity: sha512-zSkVu3t18r39pw4ixfBKvfZi3y2UOqr7d4WYwcj3m8nXpEQK4rPO6GLzs/CExoRgmX3y9EjmmcXqv6jq0SK46g==}
     engines: {node: '>= 0.8.0'}
 
   mpath@0.9.0:
@@ -10010,10 +10010,6 @@ packages:
   on-exit-leak-free@2.1.2:
     resolution: {integrity: sha512-0eJJY6hXLGf1udHwfNftBqH+g73EU4B504nZeKpz1sYRKafAghwxEJunB2O7rDZkL4PGfsMVnTXZ2EjibbqcsA==}
     engines: {node: '>=14.0.0'}
-
-  on-finished@2.3.0:
-    resolution: {integrity: sha512-ikqdkGAAyf/X/gPhXGvfgAytDZtDbr+bkNUJ0N9h5MI/dmdgCs3l6hoHrcUv41sRKew3jIwrp4qQDXiK99Utww==}
-    engines: {node: '>= 0.8'}
 
   on-finished@2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
@@ -22226,12 +22222,12 @@ snapshots:
       - snappy
       - socks
 
-  morgan@1.10.1:
+  morgan@1.11.0:
     dependencies:
       basic-auth: 2.0.1
       debug: 2.6.9
       depd: 2.0.0
-      on-finished: 2.3.0
+      on-finished: 2.4.1
       on-headers: 1.1.0
     transitivePeerDependencies:
       - supports-color
@@ -22592,10 +22588,6 @@ snapshots:
   ohash@2.0.11: {}
 
   on-exit-leak-free@2.1.2: {}
-
-  on-finished@2.3.0:
-    dependencies:
-      ee-first: 1.1.1
 
   on-finished@2.4.1:
     dependencies:
