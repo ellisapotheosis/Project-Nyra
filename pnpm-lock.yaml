@@ -344,7 +344,7 @@ importers:
     dependencies:
       graphql-request:
         specifier: ^6.1.0
-        version: 6.1.0(graphql@16.13.2)
+        version: 6.1.0(graphql@17.0.1)
       p-queue:
         specifier: ^9.3.0
         version: 9.3.0
@@ -1472,11 +1472,11 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       graphql:
-        specifier: ^16.8.1
-        version: 16.13.2
+        specifier: ^17.0.1
+        version: 17.0.1
       graphql-request:
         specifier: ^7.4.0
-        version: 7.4.0(graphql@16.13.2)
+        version: 7.4.0(graphql@17.0.1)
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -1515,11 +1515,11 @@ importers:
         specifier: ^15.0.0
         version: 15.0.0
       graphql:
-        specifier: ^16.8.1
-        version: 16.13.2
+        specifier: ^17.0.1
+        version: 17.0.1
       graphql-request:
         specifier: ^6.1.0
-        version: 6.1.0(graphql@16.13.2)
+        version: 6.1.0(graphql@17.0.1)
       inquirer:
         specifier: ^12.6.3
         version: 12.11.1(@types/node@20.19.39)
@@ -8223,9 +8223,13 @@ packages:
     peerDependencies:
       graphql: 14 - 16
 
-  graphql@16.13.2:
-    resolution: {integrity: sha512-5bJ+nf/UCpAjHM8i06fl7eLyVC9iuNAjm9qzkiu2ZGhM0VscSvS6WDPfAwkdkBuoXGM9FJSbKl6wylMwP9Ktig==}
+  graphql@16.14.2:
+    resolution: {integrity: sha512-Chq1s4CY7jmh8gO2qvLIJyfCDIN+EHLFW/9iShnp1z8FjBQMoodWP1kDC36VAMXXIvAjj4ARa7ntfAV2BrjsbA==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
+
+  graphql@17.0.1:
+    resolution: {integrity: sha512-8eWbg5Zcv/8o20nzEjHUGPTj20MLFJjc5kagbIPxbaeGxvFwpitJhemEC/k17n5+UD4M/9ea5rTuce78mELujQ==}
+    engines: {node: ^22.0.0 || ^24.0.0 || ^25.0.0 || >=26.0.0}
 
   gzip-size@6.0.0:
     resolution: {integrity: sha512-ax7ZYomf6jqPTQ4+XCpUGyXKHk5WweS+e05MBO4/y3WJ5RkmPXNKvX+bx1behVILVwr6JSQvZAku021CHPXG3Q==}
@@ -13682,9 +13686,9 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
-  '@graphql-typed-document-node/core@3.2.0(graphql@16.13.2)':
+  '@graphql-typed-document-node/core@3.2.0(graphql@17.0.1)':
     dependencies:
-      graphql: 16.13.2
+      graphql: 17.0.1
 
   '@hapi/address@5.1.1':
     dependencies:
@@ -19987,20 +19991,22 @@ snapshots:
 
   graphmatch@1.1.1: {}
 
-  graphql-request@6.1.0(graphql@16.13.2):
+  graphql-request@6.1.0(graphql@17.0.1):
     dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.13.2)
+      '@graphql-typed-document-node/core': 3.2.0(graphql@17.0.1)
       cross-fetch: 3.2.0
-      graphql: 16.13.2
+      graphql: 17.0.1
     transitivePeerDependencies:
       - encoding
 
-  graphql-request@7.4.0(graphql@16.13.2):
+  graphql-request@7.4.0(graphql@17.0.1):
     dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.13.2)
-      graphql: 16.13.2
+      '@graphql-typed-document-node/core': 3.2.0(graphql@17.0.1)
+      graphql: 17.0.1
 
-  graphql@16.13.2: {}
+  graphql@16.14.2: {}
+
+  graphql@17.0.1: {}
 
   gzip-size@6.0.0:
     dependencies:
@@ -21924,7 +21930,7 @@ snapshots:
       '@open-draft/deferred-promise': 2.2.0
       '@types/statuses': 2.0.6
       cookie: 1.1.1
-      graphql: 16.13.2
+      graphql: 16.14.2
       headers-polyfill: 4.0.3
       is-node-process: 1.2.0
       outvariant: 1.4.3
@@ -21949,7 +21955,7 @@ snapshots:
       '@open-draft/deferred-promise': 2.2.0
       '@types/statuses': 2.0.6
       cookie: 1.1.1
-      graphql: 16.13.2
+      graphql: 16.14.2
       headers-polyfill: 4.0.3
       is-node-process: 1.2.0
       outvariant: 1.4.3
