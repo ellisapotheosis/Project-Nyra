@@ -46,7 +46,7 @@ jobs:
       test-scenarios: ${{ steps.setup.outputs.test-scenarios }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js + pnpm
         uses: ./.github/actions/setup-node-pnpm
@@ -147,7 +147,7 @@ jobs:
       matrix: ${{ fromJson(needs.integration-setup.outputs.agent-matrix) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js + pnpm
         uses: ./.github/actions/setup-node-pnpm
@@ -292,7 +292,7 @@ jobs:
     needs: integration-setup
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js + pnpm
         uses: ./.github/actions/setup-node-pnpm
@@ -410,7 +410,7 @@ jobs:
     needs: integration-setup
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js + pnpm
         uses: ./.github/actions/setup-node-pnpm
@@ -534,7 +534,7 @@ jobs:
     needs: integration-setup
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js + pnpm
         uses: ./.github/actions/setup-node-pnpm
@@ -678,7 +678,7 @@ jobs:
     if: always()
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download all test artifacts
         uses: actions/download-artifact@v8
