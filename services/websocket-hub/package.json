@@ -28,7 +28,7 @@
     "cors": "^2.8.5",
     "zod": "^4.3.6",
     "eventemitter3": "^5.0.1",
-    "rate-limiter-flexible": "^4.0.1",
+    "rate-limiter-flexible": "^11.2.0",
     "prom-client": "^15.1.0"
   },
   "devDependencies": {
