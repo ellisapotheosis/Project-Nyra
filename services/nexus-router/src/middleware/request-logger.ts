@@ -1,19 +1,21 @@
-import { Request, Response, NextFunction } from 'express';
-import { createLogger } from '../utils/logger';
+import { Request, Response, NextFunction } from "express";
+import { createLogger } from "@nyra/shared";
 
-const logger = createLogger('http');
+const logger = createLogger("nexus-router:http");
 
-export function requestLogger(req: Request, res: Response, next: NextFunction): void {
+export function requestLogger(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
   const startTime = Date.now();
   const { method, url, ip } = req;
 
-  // Log incoming request
-  logger.info({
-    event: 'request_start',
+  logger.info("request start", {
     method,
     url,
     ip,
-    userAgent: req.get('user-agent'),
+    userAgent: req.get("user-agent"),
   });
 
   // Override res.json to capture response
@@ -21,8 +23,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
   res.json = function (body: any) {
     const duration = Date.now() - startTime;
 
-    logger.info({
-      event: 'request_complete',
+    logger.info("request complete", {
       method,
       url,
       statusCode: res.statusCode,
@@ -34,7 +35,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
   };
 
   // Handle response finish for non-JSON responses
-  res.on('finish', () => {
+  res.on("finish", () => {
     if (!res.headersSent) {
       return;
     }
@@ -42,12 +43,11 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
     const duration = Date.now() - startTime;
 
     // Skip logging if already logged via json override
-    if (res.get('Content-Type')?.includes('application/json')) {
+    if (res.get("Content-Type")?.includes("application/json")) {
       return;
     }
 
-    logger.info({
-      event: 'request_complete',
+    logger.info("request complete", {
       method,
       url,
       statusCode: res.statusCode,

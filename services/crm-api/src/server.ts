@@ -6,7 +6,7 @@ import { rateLimit } from "express-rate-limit";
 import pg from "pg";
 const { Pool } = pg;
 import fetch from "node-fetch";
-import winston from "winston";
+import { createLogger } from "@nyra/shared";
 import { z } from "zod";
 import {
   TwentyCRMClient,
@@ -36,15 +36,7 @@ if (!TWENTY_CRM_URL) throw new Error("TWENTY_CRM_URL is required");
 if (!TWENTY_CRM_API_KEY) throw new Error("TWENTY_CRM_API_KEY is required");
 
 const pool = new Pool({ connectionString: DATABASE_URL });
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || "info",
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.json()
-  ),
-  transports: [new winston.transports.Console()],
-});
+const logger = createLogger("crm-api");
 
 const twentyClient = new TwentyCRMClient({
   endpoint: `${TWENTY_CRM_URL.replace(/\/$/, "")}/graphql`,
@@ -92,7 +84,7 @@ app.get("/api/leads", authenticate, async (req, res) => {
     const leads = await twentyClient.request<any>("findManyMortgageLeads", {});
     res.json(leads);
   } catch (error) {
-    logger.error("Failed to fetch leads", { error });
+    logger.error("failed to fetch leads", { error: String(error) });
     res.status(500).json({ error: "Failed to fetch leads from CRM" });
   }
 });
@@ -115,7 +107,7 @@ app.post("/api/leads", authenticate, async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    logger.error("Failed to create lead", { error });
+    logger.error("failed to create lead", { error: String(error) });
     res.status(500).json({ error: "Failed to create lead in CRM" });
   }
 });
@@ -127,7 +119,7 @@ app.post("/api/quotes/generate", authenticate, async (req, res) => {
     const quote = await fetchQuoteEngine(input);
     res.json(quote);
   } catch (error) {
-    logger.error("Quote generation failed", { error });
+    logger.error("quote generation failed", { error: String(error) });
     res.status(502).json({
       error: "Quote engine unavailable",
       detail:

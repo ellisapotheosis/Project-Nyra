@@ -1,25 +1,11 @@
-import pino from 'pino';
-import { config } from '../config';
+/**
+ * Re-exports the shared Nyra logger.
+ * Previously contained a pino-based logger; now delegates to @nyra/shared.
+ */
+import { createLogger as _createLogger } from "@nyra/shared";
 
-export const logger = pino({
-  level: config.logLevel,
-  transport: config.nodeEnv === 'development'
-    ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: 'SYS:standard',
-          ignore: 'pid,hostname',
-        }
-      }
-    : undefined,
-  base: {
-    service: 'websocket-hub',
-    env: config.nodeEnv,
-  },
-  timestamp: pino.stdTimeFunctions.isoTime,
-});
+export const logger = _createLogger("websocket-hub");
 
 export function createLogger(context: string) {
-  return logger.child({ context });
+  return _createLogger(`websocket-hub:${context}`);
 }

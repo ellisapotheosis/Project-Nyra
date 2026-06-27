@@ -23,7 +23,8 @@
     "jsonwebtoken": "^9.0.2",
     "bcrypt": "^6.0.0",
     "crypto": "^1.0.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "@nyra/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

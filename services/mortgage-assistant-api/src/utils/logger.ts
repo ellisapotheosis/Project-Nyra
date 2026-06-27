@@ -1,39 +1,10 @@
-import winston from 'winston';
-import path from 'path';
+/**
+ * Re-exports the shared Nyra logger.
+ * Previously contained a bespoke winston logger; now delegates to @nyra/shared.
+ */
+import { createLogger } from "@nyra/shared";
 
-const logLevel = process.env.LOG_LEVEL || 'info';
-const logFile = process.env.LOG_FILE || 'logs/app.log';
-
-const logger = winston.createLogger({
-  level: logLevel,
-  format: winston.format.combine(
-    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    winston.format.errors({ stack: true }),
-    winston.format.splat(),
-    winston.format.json()
-  ),
-  defaultMeta: { service: 'mortgage-assistant-api' },
-  transports: [
-    new winston.transports.File({
-      filename: path.join(process.cwd(), 'logs', 'error.log'),
-      level: 'error'
-    }),
-    new winston.transports.File({
-      filename: path.join(process.cwd(), logFile)
-    }),
-  ],
-});
-
-// Console logging for non-production
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      ),
-    })
-  );
-}
+const logger = createLogger("mortgage-assistant-api");
 
 export default logger;
+export { createLogger };

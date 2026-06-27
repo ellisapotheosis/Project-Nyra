@@ -18,7 +18,13 @@
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
-  "keywords": ["mortgage", "api", "backend", "loan", "assistant"],
+  "keywords": [
+    "mortgage",
+    "api",
+    "backend",
+    "loan",
+    "assistant"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -39,7 +45,8 @@
     "date-fns": "^4.1.0",
     "uuid": "^14.0.0",
     "compression": "^1.7.4",
-    "express-async-errors": "^3.1.1"
+    "express-async-errors": "^3.1.1",
+    "@nyra/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

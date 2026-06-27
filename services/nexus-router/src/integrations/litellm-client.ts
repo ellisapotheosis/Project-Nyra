@@ -3,9 +3,11 @@
  * Integrates Nexus Router with LiteLLM for unified model access
  */
 
-import axios, { AxiosInstance } from 'axios';
-import { config } from '../config';
-import { logger } from '../utils/logger';
+import axios, { AxiosInstance } from "axios";
+import { config } from "../config";
+import { createLogger } from "../utils/logger";
+
+const logger = createLogger("nexus-router:litellm");
 
 export interface LiteLLMConfig {
   baseURL: string;
@@ -17,7 +19,7 @@ export interface LiteLLMConfig {
 export interface ChatCompletionRequest {
   model: string;
   messages: Array<{
-    role: 'system' | 'user' | 'assistant';
+    role: "system" | "user" | "assistant";
     content: string;
   }>;
   temperature?: number;
@@ -72,15 +74,15 @@ export class LiteLLMClient {
       baseURL: this.config.baseURL,
       timeout: this.config.timeout,
       headers: {
-        'Authorization': `Bearer ${this.config.apiKey}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.config.apiKey}`,
+        "Content-Type": "application/json",
       },
     });
 
     // Request interceptor for logging
     this.client.interceptors.request.use(
       (config) => {
-        logger.debug('LiteLLM request', {
+        logger.debug("LiteLLM request", {
           method: config.method,
           url: config.url,
           model: (config.data as any)?.model,
@@ -88,7 +90,7 @@ export class LiteLLMClient {
         return config;
       },
       (error) => {
-        logger.error('LiteLLM request error', { error });
+        logger.error("LiteLLM request error", { error });
         return Promise.reject(error);
       }
     );
@@ -96,7 +98,7 @@ export class LiteLLMClient {
     // Response interceptor for logging
     this.client.interceptors.response.use(
       (response) => {
-        logger.debug('LiteLLM response', {
+        logger.debug("LiteLLM response", {
           status: response.status,
           model: response.data?.model,
           usage: response.data?.usage,
@@ -104,7 +106,7 @@ export class LiteLLMClient {
         return response;
       },
       (error) => {
-        logger.error('LiteLLM response error', {
+        logger.error("LiteLLM response error", {
           status: error.response?.status,
           message: error.response?.data?.error?.message || error.message,
         });
@@ -121,14 +123,14 @@ export class LiteLLMClient {
   ): Promise<ChatCompletionResponse> {
     try {
       const response = await this.client.post<ChatCompletionResponse>(
-        '/v1/chat/completions',
+        "/v1/chat/completions",
         request
       );
       return response.data;
     } catch (error) {
-      logger.error('Chat completion failed', {
+      logger.error("Chat completion failed", {
         model: request.model,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       });
       throw error;
     }
@@ -145,18 +147,21 @@ export class LiteLLMClient {
   ): Promise<void> {
     try {
       const response = await this.client.post(
-        '/v1/chat/completions',
+        "/v1/chat/completions",
         { ...request, stream: true },
-        { responseType: 'stream' }
+        { responseType: "stream" }
       );
 
-      response.data.on('data', (chunk: Buffer) => {
-        const lines = chunk.toString().split('\n').filter(line => line.trim());
+      response.data.on("data", (chunk: Buffer) => {
+        const lines = chunk
+          .toString()
+          .split("\n")
+          .filter((line) => line.trim());
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
+          if (line.startsWith("data: ")) {
             const data = line.slice(6);
-            if (data === '[DONE]') {
+            if (data === "[DONE]") {
               onComplete();
               return;
             }
@@ -165,26 +170,26 @@ export class LiteLLMClient {
               const parsed = JSON.parse(data);
               onChunk(parsed);
             } catch (e) {
-              logger.warn('Failed to parse SSE chunk', { data });
+              logger.warn("Failed to parse SSE chunk", { data });
             }
           }
         }
       });
 
-      response.data.on('error', (error: Error) => {
-        logger.error('Stream error', { error });
+      response.data.on("error", (error: Error) => {
+        logger.error("Stream error", { error });
         onError(error);
       });
 
-      response.data.on('end', () => {
+      response.data.on("end", () => {
         onComplete();
       });
     } catch (error) {
-      logger.error('Stream chat completion failed', {
+      logger.error("Stream chat completion failed", {
         model: request.model,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       });
-      onError(error instanceof Error ? error : new Error('Unknown error'));
+      onError(error instanceof Error ? error : new Error("Unknown error"));
     }
   }
 
@@ -193,11 +198,13 @@ export class LiteLLMClient {
    */
   async listModels(): Promise<ModelInfo[]> {
     try {
-      const response = await this.client.get<{ data: ModelInfo[] }>('/v1/models');
+      const response = await this.client.get<{ data: ModelInfo[] }>(
+        "/v1/models"
+      );
       return response.data.data;
     } catch (error) {
-      logger.error('List models failed', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+      logger.error("List models failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
       });
       throw error;
     }
@@ -208,12 +215,14 @@ export class LiteLLMClient {
    */
   async getModel(modelId: string): Promise<ModelInfo> {
     try {
-      const response = await this.client.get<ModelInfo>(`/v1/models/${modelId}`);
+      const response = await this.client.get<ModelInfo>(
+        `/v1/models/${modelId}`
+      );
       return response.data;
     } catch (error) {
-      logger.error('Get model failed', {
+      logger.error("Get model failed", {
         modelId,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       });
       throw error;
     }
@@ -224,11 +233,11 @@ export class LiteLLMClient {
    */
   async checkHealth(): Promise<boolean> {
     try {
-      const response = await this.client.get('/health');
+      const response = await this.client.get("/health");
       return response.status === 200;
     } catch (error) {
-      logger.warn('LiteLLM health check failed', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+      logger.warn("LiteLLM health check failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
       });
       return false;
     }
@@ -239,11 +248,11 @@ export class LiteLLMClient {
    */
   async getMetrics(): Promise<any> {
     try {
-      const response = await this.client.get('/health');
+      const response = await this.client.get("/health");
       return response.data.metrics;
     } catch (error) {
-      logger.error('Get metrics failed', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+      logger.error("Get metrics failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
       });
       throw error;
     }
@@ -255,13 +264,13 @@ export class LiteLLMClient {
  */
 export function createLiteLLMClient(): LiteLLMClient {
   const litellmConfig: LiteLLMConfig = {
-    baseURL: process.env.LITELLM_BASE_URL || 'http://localhost:4000',
-    apiKey: process.env.LITELLM_API_KEY || process.env.LITELLM_MASTER_KEY || '',
-    timeout: parseInt(process.env.LITELLM_TIMEOUT || '180000', 10),
-    retries: parseInt(process.env.LITELLM_RETRIES || '3', 10),
+    baseURL: process.env.LITELLM_BASE_URL || "http://localhost:4000",
+    apiKey: process.env.LITELLM_API_KEY || process.env.LITELLM_MASTER_KEY || "",
+    timeout: parseInt(process.env.LITELLM_TIMEOUT || "180000", 10),
+    retries: parseInt(process.env.LITELLM_RETRIES || "3", 10),
   };
 
-  logger.info('Creating LiteLLM client', {
+  logger.info("Creating LiteLLM client", {
     baseURL: litellmConfig.baseURL,
     timeout: litellmConfig.timeout,
   });

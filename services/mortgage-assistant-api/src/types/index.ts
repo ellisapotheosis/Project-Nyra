@@ -1,31 +1,17 @@
-import { Request } from 'express';
-import { JwtPayload } from 'jsonwebtoken';
+import { Request } from "express";
+import { JwtPayload } from "jsonwebtoken";
+
+export type {
+  ApiResponse,
+  PaginationParams,
+  PaginatedResponse,
+} from "@nyra/shared";
 
 export interface AuthRequest extends Request {
   user?: {
     id: string;
     email: string;
     role: string;
-  };
-}
-
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  errors?: any;
-  meta?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    totalPages?: number;
   };
 }
 

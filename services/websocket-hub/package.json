@@ -12,7 +12,13 @@
     "lint": "eslint src",
     "type-check": "tsc --noEmit"
   },
-  "keywords": ["websocket", "real-time", "mcp", "dashboard", "agent-coordination"],
+  "keywords": [
+    "websocket",
+    "real-time",
+    "mcp",
+    "dashboard",
+    "agent-coordination"
+  ],
   "author": "Project Nyra",
   "license": "MIT",
   "dependencies": {
@@ -29,7 +35,8 @@
     "zod": "^4.3.6",
     "eventemitter3": "^5.0.1",
     "rate-limiter-flexible": "^4.0.1",
-    "prom-client": "^15.1.0"
+    "prom-client": "^15.1.0",
+    "@nyra/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/ws": "^8.5.10",

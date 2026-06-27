@@ -54,7 +54,8 @@
       "@nyra/integration-adapters": [
         "./packages/integration-adapters/src/index.ts"
       ],
-      "@nyra/crm-client": ["./packages/crm-client/src/index.ts"]
+      "@nyra/crm-client": ["./packages/crm-client/src/index.ts"],
+      "@nyra/shared": ["./packages/shared/src/index.ts"]
     }
   },
   "exclude": [

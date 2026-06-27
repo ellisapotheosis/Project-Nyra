@@ -13,102 +13,105 @@
  * 5. Cache responses for identical requests
  */
 
-import express, { Application } from 'express';
-import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
-import helmet from 'helmet';
-import cors from 'cors';
-import rateLimit from 'express-rate-limit';
-import { createLogger } from './utils/logger';
-import { config } from './config';
-import { healthRouter } from './routes/health';
-import { completionRouter } from './routes/completion';
-import { modelsRouter } from './routes/models';
-import { mcpRouter } from './routes/mcp';
-import { rateLimitsRouter } from './routes/rate-limits';
-import { routingRouter, initializeRoutingRules } from './routes/routing';
-import { providersRouter } from './routes/providers';
-import { metricsRouter, setupMetricsWebSocket } from './routes/metrics';
-import { errorHandler } from './middleware/error-handler';
-import { requestLogger } from './middleware/request-logger';
-import { metricsTracker } from './middleware/metrics-tracker';
-import { RedisClient } from './services/redis-client';
-import { WorkerManager } from './services/worker-manager';
-import { MCPProxyService } from './services/mcp-proxy';
-import { ModelDiscoveryService } from './services/model-discovery';
-import { RateLimitStore } from './services/rate-limit-store';
-import { ProviderManager } from './services/provider-manager';
-import { MetricsCollectorService } from './services/metrics-collector';
+import express, { Application } from "express";
+import { createServer } from "http";
+import { WebSocketServer } from "ws";
+import helmet from "helmet";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
+import { createLogger } from "./utils/logger";
+import { onShutdown } from "@nyra/shared";
+import { config } from "./config";
+import { healthRouter } from "./routes/health";
+import { completionRouter } from "./routes/completion";
+import { modelsRouter } from "./routes/models";
+import { mcpRouter } from "./routes/mcp";
+import { rateLimitsRouter } from "./routes/rate-limits";
+import { routingRouter, initializeRoutingRules } from "./routes/routing";
+import { providersRouter } from "./routes/providers";
+import { metricsRouter, setupMetricsWebSocket } from "./routes/metrics";
+import { errorHandler } from "./middleware/error-handler";
+import { requestLogger } from "./middleware/request-logger";
+import { metricsTracker } from "./middleware/metrics-tracker";
+import { RedisClient } from "./services/redis-client";
+import { WorkerManager } from "./services/worker-manager";
+import { MCPProxyService } from "./services/mcp-proxy";
+import { ModelDiscoveryService } from "./services/model-discovery";
+import { RateLimitStore } from "./services/rate-limit-store";
+import { ProviderManager } from "./services/provider-manager";
+import { MetricsCollectorService } from "./services/metrics-collector";
 
-const logger = createLogger('nexus-router');
+const logger = createLogger("nexus-router");
 
 async function startServer(): Promise<void> {
   const app: Application = express();
 
   // Initialize services
-  logger.info('Initializing Nexus Router...');
+  logger.info("Initializing Nexus Router...");
 
   // Connect to Redis (optional - service works without it)
   try {
     await RedisClient.getInstance().connect();
-    logger.info('Redis connected - caching enabled');
+    logger.info("Redis connected - caching enabled");
   } catch (error) {
-    logger.warn('Redis unavailable - running without caching:', error);
-    logger.info('Service will continue without Redis cache');
+    logger.warn("Redis unavailable - running without caching:", error);
+    logger.info("Service will continue without Redis cache");
   }
 
   // Initialize worker manager
   const workerManager = WorkerManager.getInstance();
   await workerManager.initialize();
-  logger.info('Worker manager initialized');
+  logger.info("Worker manager initialized");
 
   // Initialize model discovery
   const modelDiscovery = ModelDiscoveryService.getInstance();
   await modelDiscovery.initialize();
-  logger.info('Model discovery initialized');
+  logger.info("Model discovery initialized");
 
   // Initialize MCP proxy
   const mcpProxy = MCPProxyService.getInstance();
   await mcpProxy.initialize();
-  logger.info('MCP proxy initialized');
+  logger.info("MCP proxy initialized");
 
   // Initialize rate limit store
   const rateLimitStore = RateLimitStore.getInstance();
   await rateLimitStore.initialize();
-  logger.info('Rate limit store initialized');
+  logger.info("Rate limit store initialized");
 
   // Initialize routing rules from Redis
   await initializeRoutingRules();
-  logger.info('Routing rules initialized');
+  logger.info("Routing rules initialized");
   // Initialize provider manager
   const providerManager = ProviderManager.getInstance();
   await providerManager.initialize();
-  logger.info('Provider manager initialized');
+  logger.info("Provider manager initialized");
 
   // Initialize metrics collector
   const metricsCollector = MetricsCollectorService.getInstance();
-  logger.info('Metrics collector initialized');
+  logger.info("Metrics collector initialized");
 
   // Security middleware
   app.use(helmet());
-  app.use(cors({
-    origin: config.server.corsOrigins,
-    credentials: true
-  }));
+  app.use(
+    cors({
+      origin: config.server.corsOrigins,
+      credentials: true,
+    })
+  );
 
   // Rate limiting
   const limiter = rateLimit({
     windowMs: config.server.rateLimitWindow,
     max: config.server.rateLimitMaxRequests,
-    message: 'Too many requests from this IP, please try again later.',
+    message: "Too many requests from this IP, please try again later.",
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
   });
-  app.use('/v1', limiter);
+  app.use("/v1", limiter);
 
   // Body parsing
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   // Request logging
   app.use(requestLogger);
@@ -117,75 +120,76 @@ async function startServer(): Promise<void> {
   app.use(metricsTracker);
 
   // Routes
-  app.use('/health', healthRouter);
-  app.use('/v1/chat/completions', completionRouter);
-  app.use('/v1/models', modelsRouter);
-  app.use('/mcp', mcpRouter);
-  app.use('/api/rate-limits', rateLimitsRouter);
-  app.use('/api/routing', routingRouter);
-  app.use('/api/providers', providersRouter);
+  app.use("/health", healthRouter);
+  app.use("/v1/chat/completions", completionRouter);
+  app.use("/v1/models", modelsRouter);
+  app.use("/mcp", mcpRouter);
+  app.use("/api/rate-limits", rateLimitsRouter);
+  app.use("/api/routing", routingRouter);
+  app.use("/api/providers", providersRouter);
   app.use(metricsRouter); // Metrics API routes
 
   // Root endpoint
-  app.get('/', (_req, res) => {
+  app.get("/", (_req, res) => {
     res.json({
-      name: 'Nexus Router',
-      version: '1.0.0',
-      description: 'Intelligent LLM request routing service with MCP proxy aggregator',
+      name: "Nexus Router",
+      version: "1.0.0",
+      description:
+        "Intelligent LLM request routing service with MCP proxy aggregator",
       endpoints: {
-        health: '/health',
-        completions: '/v1/chat/completions',
+        health: "/health",
+        completions: "/v1/chat/completions",
         models: {
-          list: '/v1/models',
-          details: '/v1/models/:id',
-          discoveryRefresh: '/v1/models/discovery/refresh',
-          discoveryStatus: '/v1/models/discovery/status'
+          list: "/v1/models",
+          details: "/v1/models/:id",
+          discoveryRefresh: "/v1/models/discovery/refresh",
+          discoveryStatus: "/v1/models/discovery/status",
         },
         rateLimits: {
-          config: '/api/rate-limits',
-          global: '/api/rate-limits/global',
-          perIp: '/api/rate-limits/per-ip',
-          perServer: '/api/rate-limits/per-server',
-          perTool: '/api/rate-limits/per-tool',
-          stats: '/api/rate-limits/stats'
+          config: "/api/rate-limits",
+          global: "/api/rate-limits/global",
+          perIp: "/api/rate-limits/per-ip",
+          perServer: "/api/rate-limits/per-server",
+          perTool: "/api/rate-limits/per-tool",
+          stats: "/api/rate-limits/stats",
         },
         mcp: {
-          servers: '/mcp/servers',
-          tools: '/mcp/tools',
-          search: '/mcp/tools/search',
-          call: '/mcp/tools/call',
-          proxy: '/mcp/proxy/:serverId',
-          metrics: '/mcp/metrics'
+          servers: "/mcp/servers",
+          tools: "/mcp/tools",
+          search: "/mcp/tools/search",
+          call: "/mcp/tools/call",
+          proxy: "/mcp/proxy/:serverId",
+          metrics: "/mcp/metrics",
         },
         providers: {
-          list: '/api/providers',
-          create: '/api/providers',
-          get: '/api/providers/:id',
-          update: '/api/providers/:id',
-          delete: '/api/providers/:id',
-          health: '/api/providers/:id/health',
-          test: '/api/providers/:id/test'
+          list: "/api/providers",
+          create: "/api/providers",
+          get: "/api/providers/:id",
+          update: "/api/providers/:id",
+          delete: "/api/providers/:id",
+          health: "/api/providers/:id/health",
+          test: "/api/providers/:id/test",
         },
         routing: {
-          config: '/api/routing/config',
-          rules: '/api/routing/rules',
-          simulate: '/api/routing/simulate'
+          config: "/api/routing/config",
+          rules: "/api/routing/rules",
+          simulate: "/api/routing/simulate",
         },
         metrics: {
-          current: '/api/metrics',
-          history: '/api/metrics/history',
-          traces: '/api/metrics/traces',
-          logs: '/api/metrics/logs',
-          histogram: '/api/metrics/histogram',
-          export: '/api/metrics/export',
-          opentelemetry: '/api/metrics/opentelemetry',
-          websocket: 'ws://localhost:8000/ws/metrics'
-        }
+          current: "/api/metrics",
+          history: "/api/metrics/history",
+          traces: "/api/metrics/traces",
+          logs: "/api/metrics/logs",
+          histogram: "/api/metrics/histogram",
+          export: "/api/metrics/export",
+          opentelemetry: "/api/metrics/opentelemetry",
+          websocket: "ws://localhost:8000/ws/metrics",
+        },
       },
       routing: {
         strategy: config.routing.strategy,
         preferLocal: config.routing.preferLocal,
-        fallbackCloud: config.routing.fallbackCloud
+        fallbackCloud: config.routing.fallbackCloud,
       },
       features: {
         rateLimiting: true,
@@ -200,8 +204,8 @@ async function startServer(): Promise<void> {
         costTracking: true,
         observability: true,
         distributedTracing: true,
-        realTimeMetrics: true
-      }
+        realTimeMetrics: true,
+      },
     });
   });
 
@@ -215,10 +219,10 @@ async function startServer(): Promise<void> {
   // Setup WebSocket server for metrics
   const wss = new WebSocketServer({
     server,
-    path: '/ws/metrics',
+    path: "/ws/metrics",
   });
 
-  wss.on('connection', (ws) => {
+  wss.on("connection", (ws) => {
     setupMetricsWebSocket(ws);
   });
 
@@ -227,13 +231,16 @@ async function startServer(): Promise<void> {
     logger.info(`🚀 Nexus Router running on port ${PORT}`);
     logger.info(`📊 Strategy: ${config.routing.strategy}`);
     logger.info(`💻 Local workers: ${config.workers.local.length}`);
-    logger.info(`☁️  Cloud fallback: ${config.routing.fallbackCloud ? 'enabled' : 'disabled'}`);
-    logger.info(`📈 Observability: WebSocket metrics at ws://localhost:${PORT}/ws/metrics`);
+    logger.info(
+      `☁️  Cloud fallback: ${config.routing.fallbackCloud ? "enabled" : "disabled"}`
+    );
+    logger.info(
+      `📈 Observability: WebSocket metrics at ws://localhost:${PORT}/ws/metrics`
+    );
   });
 
   // Graceful shutdown
-  process.on('SIGTERM', async () => {
-    logger.info('SIGTERM received, shutting down gracefully...');
+  onShutdown(async () => {
     wss.close();
     server.close();
     MetricsCollectorService.getInstance().shutdown();
@@ -242,25 +249,11 @@ async function startServer(): Promise<void> {
     MCPProxyService.getInstance().shutdown();
     RateLimitStore.getInstance().destroy();
     await RedisClient.getInstance().disconnect();
-    process.exit(0);
-  });
-
-  process.on('SIGINT', async () => {
-    logger.info('SIGINT received, shutting down gracefully...');
-    wss.close();
-    server.close();
-    MetricsCollectorService.getInstance().shutdown();
-    ModelDiscoveryService.getInstance().shutdown();
-    WorkerManager.getInstance().shutdown();
-    MCPProxyService.getInstance().shutdown();
-    RateLimitStore.getInstance().destroy();
-    await RedisClient.getInstance().disconnect();
-    process.exit(0);
   });
 }
 
 // Start the server
 startServer().catch((error) => {
-  logger.error('Failed to start Nexus Router:', error);
+  logger.error("failed to start nexus router", { error: String(error) });
   process.exit(1);
 });

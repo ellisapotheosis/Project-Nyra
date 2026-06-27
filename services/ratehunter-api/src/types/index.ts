@@ -1,12 +1,10 @@
-import { Request } from 'express';
+import { Request } from "express";
 
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-  timestamp: string;
-}
+export type {
+  ApiResponse,
+  PaginationParams,
+  PaginatedResponse,
+} from "@nyra/shared";
 
 export interface LeadInput {
   firstName: string;
@@ -56,31 +54,26 @@ export interface AmortizationEntry {
 }
 
 export type CreditScoreRange =
-  | 'excellent'  // 740+
-  | 'good'       // 670-739
-  | 'fair'       // 580-669
-  | 'poor';      // <580
+  | "excellent" // 740+
+  | "good" // 670-739
+  | "fair" // 580-669
+  | "poor"; // <580
 
 export type PropertyType =
-  | 'single_family'
-  | 'condo'
-  | 'townhouse'
-  | 'multi_family';
+  | "single_family"
+  | "condo"
+  | "townhouse"
+  | "multi_family";
 
-export type LoanType =
-  | 'conventional'
-  | 'fha'
-  | 'va'
-  | 'usda'
-  | 'jumbo';
+export type LoanType = "conventional" | "fha" | "va" | "usda" | "jumbo";
 
 export type LeadStatus =
-  | 'new'
-  | 'contacted'
-  | 'qualified'
-  | 'application'
-  | 'closed'
-  | 'lost';
+  | "new"
+  | "contacted"
+  | "qualified"
+  | "application"
+  | "closed"
+  | "lost";
 
 export interface RateQuote {
   id: string;
@@ -120,23 +113,4 @@ export interface ValidationError {
   field: string;
   message: string;
   value?: any;
-}
-
-export interface PaginationParams {
-  page: number;
-  limit: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
 }
