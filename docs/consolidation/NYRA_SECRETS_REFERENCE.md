@@ -1,39 +1,45 @@
-# Nyra Secrets & Environment Reference
+# Project Nyra Secrets & Environment Reference
 
-This document outlines how Project Nyra handles secrets and environment variables.
+Project Nyra uses environment variables and secret management tools to secure sensitive information while enabling local development.
 
 ## Principles
-- **Never commit secrets:** API keys, tokens, passwords and sensitive identifiers must not appear in source control.
-- **Maintain an inventory:** Keep a master list of environment variables per service and environment. Use placeholder templates (`.env.template`) in the repo.
-- **Use a secret manager:** Store actual secret values in Infisical or another vault. The free tier has limitations on projects and history; plan accordingly.
 
-## Shared Secrets Script
-The repository includes a PowerShell script to upload shared secrets to the vault. It reads environment variables from your local shell and writes them to a shared path. When using the script:
-1. Source the helper that retrieves your Infisical API token【860511049078995†L23-L27】.
-2. Export the necessary environment variables in your shell (API keys, domain names, repository token, environment flags).
-3. Run the script with the appropriate environment argument to upload them. The script skips any variables that are unset and masks values in its output【860511049078995†L52-L59】.
+* **Separation of secrets from code** – All secrets (API keys, database credentials, tokens) are stored in environment variables or Infisical vaults; they are never committed to the repository.
+* **Central registry** – Maintain a master `.env` template enumerating required variables for each service. Each service reads its own `.env` file via dotenv.
+* **Environment isolation** – Distinct `.env` files exist for local, staging and production environments, ensuring minimal privileges in each environment.
+* **Least privilege & rotation** – Secrets are scoped to the minimum set of permissions and rotated regularly.
 
-## Creating `.env` Templates
-For each service, create a `.env.template` file listing required variables with descriptive placeholder values. Example:
+## Infisical Setup
 
-```dotenv
-# Example placeholders for a service
-API_KEY=<your-api-key-here>
-DATABASE_URL=<postgres-connection-string>
-JWT_SECRET=<random-secret>
-DOMAIN_NAME=<project-domain>
-ENVIRONMENT=development
-```
+Infisical provides secret management and synchronization. For the free plan, the following capabilities are available:
 
-Ensure these template files are committed to the repo and referenced in documentation. Team members should copy them to `.env` and fill in actual values locally or via the secret manager.
+* **Secret vault** – Store environment variables for each environment and pull them into local development.
+* **Agent vault** – Access secrets programmatically via the Infisical CLI or API.
+* **Secret scanning** – Prevent accidental commits of secrets to the repository.
+* **Personal access management (PAM)** – Provide limited access tokens for developers where supported.
+* **Local caching/proxy** – Use local caching to work offline when available.
 
-## Using Secrets
-- Load secrets from environment variables at runtime. Validate that all required variables are defined.
-- Avoid printing full secret values in logs. Mask or truncate them when reporting status.
-- Use local `.env` files only for development or fallback; keep them out of version control.
+Track any limitations such as API rate limits, maximum secret count or environment constraints. For secrets not supported by Infisical (e.g., local GPU hosts), document manual provisioning steps.
+
+## Environment Variable Inventory
+
+Every service should define its required environment variables in a `.env.example` file. Variables include, at a minimum:
+
+- **Database connection strings** – For Postgres, Redis, Qdrant and other databases used in the Oracle‑VPS stack.
+- **API keys** – Twilio, SendGrid, LOS integration and third‑party providers.
+- **Internal service URLs** – Base URLs for n8n, Activepieces, CRM API, campaign engine and quote service.
+- **Feature flags** – To enable or disable experimental features.
+
+Use descriptive names and group variables logically. Comments should indicate whether a variable is required, optional or derived.
 
 ## Free‑Plan Considerations
-- The secret manager’s free tier may limit projects, users or versions. Consolidate secrets into a single project and avoid storing duplicate values.
-- Document any manual steps (e.g., multi‑factor authentication, dashboard actions) in `docs/OWNER_MANUAL_ACTIONS.md` so that agents know when human intervention is required.
 
-By following these practices, Project Nyra maintains secure and organised secret management across its services.
+On the free plan, some Infisical features may be limited (e.g., number of secrets, users or API calls). Track these limits and plan fallbacks:
+
+- For variables exceeding limits, store them in local `.env` files protected by file permissions.
+- Use a proxy or CLI caching to reduce API calls when pulling secrets.
+- Where PAM is unavailable, rotate tokens manually and document the process.
+
+## Compliance & Audit
+
+All secret usage must be auditable. Use Infisical’s audit logs where available, and ensure that scripts avoid printing secrets. Combine environment scanning with CI checks to prevent secrets from leaking into logs or version control. For extremely sensitive credentials (banking or legal), consider hardware security modules or offline storage.
