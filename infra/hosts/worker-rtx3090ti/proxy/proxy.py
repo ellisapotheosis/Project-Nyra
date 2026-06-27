@@ -1,4 +1,4 @@
-import http.server, http.client, socketserver
+import http.server, http.client, socketserver, sys, time
 
 ROUTES = {
     "nerve-3090.projectnyra.com": ("worker-3090-nerve-ui", 18789),
@@ -49,7 +49,9 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
     do_GET = do_POST = do_PUT = do_DELETE = do_PATCH = do_HEAD = do_OPTIONS = proxy
 
     def log_message(self, fmt, *args):
-        pass
+        ts = time.strftime("%Y-%m-%dT%H:%M:%S")
+        sys.stderr.write(f"{ts} {self.address_string()} {fmt % args}\n")
+        sys.stderr.flush()
 
 
 class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):

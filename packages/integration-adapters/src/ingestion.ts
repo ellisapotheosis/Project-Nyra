@@ -53,21 +53,37 @@ function normalizePhone(phone?: string): string | undefined {
     return cleaned;
   }
 
+  // Reject clearly invalid numbers (fewer than 7 digits)
+  const digitsOnly = cleaned.replace(/\+/g, "");
+  if (digitsOnly.length < 7) {
+    return undefined;
+  }
+
   return cleaned;
 }
 
 /**
  * Normalizes raw lead data before ingestion.
+ * Explicitly picks known fields to prevent prototype pollution from untrusted input.
  */
 export function normalizeLeadData(raw: any): Lead {
   return {
-    ...raw,
+    id: raw.id,
+    externalId: raw.externalId,
     firstName: raw.firstName ? capitalizeName(raw.firstName) : "",
     lastName: raw.lastName ? capitalizeName(raw.lastName) : "",
     email: raw.email ? raw.email.trim().toLowerCase() : "",
     phone: normalizePhone(raw.phone),
     source: raw.source ? raw.source.trim() : "Website",
+    stage: raw.stage,
     consentStatus: raw.consentStatus || "UNKNOWN",
+    consentEmail: raw.consentEmail,
+    consentSms: raw.consentSms,
+    consentVoice: raw.consentVoice,
+    doNotContact: raw.doNotContact,
+    metadata: raw.metadata,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
   };
 }
 
