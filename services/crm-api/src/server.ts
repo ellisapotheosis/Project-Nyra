@@ -59,22 +59,31 @@ const auditLogger = new AuditLogger({
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CORS_ALLOWED_ORIGINS
+      ? process.env.CORS_ALLOWED_ORIGINS.split(",")
+      : undefined,
+  })
+);
 app.use(express.json());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
-app.use(limiter);
+app.use("/api/", limiter);
 
-// Auth middleware
+// Auth middleware — supports both x-api-key (preferred) and legacy x-crm-api-key
 const authenticate = (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
 ) => {
-  const apiKey = req.headers["x-api-key"];
+  const apiKey =
+    req.headers["x-api-key"] || req.headers["x-crm-api-key"];
   if (CRM_API_KEY && apiKey !== CRM_API_KEY) {
     return res.status(401).json({ error: "Unauthorized" });
   }

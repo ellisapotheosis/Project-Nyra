@@ -53,12 +53,12 @@ export function preflightOutbound(
   // 2. Check Consent
   const channelConsent =
     channel === "EMAIL" || channel === "GMAIL"
-      ? (lead as any).consentEmail
+      ? lead.consentEmail
       : channel === "SMS"
-        ? (lead as any).consentSms
+        ? lead.consentSms
         : channel === "CALL" || channel === "VOICEMAIL"
-          ? (lead as any).consentVoice
-          : lead.consentStatus;
+          ? lead.consentVoice
+          : undefined;
 
   if (lead.consentStatus === "OPTED_OUT" || channelConsent === "OPTED_OUT") {
     return decision(false, "OPTED_OUT", channel, now);
@@ -101,12 +101,13 @@ export function preflightOutbound(
 }
 
 export function classifyInboundCompliance(input: InboundComplianceInput) {
-  const stopDetected = isStopRequest(input.body);
   const unsubscribeDetected = isUnsubscribeRequest(input.body);
-  const eventType = stopDetected
-    ? "STOP_DETECTED"
-    : unsubscribeDetected
-      ? "UNSUBSCRIBE_DETECTED"
+  const stopDetected = isStopRequest(input.body);
+  // Check unsubscribe first — it's more specific than a general STOP
+  const eventType = unsubscribeDetected
+    ? "UNSUBSCRIBE_DETECTED"
+    : stopDetected
+      ? "STOP_DETECTED"
       : undefined;
 
   return {

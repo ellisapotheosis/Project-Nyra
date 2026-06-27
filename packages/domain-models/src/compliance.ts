@@ -60,11 +60,19 @@ export const QuietHoursPolicySchema = z.object({
 export type QuietHoursPolicy = z.infer<typeof QuietHoursPolicySchema>;
 
 export function isStopRequest(message: string): boolean {
-  return /\b(STOP|UNSUBSCRIBE|REMOVE|CANCEL|OPT\s*OUT|DNC)\b/i.test(message);
+  return /\b(STOP|REMOVE|CANCEL|DNC)\b/i.test(message);
 }
 
 export function isUnsubscribeRequest(message: string): boolean {
   return /\b(UNSUBSCRIBE|OPT\s*OUT|REMOVE\s+ME|EMAIL\s+STOP)\b/i.test(message);
+}
+
+/**
+ * Detects any compliance-triggering keyword (either STOP or UNSUBSCRIBE class).
+ * Use this when you need a single "should we halt outreach" check.
+ */
+export function isComplianceTrigger(message: string): boolean {
+  return isStopRequest(message) || isUnsubscribeRequest(message);
 }
 
 /**
