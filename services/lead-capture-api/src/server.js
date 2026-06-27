@@ -18,7 +18,12 @@ const PORT = process.env.PORT || 3300;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ALLOWED_ORIGINS
+    ? process.env.CORS_ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:3000', 'http://localhost:3001'],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 app.use(compression());
@@ -43,6 +48,19 @@ app.post('/api/leads', async (req, res) => {
     // 1. Basic Validation
     if (!leadData.firstName || !leadData.lastName || !leadData.email || !leadData.phone) {
       return res.status(400).json({ error: 'Missing required fields: firstName, lastName, email, phone' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(leadData.email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Validate phone format (E.164 or common US formats)
+    const phoneRegex = /^\+?1?\d{10,15}$/;
+    const sanitizedPhone = leadData.phone.replace(/[\s\-()]/g, '');
+    if (!phoneRegex.test(sanitizedPhone)) {
+      return res.status(400).json({ error: 'Invalid phone number format' });
     }
 
     if (leadData.consent === false) {

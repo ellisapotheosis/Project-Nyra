@@ -10,7 +10,7 @@ model_list:
     litellm_params:
       model: "openai/deepseek-r1-distill-32b"
       api_base: "http://100.x.x.1:8000/v1"
-      api_key: "dummy-key"
+      api_key: "${LOCAL_VLLM_API_KEY:-not-needed}"
       rpm: 100
     max_tokens: 8000
     timeout: 120
@@ -22,7 +22,7 @@ model_list:
     litellm_params:
       model: "openai/deepseek-r1-distill-32b"
       api_base: "http://100.x.x.1:8000/v1"
-      api_key: "dummy-key"
+      api_key: "${LOCAL_VLLM_API_KEY:-not-needed}"
       rpm: 100
     max_tokens: 6000
     timeout: 120
@@ -34,7 +34,7 @@ model_list:
     litellm_params:
       model: "openai/deepseek-coder-16b"
       api_base: "http://100.x.x.2:8000/v1"
-      api_key: "dummy-key"
+      api_key: "${LOCAL_VLLM_API_KEY:-not-needed}"
       rpm: 150
     max_tokens: 4096
     timeout: 60
@@ -46,7 +46,7 @@ model_list:
     litellm_params:
       model: "openai/mistral-7b"
       api_base: "http://100.x.x.2:8000/v1"
-      api_key: "dummy-key"
+      api_key: "${LOCAL_VLLM_API_KEY:-not-needed}"
       rpm: 150
     max_tokens: 2048
     timeout: 60
@@ -58,7 +58,7 @@ model_list:
     litellm_params:
       model: "ollama/qwen:7b"
       api_base: "http://100.x.x.3:11434"
-      api_key: "dummy-key"
+      api_key: "${LOCAL_VLLM_API_KEY:-not-needed}"
       rpm: 200
     max_tokens: 2048
     timeout: 45
@@ -70,7 +70,7 @@ model_list:
     litellm_params:
       model: "ollama/nomic-embed-text:v1.5"
       api_base: "http://100.x.x.3:11434"
-      api_key: "dummy-key"
+      api_key: "${LOCAL_VLLM_API_KEY:-not-needed}"
     max_tokens: 1024
     timeout: 30
     tags: ["embeddings", "local"]

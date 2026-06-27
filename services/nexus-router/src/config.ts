@@ -19,7 +19,7 @@ const ConfigSchema = z.object({
   server: z.object({
     port: z.number().default(8000),
     mcpPort: z.number().default(4001),
-    corsOrigins: z.array(z.string()).default(['*']),
+    corsOrigins: z.array(z.string()).default(['http://localhost:3000', 'http://localhost:3001']),
     rateLimitWindow: z.number().default(60000),
     rateLimitMaxRequests: z.number().default(100),
   }),
@@ -111,7 +111,7 @@ export const config = ConfigSchema.parse({
   server: {
     port: parseInt(process.env.NEXUS_ROUTER_PORT || '8000', 10),
     mcpPort: parseInt(process.env.NEXUS_ROUTER_MCP_PORT || '4001', 10),
-    corsOrigins: process.env.CORS_ALLOWED_ORIGINS?.split(',') || ['*'],
+    corsOrigins: process.env.CORS_ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:3001'],
     rateLimitWindow: 60000,
     rateLimitMaxRequests: 100,
   },

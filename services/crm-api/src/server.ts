@@ -59,7 +59,14 @@ const auditLogger = new AuditLogger({
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CORS_ALLOWED_ORIGINS
+      ? process.env.CORS_ALLOWED_ORIGINS.split(",")
+      : ["http://localhost:3000", "http://localhost:3001"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 const limiter = rateLimit({
@@ -68,14 +75,18 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Auth middleware
+// Auth middleware — fail-closed: reject if no API key is configured or if it doesn't match
 const authenticate = (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
 ) => {
-  const apiKey = req.headers["x-api-key"];
-  if (CRM_API_KEY && apiKey !== CRM_API_KEY) {
+  if (!CRM_API_KEY) {
+    logger.error("CRM_API_KEY is not configured — rejecting request");
+    return res.status(503).json({ error: "Service misconfigured" });
+  }
+  const apiKey = req.headers["x-api-key"] || req.headers["x-crm-api-key"];
+  if (apiKey !== CRM_API_KEY) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   next();

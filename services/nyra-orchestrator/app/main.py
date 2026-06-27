@@ -35,22 +35,24 @@ MEM0_API_URL = os.getenv("MEM0_API_URL", "http://mem0-rest-api:8003")
 NEO4J_URL = os.getenv("NEO4J_URL", "bolt://neo4j:7687")
 TWENTYCRM_API_URL = os.getenv("TWENTYCRM_API_URL", "http://twentycrm:3000/graphql")
 
-# Initialize FastAPI app
+# Initialize FastAPI app — disable interactive docs in production
+_is_production = os.getenv("ENVIRONMENT", "development") == "production"
 app = FastAPI(
     title="Nyra Orchestrator",
     description="Central orchestration service for mortgage lead processing with compliance validation",
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url=None if _is_production else "/docs",
+    redoc_url=None if _is_production else "/redoc"
 )
 
-# CORS middleware
+# CORS middleware — restrict origins; wildcard + credentials is insecure
+_cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"]
 )
 
 # Database connection pool

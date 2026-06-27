@@ -8,6 +8,8 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 
+import os
+
 from .models import QuoteRequest, QuoteResponse, CompareRequest, CompareResponse
 from .calc import amortization
 from .loan_types import (
@@ -19,19 +21,25 @@ from .loan_types import (
 from .loan_calc import calculate_loan_type_quote
 from .pdf_gen import generate_quote_pdf
 
+# Disable interactive docs in production
+_is_production = os.environ.get("ENVIRONMENT", "development") == "production"
+
 app = FastAPI(
     title="Nyra Quote API",
     version="2.1.0",
     description="Mortgage quote API with support for Conventional, FHA, VA, and USDA loans + PDF generation",
+    docs_url=None if _is_production else "/docs",
+    redoc_url=None if _is_production else "/redoc",
 )
 
-# Enable CORS
+# Enable CORS — restrict origins in production; allow_credentials must not be used with wildcard origins
+_cors_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 

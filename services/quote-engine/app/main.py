@@ -11,25 +11,32 @@ from typing import Optional, Dict
 from datetime import datetime, timedelta
 from enum import Enum
 import logging
+import os
 import uuid
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Disable interactive docs in production
+_is_production = os.environ.get("ENVIRONMENT", "development") == "production"
+
 app = FastAPI(
     title="Nyra Quote Engine",
     version="1.0.0",
-    description="Mortgage quote calculation service with intelligent rate pricing"
+    description="Mortgage quote calculation service with intelligent rate pricing",
+    docs_url=None if _is_production else "/docs",
+    redoc_url=None if _is_production else "/redoc",
 )
 
-# CORS middleware
+# CORS middleware — restrict origins; credentials require explicit origin list
+_cors_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # ============================================================================
