@@ -1,4 +1,17 @@
 import { z } from "zod";
+export {
+  EntityIdSchema,
+  IsoDateTimeSchema,
+  ChannelSchema,
+  ConsentStatusSchema,
+  AuditMetadataSchema,
+  type EntityId,
+  type IsoDateTime,
+  type Channel,
+  type ConsentStatus,
+  type AuditMetadata,
+} from "./common.js";
+import { ChannelSchema, ConsentStatusSchema } from "./common.js";
 
 export const LeadStageSchema = z.enum([
   "NEW",
@@ -14,25 +27,6 @@ export const LeadStageSchema = z.enum([
   "DO_NOT_CONTACT",
 ]);
 export type LeadStage = z.infer<typeof LeadStageSchema>;
-
-export const ChannelSchema = z.enum([
-  "SMS",
-  "EMAIL",
-  "CALL",
-  "VOICEMAIL",
-  "GMAIL",
-  "INTERNAL_NOTE",
-  "WEBHOOK",
-]);
-export type Channel = z.infer<typeof ChannelSchema>;
-
-export const ConsentStatusSchema = z.enum([
-  "UNKNOWN",
-  "OPTED_IN",
-  "OPTED_OUT",
-  "DO_NOT_CONTACT",
-]);
-export type ConsentStatus = z.infer<typeof ConsentStatusSchema>;
 
 export const AgentActionRiskSchema = z.enum([
   "READ_ONLY",
@@ -278,3 +272,6 @@ export const AuditEventSchema = z.object({
   timestamp: z.date().default(() => new Date()),
 });
 export type AuditEvent = z.infer<typeof AuditEventSchema>;
+
+// Re-export compliance domain
+export * from "./compliance.js";

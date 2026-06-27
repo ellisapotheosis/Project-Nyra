@@ -2,16 +2,11 @@ import { z } from "zod";
 import {
   AuditMetadataSchema,
   ChannelSchema,
+  ConsentStatusSchema,
   EntityIdSchema,
   IsoDateTimeSchema,
-} from "./common";
+} from "./common.js";
 
-export const ConsentStatusSchema = z.enum([
-  "UNKNOWN",
-  "OPTED_IN",
-  "OPTED_OUT",
-  "DO_NOT_CONTACT",
-]);
 export type ConsentStatus = z.infer<typeof ConsentStatusSchema>;
 
 export const ComplianceDecisionSchema = z.object({

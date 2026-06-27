@@ -153,5 +153,5 @@ export class MockSendGridClient implements ICommunicationProvider {
   }
 }
 
-export { ComplianceService, type ComplianceStatus } from "./compliance";
-export { normalizeLeadData, validateLeadIngestion } from "./ingestion";
+export { ComplianceService, type ComplianceStatus } from "./compliance.js";
+export { normalizeLeadData, validateLeadIngestion } from "./ingestion.js";
