@@ -46,13 +46,13 @@ services:
       DB_POSTGRESDB_PORT: "${N8N_DB_PORT:-5432}"
       DB_POSTGRESDB_DATABASE: "${N8N_DB_NAME:-nyra}"
       DB_POSTGRESDB_USER: "${N8N_DB_USER:-nyra}"
-      DB_POSTGRESDB_PASSWORD: "${N8N_DB_PASSWORD:-}"
+      DB_POSTGRESDB_PASSWORD: "${N8N_DB_PASSWORD:?N8N_DB_PASSWORD must be set}"
 
       # Security & Encryption
       N8N_ENCRYPTION_KEY: "${N8N_ENCRYPTION_KEY:-}"
       N8N_BASIC_AUTH_ACTIVE: "${N8N_BASIC_AUTH_ACTIVE:-true}"
       N8N_BASIC_AUTH_USER: "${N8N_BASIC_AUTH_USER:-admin}"
-      N8N_BASIC_AUTH_PASSWORD: "${N8N_BASIC_AUTH_PASSWORD}"
+      N8N_BASIC_AUTH_PASSWORD: "${N8N_BASIC_AUTH_PASSWORD:?N8N_BASIC_AUTH_PASSWORD must be set}"
 
       # Editor Configuration
       N8N_EDITOR_BASE_URL: "${N8N_EDITOR_BASE_URL:-http://localhost:5678}"
@@ -147,7 +147,7 @@ services:
     environment:
       POSTGRES_DB: "${N8N_DB_NAME:-nyra}"
       POSTGRES_USER: "${N8N_DB_USER:-nyra}"
-      POSTGRES_PASSWORD: "${N8N_DB_PASSWORD}"
+      POSTGRES_PASSWORD: "${N8N_DB_PASSWORD:?N8N_DB_PASSWORD must be set}"
       PGDATA: /var/lib/postgresql/data/pgdata
 
     volumes:
