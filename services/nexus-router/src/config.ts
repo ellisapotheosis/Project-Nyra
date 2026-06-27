@@ -19,7 +19,7 @@ const ConfigSchema = z.object({
   server: z.object({
     port: z.number().default(8000),
     mcpPort: z.number().default(4001),
-    corsOrigins: z.array(z.string()).default(['http://localhost:3000', 'http://localhost:3001']),
+    corsOrigins: z.array(z.string()).min(1).default(['http://localhost:3000', 'http://localhost:3001']),
     rateLimitWindow: z.number().default(60000),
     rateLimitMaxRequests: z.number().default(100),
   }),

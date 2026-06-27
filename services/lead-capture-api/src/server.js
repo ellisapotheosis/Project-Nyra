@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 3300;
 app.use(helmet());
 app.use(cors({
   origin: process.env.CORS_ALLOWED_ORIGINS
-    ? process.env.CORS_ALLOWED_ORIGINS.split(',')
+    ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
     : ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true,
 }));

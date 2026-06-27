@@ -62,7 +62,7 @@ app.use(helmet());
 app.use(
   cors({
     origin: process.env.CORS_ALLOWED_ORIGINS
-      ? process.env.CORS_ALLOWED_ORIGINS.split(",")
+      ? process.env.CORS_ALLOWED_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
       : ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
   })
@@ -85,8 +85,9 @@ const authenticate = (
     logger.error("CRM_API_KEY is not configured — rejecting request");
     return res.status(503).json({ error: "Service misconfigured" });
   }
-  const apiKey = req.headers["x-api-key"] || req.headers["x-crm-api-key"];
-  if (apiKey !== CRM_API_KEY) {
+  const rawKey = req.headers["x-api-key"] || req.headers["x-crm-api-key"];
+  const apiKey = Array.isArray(rawKey) ? rawKey[0] : rawKey;
+  if (!apiKey || apiKey !== CRM_API_KEY) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   next();

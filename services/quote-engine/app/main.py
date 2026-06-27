@@ -30,7 +30,14 @@ app = FastAPI(
 )
 
 # CORS middleware — restrict origins; credentials require explicit origin list
-_cors_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001").split(",")
+_cors_origins = [
+    origin.strip()
+    for origin in os.environ.get(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost:3000,http://localhost:3001",
+    ).split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
