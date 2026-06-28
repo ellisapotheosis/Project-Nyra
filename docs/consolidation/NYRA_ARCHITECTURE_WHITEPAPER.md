@@ -19,7 +19,7 @@ Project Nyra is an intelligent mortgage automation platform that ingests mortga
 
 ## Control Plane Services
 
-Core services on the orchestrator include Prometheus/Loki/Grafana for observability, Portainer for container management, n8n, the OpenClaw gateway and studio, and Cloudflared. On Oracle‑VPS, Twenty CRM, Activepieces, Gitea, database services, Letta and Mem0 run as durable services.
+Core services on the orchestrator include Nexus Router (the singular endpoint for all agent and memory interactions), LiteLLM for model routing, Prometheus/Loki/Grafana for observability, Portainer for container management, n8n, the OpenClaw gateway and studio, and Cloudflared. On Oracle‑VPS, Twenty CRM, Activepieces, Gitea, database services, Letta and Mem0 run as durable services.
 
 ## Networking and Security
 
@@ -52,8 +52,8 @@ Following the execution plan:
 1. **CRM data layer** – Stabilize Twenty CRM, define core objects (loan, campaign enrollment, communication log, quote) and build a shared CRM client.
 2. **Lead ingestion** – Build `services/lead-ingestion` to accept raw payloads, normalize and dedupe leads before writing to Twenty CRM.
 3. **Campaign engine** – Implement `services/campaign-service` to manage campaign definitions, schedules, pause/resume logic and reply‑based pausing.
-4. **Compliance layer** – Enforce STOP/unsubscribe, quiet hours and suppression audit logs.
-5. **Communication service** – Provide outbound send requests, provider callbacks, inbound reply handling and timeline synchronization.
+4. **Compliance layer** – Build `services/compliance-service` to enforce STOP/unsubscribe, quiet hours and suppression audit logs.
+5. **Communication service** – Build `services/communication-service` to provide outbound send requests, provider callbacks, inbound reply handling and timeline synchronization.
 6. **Quote engine** – Implement `services/quote-service` to generate deterministic mortgage quotes with multiple options and cost breakdowns.
 7. **App surfaces** – Develop the webapp (`apps/projectnyra`) and RateHunter landing (`apps/ratehunter`).
 
