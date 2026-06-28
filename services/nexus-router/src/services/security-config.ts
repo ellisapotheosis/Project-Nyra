@@ -73,7 +73,7 @@ export class SecurityConfigService {
       this.oauth2ConfigCache = defaultConfig;
       return defaultConfig;
     } catch (error) {
-      logger.error('Failed to get OAuth2 config:', error);
+      logger.error('Failed to get OAuth2 config, returning defaults:', error);
       return OAuth2ConfigSchema.parse({});
     }
   }
@@ -97,7 +97,7 @@ export class SecurityConfigService {
       return updated;
     } catch (error) {
       logger.error('Failed to update OAuth2 config:', error);
-      throw new Error('Failed to update OAuth2 configuration');
+      throw error;
     }
   }
 
@@ -129,7 +129,7 @@ export class SecurityConfigService {
       this.permissionsCache = emptyMatrix;
       return emptyMatrix;
     } catch (error) {
-      logger.error('Failed to get permissions matrix:', error);
+      logger.error('Failed to get permissions matrix, returning empty:', error);
       return {};
     }
   }
@@ -162,7 +162,7 @@ export class SecurityConfigService {
       return validated;
     } catch (error) {
       logger.error('Failed to update server permissions:', error);
-      throw new Error('Failed to update permissions');
+      throw error;
     }
   }
 
@@ -197,7 +197,7 @@ export class SecurityConfigService {
 
       return Array.from(this.groupsCache.values());
     } catch (error) {
-      logger.error('Failed to list groups:', error);
+      logger.error('Failed to list groups, returning empty:', error);
       return [];
     }
   }
@@ -221,7 +221,7 @@ export class SecurityConfigService {
 
       return null;
     } catch (error) {
-      logger.error('Failed to get group:', error);
+      logger.error('Failed to get group, returning null:', error);
       return null;
     }
   }
@@ -260,7 +260,7 @@ export class SecurityConfigService {
       return group;
     } catch (error) {
       logger.error('Failed to create group:', error);
-      throw new Error('Failed to create group');
+      throw error;
     }
   }
 
@@ -295,7 +295,7 @@ export class SecurityConfigService {
       return updated;
     } catch (error) {
       logger.error('Failed to update group:', error);
-      throw new Error('Failed to update group');
+      throw error;
     }
   }
 
@@ -309,7 +309,7 @@ export class SecurityConfigService {
       logger.info('Group deleted', { id });
     } catch (error) {
       logger.error('Failed to delete group:', error);
-      throw new Error('Failed to delete group');
+      throw error;
     }
   }
 

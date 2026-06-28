@@ -282,7 +282,7 @@ export class WorkflowTriggerService {
 
         console.log(`Successfully deployed: ${workflowJson.name} (ID: ${workflow.id})`);
       } catch (error) {
-        console.error(`Error deploying workflow ${file}:`, error);
+        console.error(`Failed to deploy workflow ${file} — skipping, but campaign may be incomplete:`, error);
       }
     }
   }

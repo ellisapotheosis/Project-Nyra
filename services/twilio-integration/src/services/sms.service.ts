@@ -44,7 +44,9 @@ export class SMSService {
         priceUnit: twilioMessage.priceUnit || undefined,
       };
     } catch (error: any) {
-      throw new Error(`Failed to send SMS: ${error.message}`);
+      const wrapped = new Error(`Failed to send SMS to ${normalizedTo}: ${error.message}`);
+      wrapped.cause = error;
+      throw wrapped;
     }
   }
 
@@ -95,7 +97,9 @@ export class SMSService {
         priceUnit: message.priceUnit || undefined,
       };
     } catch (error: any) {
-      throw new Error(`Failed to fetch message status: ${error.message}`);
+      const wrapped = new Error(`Failed to fetch message status for ${messageSid}: ${error.message}`);
+      wrapped.cause = error;
+      throw wrapped;
     }
   }
 
@@ -135,7 +139,9 @@ export class SMSService {
         priceUnit: msg.priceUnit || undefined,
       }));
     } catch (error: any) {
-      throw new Error(`Failed to fetch message history: ${error.message}`);
+      const wrapped = new Error(`Failed to fetch message history for ${phoneNumber}: ${error.message}`);
+      wrapped.cause = error;
+      throw wrapped;
     }
   }
 
@@ -170,16 +176,16 @@ export class SMSService {
   /**
    * Validate phone number can receive SMS
    */
-  async validatePhoneNumber(phoneNumber: string): Promise<boolean> {
+  async validatePhoneNumber(phoneNumber: string): Promise<{ valid: boolean; error?: string }> {
     try {
       const normalizedNumber = normalizePhoneNumber(phoneNumber);
       const lookup = await this.client.lookups.v2
         .phoneNumbers(normalizedNumber)
         .fetch();
 
-      return lookup.valid || false;
-    } catch (error) {
-      return false;
+      return { valid: lookup.valid || false };
+    } catch (error: any) {
+      return { valid: false, error: error.message || 'Lookup failed' };
     }
   }
 }

@@ -72,7 +72,7 @@ export class NexusIntegration {
 
       this.eventBus.emit('mcp:status', event);
     } catch (error: any) {
-      logger.error({ error: error.message }, 'Failed to poll MCP status');
+      logger.warn({ error: error.message, url: this.client?.defaults?.baseURL }, 'Failed to poll MCP status — subscribers will not receive updates');
     }
   }
 
@@ -90,7 +90,7 @@ export class NexusIntegration {
 
       this.eventBus.emit('gpu:metrics', event);
     } catch (error: any) {
-      logger.error({ error: error.message }, 'Failed to poll GPU metrics');
+      logger.warn({ error: error.message, url: this.client?.defaults?.baseURL }, 'Failed to poll GPU metrics — subscribers will not receive updates');
     }
   }
 
@@ -110,7 +110,7 @@ export class NexusIntegration {
 
       this.eventBus.emit('tools:discovery', event);
     } catch (error: any) {
-      logger.error({ error: error.message }, 'Failed to query tool discovery');
+      logger.warn({ error: error.message }, 'Failed to query tool discovery');
     }
   }
 

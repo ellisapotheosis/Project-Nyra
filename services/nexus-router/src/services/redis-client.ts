@@ -79,7 +79,10 @@ export class RedisClient {
 
   // Cache operations
   public async get(key: string): Promise<string | null> {
-    if (!this.connected) return null;
+    if (!this.connected) {
+      logger.debug(`Redis not connected, skipping get for key ${key}`);
+      return null;
+    }
     try {
       const fullKey = `${config.redis.cacheKeyPrefix}${key}`;
       return await this.client.get(fullKey);
@@ -90,7 +93,10 @@ export class RedisClient {
   }
 
   public async set(key: string, value: string, ttl?: number): Promise<void> {
-    if (!this.connected) return;
+    if (!this.connected) {
+      logger.debug(`Redis not connected, skipping set for key ${key}`);
+      return;
+    }
     try {
       const fullKey = `${config.redis.cacheKeyPrefix}${key}`;
       const ttlSeconds = ttl || config.redis.cacheTtl;
@@ -101,7 +107,10 @@ export class RedisClient {
   }
 
   public async del(key: string): Promise<void> {
-    if (!this.connected) return;
+    if (!this.connected) {
+      logger.debug(`Redis not connected, skipping del for key ${key}`);
+      return;
+    }
     try {
       const fullKey = `${config.redis.cacheKeyPrefix}${key}`;
       await this.client.del(fullKey);

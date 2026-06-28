@@ -20,24 +20,22 @@ export class LearningSystem {
     this.agentId = agentId;
     this.patterns = new Map();
 
-    this.loadPatterns();
+    this.loadPatterns().catch((error) => {
+      this.logger.error('Failed to load learning patterns during init — system will start with empty patterns:', error);
+    });
   }
 
   private async loadPatterns(): Promise<void> {
-    try {
-      const memories = await this.memoryManager.getMemoriesByType('skill' as any, 1000);
+    const memories = await this.memoryManager.getMemoriesByType('skill' as any, 1000);
 
-      for (const memory of memories) {
-        if (memory.metadata.learningPattern) {
-          const pattern: LearningPattern = memory.metadata.learningPattern;
-          this.patterns.set(pattern.id, pattern);
-        }
+    for (const memory of memories) {
+      if (memory.metadata.learningPattern) {
+        const pattern: LearningPattern = memory.metadata.learningPattern;
+        this.patterns.set(pattern.id, pattern);
       }
-
-      this.logger.info('Learning patterns loaded:', { count: this.patterns.size });
-    } catch (error) {
-      this.logger.error('Failed to load patterns:', error);
     }
+
+    this.logger.info('Learning patterns loaded:', { count: this.patterns.size });
   }
 
   async recordExperience(

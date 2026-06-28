@@ -168,7 +168,7 @@ export class ProviderManager {
       const providers = Array.from(this.providers.values());
       await this.redis.set(this.PROVIDERS_KEY, JSON.stringify(providers));
     } catch (error) {
-      logger.error('Failed to save providers to Redis:', error);
+      logger.error('Failed to save providers to Redis — in-memory state may diverge from persistent store:', error);
     }
   }
 

@@ -46,7 +46,10 @@ export class MemoryManager {
           references: memory.references,
         });
       } catch (error) {
-        this.logger.warn("Failed to persist memory remotely", { error });
+        this.logger.error(
+          "Failed to persist memory remotely — local copy saved but remote sync failed, data may be lost on restart",
+          { memoryId: memory.id, error }
+        );
       }
     }
 

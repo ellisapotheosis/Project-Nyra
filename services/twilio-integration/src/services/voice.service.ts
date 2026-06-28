@@ -52,7 +52,9 @@ export class VoiceService {
         dateCreated: call.dateCreated,
       };
     } catch (error: any) {
-      throw new Error(`Failed to initiate call: ${error.message}`);
+      const wrapped = new Error(`Failed to initiate call to ${normalizedTo}: ${error.message}`);
+      wrapped.cause = error;
+      throw wrapped;
     }
   }
 
@@ -88,7 +90,9 @@ export class VoiceService {
         priceUnit: call.priceUnit || undefined,
       };
     } catch (error: any) {
-      throw new Error(`Failed to fetch call status: ${error.message}`);
+      const wrapped = new Error(`Failed to fetch call status for ${callSid}: ${error.message}`);
+      wrapped.cause = error;
+      throw wrapped;
     }
   }
 
@@ -109,7 +113,9 @@ export class VoiceService {
         message: 'Call ended successfully',
       };
     } catch (error: any) {
-      throw new Error(`Failed to end call: ${error.message}`);
+      const wrapped = new Error(`Failed to end call ${callSid}: ${error.message}`);
+      wrapped.cause = error;
+      throw wrapped;
     }
   }
 
@@ -157,7 +163,9 @@ export class VoiceService {
         priceUnit: call.priceUnit,
       }));
     } catch (error: any) {
-      throw new Error(`Failed to fetch call history: ${error.message}`);
+      const wrapped = new Error(`Failed to fetch call history: ${error.message}`);
+      wrapped.cause = error;
+      throw wrapped;
     }
   }
 
@@ -202,14 +210,27 @@ export class VoiceService {
    */
   async makeBulkCalls(
     calls: Array<Omit<VoiceCallParams, 'from'>>
-  ): Promise<VoiceCallResponse[]> {
+  ): Promise<{ succeeded: VoiceCallResponse[]; failed: Array<{ index: number; to: string; error: string }> }> {
     const results = await Promise.allSettled(
       calls.map((call) => this.initiateCall(call))
     );
 
-    return results
-      .filter((r): r is PromiseFulfilledResult<VoiceCallResponse> => r.status === 'fulfilled')
-      .map((r) => r.value);
+    const succeeded: VoiceCallResponse[] = [];
+    const failed: Array<{ index: number; to: string; error: string }> = [];
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        succeeded.push(result.value);
+      } else {
+        failed.push({
+          index,
+          to: calls[index].to,
+          error: result.reason?.message || 'Unknown error',
+        });
+      }
+    });
+
+    return { succeeded, failed };
   }
 
   /**

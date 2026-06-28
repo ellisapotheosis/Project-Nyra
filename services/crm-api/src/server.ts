@@ -93,7 +93,10 @@ app.get("/api/leads", authenticate, async (req, res) => {
     res.json(leads);
   } catch (error) {
     logger.error("Failed to fetch leads", { error });
-    res.status(500).json({ error: "Failed to fetch leads from CRM" });
+    res.status(500).json({
+      error: "Failed to fetch leads from CRM",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 });
 
@@ -116,7 +119,10 @@ app.post("/api/leads", authenticate, async (req, res) => {
     res.json(result);
   } catch (error) {
     logger.error("Failed to create lead", { error });
-    res.status(500).json({ error: "Failed to create lead in CRM" });
+    res.status(500).json({
+      error: "Failed to create lead in CRM",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 });
 

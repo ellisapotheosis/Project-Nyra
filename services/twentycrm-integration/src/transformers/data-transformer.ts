@@ -46,7 +46,7 @@ export class DataTransformer {
         try {
           value = mapping.transform(value);
         } catch (error) {
-          logger.error(`Transformation failed for field ${sourceField}`, { error });
+          logger.error(`Transformation failed for field ${sourceField} — field skipped, output may be incomplete`, { error, entityType, value });
           continue;
         }
       }

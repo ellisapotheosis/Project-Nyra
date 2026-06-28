@@ -43,8 +43,8 @@ export class RateLimiter {
       const res = await this.limiter.get(key);
       return res ? res.remainingPoints : config.rateLimitPoints;
     } catch (error) {
-      logger.error({ error }, 'Failed to get remaining points');
-      return 0;
+      logger.error({ error, key }, 'Failed to get remaining points — returning full allowance to avoid false rate-limiting');
+      return config.rateLimitPoints;
     }
   }
 }

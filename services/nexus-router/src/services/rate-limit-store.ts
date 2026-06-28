@@ -132,7 +132,7 @@ export class RateLimitStore {
       // Start stats update interval
       this.startStatsInterval();
     } catch (error) {
-      logger.error('Failed to initialize rate limit store:', error);
+      logger.error('Failed to initialize rate limit store, using defaults:', error);
     }
   }
 

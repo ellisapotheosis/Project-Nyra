@@ -53,7 +53,7 @@ export const disconnectDatabase = async (): Promise<void> => {
     await prisma.$disconnect();
     logger.info('Database disconnected successfully');
   } catch (error) {
-    logger.error('Database disconnection error:', error);
+    logger.warn('Database disconnection failed:', error);
   }
 };
 

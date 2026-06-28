@@ -60,7 +60,7 @@ export const cacheGet = async <T>(key: string): Promise<T | null> => {
     const data = await client.get(key);
     return data ? JSON.parse(data) : null;
   } catch (error) {
-    logger.error(`Cache get error for key ${key}:`, error);
+    logger.warn(`Cache get failed for key ${key} — returning null:`, error);
     return null;
   }
 };
@@ -74,7 +74,7 @@ export const cacheSet = async (
     const client = getRedisClient();
     await client.setEx(key, ttl, JSON.stringify(value));
   } catch (error) {
-    logger.error(`Cache set error for key ${key}:`, error);
+    logger.warn(`Cache set failed for key ${key} — data not cached:`, error);
   }
 };
 
@@ -83,7 +83,7 @@ export const cacheDelete = async (key: string): Promise<void> => {
     const client = getRedisClient();
     await client.del(key);
   } catch (error) {
-    logger.error(`Cache delete error for key ${key}:`, error);
+    logger.warn(`Cache delete failed for key ${key} — stale data may persist:`, error);
   }
 };
 
@@ -95,6 +95,6 @@ export const cacheDeletePattern = async (pattern: string): Promise<void> => {
       await client.del(keys);
     }
   } catch (error) {
-    logger.error(`Cache delete pattern error for ${pattern}:`, error);
+    logger.warn(`Cache delete pattern failed for ${pattern} — stale data may persist:`, error);
   }
 };

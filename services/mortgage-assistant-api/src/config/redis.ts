@@ -27,8 +27,7 @@ export const connectRedis = async (): Promise<void> => {
     await redisClient.connect();
     logger.info('Redis connected successfully');
   } catch (error) {
-    logger.error('Redis connection error:', error);
-    // Don't exit process, caching is not critical
+    logger.error('Redis connection failed — caching will be unavailable:', error);
   }
 };
 
@@ -37,7 +36,7 @@ export const disconnectRedis = async (): Promise<void> => {
     await redisClient.quit();
     logger.info('Redis disconnected successfully');
   } catch (error) {
-    logger.error('Redis disconnection error:', error);
+    logger.warn('Redis disconnection failed:', error);
   }
 };
 
