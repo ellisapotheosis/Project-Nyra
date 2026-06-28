@@ -9,7 +9,7 @@ Project Nyra is structured around a control plane and a compute plane. The cont
 ### Control Plane Nodes
 
 - **Orchestrator** – Hosts routing, observability and the control plane stack; exposes public ingress via Cloudflare and communicates internally over Tailscale.
-- **Oracle‑VPS** – Runs durable services including Twenty CRM, workflow engines (n8n/Activepieces), Git hosting, databases and memory systems.
+- **Oracle‑VPS** – Runs durable services including Twenty CRM, Activepieces, Git hosting, databases and memory systems.
 
 ### Compute Plane Nodes
 
@@ -20,7 +20,7 @@ Project Nyra is structured around a control plane and a compute plane. The cont
 ## Deployment Patterns
 
 - Use Docker Compose per node; compose files live under `infra/hosts/<host>/`.
-- Tailscale provides a private mesh network; Cloudflare Tunnel exposes public services on orchestrator and oracle‑vps.
+- Tailscale provides a private mesh network; Cloudflare Tunnel exposes public services from the orchestrator only.
 - Only the orchestrator runs Cloudflared; workers remain private.
 - Node deployment assignments: each GPU worker runs a dedicated vLLM or Ollama stack; orchestrator runs the control plane stack; oracle‑vps hosts durable services.
 - The LiteLLM routing model favours Claude for primary coding tasks, with fallback to other models (Codex/Gemini) and local inference for heavy compute.
