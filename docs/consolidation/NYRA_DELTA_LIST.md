@@ -8,7 +8,7 @@ This list identifies gaps and outstanding tasks across the Project Nyra stack. 
 - **Campaign Engine** – Build campaign definition schema, scheduling, pause/resume and reply‑based pausing.
 - **Compliance Layer** – Implement STOP/unsubscribe handling, quiet hours, suppression lists and audit logging.
 - **Communication Service** – Complete outbound send logic, provider callback handling and inbound reply ingestion; integrate timeline synchronization.
-- **Quote Service** – Develop FastAPI endpoints for deterministic mortgage quote generation, including cost breakdowns and multi‑option scenarios.
+- **Quote Service** – Develop `services/quote-service` endpoints for deterministic mortgage quote generation, including cost breakdowns and multi‑option scenarios.
 - **Assistant Service** – Deploy OpenClaw as a bounded assistant; implement memory session management and tool invocation routing.
 
 ## Supporting Libraries
