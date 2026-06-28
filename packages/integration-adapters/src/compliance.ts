@@ -1,4 +1,5 @@
 import type { Channel, Lead } from "@nyra/domain-models";
+import { isComplianceTrigger } from "@nyra/domain-models";
 import { MockTwentyClient, type ITwentyClient } from "./index";
 
 export interface ComplianceStatus {
@@ -14,17 +15,7 @@ export class ComplianceService {
   }
 
   static isStopRequest(message: string): boolean {
-    const normalized = message.toUpperCase();
-    const stopKeywords = [
-      "STOP",
-      "UNSUBSCRIBE",
-      "REMOVE",
-      "CANCEL",
-      "OPT OUT",
-      "DNC",
-    ];
-
-    return stopKeywords.some((keyword) => normalized.includes(keyword));
+    return isComplianceTrigger(message);
   }
 
   async checkConsent(lead: Lead, channel: Channel): Promise<ComplianceStatus> {
