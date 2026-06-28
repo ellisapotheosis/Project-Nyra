@@ -13,16 +13,16 @@ export class LoggerCompat {
     this.log = _createLogger(scope);
   }
   debug(message: string, meta?: unknown): void {
-    this.log.debug(message, meta != null ? { meta } : undefined);
+    this.log.debug(message, meta);
   }
   info(message: string, meta?: unknown): void {
-    this.log.info(message, meta != null ? { meta } : undefined);
+    this.log.info(message, meta);
   }
   warn(message: string, meta?: unknown): void {
-    this.log.warn(message, meta != null ? { meta } : undefined);
+    this.log.warn(message, meta);
   }
   error(message: string, meta?: unknown): void {
-    this.log.error(message, meta != null ? { meta } : undefined);
+    this.log.error(message, meta);
   }
 }
 
