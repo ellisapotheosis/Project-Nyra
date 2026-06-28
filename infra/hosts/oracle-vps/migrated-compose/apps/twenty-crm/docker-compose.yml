@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_DB: twenty
       POSTGRES_USER: twenty
-      POSTGRES_PASSWORD: ${TWENTY_DB_PASSWORD:-twenty_password}
+      POSTGRES_PASSWORD: ${TWENTY_DB_PASSWORD:?TWENTY_DB_PASSWORD must be set}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - twenty_db_data:/var/lib/postgresql/data/pgdata
@@ -28,7 +28,7 @@ services:
   twenty-redis:
     image: redis:7-alpine
     container_name: nyra-twenty-redis
-    command: redis-server --requirepass ${TWENTY_REDIS_PASSWORD:-redis_password}
+    command: redis-server --requirepass ${TWENTY_REDIS_PASSWORD:?TWENTY_REDIS_PASSWORD must be set}
     volumes:
       - twenty_redis_data:/data
     ports:
@@ -42,7 +42,7 @@ services:
           "CMD",
           "redis-cli",
           "-a",
-          "${TWENTY_REDIS_PASSWORD:-redis_password}",
+          "${TWENTY_REDIS_PASSWORD:?TWENTY_REDIS_PASSWORD must be set}",
           "ping",
         ]
       interval: 30s
@@ -55,8 +55,8 @@ services:
     container_name: nyra-twenty-crm
     environment:
       # Database Configuration
-      PG_DATABASE_URL: postgresql://twenty:${TWENTY_DB_PASSWORD:-twenty_password}@twenty-db:5432/twenty
-      REDIS_URL: redis://:${TWENTY_REDIS_PASSWORD:-redis_password}@twenty-redis:6379
+      PG_DATABASE_URL: postgresql://twenty:${TWENTY_DB_PASSWORD:?TWENTY_DB_PASSWORD must be set}@twenty-db:5432/twenty
+      REDIS_URL: redis://:${TWENTY_REDIS_PASSWORD:?TWENTY_REDIS_PASSWORD must be set}@twenty-redis:6379
 
       # App Configuration
       SERVER_URL: http://localhost:3020
@@ -64,10 +64,10 @@ services:
       PORT: 3000
 
       # Authentication & Security
-      ACCESS_TOKEN_SECRET: ${TWENTY_ACCESS_TOKEN_SECRET:-your_access_token_secret_change_in_production}
-      LOGIN_TOKEN_SECRET: ${TWENTY_LOGIN_TOKEN_SECRET:-your_login_token_secret_change_in_production}
-      REFRESH_TOKEN_SECRET: ${TWENTY_REFRESH_TOKEN_SECRET:-your_refresh_token_secret_change_in_production}
-      FILE_TOKEN_SECRET: ${TWENTY_FILE_TOKEN_SECRET:-your_file_token_secret_change_in_production}
+      ACCESS_TOKEN_SECRET: ${TWENTY_ACCESS_TOKEN_SECRET:?TWENTY_ACCESS_TOKEN_SECRET must be set}
+      LOGIN_TOKEN_SECRET: ${TWENTY_LOGIN_TOKEN_SECRET:?TWENTY_LOGIN_TOKEN_SECRET must be set}
+      REFRESH_TOKEN_SECRET: ${TWENTY_REFRESH_TOKEN_SECRET:?TWENTY_REFRESH_TOKEN_SECRET must be set}
+      FILE_TOKEN_SECRET: ${TWENTY_FILE_TOKEN_SECRET:?TWENTY_FILE_TOKEN_SECRET must be set}
 
       # External Integrations
       SUPPORT_CHAT_ENABLED: false
@@ -119,12 +119,12 @@ services:
     container_name: nyra-twenty-worker
     command: ["npm", "run", "worker:start"]
     environment:
-      PG_DATABASE_URL: postgresql://twenty:${TWENTY_DB_PASSWORD:-twenty_password}@twenty-db:5432/twenty
-      REDIS_URL: redis://:${TWENTY_REDIS_PASSWORD:-redis_password}@twenty-redis:6379
-      ACCESS_TOKEN_SECRET: ${TWENTY_ACCESS_TOKEN_SECRET:-your_access_token_secret_change_in_production}
-      LOGIN_TOKEN_SECRET: ${TWENTY_LOGIN_TOKEN_SECRET:-your_login_token_secret_change_in_production}
-      REFRESH_TOKEN_SECRET: ${TWENTY_REFRESH_TOKEN_SECRET:-your_refresh_token_secret_change_in_production}
-      FILE_TOKEN_SECRET: ${TWENTY_FILE_TOKEN_SECRET:-your_file_token_secret_change_in_production}
+      PG_DATABASE_URL: postgresql://twenty:${TWENTY_DB_PASSWORD:?TWENTY_DB_PASSWORD must be set}@twenty-db:5432/twenty
+      REDIS_URL: redis://:${TWENTY_REDIS_PASSWORD:?TWENTY_REDIS_PASSWORD must be set}@twenty-redis:6379
+      ACCESS_TOKEN_SECRET: ${TWENTY_ACCESS_TOKEN_SECRET:?TWENTY_ACCESS_TOKEN_SECRET must be set}
+      LOGIN_TOKEN_SECRET: ${TWENTY_LOGIN_TOKEN_SECRET:?TWENTY_LOGIN_TOKEN_SECRET must be set}
+      REFRESH_TOKEN_SECRET: ${TWENTY_REFRESH_TOKEN_SECRET:?TWENTY_REFRESH_TOKEN_SECRET must be set}
+      FILE_TOKEN_SECRET: ${TWENTY_FILE_TOKEN_SECRET:?TWENTY_FILE_TOKEN_SECRET must be set}
       STORAGE_TYPE: local
       STORAGE_LOCAL_PATH: /app/storage
     volumes:

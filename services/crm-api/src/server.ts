@@ -58,15 +58,18 @@ const auditLogger = new AuditLogger({
 
 const app = express();
 
+// CORS origins — validate at startup
+const corsOrigins = process.env.CORS_ALLOWED_ORIGINS
+  ? process.env.CORS_ALLOWED_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+  : ["http://localhost:3000", "http://localhost:3001"];
+
+if (corsOrigins.length === 0) {
+  logger.error("CORS_ALLOWED_ORIGINS is set but parsed to zero valid origins — refusing to start");
+  process.exit(1);
+}
+
 app.use(helmet());
-app.use(
-  cors({
-    origin: process.env.CORS_ALLOWED_ORIGINS
-      ? process.env.CORS_ALLOWED_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
-      : ["http://localhost:3000", "http://localhost:3001"],
-    credentials: true,
-  })
-);
+app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(express.json());
 
 const limiter = rateLimit({
