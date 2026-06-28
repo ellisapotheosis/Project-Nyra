@@ -40,7 +40,10 @@ Memory systems include Mem0 for assistant runtime memory, OpenMemory MCP tools 
 - `apps/*` – Frontend applications such as the webapp and landing pages.
 - `services/*` – Business services including CRM API, campaign engine, communication service and quote API.
 - `packages/*` – Shared libraries and utilities.
-- `infra/*` – Infrastructure as code (compose files per node).
+- `workflows/n8n/*` – Workflow definitions.
+- `infra/hosts/<host>/*` – Per-host Docker Compose and deployment files (the only valid compose location).
+- `ops/*` – Scripts and operational helpers.
+- `docs/*` – Architecture, execution plans and manual steps.
 
 ## Implementation Roadmap
 
@@ -53,3 +56,9 @@ Following the execution plan:
 5. **Communication service** – Provide outbound send requests, provider callbacks, inbound reply handling and timeline synchronization.
 6. **Quote engine** – Implement `services/quote-service` to generate deterministic mortgage quotes with multiple options and cost breakdowns.
 7. **App surfaces** – Develop the webapp (`apps/projectnyra`) and RateHunter landing (`apps/ratehunter`).
+
+## Non‑Goals
+
+- No container orchestration platforms (Kubernetes, Swarm) for now.
+- No public exposure of worker inference endpoints.
+- No direct database or CRM mutations by the assistant; all changes route through services.
