@@ -63,7 +63,7 @@ app.post('/api/leads', async (req, res) => {
 
     // Validate phone format (E.164 or common US formats) and normalize
     const phoneRegex = /^\+?1?\d{10,15}$/;
-    const sanitizedPhone = leadData.phone.replace(/[\s\-()]/g, '');
+    const sanitizedPhone = String(leadData.phone).replace(/[\s\-()]/g, '');
     if (!phoneRegex.test(sanitizedPhone)) {
       return res.status(400).json({ error: 'Invalid phone number format' });
     }
