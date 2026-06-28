@@ -155,3 +155,9 @@ export class MockSendGridClient implements ICommunicationProvider {
 
 export { ComplianceService, type ComplianceStatus } from "./compliance.js";
 export { normalizeLeadData, validateLeadIngestion } from "./ingestion.js";
+export {
+  booleanToConsentStatus,
+  consentStatusToBoolean,
+  mapCrmConsent,
+  type CrmConsentFields,
+} from "./consent-adapter.js";

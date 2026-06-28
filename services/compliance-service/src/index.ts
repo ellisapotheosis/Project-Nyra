@@ -87,8 +87,10 @@ export function preflightOutbound(
   }
 
   // 5. Check Missing Consent
+  // Fall back to global consentStatus when no channel-specific consent is set
+  const effectiveConsent = channelConsent ?? lead.consentStatus;
   if (
-    channelConsent === "UNKNOWN" &&
+    effectiveConsent === "UNKNOWN" &&
     (channel === "SMS" ||
       channel === "EMAIL" ||
       channel === "CALL" ||
