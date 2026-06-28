@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { crmProxy } from "@nyra/shared";
+import { crmProxy } from "@nyra/shared/crm-proxy";
 
 export async function GET(
   _req: Request,

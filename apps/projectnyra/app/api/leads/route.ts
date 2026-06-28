@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { crmProxy } from "@nyra/shared";
+import { crmProxy } from "@nyra/shared/crm-proxy";
 
 import { leads } from "@/lib/mock-data";
 

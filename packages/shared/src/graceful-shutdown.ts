@@ -17,19 +17,29 @@ import { createLogger } from "./logger.js";
 
 const log = createLogger("shutdown");
 
+const cleanups: Array<() => void | Promise<void>> = [];
+let registered = false;
+
 /**
  * Register a cleanup function that runs on SIGTERM and SIGINT.
  * Multiple calls are supported — handlers execute in registration order.
  */
 export function onShutdown(cleanup: () => void | Promise<void>): void {
+  cleanups.push(cleanup);
+
+  if (registered) return;
+  registered = true;
+
   const handler = async (signal: string) => {
     log.info(`${signal} received, shutting down gracefully…`);
-    try {
-      await cleanup();
-    } catch (err) {
-      log.error("shutdown cleanup error", {
-        error: err instanceof Error ? err.message : String(err),
-      });
+    for (const fn of cleanups) {
+      try {
+        await fn();
+      } catch (err) {
+        log.error("shutdown cleanup error", {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
     }
     process.exit(0);
   };

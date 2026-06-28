@@ -7,11 +7,14 @@
 
 import type { Request, Response, NextFunction } from "express";
 import { HttpError } from "./errors.js";
+import { createLogger } from "./logger.js";
+
+const log = createLogger("error-handler");
 
 /**
  * Express error-handling middleware.
  * Catches any thrown {@link HttpError} (or plain Error) and returns a
- * structured JSON error response.
+ * structured JSON error response. Logs request context for observability.
  */
 export function errorHandler(
   error: Error,
@@ -21,6 +24,15 @@ export function errorHandler(
 ): void {
   const statusCode = error instanceof HttpError ? error.statusCode : 500;
   const type = error instanceof HttpError ? error.type : "server_error";
+
+  log.error("unhandled request error", {
+    method: req.method,
+    path: req.path,
+    statusCode,
+    type,
+    message: error.message,
+    stack: error.stack,
+  });
 
   res.status(statusCode).json({
     error: {
