@@ -56,12 +56,13 @@ app.post('/api/leads', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Validate phone format (E.164 or common US formats)
+    // Validate phone format (E.164 or common US formats) and normalize
     const phoneRegex = /^\+?1?\d{10,15}$/;
     const sanitizedPhone = leadData.phone.replace(/[\s\-()]/g, '');
     if (!phoneRegex.test(sanitizedPhone)) {
       return res.status(400).json({ error: 'Invalid phone number format' });
     }
+    leadData.phone = sanitizedPhone;
 
     if (leadData.consent === false) {
       return res.status(400).json({ error: 'TCPA consent is required' });
