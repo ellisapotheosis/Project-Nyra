@@ -76,7 +76,7 @@
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
     "inquirer": "^12.6.3",
-    "zod": "^3.22.4"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
