@@ -16,7 +16,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "graphql-request": "^6.1.0",
+    "graphql-request": "^7.4.0",
     "p-queue": "^8.0.1"
   },
   "devDependencies": {
