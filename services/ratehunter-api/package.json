@@ -44,7 +44,7 @@
     "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
-    "@types/node": "^25.5.2",
+    "@types/node": "^26.1.0",
     "@types/express": "^5.0.6",
     "@types/cors": "^2.8.17",
     "@types/morgan": "^1.9.9",
