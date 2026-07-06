@@ -41,7 +41,7 @@
     "compression": "^1.7.4",
     "uuid": "^14.0.0",
     "crypto": "^1.0.1",
-    "docusign-esign": "^8.7.0",
+    "docusign-esign": "^9.0.0",
     "elasticsearch": "^16.7.3"
   },
   "devDependencies": {
