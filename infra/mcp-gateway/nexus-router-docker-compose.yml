@@ -27,11 +27,6 @@ services:
       - ./nexus-router-mcp-config.yml:/etc/nexus-router/config.yml:ro
       - nexus_router_logs:/var/log/nexus-router-mcp
 
-    depends_on:
-      - supabase-auth
-      - twenty
-      - activepieces
-
     healthcheck:
       test: ["CMD", "curl", "-f", "-H", "Authorization: Bearer ${MCP_GATEWAY_TOKEN}", "http://localhost:7001/health"]
       interval: 30s

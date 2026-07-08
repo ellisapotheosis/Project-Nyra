@@ -1,10 +1,11 @@
 {
   "mcpServers": {
     "nexus-router": {
-      "type": "sse",
-      "url": "https://nexus.ratehunter.net/mcp",
+      "type": "streamable-http",
+      "url": "https://nexus-router.projectnyra.com/mcp",
       "headers": {
-        "Authorization": "Bearer ${ORCHESTRATOR_TUNNEL_TOKEN}"
+        "CF-Access-Client-Id": "${CF_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "${CF_ACCESS_CLIENT_SECRET}"
       },
       "startup_timeout_sec": 90
     },

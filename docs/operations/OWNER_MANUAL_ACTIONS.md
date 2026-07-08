@@ -126,10 +126,11 @@ replacement control plane.
    ```
 5. Restart Nexus after Letta MCP is healthy so it rediscovers the
    `[mcp.servers.letta]` tools.
-6. On every workstation running Claude Code, set `ORCHESTRATOR_TUNNEL_TOKEN`
-   to the Cloudflare Access service token expected by `.mcp.json`; otherwise
-   `https://nexus-router.projectnyra.com/mcp` redirects to browser login and MCP auth
-   fails.
+6. On every workstation running Claude Code, set `CF_ACCESS_CLIENT_ID` and
+   `CF_ACCESS_CLIENT_SECRET` to the Cloudflare Access service-token pair for
+   `nexus-router.projectnyra.com`; otherwise
+   `https://nexus-router.projectnyra.com/mcp` returns the Cloudflare Access
+   sign-in page and MCP auth fails.
 
 ### Cloudflare Pages landing redeploy
 
@@ -147,6 +148,62 @@ The repo-side fix is already on `origin/main`. Pages must rebuild from commit
 3. Trigger **Retry deployment** or **Create deployment** from the latest `main` commit.
 4. Confirm the deployment commit is `8efd4c13` or newer, not `e27167d`.
 5. If Cloudflare still reuses the old failed deployment, clear any queued/retry state and start a fresh production deploy from `main`.
+
+### Cloudflare Pages Git integration repair and target routing split
+
+Current state on 2026-07-02:
+
+- `projectnyra-landing` is the only Project Nyra surface that is currently a clean fit for Git-backed Cloudflare Pages.
+- `projectnyra-app` currently builds as a runtime Next.js app with dynamic broker routes and should stay behind the existing app origin path until it is intentionally migrated to a Workers/OpenNext deployment shape.
+- `projectnyra-nexus` should stay on the Cloudflare Tunnel + Cloudflare Access path because it is an operator surface tied to private control-plane status and authenticated service access.
+
+Cloudflare-side fixes already applied by API:
+
+- `projectnyra-landing` root directory: `apps/projectnyra-landing`
+- build command: `pnpm build`
+- destination directory: `out`
+- narrowed Git trigger paths:
+  - `apps/projectnyra-landing/**`
+  - `package.json`
+  - `pnpm-lock.yaml`
+  - `pnpm-workspace.yaml`
+
+Remaining blocker:
+
+- The current Cloudflare Pages failures for `projectnyra-landing`, `projectnyra-app`, and `projectnyra-nexus` are still occurring at the `clone_repo` stage, before build execution.
+- That is an owner-managed Git integration problem, not a repo build problem.
+
+Required owner steps:
+
+1. Open GitHub install management:
+   - `https://github.com/settings/installations`
+2. Open the Cloudflare Pages GitHub App installation.
+3. Confirm the installation is not suspended.
+4. Confirm repository access includes `ellisapotheosis/Project-Nyra`.
+5. If the repo is missing, add it explicitly.
+6. If the installation looks stale or disconnected, disconnect and reinstall the Cloudflare Pages GitHub integration from Cloudflare Dashboard.
+7. In Cloudflare Dashboard, open each Pages project:
+   - `projectnyra-landing`
+   - `projectnyra-app`
+   - `projectnyra-nexus`
+8. Confirm each one still points at GitHub repo `ellisapotheosis/Project-Nyra` on branch `main`.
+9. Trigger a fresh production deployment for `projectnyra-landing` after the Git integration is repaired.
+
+Custom-domain decision:
+
+- Attach `projectnyra.com` and `www.projectnyra.com` to `projectnyra-landing` after removing any conflicting tunnel/DNS bindings.
+- Keep `app.projectnyra.com` on the current app origin path for now.
+- Keep `nexus.projectnyra.com` on the current tunnel + Access path.
+- Keep `nexus-router.projectnyra.com` on the current tunnel + Access + service-token path.
+
+Do not cut over these hostnames to Pages right now:
+
+- `app.projectnyra.com`
+- `nexus.projectnyra.com`
+- `nexus-router.projectnyra.com`
+- `openmemory.projectnyra.com`
+
+Those surfaces are not plain static Pages targets in the current architecture and should remain on authenticated tunnel-backed ingress until they are migrated deliberately.
 
 ### Cloudflare Pages project/account mismatch for landing deploy
 
