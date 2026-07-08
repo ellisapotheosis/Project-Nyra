@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.135 0.02 280);
+  --foreground: oklch(0.93 0.04 170);
+  --card: oklch(0.171 0.03 283);
+  --card-foreground: oklch(0.93 0.04 170);
+  --popover: oklch(0.135 0.02 280);
+  --popover-foreground: oklch(0.93 0.04 170);
+  --primary: oklch(0.54 0.24 286);
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.74 0.12 175);
+  --secondary-foreground: oklch(0.12 0.02 280);
+  --muted: oklch(0.19 0.03 281);
+  --muted-foreground: oklch(0.78 0.03 180);
+  --accent: oklch(0.22 0.05 288);
+  --accent-foreground: oklch(0.95 0.02 172);
+  --destructive: oklch(0.62 0.22 20);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.28 0.05 286);
+  --input: oklch(0.28 0.05 286);
+  --ring: oklch(0.78 0.12 175);
+  --chart-1: oklch(0.74 0.12 175);
+  --chart-2: oklch(0.54 0.24 286);
+  --chart-3: oklch(0.67 0.17 317);
+  --chart-4: oklch(0.82 0.08 230);
+  --chart-5: oklch(0.62 0.18 270);
+  --radius: 0.875rem;
+  --font-sans: var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-michroma), ui-serif, serif;
+  --font-mono: var(--font-space-mono), ui-monospace, monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    letter-spacing: 0;
+  }
+}

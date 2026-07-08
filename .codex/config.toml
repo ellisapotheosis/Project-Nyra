@@ -46,7 +46,7 @@ guardian_approval = false
 image_generation = true
 in_app_browser = true
 js_repl = true
-multi_agent = true
+multi_agent_v2 = true
 plugins = true
 prevent_idle_sleep = true
 shell_snapshot = true
@@ -103,6 +103,7 @@ startup_timeout_sec = 120
 [mcp_servers.nexus-router]
 startup_timeout_sec = 120
 url = "https://nexus-router.projectnyra.com/mcp"
+env_http_headers = { "CF-Access-Client-Id" = "CF_ACCESS_CLIENT_ID", "CF-Access-Client-Secret" = "CF_ACCESS_CLIENT_SECRET" }
 
 [mcp_servers.playwright]
 args = [
@@ -199,7 +200,6 @@ status_line = [
 ]
 
 [agents]
-max_threads = 6
 max_depth = 2
 
 # MemPalace MCP Server

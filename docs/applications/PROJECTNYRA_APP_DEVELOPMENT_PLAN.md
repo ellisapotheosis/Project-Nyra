@@ -6,16 +6,17 @@ Make `projectnyra.com` the canonical product and platform domain while keeping
 `ratehunter.net` reserved for the personal mortgage brokerage landing page.
 
 The Project Nyra app should become the first useful surface for all product
-workflows: public product landing, broker workspace, admin console, assistant,
-CRM mirror, campaign builder, quote workflows, and links to protected platform
-tools.
+workflows: public product landing, broker workspace, product-admin panels,
+assistant, CRM mirror, campaign builder, quote workflows, and links to
+protected platform tools. Separate control-plane consoles such as Nexus UI
+should stay in their own app roots.
 
 ## Domain Boundaries
 
 | Domain            | Purpose                                                          | Rule                                                                             |
 | ----------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | `ratehunter.net`  | Personal mortgage brokerage landing page and lead capture        | No platform apps, MCP servers, admin tools, CRM tools, workers, or observability |
-| `projectnyra.com` | Product, platform, apps, services, MCP, and protected dashboards | Canonical domain for every Project Nyra surface                                  |
+| `projectnyra.com` | Product app and protected product workflows                    | Canonical domain for the broker/customer product surface and embedded product-admin |
 
 Required public or protected hostnames:
 
@@ -37,7 +38,7 @@ apps/
     app/
       (public)/
       (broker)/
-      (admin)/
+      (admin)/   # product-admin only; control-plane admin stays separate
       (assistant)/
       api/
   ratehunter/
@@ -57,8 +58,8 @@ placeholder workspace.
 
 Tasks:
 
-- Keep the public Project Nyra landing page as a launch surface for admin,
-  Nexus, CRM, campaign builder, assistant, and platform tools.
+- Keep the public Project Nyra landing page as a launch surface for the app,
+  product-admin, CRM, campaign builder, assistant, and platform tools.
 - Add route-level pages for missing expected surfaces:
   - `/admin`
   - `/assistant`
@@ -95,7 +96,7 @@ Tasks:
   - bounded assistant workflows
   - deterministic quote generation
   - CRM as system of record
-- Keep calls to action directed to the app, admin, or gated demos.
+- Keep calls to action directed to the app, product-admin, or gated demos.
 - Avoid RateHunter branding except for clear separation language.
 - Add metadata, Open Graph, robots, and sitemap entries for the Project Nyra
   domain.

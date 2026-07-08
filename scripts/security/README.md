@@ -6,6 +6,35 @@ Automated security tools and utilities for Project Nyra.
 
 ## Available Scripts
 
+### 0. nyra-secret-scan.sh - Local secret leak prevention
+
+Portable Bash scanner for staged content, working tree files, and optional
+history scans.
+
+**Usage**:
+```bash
+./scripts/security/nyra-secret-scan.sh --staged
+./scripts/security/nyra-secret-scan.sh --all
+./scripts/security/nyra-secret-scan.sh --history
+./scripts/security/nyra-secret-scan.sh --install-hook
+```
+
+**Hook install**:
+```bash
+./scripts/security/install-hooks.sh
+```
+
+**Smoke test**:
+```bash
+./scripts/security/tests/secret-scan-smoke.sh
+```
+
+**Behavior**:
+- blocks commits with likely secret material
+- never prints secret values
+- supports filenames with spaces and staged-only hook runs
+- uses a fallback regex/assignment scanner instead of assuming Infisical scan syntax
+
 ### 1. scan.sh - Security Scanning
 
 Comprehensive security scanning across the entire infrastructure.
@@ -310,7 +339,7 @@ Security metrics exposed at `/metrics`:
 ### Grafana Dashboards
 
 Import security dashboard:
-- Dashboard ID: TBD
+- Dashboard ID: not yet assigned
 - Panels: Failed auth, rate limits, vulnerabilities, scan status
 
 ### Alerting Rules

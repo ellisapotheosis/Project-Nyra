@@ -55,6 +55,12 @@ data/gitea/
 data/app-guidance/files/nyra-stack/
 infra/env/secrets/
 infra/cloudflare/apply-results/
+.infisical/
+*.token
+*.secret
+*.secrets
+*.secret.json
+*infisical-cache*.json
 
 # Host/runtime env files must stay local or come from Infisical.
 **/.env
