@@ -19,7 +19,7 @@
         "gitea.projectnyra.com",
         "activepieces.projectnyra.com",
         "openwebui.projectnyra.com",
-        "nexus.projectnyra.com",
+        "nexus-ui.projectnyra.com",
         "paperclip.projectnyra.com",
         "clawteam.projectnyra.com",
         "links.projectnyra.com",
@@ -43,10 +43,14 @@
     },
     {
       "name": "Nyra Service APIs",
-      "hostnames": ["nexus-router.projectnyra.com", "hooks.projectnyra.com"],
+      "hostnames": [
+        "nexus.projectnyra.com",
+        "nexus-router.projectnyra.com",
+        "hooks.projectnyra.com"
+      ],
       "type": "self_hosted",
       "policy": "service_token_or_signed_request"
     }
   ],
-  "excluded_from_access": ["api.projectnyra.com"]
+  "excluded_from_access": ["api.projectnyra.com", "mcp-gateway.projectnyra.com"]
 }

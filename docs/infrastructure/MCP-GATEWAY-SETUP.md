@@ -73,7 +73,7 @@ cd /home/ellisapotheosis/repos/project-nyra
 
 # Start Nexus Router MCP
 docker compose -f infra/hosts/oracle-vps/docker-compose.yml \
-  -f infra/mcp-gateway/nexus-router-docker-compose.yml \
+  -f infra/hosts/oracle-vps/docker-compose.mcp-gateway.yml \
   up -d nexus-router-mcp
 
 # Verify it's running
@@ -173,11 +173,11 @@ curl -H "Authorization: Bearer $MCP_GATEWAY_TOKEN" \
 
 ## Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `nexus-router-mcp-config.yml` | MCP Gateway configuration (tools, auth, services) |
-| `cloudflared-config.yml` | Cloudflare Tunnel routing (updated with MCP gateway route) |
-| `nexus-router-docker-compose.yml` | Docker Compose services for MCP gateway |
+| File                                  | Purpose                                                    |
+| ------------------------------------- | ---------------------------------------------------------- |
+| `configs/nexus-router-mcp-config.yml` | MCP Gateway configuration (tools, auth, services)          |
+| `cloudflared-config.yml`              | Cloudflare Tunnel routing (updated with MCP gateway route) |
+| `docker-compose.mcp-gateway.yml`      | Docker Compose services for MCP gateway                    |
 
 ## Security
 
@@ -277,20 +277,20 @@ docker exec nyra-nexus-router-mcp curl http://supabase-auth:9999/health
 ### Using with Claude
 
 ```javascript
-const MCPClient = require('@anthropic-sdk/mcp-client');
+const MCPClient = require("@anthropic-sdk/mcp-client");
 
 const client = new MCPClient({
-  url: 'https://mcp-gateway.projectnyra.com',
+  url: "https://mcp-gateway.projectnyra.com",
   auth: {
-    type: 'bearer',
-    token: process.env.MCP_GATEWAY_TOKEN
-  }
+    type: "bearer",
+    token: process.env.MCP_GATEWAY_TOKEN,
+  },
 });
 
 // Use MCP tools
 const tools = await client.listTools();
-const result = await client.callTool('supabase_query', {
-  query: 'SELECT * FROM profiles LIMIT 10'
+const result = await client.callTool("supabase_query", {
+  query: "SELECT * FROM profiles LIMIT 10",
 });
 ```
 

@@ -32,11 +32,19 @@
         "service": "http://openwebui:8080"
       },
       {
-        "hostname": "nexus.projectnyra.com",
+        "hostname": "nexus-ui.projectnyra.com",
         "service": "http://nexus-ui:3016"
       },
       {
+        "hostname": "nexus.projectnyra.com",
+        "service": "http://nexus:3000"
+      },
+      {
         "hostname": "nexus-router.projectnyra.com",
+        "service": "http://nexus:3000"
+      },
+      {
+        "hostname": "mcp-gateway.projectnyra.com",
         "service": "http://nexus:3000"
       },
       {

@@ -64,10 +64,18 @@ ingress:
   - hostname: litellm.projectnyra.com
     service: http://litellm:4000
 
+  # Both nexus.projectnyra.com and nexus-router.projectnyra.com are aliases for
+  # the Nexus Router API/MCP endpoint (nexus:3000). nexus-ui.projectnyra.com is
+  # the separate human-facing dashboard.
   - hostname: nexus.projectnyra.com
-    service: http://nexus-ui:3016
+    service: http://nexus:3000
 
   - hostname: nexus-router.projectnyra.com
+    service: http://nexus:3000
+
+  # MCP Gateway public endpoint — CF Access is NOT applied here.
+  # The mcp-gateway Cloudflare Worker validates Bearer tokens before forwarding.
+  - hostname: mcp-gateway.projectnyra.com
     service: http://nexus:3000
 
   - hostname: agent-vault.projectnyra.com
