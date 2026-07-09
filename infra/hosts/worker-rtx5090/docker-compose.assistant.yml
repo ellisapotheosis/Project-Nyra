@@ -5,7 +5,7 @@
 # Optimized for RTX 5090 GPU inference
 # ============================================================================
 
-version: '3.8'
+version: "3.8"
 
 services:
   # ============================================================================
@@ -29,7 +29,7 @@ services:
       - assistant-memory:/home/node/.memory
       - nyra_secrets:/run/nyra-secrets:ro
     entrypoint: >
-      sh -c "openclaw plugins install @memorytensor/openclaw-memos && exec openclaw gateway --port 18789"
+      sh -c "openclaw plugins install @memtensor/memos-cloud-openclaw-plugin && exec openclaw gateway --port 18789"
     deploy:
       resources:
         reservations:
@@ -48,7 +48,7 @@ services:
     container_name: worker-5090-nerve-ui
     restart: unless-stopped
     ports:
-      - '${NERVE_UI_PORT:-3081}:3000'
+      - "${NERVE_UI_PORT:-3081}:3000"
     environment:
       - BACKEND_URL=http://worker-5090-openclaw:18789
       - DEFAULT_MODEL=deepseek-ai/DeepSeek-V3

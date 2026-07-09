@@ -15,7 +15,7 @@ RUN npm install -g openclaw@latest
 RUN openclaw plugins install @falkordb/openclaw-mem0
 
 # Install the MemoryTensor memOS memory plugin
-RUN openclaw plugins install @memorytensor/openclaw-memos
+RUN openclaw plugins install @memtensor/memos-cloud-openclaw-plugin
 
 # Install the Open WebUI channels plugin
 # RUN openclaw plugins install https://github.com/Skyzi000/openclaw-open-webui-channels

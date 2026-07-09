@@ -6,7 +6,7 @@
     "entries": {
       "openclaw-memos": {
         "enabled": true,
-        "package": "@memorytensor/openclaw-memos",
+        "package": "@memtensor/memos-cloud-openclaw-plugin",
         "config": {
           "baseUrl": "https://memos.projectnyra.com",
           "userId": "nyra",

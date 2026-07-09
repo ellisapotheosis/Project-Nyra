@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "generator": "0.1.0",
+  "template": "vertical:coding",
+  "template_version": "0.0.0",
+  "vars": {
+    "name": "nyra-harness",
+    "description": "nyra-harness — an AI agent harness",
+    "host": "claude-code"
+  },
+  "hosts": ["claude-code"],
+  "files": {
+    ".claude/commands/doctor.md": "2f1475fa0ed34729cb2ed9d6cecf29e99781da0a56afef133361e3ff0a17bb52",
+    ".claude/commands/review-diff.md": "2ab52f01487bfe67335f4de5193d7a6fb0f72f646411114613d8fa5da071ef2b",
+    ".claude/settings.json": "d10cd34c3a27db54be87263bc4569f4150016269b462e692f04c5f113ea1f5b5",
+    ".claude/skills/plan-change/SKILL.md": "84e1c44ca264b999ebf80cd8fa0e5ebf554275bbd8023b1530ad053a44482e30",
+    ".claude-plugin/plugin.json": "86217875bcdd3b3b4c76b42826f72055320440f22017581314940dfb62524fe1",
+    "CLAUDE.md": "0911b9c8c26286fb94a5998d5db616ebf209f7a6b6bc144465a6f91142606511",
+    "README.md": "48774973eca56dad3b06126958022900104b2f5375a2d0131d1eec1980ff5e22",
+    "__tests__/smoke.test.ts": "ed7804bfebc5fba41984fb441340344c538a2b7be79528d6eb48428e13e4b3a0",
+    "bin/cli.js": "b6881d2bb52c138f83d4213b92f4d3bea2200b0d54826a47991f949f3369460b",
+    "package.json": "1d5043c77bdea691c11f20bcbb3be8894dc1a73879967ba2b2722c353ba056a5",
+    "src/agents/architect.ts": "624beaab6e42b95864214194d6e6b64d83d8ea10594fea3362a686ecf324648b",
+    "src/agents/implementer.ts": "6261ed2429c3d2f495f2173c3c2f12e075b01aadc4639264ac57f706927d212a",
+    "src/agents/reviewer.ts": "9fcc87afd39f2e13afe1e40447570a972039a6667ad47cabcd430d6fb5699c57",
+    "src/agents/test-writer.ts": "a0e36a403ebfa8d40809bb495f48359fbc51241bc7ffecc91fb2eccfc1dc67ea",
+    "src/init.ts": "f301eb81b7edeb0a03e5e1bfdb297f44c7ec5991c03126f550f7f37647ce565b",
+    "tsconfig.json": "8b4e730a1aa39162ac574455d7a98e1881f5313ca80ffe503b9652dcf0c76b9d",
+    "vitest.config.ts": "e9e94875611ab1cd602c1f6923902c2dab7953a75ac022962973639d1937587a",
+    "LICENSE": "f95b2576b1c8a2119a719105b2bcb2564811c293b42c9b5516dd17b2e5228bbf",
+    ".claude/skills/evolve/SKILL.md": "d4c15da9c6a0d2e34cf8fb8733886cc33524adf95dd98ee2f5d73ce1fdd0ded1"
+  },
+  "generated_at": "2026-06-23T20:31:17.842Z",
+  "meta": {
+    "surface": "cli"
+  }
+}

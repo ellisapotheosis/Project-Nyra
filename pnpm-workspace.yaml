@@ -7,13 +7,29 @@ packages:
   - packages/*
   - tools/*
   - mcp-servers/*
-  - '!apps/ingestion/**'
-  - '!docs/archive/**'
+  - "!apps/ingestion/**"
+  - "!docs/archive/**"
+
+allowBuilds:
+  "@clerk/shared": false
+  "@prisma/engines": false
+  "@scarf/scarf": false
+  aws-sdk: false
+  bcrypt: false
+  better-sqlite3: false
+  esbuild: false
+  msgpackr-extract: false
+  msw: false
+  prisma: false
+  sharp: false
+  tesseract.js: false
+  unrs-resolver: false
+  workerd: false
 
 onlyBuiltDependencies:
-  - '@prisma/client'
-  - '@prisma/engines'
-  - '@scarf/scarf'
+  - "@prisma/client"
+  - "@prisma/engines"
+  - "@scarf/scarf"
   - aws-sdk
   - bcrypt
   - better-sqlite3

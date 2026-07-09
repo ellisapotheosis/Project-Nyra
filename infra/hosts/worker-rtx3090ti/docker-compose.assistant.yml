@@ -5,7 +5,7 @@
 # Optimized for local GPU inference
 # ============================================================================
 
-version: '3.8'
+version: "3.8"
 
 services:
   # ============================================================================
@@ -28,7 +28,7 @@ services:
       - ./openclaw:/home/node/.openclaw
       - assistant-memory:/home/node/.memory
     entrypoint: >
-      sh -c "openclaw plugins install @memorytensor/openclaw-memos && exec openclaw gateway --port 18789"
+      sh -c "openclaw plugins install @memtensor/memos-cloud-openclaw-plugin && exec openclaw gateway --port 18789"
     deploy:
       resources:
         reservations:

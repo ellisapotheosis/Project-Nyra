@@ -1,0 +1,22 @@
+name = "mcp-gateway"
+main = "index.js"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Custom domain — Cloudflare routes mcp-gateway.projectnyra.com to this Worker.
+# The DNS CNAME record (oracle tunnel) is superseded by the Worker route;
+# the Worker intercepts all traffic before it reaches the tunnel origin.
+routes = [
+  { pattern = "mcp-gateway.projectnyra.com/*", zone_name = "projectnyra.com" }
+]
+
+[vars]
+# Non-secret configuration — safe to commit
+CF_ACCESS_TEAM_NAME = "projectnyra"
+NEXUS_UPSTREAM_URL  = "https://nexus-router.projectnyra.com"
+
+# Secrets — set via: wrangler secret put <NAME>
+# Never commit these values. Required secrets:
+#   MCP_BEARER_TOKEN        — shared API key distributed to ChatGPT and other MCP clients
+#   CF_ACCESS_CLIENT_ID     — CF Access service token ID (from Zero Trust → Access → Service Tokens)
+#   CF_ACCESS_CLIENT_SECRET — CF Access service token secret (same source)
