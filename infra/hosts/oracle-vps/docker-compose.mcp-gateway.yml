@@ -24,7 +24,7 @@ services:
       LOG_FORMAT: json
 
     volumes:
-      - ./nexus-router-mcp-config.yml:/etc/nexus-router/config.yml:ro
+      - ./configs/nexus-router-mcp-config.yml:/etc/nexus-router/config.yml:ro
       - nexus_router_logs:/var/log/nexus-router-mcp
 
     depends_on:
@@ -33,7 +33,15 @@ services:
       - activepieces
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "-H", "Authorization: Bearer ${MCP_GATEWAY_TOKEN}", "http://localhost:7001/health"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "-H",
+          "Authorization: Bearer ${MCP_GATEWAY_TOKEN}",
+          "http://localhost:7001/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -55,8 +63,8 @@ services:
       - ./prometheus-mcp.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_mcp_data:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
     networks: [nyra_net]
     labels:
       service: nexus-router
