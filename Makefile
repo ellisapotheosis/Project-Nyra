@@ -324,6 +324,7 @@ oracle-campaign-engine-up:
 # --- AGENT INFRA TARGETS ---
 
 .PHONY: agent-infra-validate agent-secrets-generate agent-secrets-audit oracle-agent-utils-up oracle-agent-utils-down oracle-memory-up oracle-memory-down kyutai-base-3060-up kyutai-mesh-up kyutai-mesh-down kyutai-mesh-check
+.PHONY: infisical-capabilities infisical-scan-staged infisical-pam infisical-gateway infisical-kms
 
 agent-infra-validate:
 	bash scripts/validate-agent-infra.sh
@@ -333,6 +334,21 @@ agent-secrets-generate:
 
 agent-secrets-audit:
 	INFISICAL_ENV=$(AGENT_INFRA_ENV) scripts/infisical/agent-infra-secrets.sh audit
+
+infisical-capabilities:
+	scripts/infisical/capabilities.sh status
+
+infisical-scan-staged:
+	scripts/security/nyra-secret-scan.sh --staged
+
+infisical-pam:
+	scripts/infisical/capabilities.sh pam $(INFISICAL_ARGS)
+
+infisical-gateway:
+	scripts/infisical/capabilities.sh gateway $(INFISICAL_ARGS)
+
+infisical-kms:
+	scripts/infisical/capabilities.sh kms $(INFISICAL_ARGS)
 
 oracle-agent-utils-up:
 	docker --context oracle compose -f $(ORACLE_AGENT_UTILS_COMPOSE) up -d

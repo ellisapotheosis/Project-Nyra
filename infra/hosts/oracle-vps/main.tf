@@ -121,6 +121,6 @@ resource "oci_core_instance" "nyra_a1" {
 
   metadata = {
     ssh_authorized_keys = var.ssh_public_key
-    user_data           = ""
+    user_data           = base64encode(file("${path.module}/cloud-init.sh.tftpl"))
   }
 }

@@ -19,7 +19,7 @@ Usage: nyra-secret-scan.sh [--staged|--all|--history] [--install-hook]
 Modes:
   --staged        Scan staged content only (default, hook-safe)
   --all           Scan tracked + untracked working tree files
-  --history       Scan git history via patch text
+  --history       Scan git history
   --install-hook  Install this scanner as the repo pre-commit hook
 EOF
 }
@@ -56,26 +56,37 @@ require_command() {
 require_command git
 require_command grep
 
-if command -v infisical >/dev/null 2>&1; then
-  if infisical --help >/dev/null 2>&1; then
-    echo "${BLUE}[nyra-secret-scan]${NC} Infisical CLI detected; local fallback scanner remains the enforced path." >&2
-  fi
-fi
+CI_MODE="${CI:-false}"
 
-if [[ "$INSTALL_HOOK" -eq 1 ]]; then
-  hook_dir="$ROOT/scripts/security/hooks"
+banner() {
+  echo "${BLUE}=================================================================${NC}"
+  echo "${BLUE}Project Nyra Secret Scan${NC}"
+  echo "${BLUE}Mode: ${MODE}${NC}"
+  echo "${BLUE}CI: ${CI_MODE}${NC}"
+  echo "${BLUE}Root: ${ROOT}${NC}"
+  echo "${BLUE}=================================================================${NC}"
+}
+
+supports_infisical_scan() {
+  command -v infisical >/dev/null 2>&1 && infisical scan --help >/dev/null 2>&1
+}
+
+install_hook() {
+  local hook_dir="$ROOT/scripts/security/hooks"
   mkdir -p "$hook_dir"
+
   cat > "$hook_dir/pre-commit" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 exec "$ROOT/scripts/security/nyra-secret-scan.sh" --staged
 EOF
+
   chmod 755 "$hook_dir/pre-commit"
-  git config core.hooksPath scripts/security/hooks
+  git config --local core.hooksPath scripts/security/hooks
+  chmod 755 "$ROOT/scripts/security/nyra-secret-scan.sh"
   echo "${GREEN}[nyra-secret-scan]${NC} installed hook at scripts/security/hooks/pre-commit"
-  exit 0
-fi
+}
 
 declare -a RULE_NAMES=(
   "OPENAI_KEY"
@@ -101,27 +112,26 @@ declare -a RULE_PATTERNS=(
   '(^|/)\.env([./_-]|$)'
 )
 
-leak_count=0
-
-banner() {
-  echo "${BLUE}=================================================================${NC}"
-  echo "${BLUE}Project Nyra Secret Scan${NC}"
-  echo "${BLUE}Mode: ${MODE}${NC}"
-  echo "${BLUE}Root: ${ROOT}${NC}"
-  echo "${BLUE}=================================================================${NC}"
+should_skip_path() {
+  case "$1" in
+    Makefile|*/Makefile|*.mk|*"/node_modules/"*|*"/.next/"*|*"/.turbo/"*|*"/dist/"*|*"/build/"*|*"/coverage/"*|*"/.cache/"*|*"/.pnpm-store/"*|*"/vendor/"*)
+      return 0
+      ;;
+  esac
+  return 1
 }
 
 scan_file() {
   local source="$1"
   local display_path="$2"
   local temp_file="$3"
+  local hit=0
+  local idx
 
   if [[ ! -s "$temp_file" ]]; then
     return 0
   fi
 
-  local hit=0
-  local idx
   for idx in "${!RULE_NAMES[@]}"; do
     if grep -nE -I -m 1 -- "${RULE_PATTERNS[$idx]}" "$temp_file" >/dev/null 2>&1; then
       if [[ "$hit" -eq 0 ]]; then
@@ -134,106 +144,142 @@ scan_file() {
   done
 }
 
-should_skip_audit_path() {
-  case "$1" in
-    docs/*|apps/guidance/*|.agents/skills/*|**/.open-next/*|**/.next/*|**/node_modules/*|**/.turbo/*|**/dist/*|**/coverage/*|**/*.backup*|**/*.bak)
-      return 0
-      ;;
-  esac
-  return 1
+scan_staged_fallback() {
+  local path tmp
+  tmp="$(mktemp)"
+  while IFS= read -r -d '' path; do
+    [[ -n "$path" ]] || continue
+    if should_skip_path "$path"; then
+      continue
+    fi
+    case "$path" in
+      *example*|*template*|*sample*)
+        ;;
+      *.env|*.env.*|*.env.local|*.env.*.local|*.pem|*.key|*.token|*.secret|*.secrets)
+        echo "${YELLOW}[LEAK-DETECTED]${NC} staged: ${path}"
+        echo "  - SECRET_PATH"
+        leak_count=$((leak_count + 1))
+        continue
+        ;;
+    esac
+    if ! git show ":$path" >"$tmp" 2>/dev/null; then
+      continue
+    fi
+    scan_file "staged" "$path" "$tmp"
+  done < <(git diff --cached --name-only -z --diff-filter=ACMR)
+  rm -f "$tmp"
 }
 
-scan_path_list() {
-  local source="$1"
-  local list_mode="$2"
-  local path
-  local tmp
-
+scan_worktree_fallback() {
+  local path tmp
   tmp="$(mktemp)"
-  trap 'rm -f "$tmp"' RETURN
+  while IFS= read -r -d '' path; do
+    [[ -n "$path" ]] || continue
+    if should_skip_path "$path"; then
+      continue
+    fi
+    [[ -f "$path" ]] || continue
+    case "$path" in
+      *example*|*template*|*sample*)
+        ;;
+      *.env|*.env.*|*.env.local|*.env.*.local|*.pem|*.key|*.token|*.secret|*.secrets)
+        echo "${YELLOW}[LEAK-DETECTED]${NC} working-tree: ${path}"
+        echo "  - SECRET_PATH"
+        leak_count=$((leak_count + 1))
+        continue
+        ;;
+    esac
+    if ! grep -Iq . "$path"; then
+      continue
+    fi
+    cp "$path" "$tmp"
+    scan_file "working-tree" "$path" "$tmp"
+  done < <(git ls-files -co --exclude-standard -z)
+  rm -f "$tmp"
+}
 
-  case "$list_mode" in
+scan_history_fallback() {
+  local path tmp
+  tmp="$(mktemp)"
+  while IFS= read -r path; do
+    [[ -n "$path" ]] || continue
+    if should_skip_path "$path"; then
+      continue
+    fi
+    if git log -p --all --no-color -- "$path" >"$tmp" 2>/dev/null; then
+      scan_file "history" "$path" "$tmp"
+    fi
+  done < <(git ls-files)
+  rm -f "$tmp"
+}
+
+scan_with_infisical() {
+  local tmp_log tmp_report status
+  tmp_log="$(mktemp)"
+  tmp_report="$(mktemp)"
+
+  set +e
+  case "$MODE" in
     staged)
-      while IFS= read -r -d '' path; do
-        [[ -n "$path" ]] || continue
-        case "$path" in
-          *example*|*template*|*sample*)
-            ;;
-          *.env|*.env.*|*.env.local|*.env.*.local|*.pem|*.key|*.token|*.secret|*.secrets)
-            echo "${YELLOW}[LEAK-DETECTED]${NC} ${source}: ${path}"
-            echo "  - SECRET_PATH"
-            leak_count=$((leak_count + 1))
-            continue
-            ;;
-        esac
-        if git diff --cached --numstat -- "$path" | awk '{ if ($1 == "-" && $2 == "-") exit 0; exit 1 }'; then
-          continue
-        fi
-        if ! git show ":$path" >"$tmp" 2>/dev/null; then
-          continue
-        fi
-        scan_file "$source" "$path" "$tmp"
-      done < <(git diff --cached --name-only -z --diff-filter=ACMR)
+      infisical scan git-changes --staged --redact --no-color --report-format=json --report-path="$tmp_report" 2>&1 | tee "$tmp_log"
       ;;
     all)
-      while IFS= read -r -d '' path; do
-        [[ -n "$path" ]] || continue
-        if should_skip_audit_path "$path"; then
-          continue
-        fi
-        [[ -f "$path" ]] || continue
-        case "$path" in
-          *example*|*template*|*sample*)
-            ;;
-          *.env|*.env.*|*.env.local|*.env.*.local|*.pem|*.key|*.token|*.secret|*.secrets)
-            echo "${YELLOW}[LEAK-DETECTED]${NC} ${source}: ${path}"
-            echo "  - SECRET_PATH"
-            leak_count=$((leak_count + 1))
-            continue
-            ;;
-        esac
-        if ! grep -Iq . "$path"; then
-          continue
-        fi
-        cp "$path" "$tmp"
-        scan_file "$source" "$path" "$tmp"
-      done < <(git ls-files -co --exclude-standard -z)
+      infisical scan --no-git --source "$ROOT" --redact --no-color --report-format=json --report-path="$tmp_report" 2>&1 | tee "$tmp_log"
       ;;
     history)
-      while IFS= read -r path; do
-        [[ -n "$path" ]] || continue
-        if should_skip_audit_path "$path"; then
-          continue
-        fi
-        if git log --all --follow --pretty=format: -- "$path" | head -n 1 >/dev/null 2>&1; then
-          if git log -p --all --no-color -- "$path" >"$tmp" 2>/dev/null; then
-            scan_file "$source" "$path (history)" "$tmp"
-          fi
-        fi
-      done < <(git ls-files)
+      infisical scan --source "$ROOT" --log-opts="--all" --redact --no-color --report-format=json --report-path="$tmp_report" 2>&1 | tee "$tmp_log"
       ;;
   esac
+  status=${PIPESTATUS[0]}
+  set -e
 
-  rm -f "$tmp"
-  trap - RETURN
+  if [[ "$status" -eq 0 ]]; then
+    rm -f "$tmp_log" "$tmp_report"
+    return 0
+  fi
+
+  if [[ "$status" -eq 1 ]]; then
+    echo
+    echo "${RED}[nyra-secret-scan]${NC} suspected secret material found."
+    echo "Remediation:"
+    echo "  1. Remove the secret from the file."
+    echo "  2. Rotate the exposed credential."
+    echo "  3. Store the replacement in Infisical."
+    echo "  4. Re-stage and recommit the sanitized file."
+    rm -f "$tmp_log" "$tmp_report"
+    exit 1
+  fi
+
+  rm -f "$tmp_log" "$tmp_report"
+  return 1
 }
 
 banner
 
-if [[ "$MODE" == "history" ]]; then
-  echo "${YELLOW}[nyra-secret-scan]${NC} history scan is expensive; continuing because it was explicitly requested."
+if [[ "$INSTALL_HOOK" -eq 1 ]]; then
+  install_hook
+  exit 0
 fi
 
+infisical_status=1
+if supports_infisical_scan; then
+  if scan_with_infisical; then
+    infisical_status=0
+    echo "${BLUE}[nyra-secret-scan]${NC} Infisical scan passed; running local fallback rules."
+  else
+    infisical_status=$?
+    echo "${YELLOW}[nyra-secret-scan]${NC} Infisical scan unavailable or failed unexpectedly; falling back to local rules."
+  fi
+else
+  echo "${YELLOW}[nyra-secret-scan]${NC} Infisical scan unavailable; using local fallback rules."
+fi
+
+leak_count=0
+
 case "$MODE" in
-  staged)
-    scan_path_list "staged" "staged"
-    ;;
-  all)
-    scan_path_list "working-tree" "all"
-    ;;
-  history)
-    scan_path_list "history" "history"
-    ;;
+  staged) scan_staged_fallback ;;
+  all) scan_worktree_fallback ;;
+  history) scan_history_fallback ;;
 esac
 
 if [[ "$leak_count" -gt 0 ]]; then

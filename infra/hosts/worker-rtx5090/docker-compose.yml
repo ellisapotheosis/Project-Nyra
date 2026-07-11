@@ -67,12 +67,15 @@ services:
       - LMCACHE_REDIS_HOST=worker-5090-redis
       - LMCACHE_REDIS_PORT=6379
     command: >
-      --model ${VLLM_MODEL:-deepseek-ai/DeepSeek-V3}
+      --model ${VLLM_MODEL:-Qwen/Qwen2.5-Coder-3B-Instruct}
       --host 0.0.0.0
       --port 8000
-      --gpu-memory-utilization 0.95
+      --gpu-memory-utilization ${VLLM_GPU_MEMORY_UTILIZATION:-0.70}
+      --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
       --enable-prefix-caching
+      --enable-chunked-prefill
       --trust-remote-code
+      --enforce-eager
     deploy:
       resources:
         reservations:

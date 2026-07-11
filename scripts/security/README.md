@@ -33,7 +33,43 @@ history scans.
 - blocks commits with likely secret material
 - never prints secret values
 - supports filenames with spaces and staged-only hook runs
-- uses a fallback regex/assignment scanner instead of assuming Infisical scan syntax
+- prefers the real Infisical CLI scan surface when available
+- falls back to a local regex/assignment scanner when Infisical scan is unavailable
+
+### 0b. audit-env-files.sh - Env file inventory
+
+Quick audit of tracked and untracked env-like files.
+
+**Usage**:
+```bash
+./scripts/security/audit-env-files.sh
+```
+
+**Behavior**:
+- lists env-like files with tracked/untracked status
+- flags suspicious assignments without printing secret values
+- helps identify files that should become `.env.example` templates
+
+### 0c. rotate-leaked-secret.sh - Incident checklist helper
+
+Prints the post-leak response checklist for a named secret.
+
+**Usage**:
+```bash
+./scripts/security/rotate-leaked-secret.sh OPENAI_API_KEY /clients/assistant
+```
+
+### Infisical decision map
+
+See [`docs/security/INFISICAL-CAPABILITIES.md`](/home/ellisapotheosis/repos/project-nyra/docs/security/INFISICAL-CAPABILITIES.md) for the repo-level split between:
+
+- secrets management
+- PAM
+- KMS
+- secret scanning
+- gateway access
+
+The local pre-commit scanner stays enabled even when Infisical scanning is available.
 
 ### 1. scan.sh - Security Scanning
 
