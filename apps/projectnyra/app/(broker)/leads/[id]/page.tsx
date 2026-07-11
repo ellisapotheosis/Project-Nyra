@@ -25,17 +25,15 @@ import {
   Fingerprint,
   Tags,
 } from "lucide-react";
+import { useParams } from "next/navigation";
 
 import { crmApi, useApi } from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
 import { Timeline } from "@/components/leads/timeline";
 
-export default function LeadProfilePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = React.use(params);
+export default function LeadProfilePage() {
+  const params = useParams<{ id: string }>();
+  const id = params.id;
 
   const leadApi = useApi(() => crmApi.getLead(id));
   const conversationApi = useApi(() => crmApi.getLeadConversation(id));

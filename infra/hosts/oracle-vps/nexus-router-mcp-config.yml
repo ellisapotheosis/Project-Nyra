@@ -86,10 +86,10 @@ tools:
 # Service registry
 services:
   supabase:
-    url: https://supabase.projectnyra.com
+    url: https://api.projectnyra.com
     type: auth
     description: Authentication & Database
-    health_check: /health
+    health_check: /auth/v1/health
 
   twenty_crm:
     url: https://twenty.projectnyra.com

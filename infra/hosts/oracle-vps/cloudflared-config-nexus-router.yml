@@ -22,7 +22,7 @@ ingress:
         - Bearer ${MCP_GATEWAY_TOKEN}
 
   # Supabase (auth + API)
-  - hostname: supabase.projectnyra.com
+  - hostname: api.projectnyra.com
     service: http://localhost:8000
     originRequest:
       http2Origin: true

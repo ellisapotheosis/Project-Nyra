@@ -1,0 +1,226 @@
+# -------------------------------------------------------------------------
+# PROJECT NYRA - MASTER MERGIFY CONFIGURATION
+# -------------------------------------------------------------------------
+
+queue_rules:
+  # -----------------------------------------------------------------------
+  # 🚨 QUEUE 1: HOTFIX (Priority 1)
+  # Bypasses the main queue for critical fixes. Tested individually.
+  # Interrupts lower-priority queues currently running.
+  # -----------------------------------------------------------------------
+  - name: hotfix-queue
+    priority: high
+    batch_size: 1
+    speculative_checks: 1
+    allow_checks_interruption: true
+    merge_conditions:
+      - check-success = Trivy
+      - check-success = ci/build-nyra
+    merge_method: squash
+    commit_message_template:
+      title: "🚨 HOTFIX: {{ title }} (#{{ number }})"
+      body: |
+        {{ body }}
+        
+        Merged-by: @{{ merged_by }}
+
+  # -----------------------------------------------------------------------
+  # 🚢 QUEUE 2: MAIN PRODUCTION (Priority 2)
+  # Uses dynamic batching and speculative checks to test multiple PRs 
+  # simultaneously without burning hardware/CI limits.
+  # -----------------------------------------------------------------------
+  - name: default-queue
+    priority: medium
+    batch_size:
+      min: 1
+      max: 5
+    speculative_checks: 3
+    merge_conditions:
+      - check-success = Trivy
+      - check-success = ci/build-nyra
+    merge_method: squash
+    commit_message_template:
+      title: "{{ title }} (#{{ number }})"
+      body: |
+        {{ body }}
+        
+        Reviewers: {{ approved_reviews_by | join(', ') }}
+
+  # -----------------------------------------------------------------------
+  # 🤖 QUEUE 3: AUTOMATION & DEPENDENCIES (Priority 3)
+  # Stacks up low-priority bot PRs into massive batches to save CI time.
+  # -----------------------------------------------------------------------
+  - name: bot-queue
+    priority: low
+    batch_size:
+      min: 3
+      max: 10
+    speculative_checks: 1
+    merge_conditions:
+      - check-success = Trivy
+      - check-success = ci/build-nyra
+    merge_method: squash
+
+pull_request_rules:
+  # =======================================================================
+  # 🛡️ 1. MERGE QUEUE ROUTING & PROTECTIONS
+  # =======================================================================
+  
+  - name: 🚨 Route to Hotfix Queue
+    conditions:
+      - base = main
+      - label = priority/critical
+      - "#approved-reviews-by >= 1"
+      - "-changes-requested-reviews-by ~= .*"
+    actions:
+      queue:
+        name: hotfix-queue
+
+  - name: 🚢 Route to Main Queue (Human/Agent Approved)
+    conditions:
+      - base = main
+      - -label = priority/critical
+      - -author ~= ^(dependabot\[bot\]|renovate\[bot\])$
+      # Ensure AI agents (Claude, Codex) cannot self-approve their own PRs to bypass checks
+      - "-approved-reviews-by ~= ^(claude-code|devin-ai)$" 
+      - "#approved-reviews-by >= 1"
+      - "-changes-requested-reviews-by ~= .*"
+    actions:
+      queue:
+        name: default-queue
+
+  - name: 🤖 Route to Bot Queue (Auto-Approve Minor Updates)
+    conditions:
+      - base = main
+      - author ~= ^(dependabot\[bot\]|renovate\[bot\])$
+      - check-success = Trivy
+      - title ~= ^(chore|fix)\(deps\)
+    actions:
+      queue:
+        name: bot-queue
+
+  # =======================================================================
+  # 🧠 2. MONOREPO PATH-BASED ROUTING & CODEOWNERS
+  # Instantly isolates stack components to apply the correct metadata.
+  # =======================================================================
+  
+  - name: 🏷️ Tag & Route Nexus Router (Gateway)
+    conditions:
+      - files ~= ^services/nexus-router/
+    actions:
+      label:
+        add: [ "stack/nexus-router", "core-infrastructure" ]
+
+  - name: 🏷️ Tag & Route Graphiti/Letta (Memory Logic)
+    conditions:
+      - or:
+        - files ~= ^services/letta/
+        - files ~= ^services/graphiti/
+    actions:
+      label:
+        add: [ "stack/memory-core", "vector-db-impact" ]
+
+  - name: 🏷️ Tag & Route Infisical (Secrets)
+    conditions:
+      - files ~= ^config/infisical/
+    actions:
+      label:
+        add: [ "security/secrets-mutation" ]
+      request_reviews:
+        users:
+          - "{{ author }}" # Dynamically flags the author to double-check their secret mappings
+
+  - name: 🏷️ Tag & Route TwentyCRM
+    conditions:
+      - files ~= ^apps/twenty-crm/
+    actions:
+      label:
+        add: [ "stack/crm-engine" ]
+
+  # =======================================================================
+  # 🧹 3. REPOSITORY HYGIENE & AUTOMATION
+  # =======================================================================
+
+  - name: 🔄 Auto-update PR against main
+    conditions:
+      - base = main
+      - -draft
+      - "#commits-behind > 0"
+      - "-conflict"
+    actions:
+      update: {}
+
+  - name: 🗑️ Auto-delete feature branches after merge
+    conditions:
+      - merged
+    actions:
+      delete_head_branch: {}
+
+  - name: 👤 Auto-assign PR author
+    conditions:
+      - -draft
+    actions:
+      assign:
+        users:
+          - "{{ author }}"
+
+  - name: 📝 Enforce Semantic Commit Titles
+    conditions:
+      - -title ~= ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.*\))?: 
+    actions:
+      comment:
+        message: |
+          @{{ author }}, this PR title does not follow Conventional Commits architecture. 
+          Please rename it using the standard `type(scope): message` format (e.g., `feat(nexus): add openrouter failover`).
+      label:
+        add: ["action-required/invalid-title"]
+
+  - name: 🧹 Remove invalid-title label when fixed
+    conditions:
+      - title ~= ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.*\))?: 
+    actions:
+      label:
+        remove: ["action-required/invalid-title"]
+
+  - name: 🔙 Auto-Backport Core Fixes to Staging
+    conditions:
+      - merged
+      - label = backport-to-staging
+    actions:
+      backport:
+        assignees:
+          - "{{ author }}"
+        branches:
+          - staging
+
+  # =======================================================================
+  # 🚦 4. SIZING & QUALITY ASSURANCE 
+  # =======================================================================
+
+  - name: 📏 Label Size: Small
+    conditions:
+      - "#files <= 5"
+      - "+lines <= 50"
+    actions:
+      label:
+        add: ["size/S"]
+
+  - name: 📏 Label Size: Large (Requires Scrutiny)
+    conditions:
+      - or:
+        - "#files > 15"
+        - "+lines > 500"
+    actions:
+      label:
+        add: ["size/L", "warning/heavy-diff"]
+      comment:
+        message: "⚠️ @{{ author }}, this is a massive diff. Consider breaking this down into smaller PRs to prevent logical conflicts in the CRM parsing or routing logic."
+
+  - name: 🚨 Security Alert: Trivy Failed
+    conditions:
+      - check-failure = Trivy
+    actions:
+      label:
+        add: ["security/vulnerability-detected"]
+      comment:
+        message: "🛑 The Trivy pipeline detected vulnerabilities in this branch. The queue will permanently block this PR from merging until the `.sarif` report is addressed."
