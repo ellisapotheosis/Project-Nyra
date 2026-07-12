@@ -63,7 +63,7 @@ KYUTAI_MESH_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.distribute
 
 DEFAULT_PROFILES ?= apps,sync,debug
 
-.PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
+.PHONY: help install test lint validate dev-ready up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
@@ -73,6 +73,7 @@ DEFAULT_PROFILES ?= apps,sync,debug
   oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
   oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
   oracle-mcp-tools-up oracle-mcp-tools-down oracle-mcp-tools-ps \
+  agent-vault-up agent-vault-down agent-vault-ps agent-vault-logs \
   oracle-portainer-up oracle-portainer-down oracle-portainer-ps \
   sync-env sync-env-all \
   up-all down-all cluster-status
@@ -115,6 +116,7 @@ help:
 	@echo "make gitea-up           Start Gitea + Actions"
 	@echo "make twenty-crm-up      Start Twenty CRM"
 	@echo "make verify-paths       Verify Makefile path references exist"
+	@echo "make dev-ready          Validate this checkout for local development"
 	@echo
 	@echo "--- VOICE SETUPS ---"
 	@echo "make voice-3060         Start standalone Unmute on RTX 3060"
@@ -152,6 +154,10 @@ help:
 	@echo "make oracle-ui-factory-up Start UI Factory MCP/tooling containers"
 	@echo "make oracle-mcp-tools-up  Start Oracle MCP containers and Nexus aggregator"
 	@echo "make oracle-portainer-up  Start Oracle Portainer CE + local agent"
+	@echo "make agent-vault-up      Start the self-hosted Infisical / agent-vault stack"
+
+dev-ready:
+	@bash scripts/dev/readiness-check.sh
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="
@@ -322,6 +328,7 @@ oracle-campaign-engine-up:
 # --- AGENT INFRA TARGETS ---
 
 .PHONY: agent-infra-validate agent-secrets-generate agent-secrets-audit oracle-agent-utils-up oracle-agent-utils-down oracle-memory-up oracle-memory-down kyutai-base-3060-up kyutai-mesh-up kyutai-mesh-down kyutai-mesh-check
+.PHONY: infisical-capabilities infisical-scan-staged infisical-pam infisical-gateway infisical-kms
 
 agent-infra-validate:
 	bash scripts/validate-agent-infra.sh
@@ -331,6 +338,21 @@ agent-secrets-generate:
 
 agent-secrets-audit:
 	INFISICAL_ENV=$(AGENT_INFRA_ENV) scripts/infisical/agent-infra-secrets.sh audit
+
+infisical-capabilities:
+	scripts/infisical/capabilities.sh status
+
+infisical-scan-staged:
+	scripts/security/nyra-secret-scan.sh --staged
+
+infisical-pam:
+	scripts/infisical/capabilities.sh pam $(INFISICAL_ARGS)
+
+infisical-gateway:
+	scripts/infisical/capabilities.sh gateway $(INFISICAL_ARGS)
+
+infisical-kms:
+	scripts/infisical/capabilities.sh kms $(INFISICAL_ARGS)
 
 oracle-agent-utils-up:
 	docker --context oracle compose -f $(ORACLE_AGENT_UTILS_COMPOSE) up -d
@@ -406,7 +428,7 @@ swarm-up: .env.swarm
 	else \
 		echo "🚀 Spawning detached Zellij Swarm (nyra-swarm)..."; \
 		set -a; source .env.swarm; set +a; \
-		zellij --layout infra/zellij/nyra-swarm.kdl --session nyra-swarm -d; \
+		zellij --layout infra/configs/zellij/nyra-swarm.kdl --session nyra-swarm -d; \
 		echo "⏳ Waiting 3s for Ghost Layer (llxprt) proxy to stabilize on :8080..."; \
 		sleep 3; \
 	fi
@@ -578,7 +600,7 @@ orchestrator-setup:
 	@echo "📍 [2/4] Verifying critical paths..."
 	@test -d external/llxprt-jefe || (echo "❌ external/llxprt-jefe missing" && exit 1)
 	@test -d external/llxprt-code || (echo "❌ external/llxprt-code missing" && exit 1)
-	@test -f infra/zellij/nyra-orchestrator-mcp.kdl || (echo "❌ infra/zellij/nyra-orchestrator-mcp.kdl missing" && exit 1)
+	@test -f infra/configs/zellij/nyra-orchestrator-mcp.kdl || (echo "❌ infra/configs/zellij/nyra-orchestrator-mcp.kdl missing" && exit 1)
 	@echo "✅ All critical paths verified"
 	@echo ""
 
@@ -601,7 +623,7 @@ orchestrator-daemon-health:
 	@echo "🏥 [4/4] Pre-flight daemon health check..."
 	@echo "  → llxprt-jefe: " && (cd external/llxprt-jefe && ./jefe --help >/dev/null 2>&1 && echo "✅" || echo "⚠️  Check manually")
 	@echo "  → llxprt-code: " && (cd external/llxprt-code && ./code --help >/dev/null 2>&1 && echo "✅" || echo "⚠️  Check manually")
-	@echo "  → Zellij layout: " && (zellij setup --dump-layout infra/zellij/nyra-orchestrator-mcp.kdl >/dev/null 2>&1 && echo "✅" || echo "⚠️  Syntax check: infra/zellij/nyra-orchestrator-mcp.kdl")
+	@echo "  → Zellij layout: " && (zellij setup --dump-layout infra/configs/zellij/nyra-orchestrator-mcp.kdl >/dev/null 2>&1 && echo "✅" || echo "⚠️  Syntax check: infra/configs/zellij/nyra-orchestrator-mcp.kdl")
 	@echo ""
 
 # Full orchestrator bootstrap: secrets → compile → health → launch
@@ -612,7 +634,7 @@ orchestrator-full: orchestrator-setup orchestrator-compile-letta orchestrator-da
 		echo "⚡ Orchestrator session already active. Attaching..."; \
 	else \
 		echo "🌊 Spawning detached Zellij (nyra-orchestrator) with Letta-MCP daemon..."; \
-		zellij --layout infra/zellij/nyra-orchestrator-mcp.kdl --session nyra-orchestrator -d; \
+		zellij --layout infra/configs/zellij/nyra-orchestrator-mcp.kdl --session nyra-orchestrator -d; \
 		sleep 2; \
 		echo "⏳ Waiting 3s for daemon layer (llxprt + Letta-MCP) to stabilize..."; \
 		sleep 3; \
@@ -1019,6 +1041,23 @@ oracle-portainer-down:
 oracle-portainer-ps:
 	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) ps $(ORACLE_PORTAINER_SERVICES)
+
+agent-vault-up:
+	@if docker --context $(ORACLE_CONTEXT) inspect oracle-vps-agent-vault >/dev/null 2>&1; then \
+		docker --context $(ORACLE_CONTEXT) restart oracle-vps-agent-vault; \
+	else \
+		POSTGRES_PASSWORD="$$(docker --context $(ORACLE_CONTEXT) inspect nyra-network-nyra-postgres --format '{{range .Config.Env}}{{println .}}{{end}}' | awk -F= '/^POSTGRES_PASSWORD=/{sub(/^POSTGRES_PASSWORD=/,""); print; exit}')" \
+		  docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_AGENT_UTILS_COMPOSE) --env-file infra/hosts/oracle-vps/.env.agent-vault up -d agent-vault; \
+	fi
+
+agent-vault-down:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_AGENT_UTILS_COMPOSE) --env-file infra/hosts/oracle-vps/.env.oracle --env-file infra/hosts/oracle-vps/.env.agent-vault down agent-vault
+
+agent-vault-ps:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_AGENT_UTILS_COMPOSE) --env-file infra/hosts/oracle-vps/.env.oracle --env-file infra/hosts/oracle-vps/.env.agent-vault ps agent-vault
+
+agent-vault-logs:
+	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_AGENT_UTILS_COMPOSE) --env-file infra/hosts/oracle-vps/.env.oracle --env-file infra/hosts/oracle-vps/.env.agent-vault logs -f agent-vault
 
 wave-stack-status:
 	@echo "=== ORCHESTRATOR ==="

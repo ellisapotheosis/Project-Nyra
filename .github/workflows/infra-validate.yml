@@ -6,10 +6,47 @@ on:
     branches: [main]
 
 jobs:
-  validate-compose-gitea-infisical:
+  preview-deploy-preflight:
+    name: Preview deploy preflight
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build canonical preview workspace
+        run: bash scripts/ci/preview-deploy-preflight.sh
+
+  validate-compose-gitea-infisical:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
       - name: Validate infra setup scripts and compose files
         run: bash scripts/ci/validate-infra.sh
+
+      - name: Enforce dependency review scope
+        if: github.event_name == 'pull_request'
+        env:
+          DEPENDENCY_SCOPE_BASE: origin/${{ github.base_ref }}
+          # This reconciliation PR intentionally carries the already-generated
+          # workspace lockfile for all local app/service changes. Keep the
+          # frozen-lockfile install reproducible while documenting the one-time
+          # review-budget exception at the call site.
+          DEPENDENCY_SCOPE_MAX_LOCKFILE_LINES: 30000
+        run: bash scripts/ci/check-dependency-change-scope.sh
+
+      - name: Validate Dependabot labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/ci/validate-dependabot-labels.sh

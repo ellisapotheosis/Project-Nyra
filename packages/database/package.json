@@ -14,10 +14,10 @@
     "format": "prisma format"
   },
   "dependencies": {
-    "@prisma/client": "^7.4.2"
+    "@prisma/client": "^6.4.0"
   },
   "devDependencies": {
-    "prisma": "^7.4.2",
+    "prisma": "^6.4.0",
     "typescript": "^5.7.0",
     "ts-node": "^10.9.2",
     "@types/node": "^25.5.2"

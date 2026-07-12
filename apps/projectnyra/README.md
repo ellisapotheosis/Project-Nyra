@@ -1,6 +1,10 @@
 # Project Nyra
 
 Canonical product app for `projectnyra.com` and `app.projectnyra.com`.
+Use this app for product routes, broker workflows, and embedded product-admin
+pages. Keep separate control-plane consoles such as `nexus.projectnyra.com`
+out of this app unless they are intentionally embedded links or lightweight
+status panels.
 
 Core surfaces:
 
@@ -23,6 +27,8 @@ Use older app roots as migration sources:
   ideas.
 - `apps/admin`: older operator dashboard, quote, and lead admin ideas.
 - `apps/nexusUI`: separate active control-plane UI linked from this app.
+- `apps/openmemoryUI`: future standalone memory console if OpenMemory becomes
+  a true separate deployable; otherwise keep memory-related panels here.
 - `apps/twenty*`: TwentyCRM bootstrap/integration surfaces, not Project Nyra
   product pages.
 
@@ -67,9 +73,11 @@ routing, but run the Next.js server close to the Oracle-hosted Supabase stack.
 Recommended split:
 
 - `apps/ratehunter/landing`: Cloudflare Pages, public marketing and lead capture.
-- `apps/projectnyra`: Oracle VPS, private full-stack Next.js app behind Cloudflare.
+- `apps/projectnyra`: Cloudflare Pages front end with Oracle-backed API calls.
+- `apps/nexusUI`: standalone Access-gated operator console for Nexus Router and
+  LiteLLM.
 - Supabase: Oracle VPS, exposed only through HTTPS API/auth routes such as
-  `supabase.projectnyra.com`.
+  `api.projectnyra.com/auth/v1`.
 - Postgres: private Docker/network access only; never publish the raw database
   port.
 

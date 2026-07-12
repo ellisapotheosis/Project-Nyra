@@ -4,7 +4,8 @@ import React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { Bot, ChevronDown, ArrowRight } from "lucide-react";
-import { Button, Badge } from "@nyra/ui";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export function RevealHero() {
