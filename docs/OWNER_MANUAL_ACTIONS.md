@@ -38,3 +38,43 @@ curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/a
    `https://projectnyra.cloudflareaccess.com/cdn-cgi/access/callback`
 
 **Effect:** All active CF Access sessions across all apps are invalidated. Users re-login on next visit. The App Launcher will live at `https://projectnyra.cloudflareaccess.com`.
+
+---
+
+## Migrate admin app Prisma client to CF Workers-compatible adapter
+
+**Context:** `apps/admin` uses `prisma-client-js` with a `postgresql` datasource. Standard
+Prisma client includes native binary drivers that don't run in V8 isolates (CF Workers). The
+build succeeds (client is generated at build time), but database calls will fail at runtime.
+
+**Options (choose one):**
+
+**Option A — Prisma Accelerate (HTTP proxy, easiest):**
+
+1. Sign up at [prisma.io/accelerate](https://www.prisma.io/accelerate) and create a project
+2. Replace `DATABASE_URL` with the Accelerate connection string
+3. In `apps/admin/prisma/schema.prisma`, add:
+   ```prisma
+   generator client {
+     provider        = "prisma-client-js"
+     previewFeatures = ["driverAdapters"]
+   }
+   ```
+4. In your DB init code, use `@prisma/adapter-accelerate`
+5. Add `DATABASE_URL` (Accelerate URL) to Infisical `prod` environment
+
+**Option B — Cloudflare D1 (serverless SQLite, no external DB):**
+
+1. Create a D1 database: `wrangler d1 create nyra-admin`
+2. Add to `apps/admin/wrangler.toml`:
+   ```toml
+   [[d1_databases]]
+   binding = "DB"
+   database_name = "nyra-admin"
+   database_id = "<id from above>"
+   ```
+3. Switch Prisma provider to `sqlite` + `@prisma/adapter-d1`
+4. Migrate schema: `wrangler d1 migrations apply nyra-admin`
+
+**Current state:** Build succeeds, app deploys to `admin.projectnyra.com`. Database pages
+(kanban, leads) will error at runtime until one of the above options is implemented.
