@@ -1123,6 +1123,32 @@ Do not manually duplicate hook-owned activation state unless recovering from mis
   - Use `@nyra/integration-adapters` for all 3rd party SDK calls.
   - Follow `docs/ops/WORKER_ROUTING.md` for AI task assignment.
 
-## Development Workflow
+## Evidence-based skill progression
 
-...
+The following progression vectors are derived from recent repository telemetry. They are intentionally limited to recurring `/apps` and `/infra` delivery constraints that have direct evidence.
+
+### 1. Review-budget-aware PR decomposition and change-stack design
+
+**Evidence.** Review-limit feedback recurred across [PR #719](https://github.com/ellisapotheosis/Project-Nyra/pull/719), [PR #726](https://github.com/ellisapotheosis/Project-Nyra/pull/726), and [PR #729](https://github.com/ellisapotheosis/Project-Nyra/pull/729). The pattern makes review capacity a delivery constraint: mixed application, infrastructure, generated, and dependency changes exhaust useful automated review before the highest-risk boundaries receive scrutiny.
+
+**Practice.** Before opening a PR, inventory the proposed diff with `git diff --stat origin/main...HEAD` and `git diff --name-only origin/main...HEAD`, then split it into an ordered stack with one contract or deployment boundary per PR. Keep `/apps`, `/infra`, dependency-lock, and generated changes separate unless their atomicity is demonstrated in the PR description. Use `gh pr view <number> --comments --json files,reviews,comments` to record which files consumed review attention, and put targeted validation commands (for example, `pnpm turbo run typecheck test --filter=<workspace>`) beside the risk each command proves.
+
+**Graduation criteria.** Deliver three consecutive change stacks in which every PR has one stated boundary, reviewers request no scope split, automated review reaches all named high-risk files before its limit, and each dependent PR can be rebased or closed without obscuring the validation result of another.
+
+### 2. Cross-provider release/deployment forensics with Git ref lifecycle correctness
+
+**Evidence.** Deployment and release-readiness friction spans [PR #719](https://github.com/ellisapotheosis/Project-Nyra/pull/719), [PR #722](https://github.com/ellisapotheosis/Project-Nyra/pull/722), [PR #726](https://github.com/ellisapotheosis/Project-Nyra/pull/726), and [PR #729](https://github.com/ellisapotheosis/Project-Nyra/pull/729). The newest failing [workflow run 29195930796](https://github.com/ellisapotheosis/Project-Nyra/actions/runs/29195930796) reports `No ref found for: agent/dev-readiness-infra-boundary-v2`, demonstrating that branch/ref lifecycle is part of deployment correctness. Current telemetry does **not** establish an external Cloudflare root cause, so provider-side causes must remain hypotheses until provider logs prove them.
+
+**Practice.** Build a ref-to-deployment trace before retrying: verify the remote ref with `git ls-remote --heads origin <branch>`, inspect workflow inputs and failing jobs with `gh run view <run-id> --json headBranch,headSha,event,jobs` and `gh run view <run-id> --log-failed`, and correlate the exact SHA with GitHub Actions, Cloudflare Pages, and Vercel deployment records. Reproduce repository-owned gates locally with the affected workspace's `pnpm turbo run build --filter=<workspace>` command. Classify each failure as ref resolution, repository build, provider handoff, or provider execution, and preserve logs for the classification rather than inferring a provider outage from a generic deployment failure.
+
+**Graduation criteria.** Diagnose and document three cross-provider failures with an immutable commit SHA, a verified live remote ref at dispatch time, a correctly identified failure boundary, and a successful rerun or an evidence-backed external escalation; include at least one safe deleted-branch or superseded-stack scenario that fails early with an actionable ref message.
+
+### 3. Resource-aware multi-architecture container build engineering
+
+**Evidence.** `crm-api` container/build failures recur in [PR #719](https://github.com/ellisapotheosis/Project-Nyra/pull/719), [PR #722](https://github.com/ellisapotheosis/Project-Nyra/pull/722), and [PR #726](https://github.com/ellisapotheosis/Project-Nyra/pull/726). In [PR #729](https://github.com/ellisapotheosis/Project-Nyra/pull/729), the `twenty-mcp-jezweb` path adds concrete `SIGKILL`/`ResourceExhausted` memory evidence. This makes peak-memory behavior and architecture-specific build stages first-class correctness constraints, not incidental CI noise.
+
+**Practice.** Reproduce each affected image with BuildKit progress retained, for example `docker buildx build --progress=plain --platform=linux/amd64 -f <Dockerfile> <context>`, then repeat for `linux/arm64` on the intended builder. Capture `docker buildx inspect --bootstrap`, stage timings, cache behavior, and builder/container memory telemetry; isolate dependency installation, compilation, and runtime-copy stages so the peak can be attributed. Use workspace-scoped builds such as `pnpm turbo run build --filter=crm-api` before containerization, prune runtime contents with existing monorepo tooling, and test bounded-memory behavior rather than masking `SIGKILL` by immediately increasing runner size.
+
+**Graduation criteria.** Produce reproducible `linux/amd64` and `linux/arm64` images for `crm-api` and `twenty-mcp-jezweb` on a documented memory budget, with two consecutive cold-cache builds completing without `SIGKILL` or `ResourceExhausted`, recorded peak memory per stage, and runtime smoke checks proving the pruned images start and report healthy.
+
+<!-- TODO: Awaiting further telemetry on closed-issue-derived app/infra skill gaps -->
