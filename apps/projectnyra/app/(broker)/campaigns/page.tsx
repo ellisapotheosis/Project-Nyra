@@ -1,376 +1,302 @@
-"use client";
-
-import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Users,
-  CalendarDays,
-  PhoneCall,
-  Mail,
-  RefreshCw,
-  Home,
-  ShoppingCart,
-  ChevronRight,
-  PhoneMissed,
-  MessageSquare,
-  Plus,
-} from "lucide-react";
 import Link from "next/link";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  GitBranch,
+  Mail,
+  MessageSquare,
+  PauseCircle,
+  PhoneCall,
+  Plus,
+  ShieldCheck,
+  Users,
+  Workflow,
+} from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { campaigns, leads } from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
+
+const campaignMetrics = [
+  ["Enrolled leads", "1,248", "Across active and paused sequences"],
+  ["Active campaigns", "8", "Two require broker review before scale-up"],
+  ["Today's sends", "142", "Email, SMS, and voicemail drops"],
+  ["Reply rate", "18.7%", "Refinance Blitz is outperforming baseline"],
+];
+
+const campaignCards = [
+  {
+    title: "Refinance Blitz",
+    status: "Active",
+    description: "45-day refinance sequence with rate-watch checkpoints.",
+    leads: 342,
+    completion: 62,
+    response: 18.7,
+    gate: "Quiet hours clear",
+    icon: Workflow,
+  },
+  {
+    title: "Home Equity Pro",
+    status: "Completed",
+    description: "30-day HELOC education and equity-access review flow.",
+    leads: 187,
+    completion: 100,
+    response: 22.4,
+    gate: "STOP audit clean",
+    icon: CheckCircle2,
+  },
+  {
+    title: "Purchase Power",
+    status: "Draft",
+    description: "Purchase nurture with agent referral attribution.",
+    leads: 0,
+    completion: 0,
+    response: 0,
+    gate: "Needs consent copy review",
+    icon: GitBranch,
+  },
+  {
+    title: "Past Client Nurture",
+    status: "Active",
+    description: "Annual mortgage review and rate-drop alert surface.",
+    leads: 845,
+    completion: 12,
+    response: 8.2,
+    gate: "CRM segment verified",
+    icon: Users,
+  },
+];
+
+const upcomingSteps = [
+  {
+    time: "Today, 10:30 AM",
+    title: "Missed call plus voicemail drop",
+    description: "John Doe - Refinance Blitz",
+    channel: "Voice",
+    icon: PhoneCall,
+  },
+  {
+    time: "Today, 1:45 PM",
+    title: "Personalized email",
+    description: "Jane Smith - Purchase Power",
+    channel: "Email",
+    icon: Mail,
+  },
+  {
+    time: "Tomorrow, 9:15 AM",
+    title: "SMS follow-up",
+    description: "Robert Brown - Home Equity Pro",
+    channel: "SMS",
+    icon: MessageSquare,
+  },
+];
+
+function statusTone(status: string) {
+  if (status === "Active") return "bg-turquoise-500/15 text-turquoise-300";
+  if (status === "Draft") return "bg-pink-500/15 text-pink-300";
+  return "bg-indigo-500/15 text-indigo-300";
+}
 
 export default function CampaignDashboard() {
+  const pausedLeads = leads.filter((lead) => lead.campaignStatus === "PAUSED");
+
   return (
-    <div className="flex flex-col p-8 bg-slate-50 min-h-screen space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-end">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 lg:px-8">
+      <section className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-            Campaign Dashboard
+          <div className="flex items-center gap-2 text-turquoise-400">
+            <Workflow className="size-4" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em]">
+              Campaign Control
+            </span>
+          </div>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+            Campaigns
           </h1>
-          <p className="text-slate-500 mt-1">
-            Manage your mortgage lead drip campaigns and nurturing flows.
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+            Inspect Nyra-owned campaign logic, channel gates, reply behavior,
+            pause state, and execution visibility without forcing operators into
+            raw workflow JSON.
           </p>
         </div>
-        <div className="flex space-x-3">
-          <Button variant="outline" className="bg-white">
-            Export Data
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="gap-2">
+            <CalendarDays className="size-4" />
+            Export run log
           </Button>
           <Link href="/campaigns/builder">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-              <Plus className="mr-2 h-4 w-4" />
-              New Campaign
+            <Button size="sm" className="gap-2">
+              <Plus className="size-4" />
+              New campaign
             </Button>
           </Link>
         </div>
-      </div>
+      </section>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Leads"
-          value="1,248"
-          trend="+12.4%"
-          trendUp={true}
-          icon={<Users className="h-5 w-5 text-blue-600" />}
-          iconBg="bg-blue-100"
-        />
-        <StatCard
-          title="Active Campaigns"
-          value="8"
-          trend=""
-          trendUp={true}
-          icon={<CalendarDays className="h-5 w-5 text-purple-600" />}
-          iconBg="bg-purple-100"
-        />
-        <StatCard
-          title="Today's Calls"
-          value="142"
-          trend=""
-          trendUp={true}
-          icon={<PhoneCall className="h-5 w-5 text-green-600" />}
-          iconBg="bg-green-100"
-        />
-        <StatCard
-          title="Emails Sent"
-          value="1,842"
-          trend=""
-          trendUp={true}
-          icon={<Mail className="h-5 w-5 text-red-600" />}
-          iconBg="bg-red-100"
-        />
-      </div>
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {campaignMetrics.map(([title, value, detail]) => (
+          <Card key={title} className="border-border/40 bg-card/40">
+            <CardHeader>
+              <CardTitle className="text-sm text-muted-foreground">
+                {title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold">{value}</p>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                {detail}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
 
-      {/* Campaigns Overview */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-slate-900">
-            Your Campaigns
-          </h2>
-          <Button variant="link" className="text-blue-600 pr-0">
-            View All <ChevronRight className="ml-1 h-4 w-4" />
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <CampaignCard
-            title="Refinance Blitz"
-            status="Active"
-            description="45-day drip for refinance leads"
-            icon={<RefreshCw className="h-5 w-5 text-purple-600" />}
-            iconBg="bg-purple-100"
-            leads={342}
-            completion={62}
-            response={18.7}
-            statusColor="bg-blue-100 text-blue-800"
-          />
-          <CampaignCard
-            title="Home Equity Pro"
-            status="Completed"
-            description="30-day sequence for HELOC leads"
-            icon={<Home className="h-5 w-5 text-green-600" />}
-            iconBg="bg-green-100"
-            leads={187}
-            completion={100}
-            response={22.4}
-            statusColor="bg-green-100 text-green-800"
-          />
-          <CampaignCard
-            title="Purchase Power"
-            status="Draft"
-            description="40-day campaign for purchase leads"
-            icon={<ShoppingCart className="h-5 w-5 text-yellow-600" />}
-            iconBg="bg-yellow-100"
-            leads={0}
-            completion={0}
-            response={0}
-            statusColor="bg-yellow-100 text-yellow-800"
-          />
-          <CampaignCard
-            title="Past Client Nurture"
-            status="Active"
-            description="Annual review and rate drop alerts for funded clients"
-            icon={<Users className="h-5 w-5 text-indigo-600" />}
-            iconBg="bg-indigo-100"
-            leads={845}
-            completion={12}
-            response={8.2}
-            statusColor="bg-blue-100 text-blue-800"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Leads */}
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <CardTitle className="text-lg">Recent Leads</CardTitle>
-            <p className="text-sm text-slate-500">
-              Leads added in the last 24 hours
-            </p>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ul className="divide-y divide-slate-100">
-              <LeadListItem
-                name="John Doe"
-                initials="JD"
-                status="New"
-                statusColor="bg-blue-100 text-blue-800"
-                detail="Refinance - $325,000 loan"
-                icon={<Home className="h-3 w-3 mr-1" />}
-                color="bg-blue-500"
-              />
-              <LeadListItem
-                name="Sarah Smith"
-                initials="SS"
-                status="Purchase"
-                statusColor="bg-purple-100 text-purple-800"
-                detail="sarah@example.com"
-                icon={<Mail className="h-3 w-3 mr-1" />}
-                color="bg-purple-500"
-              />
-              <LeadListItem
-                name="Mike Johnson"
-                initials="MJ"
-                status="Contacted"
-                statusColor="bg-orange-100 text-orange-800"
-                detail="(555) 123-4567"
-                icon={<PhoneCall className="h-3 w-3 mr-1" />}
-                color="bg-orange-500"
-              />
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Campaign Timeline */}
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader className="border-b border-slate-100 pb-4">
-            <CardTitle className="text-lg">Campaign Timeline</CardTitle>
-            <p className="text-sm text-slate-500">
-              Upcoming automated communications
-            </p>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="relative pl-6 border-l-2 border-indigo-100 space-y-8">
-              <TimelineItem
-                time="Today, 10:30 AM"
-                title="Missed Call + Voicemail Drop"
-                description="John Doe - Refinance Blitz Campaign"
-                channel="Twilio Voice"
-                channelColor="bg-blue-100 text-blue-800"
-                icon={<PhoneMissed className="h-4 w-4 text-white" />}
-                iconBg="bg-indigo-500"
-              />
-              <TimelineItem
-                time="Today, 1:45 PM"
-                title="Personalized Email"
-                description="Sarah Smith - Purchase Power Campaign"
-                channel="Gmail"
-                channelColor="bg-red-100 text-red-800"
-                icon={<Mail className="h-4 w-4 text-white" />}
-                iconBg="bg-sky-500"
-              />
-              <TimelineItem
-                time="Tomorrow, 9:15 AM"
-                title="SMS Follow-up"
-                description="Mike Johnson - Cash Out Campaign"
-                channel="Twilio SMS"
-                channelColor="bg-blue-100 text-blue-800"
-                icon={<MessageSquare className="h-4 w-4 text-white" />}
-                iconBg="bg-blue-500"
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function StatCard({ title, value, trend, trendUp, icon, iconBg }: any) {
-  return (
-    <Card className="shadow-sm border-slate-200">
-      <CardContent className="p-6 flex items-center">
-        <div className={`p-3 rounded-lg ${iconBg} mr-4`}>{icon}</div>
-        <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <div className="flex items-baseline space-x-2 mt-1">
-            <h3 className="text-2xl font-bold text-slate-900">{value}</h3>
-            {trend && (
-              <span
-                className={`text-sm font-medium ${trendUp ? "text-green-600" : "text-red-600"}`}
+      <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
+        <div className="space-y-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-muted-foreground">
+              Campaign cards
+            </h2>
+            <Badge variant="outline">{campaigns.length} seed contracts</Badge>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {campaignCards.map((campaign) => (
+              <Card
+                key={campaign.title}
+                className="overflow-hidden border-border/40 bg-card/40"
               >
-                {trend}
-              </span>
-            )}
+                <CardHeader className="border-b border-border/30">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <Badge className={statusTone(campaign.status)}>
+                        {campaign.status}
+                      </Badge>
+                      <CardTitle className="mt-3 text-xl">
+                        {campaign.title}
+                      </CardTitle>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                        {campaign.description}
+                      </p>
+                    </div>
+                    <span className="grid size-11 place-items-center rounded-xl border border-border/40 bg-background/50 text-primary">
+                      <campaign.icon className="size-5" />
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-5 p-5">
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Leads</p>
+                      <p className="mt-1 font-semibold">{campaign.leads}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Completion</p>
+                      <p className="mt-1 font-semibold">
+                        {campaign.completion}%
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Response</p>
+                      <p className="mt-1 font-semibold">{campaign.response}%</p>
+                    </div>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-background/60">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-turquoise-400"
+                      style={{ width: `${campaign.completion}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-border/40 bg-background/40 p-3">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <ShieldCheck className="size-4 text-turquoise-400" />
+                      {campaign.gate}
+                    </div>
+                    <Link
+                      href="/campaigns/builder/1"
+                      className={cn(
+                        buttonVariants({ variant: "link", size: "sm" }),
+                        "h-auto p-0 text-primary"
+                      )}
+                    >
+                      Inspect
+                      <ArrowRight className="ml-1 size-3" />
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
 
-function CampaignCard({
-  title,
-  status,
-  description,
-  icon,
-  iconBg,
-  leads,
-  completion,
-  response,
-  statusColor,
-}: any) {
-  return (
-    <Card className="shadow-sm border-slate-200 hover:shadow-md transition-shadow group overflow-hidden">
-      <div className="p-5 border-b border-slate-100">
-        <div className="flex justify-between items-start mb-2">
-          <div>
-            <Badge
-              className={`${statusColor} hover:${statusColor} border-none font-semibold px-2.5 py-0.5 rounded-full`}
-            >
-              {status}
-            </Badge>
-            <h3 className="mt-3 text-lg font-bold text-slate-900">{title}</h3>
-          </div>
-          <div className={`p-2 rounded-lg ${iconBg}`}>{icon}</div>
-        </div>
-        <p className="text-sm text-slate-500">{description}</p>
-      </div>
-      <div className="bg-slate-50 p-5">
-        <div className="flex justify-between text-sm mb-3">
-          <div>
-            <p className="text-slate-500">Leads</p>
-            <p className="font-semibold text-slate-900">{leads}</p>
-          </div>
-          <div>
-            <p className="text-slate-500">Completion</p>
-            <p className="font-semibold text-slate-900">{completion}%</p>
-          </div>
-          <div>
-            <p className="text-slate-500">Response</p>
-            <p className="font-semibold text-slate-900">{response}%</p>
-          </div>
-        </div>
-        <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-          <div
-            className="bg-blue-600 h-1.5 rounded-full transition-all duration-500"
-            style={{ width: `${completion}%` }}
-          />
-        </div>
-      </div>
-    </Card>
-  );
-}
+        <aside className="space-y-4">
+          <Card className="border-border/40 bg-card/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+                <PauseCircle className="size-4 text-pink-400" />
+                Paused by reply
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {pausedLeads.map((lead) => (
+                <div
+                  key={lead.id}
+                  className="rounded-xl border border-pink-500/20 bg-pink-500/5 p-3"
+                >
+                  <p className="text-sm font-semibold">
+                    {lead.firstName} {lead.lastName}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    {lead.nextTouch}. Review before resuming automation.
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
 
-function LeadListItem({
-  name,
-  initials,
-  status,
-  statusColor,
-  detail,
-  icon,
-  color,
-}: any) {
-  return (
-    <li className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
-      <div className="flex items-center">
-        <div
-          className={`h-10 w-10 rounded-full ${color} flex items-center justify-center text-white font-bold text-sm`}
-        >
-          {initials}
-        </div>
-        <div className="ml-4">
-          <div className="flex items-center">
-            <h4 className="text-sm font-semibold text-slate-900">{name}</h4>
-            <Badge
-              className={`ml-2 border-none rounded-full px-2 py-0.5 text-xs font-medium ${statusColor}`}
-            >
-              {status}
-            </Badge>
-          </div>
-          <div className="flex items-center text-sm text-slate-500 mt-1">
-            {icon}
-            <span>{detail}</span>
-          </div>
-        </div>
-      </div>
-      <Button variant="outline" size="sm" className="text-xs">
-        Assign
-      </Button>
-    </li>
-  );
-}
+          <Card className="border-border/40 bg-card/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-muted-foreground">
+                <Clock className="size-4 text-indigo-400" />
+                Execution timeline
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {upcomingSteps.map((step) => (
+                <div key={step.title} className="flex gap-3">
+                  <span className="mt-1 grid size-9 shrink-0 place-items-center rounded-xl border border-border/40 bg-background/50 text-primary">
+                    <step.icon className="size-4" />
+                  </span>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+                      {step.time} · {step.channel}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold">{step.title}</p>
+                    <p className="text-xs leading-5 text-muted-foreground">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
 
-function TimelineItem({
-  time,
-  title,
-  description,
-  channel,
-  channelColor,
-  icon,
-  iconBg,
-}: any) {
-  return (
-    <div className="relative">
-      <div
-        className={`absolute -left-[35px] mt-1 h-6 w-6 rounded-full border-4 border-white ${iconBg} flex items-center justify-center shadow-sm`}
-      >
-        {/* We use a smaller icon or just a colored dot. Here we can use the passed icon if we shrink it, but a dot is cleaner for timelines. Let's use the icon. */}
-        <div className="scale-[0.6]">{icon}</div>
-      </div>
-      <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-          {time}
-        </p>
-        <h4 className="text-sm font-bold text-slate-900 mt-1">{title}</h4>
-        <p className="text-sm text-slate-600 mt-0.5">{description}</p>
-        <Badge
-          className={`mt-2 border-none rounded-full px-2 py-0.5 text-xs font-medium ${channelColor}`}
-        >
-          {channel}
-        </Badge>
-      </div>
-    </div>
+          <Card className="border-border/40 bg-card/40">
+            <CardContent className="flex items-start gap-3 p-4">
+              <AlertTriangle className="mt-0.5 size-5 text-pink-400" />
+              <p className="text-sm leading-6 text-muted-foreground">
+                Campaign controls shown here represent Nyra-owned state. Vendor
+                execution systems remain implementation details behind service
+                boundaries.
+              </p>
+            </CardContent>
+          </Card>
+        </aside>
+      </section>
+    </main>
   );
 }
