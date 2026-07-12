@@ -1125,7 +1125,7 @@ Do not manually duplicate hook-owned activation state unless recovering from mis
 
 ## Evidence-based skill progression
 
-The following progression vectors are derived from recent repository telemetry. They are intentionally limited to recurring `/apps` and `/infra` delivery constraints that have direct evidence.
+The following progression vectors are derived from recent repository telemetry. They are intentionally limited to recurring `/apps` and `/infra` delivery constraints that have direct evidence. Here, a **boundary** is an independently reviewable contract or deployment unit, such as one API contract change separated from its infrastructure rollout.
 
 ### 1. Review-budget-aware PR decomposition and change-stack design
 
@@ -1147,8 +1147,10 @@ The following progression vectors are derived from recent repository telemetry. 
 
 **Evidence.** `crm-api` container/build failures recur in [PR #719](https://github.com/ellisapotheosis/Project-Nyra/pull/719), [PR #722](https://github.com/ellisapotheosis/Project-Nyra/pull/722), and [PR #726](https://github.com/ellisapotheosis/Project-Nyra/pull/726). In [PR #729](https://github.com/ellisapotheosis/Project-Nyra/pull/729), the `twenty-mcp-jezweb` path adds concrete `SIGKILL`/`ResourceExhausted` memory evidence. This makes peak-memory behavior and architecture-specific build stages first-class correctness constraints, not incidental CI noise.
 
-**Practice.** Reproduce each affected image with BuildKit progress retained, for example `docker buildx build --progress=plain --platform=linux/amd64 -f <Dockerfile> <context>`, then repeat for `linux/arm64` on the intended builder. Capture `docker buildx inspect --bootstrap`, stage timings, cache behavior, and builder/container memory telemetry; isolate dependency installation, compilation, and runtime-copy stages so the peak can be attributed. Use workspace-scoped builds such as `pnpm turbo run build --filter=crm-api` before containerization, prune runtime contents with existing monorepo tooling, and test bounded-memory behavior rather than masking `SIGKILL` by immediately increasing runner size.
+**Practice.** Reproduce each affected image with BuildKit progress retained, for example `docker buildx build --progress=plain --platform=linux/amd64 -f <Dockerfile> <context>`, then repeat for `linux/arm64` on the intended builder. Capture `docker buildx inspect --bootstrap`, stage timings, cache behavior, and builder/container memory telemetry; isolate dependency installation, compilation, and runtime-copy stages so the peak can be attributed. Use workspace-scoped builds such as `pnpm turbo run build --filter=crm-api` before containerization, prune runtime contents with existing monorepo tooling, and test bounded-memory behavior rather than masking `SIGKILL` by immediately increasing runner size. Apply these `crm-api` and `twenty-mcp-jezweb` drills to another service or workspace only when equivalent telemetry demonstrates the same failure pattern there.
 
 **Graduation criteria.** Produce reproducible `linux/amd64` and `linux/arm64` images for `crm-api` and `twenty-mcp-jezweb` on a documented memory budget, with two consecutive cold-cache builds completing without `SIGKILL` or `ResourceExhausted`, recorded peak memory per stage, and runtime smoke checks proving the pruned images start and report healthy.
+
+Close the telemetry gap below only when at least one closed issue or incident postmortem corroborates a recurring PR pattern.
 
 <!-- TODO: Awaiting further telemetry on closed-issue-derived app/infra skill gaps -->
