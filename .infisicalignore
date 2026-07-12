@@ -1,0 +1,2 @@
+# Cloudflare Access application UUIDs are public identifiers, not credentials.
+infra/cloudflare/desired-state/exposure-matrix.yml:generic-api-key:106
