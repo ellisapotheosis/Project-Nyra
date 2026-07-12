@@ -1,0 +1,373 @@
+# Caddy Reverse Proxy Configuration — Oracle VPS
+# Purpose: Single entry point for all services via Tailscale mesh
+# Binding: 100.64.0.3:443 (Tailscale IP, HTTPS only, no HTTP)
+# TLS: Automatic certificates via ACME (LetsEncrypt or internal CA)
+# DNS: MagicDNS (trex-fiordland.ts.net suffix)
+
+# Global settings
+{
+	admin off
+	on_demand_tls {
+		ask http://localhost:2019/caddy/admin/api/config
+	}
+	log default {
+		output file /var/log/caddy/access.log {
+			roll_size 100mb
+			roll_keep 5
+		}
+		level info
+	}
+}
+
+# ============================================================================
+# PUBLIC-FACING APPS (Cloudflare Tunneled, optionally Access-gated)
+# ============================================================================
+
+# Main broker/customer webapp
+app.projectnyra.com {
+	reverse_proxy localhost:3002 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+}
+
+# CRM UI (Twenty)
+crm.projectnyra.com, twenty.projectnyra.com {
+	reverse_proxy localhost:3020 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+}
+
+# Webhook relay (n8n public endpoint)
+hooks.projectnyra.com {
+	reverse_proxy localhost:5678 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+	log {
+		level debug
+	}
+}
+
+# ============================================================================
+# PRIVATE INTERNAL SERVICES (Tailscale Mesh Only)
+# Access these from any device on the tailnet without port exposure
+# ============================================================================
+
+# --- MCP Servers (Isolated via separate hostnames) ---
+
+# Letta Memory/Conversation System
+letta-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8284 {
+		header_up X-Forwarded-Proto https
+	}
+	log {
+		level debug
+	}
+}
+
+# Twenty CRM MCP Bridge
+twenty-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8400 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Codebase Index Search
+codebase-index-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8778 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Git Operations MCP
+git-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8773 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Firecrawl Web Scraping
+firecrawl-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8772 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Infisical Secrets MCP
+infisical-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8766 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Magic UI Components
+magicui-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8768 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Paperclip Document Processing
+paperclip-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8767 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# shadcn Component Library
+shadcn-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8769 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Sequential Thinking/Reasoning
+sequential-thinking-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8770 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Playwright Browser Automation
+playwright-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8771 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Tavily Search Integration
+tavily-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8775 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Next.js DevTools
+next-devtools-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8774 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# WCGW Web Components
+wcgw-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8776 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Git Ingest
+gitingest-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8777 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# OpenMemory Integration
+openmemory-mcp.trex-fiordland.ts.net {
+	reverse_proxy localhost:8765 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# --- Core APIs ---
+
+# Quote Lending Engine
+quote-api.trex-fiordland.ts.net {
+	reverse_proxy localhost:7070 {
+		header_up X-Forwarded-Proto https
+	}
+	log {
+		level info
+	}
+}
+
+# CRM Backend API
+crm-api.trex-fiordland.ts.net {
+	reverse_proxy localhost:4001 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+}
+
+# Nexus LLM Router
+nexus.trex-fiordland.ts.net {
+	reverse_proxy localhost:6000 {
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-For {http.request.remote.host}
+	}
+	log {
+		level debug
+	}
+}
+
+# LiteLLM Model Proxy
+litellm.trex-fiordland.ts.net {
+	reverse_proxy localhost:4000 {
+		header_up X-Forwarded-Proto https
+	}
+	log {
+		level debug
+	}
+}
+
+# --- Memory & State Management ---
+
+# Letta Conversation Memory
+letta.trex-fiordland.ts.net {
+	reverse_proxy localhost:8283 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Mem0 Enterprise Memory
+mem0.trex-fiordland.ts.net {
+	reverse_proxy localhost:5001 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Redis Cache
+redis.trex-fiordland.ts.net {
+	reverse_proxy localhost:6379 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# --- CRM & Data ---
+
+# Twenty CRM Interface
+twenty-crm.trex-fiordland.ts.net {
+	reverse_proxy localhost:3020 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+}
+
+# Twenty Database (via Supabase)
+twenty-db.trex-fiordland.ts.net {
+	reverse_proxy localhost:5433 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Supabase Kong API Gateway
+supabase-kong.trex-fiordland.ts.net {
+	reverse_proxy localhost:8000 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+}
+
+# --- Observability & Monitoring ---
+
+# Prometheus Metrics
+prometheus-oracle.trex-fiordland.ts.net {
+	reverse_proxy localhost:9090 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Grafana Dashboards
+grafana-oracle.trex-fiordland.ts.net {
+	reverse_proxy localhost:3003 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+}
+
+# Loki Log Aggregation
+loki-oracle.trex-fiordland.ts.net {
+	reverse_proxy localhost:3100 {
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# --- Workflow & Automation ---
+
+# n8n Workflow Automation
+n8n.trex-fiordland.ts.net {
+	reverse_proxy localhost:5678 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+	log {
+		level info
+	}
+}
+
+# ActivePieces Integration Automation
+activepieces.trex-fiordland.ts.net {
+	reverse_proxy localhost:8080 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+}
+
+# --- Applications & UIs ---
+
+# Main Webapp
+webapp.trex-fiordland.ts.net {
+	reverse_proxy localhost:3002 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+}
+
+# --- Self-Hosted Infisical ---
+
+# Infisical Web UI + API
+infisical.trex-fiordland.ts.net {
+	reverse_proxy 100.64.0.3:8200 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+	log {
+		level info
+	}
+}
+
+# --- Credential & Security ---
+
+# Agent Vault (Credential Proxy for AI Agents)
+agent-vault.trex-fiordland.ts.net {
+	reverse_proxy localhost:14321 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+	log {
+		level info
+	}
+}
+
+# --- Git & Source Control ---
+
+# Gitea Git Server
+gitea.trex-fiordland.ts.net {
+	reverse_proxy localhost:3000 {
+		header_up X-Forwarded-For {http.request.remote.host}
+		header_up X-Forwarded-Proto https
+		header_up X-Forwarded-Host {http.request.host}
+	}
+}
+
+# --- Health & Heartbeat ---
+
+# Simple health endpoint for monitoring
+localhost:2019 {
+	respond /health "OK" 200
+}
