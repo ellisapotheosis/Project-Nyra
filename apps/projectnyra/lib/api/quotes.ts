@@ -14,6 +14,21 @@ export interface QuoteRequest {
   include_schedule?: boolean;
 }
 
+export type QuoteAssumptions = Record<string, unknown>;
+
+export type AmortizationScheduleRow = Record<string, number | string>;
+
+export interface LoanTypeInfo {
+  id?: string;
+  name?: string;
+  type?: LoanType | string;
+  description?: string;
+  min_credit_score?: number;
+  max_ltv?: number;
+  min_down_payment_percent?: number;
+  metadata?: Record<string, unknown>;
+}
+
 export interface QuoteSummary {
   quote_id: string;
   periodic_payment_piti: number;
@@ -25,15 +40,15 @@ export interface QuoteSummary {
   financed_amount: number;
   apr: number;
   ltv: number;
-  assumptions: any;
+  assumptions: QuoteAssumptions;
 }
 
 export interface QuoteResponse {
   quote_id: string;
   inputs: QuoteRequest;
   summary: QuoteSummary;
-  schedule?: any[];
-  assumptions: any;
+  schedule?: AmortizationScheduleRow[];
+  assumptions: QuoteAssumptions;
 }
 
 export interface ComparisonResponse {
@@ -47,7 +62,7 @@ export interface ComparisonResponse {
       total_paid?: number;
       upfront_fees?: number;
       financed_amount?: number;
-      summary?: any;
+      summary?: QuoteSummary;
     }
   >;
   property_value: number;
@@ -95,8 +110,11 @@ export interface CanonicalQuoteResponse {
  * Quote API Client (Deterministic Mortgage Math - Python/FastAPI)
  */
 const QUOTE_API_URL =
-  typeof window === "undefined" ? serviceConfig.quoteApiUrl || "http://localhost:7070" : "";
-const QUOTE_API_SECRET = typeof window === "undefined" ? serviceConfig.quoteApiSecret : "";
+  typeof window === "undefined"
+    ? serviceConfig.quoteApiUrl || "http://localhost:7070"
+    : "";
+const QUOTE_API_SECRET =
+  typeof window === "undefined" ? serviceConfig.quoteApiSecret : "";
 const isBrowser = typeof window !== "undefined";
 const quotePath = (path: string) => (isBrowser ? `/api${path}` : path);
 
@@ -109,7 +127,8 @@ export const quoteApi = {
   /**
    * Get available loan types and their characteristics.
    */
-  getLoanTypes: () => client.get<{ loan_types: any[] }>(quotePath("/quote/loan-types")),
+  getLoanTypes: () =>
+    client.get<{ loan_types: LoanTypeInfo[] }>(quotePath("/quote/loan-types")),
 
   /**
    * Generate the canonical Project Nyra three-option quote shape.
@@ -145,5 +164,8 @@ export const quoteApi = {
    * Compare all loan types for the same property/borrower.
    */
   compareLoanTypes: (req: QuoteRequest) =>
-    client.post<ComparisonResponse>(quotePath("/quote/compare-loan-types"), req),
+    client.post<ComparisonResponse>(
+      quotePath("/quote/compare-loan-types"),
+      req
+    ),
 };

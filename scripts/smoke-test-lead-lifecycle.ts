@@ -1,106 +1,482 @@
-import fetch from 'node-fetch';
-import { TwentyCRMClient } from '@nyra/crm-client';
-import dotenv from 'dotenv';
+import { fileURLToPath } from "node:url";
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 
-dotenv.config();
+import {
+  InMemoryLeadIngestionStore,
+  LeadIngestionService,
+  type RawLeadPayload,
+} from "../services/lead-ingestion/src/index.ts";
 
-const CRM_API_URL = process.env.CRM_API_URL || 'http://localhost:4001';
-const CRM_API_KEY = process.env.CRM_API_KEY;
-const TWENTY_CRM_URL = process.env.TWENTY_CRM_URL || 'http://localhost:3000';
-const TWENTY_CRM_API_KEY = process.env.TWENTY_CRM_API_KEY;
+type FetchLike = typeof fetch;
 
-async function smokeTest() {
-  console.log('🚀 Starting Lead Lifecycle Smoke Test...');
+export type LeadLifecycleSmokeOptions = {
+  mode: "dry-run" | "live";
+  crmApiUrl: string;
+  crmApiKey?: string;
+  reportPath?: string;
+  now?: Date;
+  fetchImpl?: FetchLike;
+  log?: Pick<Console, "log" | "warn" | "error">;
+};
 
-  const client = new TwentyCRMClient({
-    endpoint: `${TWENTY_CRM_URL.replace(/\/$/, '')}/graphql`,
-    apiKey: TWENTY_CRM_API_KEY || ''
-  });
-
-  // 1. Ingest a Lead
-  console.log('📥 1. Ingesting test lead...');
-  const testLead = {
-    firstName: 'Smoke',
-    lastName: 'Test',
-    email: `smoke.test.${Date.now()}@example.com`,
-    phone: '5551234567',
-    loanPurpose: 'PURCHASE',
-    loanAmount: 450000,
-    propertyState: 'CA',
-    source: 'SMOKE_TEST'
+export type LeadLifecycleSmokeReport = {
+  schemaVersion: 1;
+  mode: LeadLifecycleSmokeOptions["mode"];
+  status: "passed" | "failed";
+  startedAt: string;
+  completedAt: string;
+  crmApiUrl: string;
+  traceId?: unknown;
+  lead: unknown;
+  crmWritePlan: {
+    leadStage: unknown;
+    campaignStatus: unknown;
+    campaignEligible: boolean;
+    auditEventCount: number;
   };
+  steps: Array<{
+    name: string;
+    status: "passed" | "skipped" | "failed";
+    detail?: unknown;
+  }>;
+};
 
-  const ingestRes = await fetch(`${CRM_API_URL}/api/leads`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-crm-api-key': CRM_API_KEY || ''
+type CrmWritePlanResponse = {
+  lead?: {
+    id?: string;
+    source?: string;
+  };
+  campaignEnrollment?: unknown;
+  auditEvents?: unknown[];
+};
+
+const DEFAULT_CRM_API_URL = "http://localhost:4001";
+const DEFAULT_CAMPAIGN_ID = "smoke-lead-lifecycle";
+
+export function buildSmokeLeadPayload(now = new Date()): RawLeadPayload {
+  const stamp = now
+    .toISOString()
+    .replace(/[-:.TZ]/g, "")
+    .slice(0, 14);
+
+  return {
+    externalId: `nyra-smoke-${stamp}`,
+    firstName: "Smoke",
+    lastName: "Lead",
+    email: `smoke.lead.${stamp}@example.com`,
+    phone: "+15551234567",
+    source: "SMOKE_TEST",
+    consentEmail: true,
+    consentSms: true,
+    consentVoice: false,
+    campaignId: DEFAULT_CAMPAIGN_ID,
+    loanPurpose: "PURCHASE",
+    loanAmount: 450000,
+    propertyState: "CA",
+    metadata: {
+      smokeTest: true,
+      traceId: `lead-lifecycle-${stamp}`,
+      expectedPath: "lead-ingestion->crm-api->twenty",
     },
-    body: JSON.stringify(testLead)
-  });
+  };
+}
 
-  if (!ingestRes.ok) {
-    const error = await ingestRes.text();
-    console.error('❌ Ingestion failed:', error);
-    return;
+export function redactForLog(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => redactForLog(item));
   }
 
-  const ingestData = await ingestRes.json();
-  console.log('✅ Ingestion success:', ingestData);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, item]) => {
+        if (isSensitiveKey(key)) {
+          return [key, redactSensitiveScalar(item)];
+        }
 
-  const { personId, mortgageLeadId } = ingestData;
+        if (isPublicTrackingKey(key)) {
+          return [key, item];
+        }
 
-  // 2. Verify in CRM
-  console.log('🔍 2. Verifying record in Twenty CRM...');
-  // Wait a moment for n8n/async processes if any
-  await new Promise(r => setTimeout(r, 2000));
+        return [key, redactForLog(item)];
+      })
+    );
+  }
+
+  return redactObservableScalar(value);
+}
+
+export function getRequiredLiveEnv(options: { crmApiKey?: string }): string[] {
+  return options.crmApiKey ? [] : ["CRM_API_KEY"];
+}
+
+export async function runLeadLifecycleSmoke(
+  options: LeadLifecycleSmokeOptions
+): Promise<void> {
+  const log = options.log ?? console;
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const now = options.now ?? new Date();
+  const crmApiUrl = trimTrailingSlash(options.crmApiUrl);
+  const rawLead = buildSmokeLeadPayload(now);
+  const ingestionService = new LeadIngestionService({
+    store: new InMemoryLeadIngestionStore(),
+    now: () => now,
+    idFactory: () => buildDeterministicSmokeUuid(now),
+  });
+  const ingestionResult = await ingestionService.ingest(rawLead);
+  const steps: LeadLifecycleSmokeReport["steps"] = [
+    {
+      name: "lead-ingestion.normalize-and-plan",
+      status: "passed",
+      detail: {
+        dedupeOutcome: ingestionResult.dedupeOutcome,
+        campaignEligibility: ingestionResult.campaignEligibility,
+      },
+    },
+  ];
+  let reportStatus: LeadLifecycleSmokeReport["status"] = "passed";
+
+  log.log("Lead lifecycle smoke preflight", {
+    mode: options.mode,
+    crmApiUrl,
+    lead: redactForLog({
+      externalId: rawLead.externalId,
+      email: rawLead.email,
+      phone: rawLead.phone,
+      source: rawLead.source,
+      campaignId: rawLead.campaignId,
+      traceId: rawLead.metadata?.traceId,
+    }),
+    crmWritePlan: {
+      leadStage: ingestionResult.crmWritePlan.lead.stage,
+      campaignStatus:
+        ingestionResult.crmWritePlan.lead.customFields?.campaignStatus,
+      campaignEligible: ingestionResult.campaignEligibility.eligible,
+      auditEventCount: ingestionResult.crmWritePlan.auditEvents.length,
+    },
+  });
 
   try {
-    const lead = await client.getMortgageLead(mortgageLeadId);
-    if (lead) {
-      console.log('✅ MortgageLead found in CRM:', lead.id);
-      console.log('📊 Current Status:', lead.campaignStatus);
-    } else {
-      console.error('❌ MortgageLead NOT found in CRM!');
+    if (options.mode === "dry-run") {
+      steps.push({
+        name: "crm-api.live-write",
+        status: "skipped",
+        detail: "dry-run",
+      });
+      log.log(
+        "Dry run complete. Re-run with --live after CRM_API_URL and CRM_API_KEY are available from Infisical or the host environment."
+      );
+      return;
     }
 
-    const person = await client.request<{ person: any }>('getLead', { id: personId }); // getLead is used for Person in the client currently
-    if (person) {
-      console.log('✅ Person found in CRM:', person.person.id);
+    const missingEnv = getRequiredLiveEnv({ crmApiKey: options.crmApiKey });
+    if (missingEnv.length > 0) {
+      throw new Error(
+        `Missing required live smoke env: ${missingEnv.join(", ")}`
+      );
+    }
+
+    await assertHealth(fetchImpl, crmApiUrl, options.crmApiKey);
+    steps.push({
+      name: "crm-api.health",
+      status: "passed",
+    });
+
+    const writePlanResponse = await postJson<CrmWritePlanResponse>(
+      fetchImpl,
+      `${crmApiUrl}/api/crm/write-plan`,
+      options.crmApiKey,
+      { crmWritePlan: ingestionResult.crmWritePlan }
+    );
+
+    const leadId = writePlanResponse.lead?.id;
+    if (!leadId) {
+      throw new Error("CRM write-plan smoke did not return a lead id");
+    }
+
+    steps.push({
+      name: "crm-api.write-plan",
+      status: "passed",
+      detail: {
+        leadId,
+        resultSource: writePlanResponse.lead?.source,
+        campaignEnrollment: Boolean(writePlanResponse.campaignEnrollment),
+        auditEventCount: writePlanResponse.auditEvents?.length ?? 0,
+      },
+    });
+
+    log.log("CRM write-plan accepted", {
+      leadId,
+      resultSource: writePlanResponse.lead?.source,
+      campaignEnrollment: Boolean(writePlanResponse.campaignEnrollment),
+      auditEventCount: writePlanResponse.auditEvents?.length ?? 0,
+    });
+
+    const stoppedResponse = await postJson(
+      fetchImpl,
+      `${crmApiUrl}/api/leads/${encodeURIComponent(leadId)}/campaign`,
+      options.crmApiKey,
+      { status: "STOPPED" },
+      "PATCH"
+    );
+
+    steps.push({
+      name: "crm-api.campaign-stop-gate",
+      status: "passed",
+      detail: redactForLog(stoppedResponse),
+    });
+
+    log.log("Campaign stop gate verified through crm-api", {
+      leadId,
+      response: redactForLog(stoppedResponse),
+    });
+
+    const optionalWebhookUrl = trimTrailingSlash(
+      process.env.LEAD_LIFECYCLE_OPTIONAL_WEBHOOK_URL ?? ""
+    );
+    if (optionalWebhookUrl) {
+      await postJson(fetchImpl, optionalWebhookUrl, undefined, {
+        type: "lead.lifecycle.smoke",
+        leadId,
+        traceId: rawLead.metadata?.traceId,
+      });
+      steps.push({
+        name: "optional-execution-webhook",
+        status: "passed",
+        detail: { webhookUrl: redactForLog(optionalWebhookUrl) },
+      });
+      log.log("Optional execution webhook notified", {
+        webhookUrl: redactForLog(optionalWebhookUrl),
+      });
     }
   } catch (error) {
-    console.error('❌ CRM Verification failed:', error.message);
-  }
-
-  // 3. Simulate Response (Compliance Check)
-  console.log('💬 3. Simulating lead response (STOP keyword)...');
-  const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678';
-  
-  const responseRes = await fetch(`${n8nWebhookUrl.replace(/\/$/, '')}/webhook/twilio-response`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      From: '5551234567',
-      Body: 'STOP',
-      SmsSid: 'SM123'
-    })
-  });
-
-  if (responseRes.ok) {
-    console.log('✅ Response webhook triggered.');
-    // Wait for n8n to process
-    await new Promise(r => setTimeout(r, 3000));
-    
-    const updatedLead = await client.getMortgageLead(mortgageLeadId);
-    console.log('📊 Updated Status after STOP:', updatedLead?.campaignStatus);
-    if (updatedLead?.campaignStatus === 'OPTED_OUT') {
-      console.log('🎉 Smoke Test PASSED: Full lifecycle validated!');
-    } else {
-      console.warn('⚠️ Campaign status not updated. Is n8n running and workflow active?');
+    reportStatus = "failed";
+    steps.push({
+      name: "lead-lifecycle-smoke",
+      status: "failed",
+      detail: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  } finally {
+    if (options.reportPath) {
+      await writeSmokeReport(options.reportPath, {
+        schemaVersion: 1,
+        mode: options.mode,
+        status: reportStatus,
+        startedAt: now.toISOString(),
+        completedAt: (options.now ?? new Date()).toISOString(),
+        crmApiUrl,
+        traceId: rawLead.metadata?.traceId,
+        lead: redactForLog({
+          externalId: rawLead.externalId,
+          email: rawLead.email,
+          phone: rawLead.phone,
+          source: rawLead.source,
+          campaignId: rawLead.campaignId,
+        }),
+        crmWritePlan: {
+          leadStage: ingestionResult.crmWritePlan.lead.stage,
+          campaignStatus:
+            ingestionResult.crmWritePlan.lead.customFields?.campaignStatus,
+          campaignEligible: ingestionResult.campaignEligibility.eligible,
+          auditEventCount: ingestionResult.crmWritePlan.auditEvents.length,
+        },
+        steps: redactForLog(steps) as LeadLifecycleSmokeReport["steps"],
+      });
     }
-  } else {
-    console.error('❌ Failed to trigger response webhook. Check N8N_WEBHOOK_URL.');
   }
 }
 
-smokeTest();
+function parseCliOptions(argv: string[], env: NodeJS.ProcessEnv) {
+  const mode = argv.includes("--live") ? "live" : "dry-run";
+  const crmApiUrl =
+    getArgValue(argv, "--crm-api-url") ??
+    env.CRM_API_URL ??
+    DEFAULT_CRM_API_URL;
+  const reportPath =
+    getArgValue(argv, "--report") ??
+    (argv.includes("--report-dir")
+      ? buildDefaultReportPath(getArgValue(argv, "--report-dir"))
+      : undefined);
+
+  return {
+    mode,
+    crmApiUrl,
+    crmApiKey: env.CRM_API_KEY,
+    reportPath,
+  } satisfies LeadLifecycleSmokeOptions;
+}
+
+function getArgValue(argv: string[], key: string): string | undefined {
+  const index = argv.indexOf(key);
+  if (index === -1) {
+    return undefined;
+  }
+
+  return argv[index + 1];
+}
+
+async function assertHealth(
+  fetchImpl: FetchLike,
+  crmApiUrl: string,
+  crmApiKey?: string
+): Promise<void> {
+  const response = await fetchImpl(`${crmApiUrl}/health`, {
+    headers: {
+      ...(crmApiKey ? { "x-crm-api-key": crmApiKey } : {}),
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`CRM API health check failed with ${response.status}`);
+  }
+}
+
+async function postJson<T = unknown>(
+  fetchImpl: FetchLike,
+  url: string,
+  crmApiKey: string | undefined,
+  body: unknown,
+  method = "POST"
+): Promise<T> {
+  const response = await fetchImpl(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(crmApiKey ? { "x-crm-api-key": crmApiKey } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+
+  const text = await response.text();
+  const parsed = parseJsonResponseBody(text);
+
+  if (!response.ok) {
+    throw new Error(
+      `${method} ${url} failed with ${response.status}: ${formatResponseForLog(
+        parsed,
+        text
+      )}`
+    );
+  }
+
+  return parsed as T;
+}
+
+function parseJsonResponseBody(text: string): unknown {
+  if (!text) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+}
+
+function formatResponseForLog(parsed: unknown, text: string): string {
+  if (parsed !== undefined) {
+    return JSON.stringify(redactForLog(parsed));
+  }
+
+  return JSON.stringify({
+    nonJsonBody: text.slice(0, 500),
+  });
+}
+
+function trimTrailingSlash(value: string): string {
+  return value.replace(/\/+$/, "");
+}
+
+function buildDefaultReportPath(reportDir: string | undefined): string {
+  return join(reportDir ?? "tests/results/lead-lifecycle-smoke", "latest.json");
+}
+
+async function writeSmokeReport(
+  reportPath: string,
+  report: LeadLifecycleSmokeReport
+): Promise<void> {
+  await mkdir(dirname(reportPath), { recursive: true });
+  await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+}
+
+function buildDeterministicSmokeUuid(now: Date): string {
+  const suffix = String(now.getTime()).padStart(12, "0").slice(-12);
+  return `00000000-0000-4000-8000-${suffix}`;
+}
+
+function isSensitiveKey(key: string): boolean {
+  return /^(api[-_]?key|authorization|email|phone|secret|ssn|token)$/i.test(
+    key
+  );
+}
+
+function isPublicTrackingKey(key: string): boolean {
+  return /^(correlationId|traceId)$/i.test(key);
+}
+
+function redactSensitiveScalar(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
+    const [local, domain] = value.split("@");
+    return `${local.slice(0, 1)}***@${domain}`;
+  }
+
+  const digits = value.replace(/\D/g, "");
+  if (digits.length >= 10) {
+    return `${value.startsWith("+") ? "+" : ""}${digits.slice(
+      0,
+      1
+    )}******${digits.slice(-4)}`;
+  }
+
+  if (value.length > 8) {
+    return `[redacted:${value.length}]`;
+  }
+
+  return "[redacted]";
+}
+
+function redactObservableScalar(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
+    const [local, domain] = value.split("@");
+    return `${local.slice(0, 1)}***@${domain}`;
+  }
+
+  const digits = value.replace(/\D/g, "");
+  if (digits.length >= 10) {
+    return `${value.startsWith("+") ? "+" : ""}${digits.slice(
+      0,
+      1
+    )}******${digits.slice(-4)}`;
+  }
+
+  return value;
+}
+
+async function main(): Promise<void> {
+  try {
+    await runLeadLifecycleSmoke(
+      parseCliOptions(process.argv.slice(2), process.env)
+    );
+  } catch (error) {
+    console.error("Lead lifecycle smoke failed", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    process.exitCode = 1;
+  }
+}
+
+const isMainModule =
+  process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+
+if (isMainModule) {
+  void main();
+}

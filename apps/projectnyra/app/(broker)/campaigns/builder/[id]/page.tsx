@@ -26,13 +26,23 @@ import {
   AlertCircle,
   MoreVertical,
   PhoneMissed,
+  ShieldCheck,
+  Zap,
+  ChevronRight,
+  Info,
+  CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
-import { campaignApi, useApi } from "@/lib/api";
+import {
+  campaignApi,
+  type CampaignStep as ApiCampaignStep,
+  useApi,
+} from "@/lib/api";
 import { StatusGate } from "@/components/status-gate";
 import { ChannelPreview } from "@/components/campaigns/channel-preview";
+import { cn } from "@/lib/utils";
 
 interface CampaignStep {
   id: string;
@@ -44,7 +54,7 @@ interface CampaignStep {
 
 export default function CampaignBuilder() {
   const params = useParams<{ id: string }>();
-  const campaignId = params.id;
+  const campaignId = params?.id ?? "new";
   const [name, setName] = useState("Purchase Nurture");
   const [loanPurpose, setLoanPurpose] = useState("PURCHASE");
   const [steps, setSteps] = useState<CampaignStep[]>([]);
@@ -65,7 +75,7 @@ export default function CampaignBuilder() {
       fetchCampaignApi.execute(campaignId).then((data) => {
         setName(data.name);
         setLoanPurpose(data.loanPurpose || "PURCHASE");
-        setSteps(data.steps || []);
+        setSteps((data.steps || []).map(toBuilderStep));
       });
     } else {
       setName("New Campaign");
@@ -147,103 +157,103 @@ export default function CampaignBuilder() {
   );
 
   return (
-    <div className="flex flex-col space-y-8 p-8 bg-slate-50 min-h-screen">
+    <div className="flex flex-col min-h-screen bg-background text-foreground antialiased">
       {/* Header */}
-      <div className="flex justify-between items-end bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-        <div className="flex items-center space-x-6">
-          <Link href="/campaigns">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-12 w-12 rounded-xl border-slate-200 hover:bg-slate-50"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
-          <div className="space-y-1">
-            <div className="flex items-center space-x-3">
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="text-3xl font-bold bg-transparent border-none p-0 focus-visible:ring-0 h-auto w-auto shadow-none"
-              />
-              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none px-3 py-1 text-[10px] font-bold uppercase tracking-wider">
-                Draft Mode
-              </Badge>
-            </div>
-            <div className="flex items-center space-x-3 text-sm">
-              <span className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                Sequence for
-              </span>
-              <Select value={loanPurpose} onValueChange={setLoanPurpose}>
-                <SelectTrigger className="h-7 py-0 px-3 text-xs w-36 border-slate-200 bg-slate-50 hover:bg-slate-100 focus:ring-0 rounded-full transition-colors font-semibold">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PURCHASE">Purchase</SelectItem>
-                  <SelectItem value="REFI_RATE">Refi Rate</SelectItem>
-                  <SelectItem value="REFI_CASH">Refi Cash</SelectItem>
-                  <SelectItem value="HELOC">HELOC</SelectItem>
-                </SelectContent>
-              </Select>
+      <div className="sticky top-0 z-30 border-b border-border/40 bg-card/40 backdrop-blur-md px-8 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <div className="flex items-center gap-6">
+            <Link href="/campaigns">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-10 rounded-xl border-border/40 bg-background/50 hover:bg-muted/50"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-auto w-auto border-none bg-transparent p-0 text-2xl font-bold tracking-tight shadow-none focus-visible:ring-0"
+                />
+                <Badge className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5">
+                  Draft
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                  Loan Sequence
+                </span>
+                <ChevronRight className="size-3 text-muted-foreground/40" />
+                <Select value={loanPurpose} onValueChange={setLoanPurpose}>
+                  <SelectTrigger className="h-6 w-32 border-none bg-transparent p-0 text-[11px] font-bold uppercase tracking-wider text-turquoise-400 hover:text-turquoise-300 shadow-none focus:ring-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border/40">
+                    <SelectItem value="PURCHASE">Purchase</SelectItem>
+                    <SelectItem value="REFI_RATE">Refi Rate</SelectItem>
+                    <SelectItem value="REFI_CASH">Refi Cash</SelectItem>
+                    <SelectItem value="HELOC">HELOC</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex items-center space-x-4">
-          {isOutOfOrder && (
-            <div className="flex items-center px-4 py-2 bg-red-50 text-red-700 rounded-xl border border-red-100 text-xs font-bold animate-pulse">
-              <AlertCircle className="mr-2 h-4 w-4" /> Out of Order
-            </div>
-          )}
-          {notice && (
-            <div
-              className={`rounded-xl border px-4 py-2 text-xs font-bold ${
-                notice.type === "success"
-                  ? "border-primary/30 bg-primary/10 text-foreground"
-                  : "border-destructive/30 bg-destructive/10 text-foreground"
-              }`}
-              role="status"
-            >
-              {notice.message}
-            </div>
-          )}
-          <Button
-            variant="ghost"
-            className="font-bold text-slate-500 hover:bg-slate-100 px-6 rounded-xl h-12"
-            onClick={() => router.push("/campaigns")}
-          >
-            Discard
-          </Button>
-          {campaignId !== "new" && (
-            <Button
-              variant="outline"
-              className="font-bold text-red-500 border-red-100 hover:bg-red-50 px-6 rounded-xl h-12"
-              onClick={deleteCampaign}
-              disabled={deleteCampaignApi.isLoading}
-            >
-              {deleteCampaignApi.isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Delete"
-              )}
-            </Button>
-          )}
-          <Button
-            onClick={saveCampaign}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 rounded-xl h-12 shadow-lg shadow-blue-500/20 transition-all active:scale-95"
-            disabled={saveCampaignApi.isLoading || updateCampaignApi.isLoading}
-          >
-            {saveCampaignApi.isLoading || updateCampaignApi.isLoading ? (
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            ) : (
-              <Save className="mr-2 h-5 w-5" />
+
+          <div className="flex items-center gap-3">
+            {isOutOfOrder && (
+              <Badge
+                variant="outline"
+                className="h-8 border-pink-500/30 bg-pink-500/5 text-pink-400 gap-1.5 px-3"
+              >
+                <AlertCircle className="size-3.5" /> Out of Order
+              </Badge>
             )}
-            Save Campaign
-          </Button>
+            {notice && (
+              <div
+                className={cn(
+                  "rounded-lg border px-3 py-1.5 text-[11px] font-bold flex items-center gap-2",
+                  notice.type === "success"
+                    ? "border-turquoise-500/30 bg-turquoise-500/5 text-turquoise-400"
+                    : "border-pink-500/30 bg-pink-500/5 text-pink-400"
+                )}
+              >
+                <Info className="size-3.5" />
+                {notice.message}
+              </div>
+            )}
+            <div className="h-6 w-px bg-border/40 mx-2" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground"
+              onClick={() => router.push("/campaigns")}
+            >
+              Discard
+            </Button>
+            <Button
+              onClick={saveCampaign}
+              className="h-10 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 rounded-xl shadow-[0_0_20px_-5px_rgba(var(--indigo-rgb),0.4)] transition-all active:scale-95 gap-2"
+              disabled={
+                saveCampaignApi.isLoading || updateCampaignApi.isLoading
+              }
+            >
+              {saveCampaignApi.isLoading || updateCampaignApi.isLoading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Save className="size-4" />
+              )}
+              <span className="text-xs uppercase tracking-widest">
+                Deploy Sequence
+              </span>
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Builder Surface */}
       <StatusGate
         data={steps}
         error={fetchCampaignApi.error}
@@ -252,118 +262,113 @@ export default function CampaignBuilder() {
         isEmpty={() => false}
       >
         {(currentSteps) => (
-          <div className="max-w-4xl mx-auto w-full space-y-6 relative">
-            {/* Timeline Connector Line */}
-            {sortedSteps.length > 0 && (
-              <div className="absolute left-[20px] top-10 bottom-24 w-0.5 bg-gradient-to-b from-blue-200 via-slate-200 to-transparent -z-0" />
-            )}
+          <div className="max-w-4xl mx-auto w-full py-12 px-8 space-y-10 relative">
+            {/* Timeline Connector */}
+            <div className="absolute left-[51px] top-24 bottom-40 w-0.5 bg-gradient-to-b from-indigo-500/20 via-border/40 to-transparent" />
 
             {sortedSteps.map((step, index) => (
               <div key={step.id} className="relative flex items-start group">
-                {/* Visual Step Marker */}
+                {/* Visual Marker */}
                 <div className="mr-8 relative z-10 pt-6">
-                  <div className="h-10 w-10 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center shadow-sm group-hover:border-blue-400 transition-colors">
-                    <span className="text-xs font-black text-slate-400 group-hover:text-blue-600">
-                      {index + 1}
+                  <div
+                    className={cn(
+                      "h-12 w-12 rounded-2xl bg-card border-2 flex items-center justify-center shadow-lg transition-all group-hover:scale-110",
+                      index > 0 && step.day < sortedSteps[index - 1].day
+                        ? "border-pink-500/40 text-pink-400"
+                        : "border-border/60 text-muted-foreground group-hover:border-indigo-500/50 group-hover:text-indigo-400"
+                    )}
+                  >
+                    <span className="text-sm font-black italic">
+                      {(index + 1).toString().padStart(2, "0")}
                     </span>
                   </div>
                 </div>
 
-                <Card
-                  className={`flex-1 shadow-sm border-slate-200 overflow-hidden transition-all hover:shadow-md ${
-                    index > 0 && step.day < sortedSteps[index - 1].day
-                      ? "border-l-4 border-l-red-500"
-                      : "border-l-4 border-l-blue-600"
-                  }`}
-                >
-                  <div className="flex items-center p-4 border-b border-slate-100 bg-slate-50/30">
-                    <GripVertical className="h-4 w-4 text-slate-300 mr-3 cursor-grab" />
-                    <div className="flex-1 flex items-center justify-between">
-                      <div className="flex items-center space-x-6">
-                        <div className="flex items-center space-x-3 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
-                          <Clock className="h-3 w-3 text-slate-400" />
-                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                            Day
-                          </span>
-                          <input
-                            type="number"
-                            value={step.day}
-                            onChange={(e) =>
-                              updateStep(step.id, {
-                                day: parseInt(e.target.value) || 0,
-                              })
-                            }
-                            className="w-10 bg-transparent border-none focus:ring-0 text-sm font-black p-0 text-blue-600"
-                          />
-                        </div>
-                        <div className="h-4 w-px bg-slate-200" />
-                        <div className="flex items-center space-x-2">
-                          <ChannelIcon channel={step.channel} />
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            {step.channel.replace("_", " ")}
-                          </span>
-                        </div>
+                <Card className="flex-1 border-border/40 bg-card/40 overflow-hidden hover:bg-card/60 transition-colors">
+                  <div className="flex items-center justify-between p-4 border-b border-border/40 bg-muted/20">
+                    <div className="flex items-center gap-6">
+                      <GripVertical className="size-4 text-muted-foreground/30 cursor-grab" />
+                      <div className="flex items-center gap-3 px-3 py-1.5 rounded-lg border border-border/40 bg-background/50">
+                        <CalendarDays className="size-3.5 text-indigo-400" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+                          Execution Day
+                        </span>
+                        <input
+                          type="number"
+                          value={step.day}
+                          onChange={(e) =>
+                            updateStep(step.id, {
+                              day: parseInt(e.target.value) || 0,
+                            })
+                          }
+                          className="w-8 bg-transparent border-none focus:ring-0 text-sm font-bold p-0 text-foreground"
+                        />
                       </div>
-                      <div className="flex items-center space-x-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeStep(step.id)}
-                          className="h-8 w-8 text-slate-300 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-slate-300 hover:text-slate-600"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
+                      <div className="flex items-center gap-2">
+                        <ChannelIcon channel={step.channel} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-300">
+                          {step.channel.replace("_", " ")}
+                        </span>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      {/* Compliance Badge for each step */}
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-turquoise-500/20 bg-turquoise-500/5 text-turquoise-400">
+                        <ShieldCheck className="size-3" />
+                        <span className="text-[9px] font-bold uppercase tracking-tight">
+                          Gate Active
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeStep(step.id)}
+                        className="size-8 text-muted-foreground/40 hover:text-pink-400 hover:bg-pink-400/5"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
                     </div>
                   </div>
 
                   <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                      {/* Left: Configuration */}
+                    <div className="grid md:grid-cols-2 gap-10">
                       <div className="space-y-6">
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            Channel
+                          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">
+                            Engagement Channel
                           </label>
                           <Select
                             value={step.channel}
-                            onValueChange={(val: any) =>
+                            onValueChange={(val: CampaignStep["channel"]) =>
                               updateStep(step.id, { channel: val })
                             }
                           >
-                            <SelectTrigger className="bg-slate-50/50 border-slate-200 h-11 font-semibold rounded-xl">
+                            <SelectTrigger className="bg-background/40 border-border/60 h-10 font-medium rounded-xl">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="rounded-xl">
+                            <SelectContent className="bg-card border-border/40">
                               <SelectItem value="email">
-                                <div className="flex items-center font-semibold">
-                                  <Mail className="mr-3 h-4 w-4 text-red-500" />{" "}
-                                  Email Message
+                                <div className="flex items-center">
+                                  <Mail className="mr-3 size-4 text-pink-400" />{" "}
+                                  Email Nurture
                                 </div>
                               </SelectItem>
                               <SelectItem value="sms">
-                                <div className="flex items-center font-semibold">
-                                  <MessageSquare className="mr-3 h-4 w-4 text-blue-500" />{" "}
-                                  SMS Text
+                                <div className="flex items-center">
+                                  <MessageSquare className="mr-3 size-4 text-indigo-400" />{" "}
+                                  SMS / Text
                                 </div>
                               </SelectItem>
                               <SelectItem value="voice">
-                                <div className="flex items-center font-semibold">
-                                  <Phone className="mr-3 h-4 w-4 text-green-500" />{" "}
-                                  Voice Call AI
+                                <div className="flex items-center">
+                                  <Phone className="mr-3 size-4 text-turquoise-400" />{" "}
+                                  AI Voice
                                 </div>
                               </SelectItem>
                               <SelectItem value="missed_call_ping">
-                                <div className="flex items-center font-semibold">
-                                  <PhoneMissed className="mr-3 h-4 w-4 text-orange-500" />{" "}
-                                  Voicemail Drop
+                                <div className="flex items-center">
+                                  <PhoneMissed className="mr-3 size-4 text-amber-400" />{" "}
+                                  RVM Drop
                                 </div>
                               </SelectItem>
                             </SelectContent>
@@ -371,35 +376,40 @@ export default function CampaignBuilder() {
                         </div>
 
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            Content Template
+                          <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">
+                            Message Template
                           </label>
                           <Select
                             value={step.templateId}
-                            onValueChange={(val: any) =>
+                            onValueChange={(val: string) =>
                               updateStep(step.id, { templateId: val })
                             }
                           >
-                            <SelectTrigger className="bg-slate-50/50 border-slate-200 h-11 font-semibold rounded-xl">
-                              <SelectValue placeholder="Select a template..." />
+                            <SelectTrigger className="bg-background/40 border-border/60 h-10 font-medium rounded-xl">
+                              <SelectValue placeholder="Select content..." />
                             </SelectTrigger>
-                            <SelectContent className="rounded-xl">
+                            <SelectContent className="bg-card border-border/40">
                               <SelectItem value="welcome_quote">
-                                Welcome Quote
+                                Welcome Scenario
                               </SelectItem>
                               <SelectItem value="follow_up_day1">
-                                Day 1 Follow-up
+                                Initial Interest Check
                               </SelectItem>
                               <SelectItem value="rate_alert">
-                                Rate Alert
+                                Market Pulse Update
                               </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                       </div>
 
-                      {/* Right: Preview */}
-                      <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex flex-col justify-center min-h-[160px]">
+                      <div className="rounded-2xl border border-border/40 bg-muted/10 p-6 flex flex-col justify-center min-h-[160px] relative group/preview">
+                        <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover/preview:opacity-100 transition-opacity">
+                          <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                            Live Preview
+                          </span>
+                          <Zap className="size-2.5 text-amber-400 fill-amber-400" />
+                        </div>
                         <ChannelPreview
                           channel={step.channel}
                           templateId={step.templateId}
@@ -411,27 +421,27 @@ export default function CampaignBuilder() {
               </div>
             ))}
 
-            {/* Empty State / Add Button */}
+            {/* Add Action */}
             <div className="flex items-start">
               <div className="mr-8 pt-4">
-                <div className="h-10 w-10 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center bg-white">
-                  <Plus className="h-5 w-5 text-slate-300" />
+                <div className="h-12 w-12 rounded-2xl border-2 border-dashed border-border/60 flex items-center justify-center bg-transparent group/add">
+                  <Plus className="size-6 text-muted-foreground/40 group-hover/add:text-indigo-400 transition-colors" />
                 </div>
               </div>
               <Button
                 variant="outline"
-                className="flex-1 py-14 border-dashed border-2 bg-white/50 hover:bg-white hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/5 transition-all flex flex-col space-y-3 h-auto rounded-3xl group"
+                className="flex-1 py-12 border-dashed border-2 bg-card/20 hover:bg-card/40 border-border/40 hover:border-indigo-500/50 transition-all flex flex-col space-y-3 h-auto rounded-[2rem] group"
                 onClick={addStep}
               >
-                <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors">
-                  <Plus className="h-6 w-6 text-slate-300 group-hover:text-blue-500 transition-colors" />
+                <div className="size-10 rounded-full bg-indigo-500/5 border border-indigo-500/20 flex items-center justify-center group-hover:bg-indigo-500/10 transition-colors">
+                  <Plus className="size-5 text-indigo-400" />
                 </div>
-                <div className="flex flex-col items-center">
-                  <span className="font-black text-sm uppercase tracking-widest text-slate-400 group-hover:text-blue-600 transition-colors">
-                    Add Touchpoint
+                <div className="text-center">
+                  <span className="block font-bold text-xs uppercase tracking-[0.2em] text-muted-foreground group-hover:text-foreground transition-colors">
+                    Add Sequence Step
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">
-                    Extend this lead journey
+                  <span className="text-[10px] text-muted-foreground/60 font-medium">
+                    Expand the automated lead journey
                   </span>
                 </div>
               </Button>
@@ -443,17 +453,33 @@ export default function CampaignBuilder() {
   );
 }
 
+function toBuilderStep(step: ApiCampaignStep, index: number): CampaignStep {
+  return {
+    id: step.id || String(index + 1),
+    day: step.day ?? Math.max(0, Math.round((step.delayHours ?? 0) / 24)),
+    channel:
+      step.channel === "email" ||
+      step.channel === "sms" ||
+      step.channel === "voice" ||
+      step.channel === "missed_call_ping"
+        ? step.channel
+        : "email",
+    templateId: step.templateId || "manual_review",
+    offsetMinutes: step.offsetMinutes,
+  };
+}
+
 function ChannelIcon({ channel }: { channel: string }) {
   switch (channel) {
     case "email":
-      return <Mail className="h-3 w-3 text-red-500" />;
+      return <Mail className="size-3.5 text-pink-400" />;
     case "sms":
-      return <MessageSquare className="h-3 w-3 text-blue-500" />;
+      return <MessageSquare className="size-3.5 text-indigo-400" />;
     case "voice":
-      return <Phone className="h-3 w-3 text-green-500" />;
+      return <Phone className="size-3.5 text-turquoise-400" />;
     case "missed_call_ping":
-      return <PhoneMissed className="h-3 w-3 text-orange-500" />;
+      return <PhoneMissed className="size-3.5 text-amber-400" />;
     default:
-      return <Clock className="h-3 w-3 text-slate-400" />;
+      return <Clock className="size-3.5 text-muted-foreground" />;
   }
 }

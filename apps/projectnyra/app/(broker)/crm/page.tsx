@@ -23,8 +23,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCrmWorkspaceData, type WorkspaceData } from "@/lib/crm-data";
 import { cn } from "@/lib/utils";
 
-export const dynamic = "force-dynamic";
-
 function currency(value: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",

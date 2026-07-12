@@ -1,40 +1,40 @@
 export type LeadRecord = {
-  id: string
-  name?: string
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  campaignStatus: string
-  loanPurpose: string
-  loanAmount: number
-  campaignId: string
-  lastTouch: string
-  nextTouch: string
-  location: string
-  creditBand: string
-  source: string
-  stage: string
-}
+  id: string;
+  name?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  campaignStatus: string;
+  loanPurpose: string;
+  loanAmount: number;
+  campaignId: string;
+  lastTouch: string;
+  nextTouch: string;
+  location: string;
+  creditBand: string;
+  source: string;
+  stage: string;
+};
 
 export type ApplicationRecord = {
-  id: string
-  borrower: string
-  product: string
-  amount: number
-  status: string
-  milestone: string
-  loanOfficer: string
-  updatedAt: string
-}
+  id: string;
+  borrower: string;
+  product: string;
+  amount: number;
+  status: string;
+  milestone: string;
+  loanOfficer: string;
+  updatedAt: string;
+};
 
 export type CrmOverview = {
-  pipelineValue: string
-  activeLeads: number
-  activeApplications: number
-  conversionRate: string
-  averageCycle: string
-}
+  pipelineValue: string;
+  activeLeads: number;
+  activeApplications: number;
+  conversionRate: string;
+  averageCycle: string;
+};
 
 export const leads: LeadRecord[] = [
   {
@@ -91,13 +91,13 @@ export const leads: LeadRecord[] = [
     source: "Website",
     stage: "New",
   },
-]
+];
 
 export const campaigns = [
   { id: "1", name: "Purchase Follow-up", status: "Running", enrolled: 12 },
   { id: "2", name: "Refinance Alerts", status: "Paused", enrolled: 8 },
   { id: "3", name: "HELOC Outreach", status: "Running", enrolled: 5 },
-]
+];
 
 export const applications: ApplicationRecord[] = [
   {
@@ -120,7 +120,7 @@ export const applications: ApplicationRecord[] = [
     loanOfficer: "Ellis Andersen",
     updatedAt: "2026-05-09T18:45:00.000Z",
   },
-]
+];
 
 export const crmOverview: CrmOverview = {
   pipelineValue: "$1.28M",
@@ -128,7 +128,7 @@ export const crmOverview: CrmOverview = {
   activeApplications: applications.length,
   conversionRate: "34%",
   averageCycle: "18 Days",
-}
+};
 
 export const fleetStatus = {
   overallHealth: "HEALTHY",
@@ -136,5 +136,5 @@ export const fleetStatus = {
   availableVRAM: "62GB",
   activeAgents: 12,
   orchestratorOnline: true,
-  lastSyncAt: "2026-05-11T09:45:00.000Z"
-}
+  lastSyncAt: "2026-05-11T09:45:00.000Z",
+};

@@ -15,10 +15,10 @@ interface ChannelPreviewProps {
 export function ChannelPreview({ channel, templateId }: ChannelPreviewProps) {
   if (!templateId) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-slate-400 opacity-50 space-y-2">
+      <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50 space-y-2">
         <FileText className="h-8 w-8" />
-        <span className="text-xs font-semibold uppercase tracking-widest">
-          No Template Selected
+        <span className="text-[10px] font-bold uppercase tracking-widest">
+          No Content Staged
         </span>
       </div>
     );
@@ -49,36 +49,38 @@ export function ChannelPreview({ channel, templateId }: ChannelPreviewProps) {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center space-x-2 mb-3 pb-2 border-b border-slate-200">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-          Preview: {templateId}
+      <div className="flex items-center space-x-2 mb-4 pb-2 border-b border-border/40">
+        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">
+          Transmission Preview • {templateId}
         </span>
       </div>
 
       {channel === "email" && (
-        <div className="space-y-3">
-          <div className="text-sm font-semibold text-slate-800">
-            <span className="text-slate-400 mr-2 font-normal">Subject:</span>
+        <div className="space-y-4">
+          <div className="text-xs font-bold text-foreground">
+            <span className="text-muted-foreground/60 mr-2 font-medium uppercase tracking-tighter">
+              Subject:
+            </span>
             {mock.subject}
           </div>
-          <div className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
+          <div className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed bg-muted/20 p-4 rounded-xl border border-border/20">
             {mock.body}
           </div>
         </div>
       )}
 
       {channel === "sms" && (
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl rounded-tl-sm p-3 text-sm text-blue-800 leading-relaxed shadow-sm">
+        <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-2xl rounded-tl-sm p-4 text-xs text-indigo-300 leading-relaxed shadow-[0_0_20px_-5px_rgba(var(--indigo-rgb),0.2)]">
           {mock.body}
         </div>
       )}
 
       {(channel === "voice" || channel === "missed_call_ping") && (
-        <div className="flex items-start space-x-3">
-          <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center shrink-0">
-            <Phone className="h-4 w-4 text-slate-500" />
+        <div className="flex items-start space-x-4">
+          <div className="h-10 w-10 rounded-xl bg-turquoise-500/10 border border-turquoise-500/20 flex items-center justify-center shrink-0 shadow-[0_0_15px_-3px_rgba(var(--turquoise-rgb),0.2)]">
+            <Phone className="h-5 w-5 text-turquoise-400" />
           </div>
-          <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm p-3 text-sm text-slate-600 italic leading-relaxed shadow-sm flex-1">
+          <div className="bg-background/40 border border-border/40 rounded-2xl rounded-tl-sm p-4 text-xs text-muted-foreground italic leading-relaxed shadow-sm flex-1">
             "{mock.body}"
           </div>
         </div>
