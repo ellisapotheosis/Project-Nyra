@@ -742,7 +742,10 @@ jobs:
           directory: ${{ env.APP_DIR }}/${{ needs.build.outputs.build_dir }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref || github.ref_name }}
-          wranglerVersion: "3"
+          # Wrangler 3 does not honor the Node.js compatibility required by the
+          # OpenNext worker and fails bundling on built-in modules (fs/path/etc.).
+          # Keep this legacy Pages action aligned with the app's Wrangler 4 config.
+          wranglerVersion: "4"
 
       - name: Verify deployment
         run: |
