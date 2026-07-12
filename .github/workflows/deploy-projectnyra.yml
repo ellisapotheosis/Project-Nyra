@@ -28,7 +28,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "22.13.0"
   PNPM_VERSION: "11.9.0"
   APP_DIR: "apps/projectnyra"
   CLOUDFLARE_PROJECT_NAME: "projectnyra-app"
