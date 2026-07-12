@@ -63,7 +63,7 @@ KYUTAI_MESH_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.distribute
 
 DEFAULT_PROFILES ?= apps,sync,debug
 
-.PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
+.PHONY: help install test lint validate dev-ready up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
@@ -116,6 +116,7 @@ help:
 	@echo "make gitea-up           Start Gitea + Actions"
 	@echo "make twenty-crm-up      Start Twenty CRM"
 	@echo "make verify-paths       Verify Makefile path references exist"
+	@echo "make dev-ready          Validate this checkout for local development"
 	@echo
 	@echo "--- VOICE SETUPS ---"
 	@echo "make voice-3060         Start standalone Unmute on RTX 3060"
@@ -154,6 +155,9 @@ help:
 	@echo "make oracle-mcp-tools-up  Start Oracle MCP containers and Nexus aggregator"
 	@echo "make oracle-portainer-up  Start Oracle Portainer CE + local agent"
 	@echo "make agent-vault-up      Start the self-hosted Infisical / agent-vault stack"
+
+dev-ready:
+	@bash scripts/dev/readiness-check.sh
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="

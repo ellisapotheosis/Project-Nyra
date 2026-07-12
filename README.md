@@ -45,8 +45,12 @@ Project-Nyra/
 ## Quick Start
 
 ```bash
-# Install dependencies
-pnpm install
+# Materialize assets and install the locked dependency graph
+git lfs pull
+pnpm install --frozen-lockfile
+
+# Confirm required tools, dependencies, and host Compose policy
+make dev-ready
 
 # Start development environment
 pnpm dev
@@ -57,6 +61,10 @@ pnpm build
 # Run tests
 pnpm test
 ```
+
+All active per-host Docker Compose sources live under `infra/hosts/<host-name>/`.
+Do not add deployable Compose files elsewhere under `infra/`; the local preflight
+and pull-request validation reject that layout.
 
 ## Documentation
 
