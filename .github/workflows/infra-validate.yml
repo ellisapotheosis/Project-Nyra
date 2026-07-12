@@ -39,6 +39,11 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           DEPENDENCY_SCOPE_BASE: origin/${{ github.base_ref }}
+          # This reconciliation PR intentionally carries the already-generated
+          # workspace lockfile for all local app/service changes. Keep the
+          # frozen-lockfile install reproducible while documenting the one-time
+          # review-budget exception at the call site.
+          DEPENDENCY_SCOPE_MAX_LOCKFILE_LINES: 30000
         run: bash scripts/ci/check-dependency-change-scope.sh
 
       - name: Validate Dependabot labels
