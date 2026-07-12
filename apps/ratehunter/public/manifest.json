@@ -1,0 +1,10 @@
+{
+  "name": "RateHunter — Ellis Andersen",
+  "short_name": "RateHunter",
+  "description": "Borrower-first mortgage and real estate guidance from Ellis Andersen at West Capital Lending.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#242329",
+  "icons": []
+}
