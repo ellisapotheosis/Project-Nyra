@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "provider": "openrouter",
+  "model": "nvidia/nemotron-nano-9b-v2",
+  "modelParams": {},
+  "ephemeralSettings": {
+    "auth-key-name": "openrouter",
+    "context-limit": 64000,
+    "compression-threshold": 0.72,
+    "max-prompt-tokens": 52000,
+    "tool-output-max-items": 30,
+    "tool-output-max-tokens": 24000,
+    "tool-output-truncate-mode": "warn",
+    "shell-default-timeout-seconds": 120,
+    "shell-max-timeout-seconds": 900,
+    "task-default-timeout-seconds": 900,
+    "task-max-timeout-seconds": 2400
+  }
+}
