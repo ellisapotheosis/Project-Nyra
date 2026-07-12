@@ -6,6 +6,11 @@
   "scripts": {
     "dev": "next dev -p 3016",
     "build": "next build",
+    "build:cf": "opennextjs-cloudflare build && node scripts/prepare-cloudflare-pages-output.mjs",
+    "preview": "wrangler pages dev .open-next",
+    "deploy": "wrangler pages deploy .open-next",
+    "deploy:production": "wrangler pages deploy .open-next --branch=main",
+    "deploy:preview": "wrangler pages deploy .open-next --branch=preview",
     "start": "next start -p 3016",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit"
@@ -17,6 +22,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "1.19.1",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "^25.5.2",
     "@types/react": "^18.2.46",
@@ -25,6 +31,7 @@
     "eslint-config-next": "^15.5.15",
     "postcss": "^8.5.10",
     "tailwindcss": "^4.2.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "wrangler": "^4.102.0"
   }
 }
