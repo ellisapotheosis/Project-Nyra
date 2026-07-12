@@ -7,9 +7,10 @@ cd "$ROOT_DIR"
 tmp_offender="infra/repository-policy-test-compose.yml"
 tmp_host_offender="infra/hosts/repository-policy-test-compose.yml"
 labels_file="$(mktemp)"
+dependabot_fixture="$(mktemp)"
 changed_files_file="$(mktemp)"
 cleanup() {
-  rm -f "$tmp_offender" "$tmp_host_offender" "$labels_file" "$changed_files_file"
+  rm -f "$tmp_offender" "$tmp_host_offender" "$labels_file" "$dependabot_fixture" "$changed_files_file"
 }
 trap cleanup EXIT
 
@@ -40,6 +41,20 @@ done
 
 printf '%s\n' dependencies github-actions javascript memory python >"$labels_file"
 bash scripts/ci/validate-dependabot-labels.sh "$labels_file" >/dev/null
+
+cat >"$dependabot_fixture" <<'EOF'
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    labels:
+      - dependencies
+      - 'javascript'
+  - package-ecosystem: github-actions
+    directory: /
+    labels: ["dependencies", github-actions]
+EOF
+bash scripts/ci/validate-dependabot-labels.sh "$labels_file" "$dependabot_fixture" >/dev/null
 
 printf '%s\n' pnpm-lock.yaml >"$changed_files_file"
 if DEPENDENCY_SCOPE_CHANGED_FILES_FILE="$changed_files_file" \
