@@ -8,25 +8,19 @@
         "name": "JavaScript/TypeScript",
         "version": ">=20",
         "confidence": "high",
-        "markers": [
-          "package.json"
-        ]
+        "markers": ["package.json"]
       },
       {
         "name": "TypeScript",
         "version": null,
         "confidence": "high",
-        "markers": [
-          "tsconfig.json"
-        ]
+        "markers": ["tsconfig.json"]
       },
       {
         "name": "C/C++",
         "version": null,
         "confidence": "high",
-        "markers": [
-          "Makefile"
-        ]
+        "markers": ["Makefile"]
       }
     ],
     "frameworks": [
@@ -90,12 +84,7 @@
       "services/*/*",
       "packages/*"
     ],
-    "mainDirectories": [
-      "docs",
-      "scripts",
-      "src",
-      "tests"
-    ],
+    "mainDirectories": ["docs", "scripts", "src", "tests"],
     "gitBranches": null
   },
   "customNotes": [],
@@ -137,19 +126,14 @@
       "purpose": "Data files",
       "fileCount": 2,
       "lastAccessed": 1783789052821,
-      "keyFiles": [
-        "campaign-templates.json",
-        "seed-leads.json"
-      ]
+      "keyFiles": ["campaign-templates.json", "seed-leads.json"]
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 1,
       "lastAccessed": 1783789052823,
-      "keyFiles": [
-        "README.md"
-      ]
+      "keyFiles": ["README.md"]
     },
     "external": {
       "path": "external",
@@ -176,9 +160,7 @@
       "purpose": null,
       "fileCount": 1,
       "lastAccessed": 1783789052824,
-      "keyFiles": [
-        "CLAUDE.md"
-      ]
+      "keyFiles": ["CLAUDE.md"]
     },
     "scripts": {
       "path": "scripts",
@@ -198,9 +180,7 @@
       "purpose": "Business logic services",
       "fileCount": 1,
       "lastAccessed": 1783789052824,
-      "keyFiles": [
-        "CLAUDE.md"
-      ]
+      "keyFiles": ["CLAUDE.md"]
     },
     "skills": {
       "path": "skills",
@@ -214,9 +194,7 @@
       "purpose": "Source code",
       "fileCount": 1,
       "lastAccessed": 1783789052825,
-      "keyFiles": [
-        "CLAUDE.md"
-      ]
+      "keyFiles": ["CLAUDE.md"]
     },
     "tests": {
       "path": "tests",
@@ -242,21 +220,14 @@
       "purpose": "Configuration files",
       "fileCount": 2,
       "lastAccessed": 1783789052826,
-      "keyFiles": [
-        "README.md",
-        "package.json"
-      ]
+      "keyFiles": ["README.md", "package.json"]
     },
     "tests/fixtures": {
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
       "lastAccessed": 1783789052827,
-      "keyFiles": [
-        "agents.json",
-        "leads.json",
-        "memory-patterns.json"
-      ]
+      "keyFiles": ["agents.json", "leads.json", "memory-patterns.json"]
     }
   },
   "hotPaths": [
@@ -264,6 +235,180 @@
       "path": ".claude/settings.local.json",
       "accessCount": 7,
       "lastAccessed": 1783806570382,
+      "type": "file"
+    },
+    {
+      "path": "infra/cloudflare/desired-state/exposure-matrix.yml",
+      "accessCount": 4,
+      "lastAccessed": 1783837912276,
+      "type": "file"
+    },
+    {
+      "path": ".mcp.json",
+      "accessCount": 2,
+      "lastAccessed": 1783837878753,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.cloudflared.yml",
+      "accessCount": 2,
+      "lastAccessed": 1783838141237,
+      "type": "file"
+    },
+    {
+      "path": "apps/ratehunter/src/app/globals.css",
+      "accessCount": 2,
+      "lastAccessed": 1783841238873,
+      "type": "file"
+    },
+    {
+      "path": "apps/ratehunter/src/app/layout.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1783841245229,
+      "type": "file"
+    },
+    {
+      "path": "apps/ratehunter/open-next.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1783863701244,
+      "type": "file"
+    },
+    {
+      "path": "apps/ratehunter/package.json",
+      "accessCount": 2,
+      "lastAccessed": 1783863701282,
+      "type": "file"
+    },
+    {
+      "path": "apps/nexusUI/next.config.mjs",
+      "accessCount": 2,
+      "lastAccessed": 1783863751075,
+      "type": "file"
+    },
+    {
+      "path": "apps/projectnyra/package.json",
+      "accessCount": 2,
+      "lastAccessed": 1783863754493,
+      "type": "file"
+    },
+    {
+      "path": "apps/nexusUI/package.json",
+      "accessCount": 2,
+      "lastAccessed": 1783863757458,
+      "type": "file"
+    },
+    {
+      "path": "apps/projectnyra/next.config.js",
+      "accessCount": 2,
+      "lastAccessed": 1783863765614,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/nexus.toml",
+      "accessCount": 1,
+      "lastAccessed": 1783837350335,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/nexus-router-mcp-config.yml",
+      "accessCount": 1,
+      "lastAccessed": 1783837350773,
+      "type": "file"
+    },
+    {
+      "path": "infra/cloudflare/apply-cloudflare-desired-state.sh",
+      "accessCount": 1,
+      "lastAccessed": 1783837395333,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.yml",
+      "accessCount": 1,
+      "lastAccessed": 1783838212537,
+      "type": "file"
+    },
+    {
+      "path": "apps/ratehunter/src/app/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1783840963087,
+      "type": "file"
+    },
+    {
+      "path": "apps/projectnyra/app/(public)/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1783840963858,
+      "type": "file"
+    },
+    {
+      "path": "apps/nexusUI/app/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1783840964295,
+      "type": "file"
+    },
+    {
+      "path": "apps/ratehunter/src/app/themes/apotheosis.css",
+      "accessCount": 1,
+      "lastAccessed": 1783841021493,
+      "type": "file"
+    },
+    {
+      "path": "apps/ratehunter/tailwind.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1783841053169,
+      "type": "file"
+    },
+    {
+      "path": "apps/ratehunter/public/manifest.json",
+      "accessCount": 1,
+      "lastAccessed": 1783841314085,
+      "type": "file"
+    },
+    {
+      "path": "docs/OWNER_MANUAL_ACTIONS.md",
+      "accessCount": 1,
+      "lastAccessed": 1783842739280,
+      "type": "file"
+    },
+    {
+      "path": "apps/ratehunter/wrangler.toml",
+      "accessCount": 1,
+      "lastAccessed": 1783863700755,
+      "type": "file"
+    },
+    {
+      "path": "apps/projectnyra/open-next.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1783863738308,
+      "type": "file"
+    },
+    {
+      "path": "apps/nexusUI/open-next.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1783863739688,
+      "type": "file"
+    },
+    {
+      "path": "apps/projectnyra/wrangler.toml",
+      "accessCount": 1,
+      "lastAccessed": 1783863740583,
+      "type": "file"
+    },
+    {
+      "path": "apps/nexusUI/wrangler.toml",
+      "accessCount": 1,
+      "lastAccessed": 1783863741166,
+      "type": "file"
+    },
+    {
+      "path": "apps/projectnyra/scripts/prepare-cloudflare-pages-output.mjs",
+      "accessCount": 1,
+      "lastAccessed": 1783863768262,
+      "type": "file"
+    },
+    {
+      "path": "apps/nexusUI/scripts/prepare-cloudflare-pages-output.mjs",
+      "accessCount": 1,
+      "lastAccessed": 1783863769431,
       "type": "file"
     }
   ],
