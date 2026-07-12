@@ -66,6 +66,7 @@ bash -n scripts/ci/test-repository-policy.sh
 
 bash scripts/infra/assert-compose-source-of-truth.sh
 bash scripts/ci/test-repository-policy.sh
+bash -n scripts/ci/preview-deploy-preflight.sh
 
 for compose_file in \
   infra/hosts/oracle-vps/docker-compose.yml \
