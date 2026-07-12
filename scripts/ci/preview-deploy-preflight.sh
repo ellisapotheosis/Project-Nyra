@@ -20,10 +20,15 @@ declare -A preview_apps=(
   [apps/projectnyra]=projectnyra
   [apps/ratehunter]=ratehunter-landing
 )
+declare -A preview_build_scripts=(
+  [apps/projectnyra]=build
+  [apps/ratehunter]=build:cf
+)
 
 for app_dir in "${!preview_apps[@]}"; do
   workspace="${preview_apps[$app_dir]}"
-  echo "app=$app_dir workspace=$workspace"
+  build_script="${preview_build_scripts[$app_dir]}"
+  echo "app=$app_dir workspace=$workspace build_script=$build_script"
 
   for required_file in "$app_dir/package.json" "$app_dir/next.config.js"; do
     if [[ ! -f "$required_file" ]]; then
@@ -37,10 +42,10 @@ for app_dir in "${!preview_apps[@]}"; do
     exit 1
   fi
 
-  if [[ "$(node -p "Boolean(require('./$app_dir/package.json').scripts?.build)")" != "true" ]]; then
-    echo "preview deployment preflight failed: $app_dir has no build script" >&2
+  if [[ "$(node -p "Boolean(require('./$app_dir/package.json').scripts?.['$build_script'])")" != "true" ]]; then
+    echo "preview deployment preflight failed: $app_dir has no $build_script script" >&2
     exit 1
   fi
 
-  pnpm --filter "$workspace" build
+  pnpm --filter "$workspace" "$build_script"
 done
