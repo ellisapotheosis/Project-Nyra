@@ -4,9 +4,9 @@ import {
   SubmitApplicationUseCase,
   IApplicationRepository,
   IAUSService,
-} from "../../../../application/use-cases/submit-application.use-case";
-import { DocumentRequirementsGenerator } from "../../../../domain/services/document-requirements.generator";
-import { LoanApplication } from "../../../../domain/entities/loan-application.entity";
+} from "@/application/use-cases/submit-application.use-case";
+import { DocumentRequirementsGenerator } from "@/domain/services/document-requirements.generator";
+import { LoanApplication } from "@/domain/entities/loan-application.entity";
 import { z } from "zod";
 
 const prisma = new PrismaClient();
