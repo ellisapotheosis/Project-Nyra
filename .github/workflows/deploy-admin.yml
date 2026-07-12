@@ -73,6 +73,10 @@ jobs:
         env:
           INFISICAL_PROJECT_ID: ${{ env.INFISICAL_PROJECT_ID }}
 
+      - name: Generate Prisma client
+        working-directory: ${{ env.APP_DIR }}
+        run: pnpm prisma:generate
+
       - name: Build for Cloudflare Pages
         working-directory: ${{ env.APP_DIR }}
         run: pnpm build:cf
