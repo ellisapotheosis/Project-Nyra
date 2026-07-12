@@ -55,6 +55,9 @@ make dev-ready
 # Start development environment
 pnpm dev
 
+# Advanced: start every workspace, including experimental service stubs
+pnpm all:dev
+
 # Build all packages
 pnpm build
 

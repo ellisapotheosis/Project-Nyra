@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "dev": "turbo run dev --concurrency=30",
+    "dev": "turbo run dev --filter=projectnyra --filter=projectnyra-landing --filter=ratehunter-landing --filter=lead-capture-api --concurrency=8",
     "build": "turbo run build",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm exec vitest --config vitest.smoke.config.mjs run",

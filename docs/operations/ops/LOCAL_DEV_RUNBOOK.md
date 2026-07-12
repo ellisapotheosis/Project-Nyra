@@ -33,6 +33,9 @@ cp .env.example .env
 # Start the application workspace
 pnpm dev
 
+# `pnpm all:dev` is an advanced diagnostic command that also starts
+# experimental/incomplete workspace packages; it is not the default path.
+
 # Start infrastructure only when the task requires it. Active Compose sources
 # are host-owned and must remain under infra/hosts/<host-name>/.
 make up
