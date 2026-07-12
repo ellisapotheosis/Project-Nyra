@@ -739,7 +739,8 @@ jobs:
           apiToken: ${{ steps.cloudflare-secrets.outputs.api_token }}
           accountId: ${{ steps.cloudflare-secrets.outputs.account_id }}
           projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
-          directory: ${{ env.APP_DIR }}/${{ needs.build.outputs.build_dir }}
+          directory: ${{ needs.build.outputs.build_dir }}
+          workingDirectory: ${{ env.APP_DIR }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref || github.ref_name }}
           # Wrangler 3 does not honor the Node.js compatibility required by the
