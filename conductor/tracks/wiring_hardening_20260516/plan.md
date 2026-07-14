@@ -11,7 +11,7 @@
 
 - [x] Task: Write Tests: Verify lead data normalization and ingestion validation [f259733]
 - [x] Task: Implement: Connect `apps/ratehunter` lead wizard to live `capture.projectnyra.com` API [eb93155]
-- [ ] Task: Implement: Wire `KanbanBoard` to real GraphQL subscriptions in `apps/projectnyra`
+- [x] Task: Implement: Wire `KanbanBoard` to real GraphQL subscriptions in `apps/projectnyra` [502a313]
 - [ ] Task: Implement: Import campaign sequences into Activepieces automation runtime
 - [ ] Task: Implement: Hard-code deterministic rate math in `quote-api` logic
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Logic Wiring & Data Sync' (Protocol in workflow.md)
