@@ -15,11 +15,6 @@ ingress:
     originRequest:
       http2Origin: true
       connectTimeout: 60s
-    headers:
-      User-Agent:
-        - Nexus-Router-MCP-Client
-      Authorization:
-        - Bearer ${MCP_GATEWAY_TOKEN}
 
   # Supabase (auth + API)
   - hostname: supabase.projectnyra.com

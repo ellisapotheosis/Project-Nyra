@@ -91,10 +91,11 @@ The tunnel route is automatically configured if you use the provided
   originRequest:
     http2Origin: true
     connectTimeout: 60s
-  headers:
-    Authorization:
-      - Bearer ${MCP_GATEWAY_TOKEN}
 ```
+
+Cloudflared forwards the request without injecting credentials. MCP clients
+must send `Authorization: Bearer $MCP_GATEWAY_TOKEN`, as shown in the health
+check below.
 
 Restart cloudflared:
 

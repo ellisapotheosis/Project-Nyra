@@ -86,19 +86,19 @@ tools:
 # Service registry
 services:
   supabase:
-    url: https://supabase.projectnyra.com
+    url: http://supabase-auth:9999
     type: auth
     description: Authentication & Database
     health_check: /health
 
   twenty_crm:
-    url: https://twenty.projectnyra.com
+    url: http://twenty:3000
     type: crm
     description: Customer Relationship Management
     health_check: /health
 
   activepieces:
-    url: https://active.projectnyra.com
+    url: http://activepieces:5678
     type: workflow
     description: Workflow Automation
     health_check: /health
