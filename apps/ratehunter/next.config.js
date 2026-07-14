@@ -5,7 +5,8 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  outputFileTracingRoot: path.resolve(__dirname, "../../.."),
+  output: "standalone",
+  outputFileTracingRoot: path.resolve(__dirname, "../.."),
   eslint: {
     ignoreDuringBuilds: true,
   },

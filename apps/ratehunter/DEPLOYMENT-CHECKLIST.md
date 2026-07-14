@@ -37,7 +37,7 @@ Use this checklist to ensure your RateHunter landing page is fully configured an
 
 - [ ] Cloudflare Pages project created
 - [ ] GitHub repository connected
-- [ ] Root directory: `apps/ratehunter/landing`
+- [ ] Root directory: `apps/ratehunter`
 - [ ] Install command: `npm install`
 - [ ] Build command: `npm run build:cf`
 - [ ] Output directory: `.open-next`

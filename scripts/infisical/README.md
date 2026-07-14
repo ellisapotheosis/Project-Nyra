@@ -33,6 +33,23 @@ infisical login
 infisical projects create --name "project-nyra"
 ```
 
+## Repo-native capability wrappers
+
+Use these when working inside this repo on Linux/WSL or on the Oracle host:
+
+```bash
+scripts/infisical/capabilities.sh status
+scripts/infisical/capabilities.sh scan --staged
+scripts/infisical/capabilities.sh pam access /machines/oracle-vps
+scripts/infisical/capabilities.sh gateway start oracle-vps-gateway --enroll-method=token --token="$INFISICAL_GATEWAY_TOKEN" --domain=projectnyra.com
+scripts/infisical/kms.sh list --project-id "$INFISICAL_PROJECT_ID"
+scripts/infisical/kms.sh encrypt --key-id "$INFISICAL_KMS_KEY_ID" --plaintext "hello"
+```
+
+The KMS helper talks to the official Infisical REST API and keeps the request
+shape aligned with the documented `encrypt`, `decrypt`, `sign`, `verify`,
+`public-key`, and `private-key` endpoints.
+
 ### Run Migration
 
 ```powershell

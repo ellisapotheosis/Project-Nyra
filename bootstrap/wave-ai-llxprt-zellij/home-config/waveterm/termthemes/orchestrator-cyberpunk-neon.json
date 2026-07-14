@@ -1,0 +1,77 @@
+{
+  "display:name": "Orchestrator Cyberpunk Neon",
+  "display:description": "Mission control aesthetic: neon on deep void, high contrast, aggressive accent colors",
+
+  "black": "#0d0e15",
+  "red": "#ff0047",
+  "green": "#00ff66",
+  "yellow": "#ffff00",
+  "blue": "#0099ff",
+  "magenta": "#ff00ff",
+  "cyan": "#00ffff",
+  "white": "#e8e8e8",
+
+  "brightBlack": "#1a1c28",
+  "brightRed": "#ff3366",
+  "brightGreen": "#33ff99",
+  "brightYellow": "#ffff33",
+  "brightBlue": "#33ccff",
+  "brightMagenta": "#ff33ff",
+  "brightCyan": "#66ffff",
+  "brightWhite": "#ffffff",
+
+  "background": "#0a0a12",
+  "foreground": "#e0e0e0",
+
+  "cursor": "#00ff66",
+  "cursorAccent": "#0a0a12",
+  "selection": "#00ffff44",
+  "selectionForeground": "#ffffff",
+
+  "ansi0": "#0d0e15",
+  "ansi1": "#ff0047",
+  "ansi2": "#00ff66",
+  "ansi3": "#ffff00",
+  "ansi4": "#0099ff",
+  "ansi5": "#ff00ff",
+  "ansi6": "#00ffff",
+  "ansi7": "#e0e0e0",
+  "ansi8": "#1a1c28",
+  "ansi9": "#ff3366",
+  "ansi10": "#33ff99",
+  "ansi11": "#ffff33",
+  "ansi12": "#33ccff",
+  "ansi13": "#ff33ff",
+  "ansi14": "#66ffff",
+  "ansi15": "#ffffff",
+
+  "semantics": {
+    "error": "#ff0047",
+    "warning": "#ffff00",
+    "success": "#00ff66",
+    "info": "#0099ff",
+    "keyword": "#ff00ff",
+    "string": "#00ff66",
+    "comment": "#808080",
+    "operator": "#00ffff",
+    "function": "#0099ff",
+    "variable": "#e0e0e0",
+    "constant": "#ffff00"
+  },
+
+  "ui": {
+    "background": "#0a0a12",
+    "backgroundAlt": "#12121f",
+    "foreground": "#e0e0e0",
+    "foregroundAlt": "#b0b0b0",
+    "border": "#00ff6644",
+    "borderActive": "#00ff66",
+    "focusRing": "#00ffff44",
+    "accent": "#ff0047",
+    "accentAlt": "#00ff66",
+    "success": "#00ff66",
+    "warning": "#ffff00",
+    "error": "#ff0047",
+    "info": "#0099ff"
+  }
+}

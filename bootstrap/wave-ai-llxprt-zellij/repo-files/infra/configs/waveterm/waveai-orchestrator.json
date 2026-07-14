@@ -1,0 +1,124 @@
+{
+  "nyra-letta-orchestrator": {
+    "display:name": "Nyra Letta Orchestrator via Nexus",
+    "ai:provider": "custom",
+    "ai:model": "nyra-letta-orchestrator",
+    "ai:endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "NEXUS_MASTER_KEY",
+    "description": "Default Wave AI mode. Routes through Nexus so Letta can coordinate memory, tools, subscription CLIs, and worker OpenClaw/PicoClaw lanes."
+  },
+  "nyra-llxprt-ha": {
+    "display:name": "LLxprt Subscription HA",
+    "ai:provider": "custom",
+    "ai:model": "nyra-subscription-ha",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "OpenAI-compatible local bridge for subscription-backed CLI routing with failover across Codex, Claude, Gemini, Qwen, Kimi, and local Nexus."
+  },
+  "nyra-llxprt-triad": {
+    "display:name": "LLxprt CLI Triad HA",
+    "ai:provider": "custom",
+    "ai:model": "nyra-cli-triad-ha",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Codex, Claude, Gemini, then Qwen/OpenRouter/Nexus fallback. This is the profile Letta should use when it needs subscription-backed agent capacity."
+  },
+  "nyra-llxprt-spread": {
+    "display:name": "LLxprt Subscription Spread",
+    "ai:provider": "custom",
+    "ai:model": "nyra-subscription-spread",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Round-robin profile for short parallel tasks where provider-side prompt cache locality is less important."
+  },
+  "nyra-llxprt-codex": {
+    "display:name": "LLxprt Codex OAuth",
+    "ai:provider": "custom",
+    "ai:model": "nyra-codex-oauth",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Codex CLI subscription lane."
+  },
+  "nyra-llxprt-gemini": {
+    "display:name": "LLxprt Gemini OAuth",
+    "ai:provider": "custom",
+    "ai:model": "nyra-gemini-oauth",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Gemini OAuth lane for large-context exploration."
+  },
+  "nyra-llxprt-claude": {
+    "display:name": "LLxprt Claude OAuth",
+    "ai:provider": "custom",
+    "ai:model": "nyra-claude-oauth",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "Claude Code subscription lane through LLxprt."
+  },
+  "nyra-llxprt-openrouter-free": {
+    "display:name": "LLxprt OpenRouter Free",
+    "ai:provider": "custom",
+    "ai:model": "nyra-openrouter-free",
+    "ai:endpoint": "http://127.0.0.1:8090/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "LLXPRT_BRIDGE_API_KEY",
+    "description": "OpenRouter fallback through LLxprt. Keep the OpenRouter model name current because free-tier models change."
+  },
+  "openrouter-qwen-wave-direct": {
+    "display:name": "OpenRouter Qwen Direct",
+    "ai:provider": "openrouter",
+    "ai:model": "qwen/qwen-2.5-coder-32b-instruct",
+    "ai:capabilities": ["tools"],
+    "description": "Direct Wave AI OpenRouter mode. Store the key as OPENROUTER_KEY in Wave secrets."
+  },
+  "groq-kimi-wave-direct": {
+    "display:name": "Groq Kimi Direct",
+    "ai:provider": "groq",
+    "ai:model": "moonshotai/kimi-k2-instruct",
+    "ai:capabilities": ["tools"],
+    "description": "Direct Wave AI Groq mode for Kimi-family free/low-cost fallback when available. Store the key as GROQ_KEY in Wave secrets."
+  },
+  "nyra-local-nexus": {
+    "display:name": "Nyra Local Nexus",
+    "ai:provider": "custom",
+    "ai:model": "nyra-auto",
+    "ai:endpoint": "http://orchestrator.trex-fiordland.ts.net:6000/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "NEXUS_MASTER_KEY",
+    "description": "Private model and MCP route through the orchestrator Nexus endpoint."
+  },
+  "worker-5090": {
+    "display:name": "RTX5090 vLLM",
+    "ai:provider": "custom",
+    "ai:model": "local-5090",
+    "ai:endpoint": "http://worker-rtx5090.trex-fiordland.ts.net:8000/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "NYRA_WORKER_API_KEY",
+    "description": "Direct Tailscale-only primary worker lane."
+  },
+  "worker-3090ti": {
+    "display:name": "RTX3090Ti vLLM",
+    "ai:provider": "custom",
+    "ai:model": "local-3090ti",
+    "ai:endpoint": "http://worker-rtx3090ti.trex-fiordland.ts.net:8000/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "NYRA_WORKER_API_KEY",
+    "description": "Direct Tailscale-only secondary worker lane."
+  },
+  "worker-3060": {
+    "display:name": "RTX3060 Ollama",
+    "ai:provider": "custom",
+    "ai:model": "local-3060",
+    "ai:endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1/chat/completions",
+    "ai:apitype": "openai-chat",
+    "ai:apitokensecretname": "NYRA_WORKER_API_KEY",
+    "description": "Direct Tailscale-only utility worker lane."
+  }
+}

@@ -3,39 +3,27 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import { rateLimit } from "express-rate-limit";
-import pg from "pg";
-const { Pool } = pg;
 import fetch from "node-fetch";
 import winston from "winston";
-import { z } from "zod";
 import {
   TwentyCRMClient,
   type QuoteInput,
   type MortgageLeadInput,
 } from "@nyra/crm-client";
-import {
-  AuditLogger,
-  ClassificationService,
-  TwentyIntegrationAdapter,
-} from "@nyra/integration-adapters";
 
 dotenv.config();
 
 const {
   PORT = "4001",
-  DATABASE_URL,
   TWENTY_CRM_URL,
   TWENTY_CRM_API_KEY,
-  N8N_WEBHOOK_URL,
   QUOTE_ENGINE_URL,
   CRM_API_KEY,
 } = process.env;
 
-if (!DATABASE_URL) throw new Error("DATABASE_URL is required");
 if (!TWENTY_CRM_URL) throw new Error("TWENTY_CRM_URL is required");
 if (!TWENTY_CRM_API_KEY) throw new Error("TWENTY_CRM_API_KEY is required");
 
-const pool = new Pool({ connectionString: DATABASE_URL });
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || "info",
   format: winston.format.combine(
@@ -51,11 +39,6 @@ const twentyClient = new TwentyCRMClient({
   apiKey: TWENTY_CRM_API_KEY,
 });
 
-const auditLogger = new AuditLogger({
-  service: "crm-api",
-  environment: process.env.NODE_ENV || "development",
-});
-
 const app = express();
 
 app.use(helmet());
@@ -66,7 +49,7 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
-app.use(limiter);
+app.use(limiter as unknown as express.RequestHandler);
 
 // Auth middleware
 const authenticate = (
@@ -76,20 +59,21 @@ const authenticate = (
 ) => {
   const apiKey = req.headers["x-api-key"];
   if (CRM_API_KEY && apiKey !== CRM_API_KEY) {
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
   next();
 };
 
 // Health check
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 
 // CRM Proxy Routes
-app.get("/api/leads", authenticate, async (req, res) => {
+app.get("/api/leads", authenticate, async (_req, res) => {
   try {
-    const leads = await twentyClient.request<any>("findManyMortgageLeads", {});
+    const leads = await twentyClient.searchMortgageLeads();
     res.json(leads);
   } catch (error) {
     logger.error("Failed to fetch leads", { error });
@@ -100,17 +84,13 @@ app.get("/api/leads", authenticate, async (req, res) => {
 app.post("/api/leads", authenticate, async (req, res) => {
   try {
     const input = req.body as MortgageLeadInput;
-    const result = await twentyClient.request<any>("createOneMortgageLead", {
-      data: input,
-    });
+    const result = await twentyClient.createMortgageLead(input);
 
-    // Log audit event
-    await auditLogger.log({
+    logger.info("Lead created", {
       action: "LEAD_CREATE",
-      entityId: result.createOneMortgageLead.id,
+      entityId: result.id,
       entityType: "LEAD",
       performer: "SYSTEM_API",
-      riskLevel: "INTERNAL_MUTATION",
     });
 
     res.json(result);

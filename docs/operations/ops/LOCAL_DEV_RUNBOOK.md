@@ -4,9 +4,10 @@
 
 - WSL2 (Ubuntu 22.04+)
 - Docker Desktop with WSL2 integration enabled
-- pnpm (v10+)
+- pnpm 11.9.0 (the version pinned in `package.json`)
 - Infisical CLI
 - Tailscale (Authenticated to `trex-fiordland`)
+- Git LFS
 
 ## 1. Environment Setup
 
@@ -15,8 +16,12 @@
 git clone <repo-url>
 cd project-nyra
 
-# Install dependencies
-pnpm install
+# Materialize tracked assets and install the locked dependency graph
+git lfs pull
+pnpm install --frozen-lockfile
+
+# Validate the checkout before starting development
+make dev-ready
 
 # Setup environment variables (Placeholder only)
 cp .env.example .env
@@ -25,7 +30,14 @@ cp .env.example .env
 ## 2. Infrastructure Bring-up
 
 ```bash
-# Start the local orchestrator services
+# Start the application workspace
+pnpm dev
+
+# `pnpm all:dev` is an advanced diagnostic command that also starts
+# experimental/incomplete workspace packages; it is not the default path.
+
+# Start infrastructure only when the task requires it. Active Compose sources
+# are host-owned and must remain under infra/hosts/<host-name>/.
 make up
 
 # Check health

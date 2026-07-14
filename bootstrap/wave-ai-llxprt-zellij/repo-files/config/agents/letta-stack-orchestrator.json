@@ -1,0 +1,25 @@
+{
+  "name": "nyra-stack-orchestrator",
+  "role": "Coordinate subscription agents, free LLxprt agents, OpenClaw agents, and local worker models through Nexus and LiteLLM.",
+  "letta": {
+    "baseUrl": "http://oracle-vps.trex-fiordland.ts.net:8283",
+    "mcpUrl": "http://oracle-vps.trex-fiordland.ts.net:8284/mcp",
+    "memoryManager": true
+  },
+  "routes": {
+    "subscriptionBridge": "http://127.0.0.1:8090/v1",
+    "nexusRouter": "http://orchestrator.trex-fiordland.ts.net:6000",
+    "litellm": "http://orchestrator.trex-fiordland.ts.net:4000/v1",
+    "openclawGateway": "http://orchestrator.trex-fiordland.ts.net:5678"
+  },
+  "workers": [
+    "worker-rtx5090.trex-fiordland.ts.net",
+    "worker-rtx3090ti.trex-fiordland.ts.net",
+    "worker-rtx3060.trex-fiordland.ts.net"
+  ],
+  "policy": {
+    "publicWorkerInference": false,
+    "useTailscaleMagicDns": true,
+    "secretsSource": "Infisical/local runtime environment"
+  }
+}

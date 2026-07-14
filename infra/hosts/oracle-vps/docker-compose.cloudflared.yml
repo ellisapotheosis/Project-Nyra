@@ -20,7 +20,11 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - nyra-network
+      - nyra-service-net
 
 networks:
   nyra-network:
     external: true
+  nyra-service-net:
+    external: true
+    name: nyra-network_nyra_net

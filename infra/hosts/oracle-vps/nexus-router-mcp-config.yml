@@ -1,0 +1,122 @@
+# Nexus Router MCP Gateway Configuration
+# Integrates with Cloudflare Tunnel and Project Nyra services
+
+server:
+  name: nexus-router-mcp
+  version: 1.0.0
+  port: 7001
+  host: 0.0.0.0
+
+  # MCP Server protocol
+  protocol: stdio
+  transport: http
+
+  # Security
+  authentication:
+    enabled: true
+    type: bearer
+    token_env: MCP_GATEWAY_TOKEN
+
+  # Allowed origins (Cloudflare tunnel)
+  cors:
+    allowed_origins:
+      - https://mcp-gateway.projectnyra.com
+      - https://nexus.projectnyra.com
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+    allowed_headers:
+      - Authorization
+      - Content-Type
+
+# Tools exposed via MCP
+tools:
+  # Service discovery
+  - name: list_services
+    description: List all available services in Project Nyra
+    schema:
+      type: object
+      properties:
+        filter:
+          type: string
+          description: Filter services by name/type
+
+  # Supabase operations
+  - name: supabase_query
+    description: Execute query against Supabase
+    schema:
+      type: object
+      properties:
+        query:
+          type: string
+        params:
+          type: array
+
+  # TwentyCRM operations
+  - name: crm_search
+    description: Search CRM records (leads, deals, etc.)
+    schema:
+      type: object
+      properties:
+        entity_type:
+          type: string
+          enum: [lead, deal, company, contact]
+        query:
+          type: string
+
+  # Workflow operations
+  - name: trigger_workflow
+    description: Trigger an Activepieces workflow
+    schema:
+      type: object
+      properties:
+        workflow_id:
+          type: string
+        trigger_data:
+          type: object
+
+  # Status checks
+  - name: health_check
+    description: Check health of all services
+    schema:
+      type: object
+
+# Service registry
+services:
+  supabase:
+    url: https://api.projectnyra.com
+    type: auth
+    description: Authentication & Database
+    health_check: /auth/v1/health
+
+  twenty_crm:
+    url: https://twenty.projectnyra.com
+    type: crm
+    description: Customer Relationship Management
+    health_check: /health
+
+  activepieces:
+    url: https://active.projectnyra.com
+    type: workflow
+    description: Workflow Automation
+    health_check: /health
+
+# Logging
+logging:
+  level: info
+  format: json
+  file: /var/log/nexus-router-mcp/server.log
+
+# Metrics
+metrics:
+  enabled: true
+  port: 9090
+  path: /metrics
+
+# Caching
+caching:
+  enabled: true
+  ttl: 300
+  max_size: 1000
