@@ -98,7 +98,7 @@ services:
     health_check: /health
 
   activepieces:
-    url: http://activepieces:5678
+    url: http://activepieces:80
     type: workflow
     description: Workflow Automation
     health_check: /health

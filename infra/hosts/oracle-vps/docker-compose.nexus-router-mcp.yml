@@ -17,7 +17,7 @@ services:
       SUPABASE_URL: http://supabase-auth:9999
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
       TWENTY_CRM_URL: http://twenty:3000
-      ACTIVEPIECES_URL: http://activepieces:5678
+      ACTIVEPIECES_URL: http://activepieces:80
 
       # Logging
       LOG_LEVEL: info
