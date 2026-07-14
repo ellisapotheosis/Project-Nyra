@@ -6,6 +6,71 @@ Automated security tools and utilities for Project Nyra.
 
 ## Available Scripts
 
+### 0. nyra-secret-scan.sh - Local secret leak prevention
+
+Portable Bash scanner for staged content, working tree files, and optional
+history scans.
+
+**Usage**:
+```bash
+./scripts/security/nyra-secret-scan.sh --staged
+./scripts/security/nyra-secret-scan.sh --all
+./scripts/security/nyra-secret-scan.sh --history
+./scripts/security/nyra-secret-scan.sh --install-hook
+```
+
+**Hook install**:
+```bash
+./scripts/security/install-hooks.sh
+```
+
+**Smoke test**:
+```bash
+./scripts/security/tests/secret-scan-smoke.sh
+```
+
+**Behavior**:
+- blocks commits with likely secret material
+- never prints secret values
+- supports filenames with spaces and staged-only hook runs
+- prefers the real Infisical CLI scan surface when available
+- falls back to a local regex/assignment scanner when Infisical scan is unavailable
+
+### 0b. audit-env-files.sh - Env file inventory
+
+Quick audit of tracked and untracked env-like files.
+
+**Usage**:
+```bash
+./scripts/security/audit-env-files.sh
+```
+
+**Behavior**:
+- lists env-like files with tracked/untracked status
+- flags suspicious assignments without printing secret values
+- helps identify files that should become `.env.example` templates
+
+### 0c. rotate-leaked-secret.sh - Incident checklist helper
+
+Prints the post-leak response checklist for a named secret.
+
+**Usage**:
+```bash
+./scripts/security/rotate-leaked-secret.sh OPENAI_API_KEY /clients/assistant
+```
+
+### Infisical decision map
+
+See [`docs/security/INFISICAL-CAPABILITIES.md`](/home/ellisapotheosis/repos/project-nyra/docs/security/INFISICAL-CAPABILITIES.md) for the repo-level split between:
+
+- secrets management
+- PAM
+- KMS
+- secret scanning
+- gateway access
+
+The local pre-commit scanner stays enabled even when Infisical scanning is available.
+
 ### 1. scan.sh - Security Scanning
 
 Comprehensive security scanning across the entire infrastructure.
@@ -310,7 +375,7 @@ Security metrics exposed at `/metrics`:
 ### Grafana Dashboards
 
 Import security dashboard:
-- Dashboard ID: TBD
+- Dashboard ID: not yet assigned
 - Panels: Failed auth, rate limits, vulnerabilities, scan status
 
 ### Alerting Rules

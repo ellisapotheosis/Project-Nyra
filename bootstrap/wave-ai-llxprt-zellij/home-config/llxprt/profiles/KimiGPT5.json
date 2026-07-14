@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "provider": "kimi",
+  "model": "gpt-5",
+  "modelParams": {
+    "temperature": 0.7,
+    "max_tokens": 32768
+  },
+  "ephemeralSettings": {
+    "context-limit": 262144
+  }
+}

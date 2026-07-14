@@ -1,0 +1,10 @@
+{
+  "provider": "anthropic",
+  "model": "claude-3-5-sonnet-latest",
+  "oauthEnabledProviders": {
+    "codex": true,
+    "gemini": true,
+    "qwen": true,
+    "anthropic": true
+  }
+}

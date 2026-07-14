@@ -1,0 +1,16 @@
+Run these once inside `scripts/run-llxprt-code.sh` or `llxprt`:
+
+/auth codex enable
+/auth anthropic enable
+/auth gemini enable
+/auth qwen enable
+/key save kimi <kimi-api-key>
+/key save openrouter <openrouter-api-key>
+/key save nyra-nexus <nexus-api-key-or-local-placeholder>
+/key save nyra-worker <worker-api-key-or-local-placeholder>
+
+Optional multiple-account bucket pattern:
+
+/auth codex login personal@example.com
+/auth anthropic login claude-main@example.com
+/auth gemini login gmail-main@example.com
