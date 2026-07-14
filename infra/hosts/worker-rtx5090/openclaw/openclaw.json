@@ -1,21 +1,15 @@
 {
   "plugins": {
+    "allow": ["openclaw-mem0"],
     "slots": {
-      "memory": "openclaw-memos"
+      "memory": "openclaw-mem0"
     },
     "entries": {
-      "openclaw-memos": {
-        "enabled": true,
-        "package": "@memorytensor/openclaw-memos",
-        "config": {
-          "baseUrl": "https://memos.projectnyra.com",
-          "userId": "nyra",
-          "autoRecall": true,
-          "autoCapture": true
-        }
-      },
       "openclaw-mem0": {
         "enabled": false,
+        "hooks": {
+          "allowConversationAccess": true
+        },
         "config": {
           "mode": "open-source",
           "userId": "nyra",

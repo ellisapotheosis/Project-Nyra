@@ -9,7 +9,7 @@ mapfile -t offenders < <(
     -o -iname 'docker-compose.yml' \
     -o -iname 'docker-compose.*.yml' \
     -o -iname 'docker-compose.*.yaml' \) \
-    ! -path 'infra/hosts/*' \
+    ! -path 'infra/hosts/*/*' \
     | sort
 )
 

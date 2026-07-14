@@ -25,9 +25,14 @@ make cloudflared-up-oracle
 
 ```bash
 make cloudflared-validate
+curl -I https://projectnyra.com
 curl -I https://app.projectnyra.com
 curl -I https://gitea.projectnyra.com
+curl https://projectnyra.com/.well-known/security.txt
+curl https://ratehunter.net/.well-known/security.txt
 ```
 
-- Public endpoint should return app response.
+- Public apex should return the public shell response.
+- `app.projectnyra.com` should either return the app response or redirect to
+  Cloudflare Access login, depending on the active policy.
 - Access-gated endpoint should require Cloudflare Access session.

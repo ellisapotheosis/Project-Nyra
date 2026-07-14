@@ -1,0 +1,35 @@
+{
+  "contextFileName": [
+    "AGENTS.md",
+    "LLXPRT.md",
+    "CONTEXT.md",
+    "INSTRUCTIONS.md"
+  ],
+  "checkpointing": {
+    "enabled": true
+  },
+  "lsp": true,
+  "subagents": {
+    "asyncEnabled": true,
+    "maxAsync": 6
+  },
+  "summarizeToolOutput": {
+    "run_shell_command": {
+      "tokenBudget": 2000
+    }
+  },
+  "excludedProjectEnvVars": ["DEBUG", "DEBUG_MODE", "NODE_ENV"],
+  "fileFiltering": {
+    "respectGitIgnore": true
+  },
+  "mcpServers": {
+    "nyra-nexus": {
+      "httpUrl": "http://orchestrator.trex-fiordland.ts.net:6000/mcp",
+      "description": "Project Nyra singular MCP endpoint: memory, Git/Gitea, Composio, browser, UI, and infra tools.",
+      "timeout": 30000,
+      "trust": true
+    }
+  },
+  "includeDirectories": ["."],
+  "loadMemoryFromIncludeDirectories": true
+}

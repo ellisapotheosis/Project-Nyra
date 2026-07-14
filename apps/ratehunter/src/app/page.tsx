@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ExternalLink,
+  Landmark,
   Mail,
   MapPin,
   MessageSquare,
@@ -13,11 +14,26 @@ import {
   Shield,
   Sparkles,
   Star,
+  TrendingUp,
   Upload,
 } from "lucide-react";
 
 import { BorrowerChatWidget } from "@/components/BorrowerChatWidget";
 import { LeadCaptureWizard } from "@/components/LeadCaptureWizard";
+import { AuroraBackground } from "@/components/AuroraBackground";
+import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
+import { BlurFade } from "@/components/ui/blur-fade";
+import { Marquee } from "@/components/ui/marquee";
+import { MovingBorder } from "@/components/ui/moving-border";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { CursorSpotlight } from "@/components/ui/cursor-spotlight";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { TypingAnimation } from "@/components/ui/typing-animation";
+import { OrbitingCircles } from "@/components/ui/orbiting-circles";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -116,71 +132,76 @@ const trustPoints = [
   "Licensed mortgage and real estate guidance coordinated around your scenario",
 ];
 
+const marketPulse = [
+  {
+    label: "30Y fixed watch",
+    value: "Volatile",
+    detail: "Compare points and APR, not just note rate.",
+  },
+  {
+    label: "MBS tone",
+    value: "Choppy",
+    detail: "Lock timing should match your closing risk.",
+  },
+  {
+    label: "HELOC demand",
+    value: "Elevated",
+    detail: "Useful for equity access without replacing a low first lien.",
+  },
+  {
+    label: "Purchase leverage",
+    value: "Local",
+    detail: "Seller credit strategy depends heavily on micro-market supply.",
+  },
+];
+
 export default function Home() {
   return (
     <main className="relative min-h-screen pb-20 text-white selection:bg-primary/20">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-24 pt-6 md:px-6 lg:px-8">
-        <nav className="glass-panel sticky top-4 z-40 flex flex-col gap-4 rounded-[2rem] px-5 py-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-4">
-            <Image
-              src="/ratehunter-navbar-logo.png"
-              alt="RateHunter"
-              width={220}
-              height={64}
-              className="h-auto w-full max-w-[220px]"
-              priority
-            />
-            <div className="hidden md:block">
-              <p className="eyebrow text-[11px] text-white/55">RateHunter</p>
-              <p className="text-sm text-white/72">
-                Borrower-facing mortgage and real estate advisory
-              </p>
-            </div>
+      <AuroraBackground />
+      <ScrollProgress />
+      <div className="relative z-[1] mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-24 pt-6 md:px-6 lg:px-8">
+        <nav className="glass-panel sticky top-4 z-40 flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-black/60 px-6 py-3 backdrop-blur-xl">
+          <div className="flex items-center gap-3">
+            <span className="flex size-8 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
+              <Landmark className="size-4.5" />
+            </span>
+            <span className="text-lg font-bold tracking-tight text-white uppercase">
+              RateHunter
+            </span>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <a
-              href="#quote"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "rounded-full text-white/80"
-              )}
-            >
-              Get Quote
+          <div className="hidden items-center gap-5 text-[11px] font-semibold uppercase tracking-wider text-white/50 md:flex">
+            <a href="#quote" className="hover:text-white transition-colors">
+              Quote
             </a>
-            <a
-              href="#services"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "rounded-full text-white/80"
-              )}
-            >
+            <a href="#services" className="hover:text-white transition-colors">
               Services
             </a>
-            <a
-              href="#contact"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "rounded-full text-white/80"
-              )}
-            >
+            <a href="#contact" className="hover:text-white transition-colors">
               Contact
             </a>
-            <Link
-              href={contact.phoneHref}
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "rounded-full border-white/10 bg-white/5 text-white hover:bg-white/10"
-              )}
-            >
-              <Phone className="size-4" />
-              {contact.phone}
-            </Link>
           </div>
+          <Link
+            href={contact.calendly}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "h-8 border-indigo-500/20 bg-indigo-500/5 px-4 text-indigo-400 hover:bg-indigo-500/10 hover:text-indigo-300"
+            )}
+          >
+            Consult
+          </Link>
         </nav>
 
+        <CursorSpotlight className="rounded-[2.25rem]">
         <section className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-          <div className="glass-panel overflow-hidden rounded-[2.25rem]">
-            <div className="grid gap-8 px-6 py-7 lg:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-8">
+          <MovingBorder
+            containerClassName="rounded-[2.25rem]"
+            rx="2.25rem"
+            ry="2.25rem"
+            duration={3800}
+          >
+          <div className="glass-panel overflow-hidden rounded-[calc(2.25rem-2px)] w-full">
+            <div className="grid gap-8 px-6 py-7 2xl:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-8">
               <div className="space-y-5">
                 <div className="overflow-hidden rounded-[1.6rem] border border-white/8 bg-black/20">
                   <Image
@@ -223,8 +244,12 @@ export default function Home() {
                     {contact.company}
                   </p>
                   <h1 className="display-copy text-4xl leading-[1.04] tracking-[-0.04em] text-balance md:text-6xl">
-                    Ellis Andersen
+                    <AnimatedGradientText>Ellis Andersen</AnimatedGradientText>
                   </h1>
+                  <TypingAnimation
+                    words={["Purchase", "Refinance", "HELOC", "Jumbo", "VA Loans", "FHA"]}
+                    className="text-base text-white/60 font-medium tracking-wide mt-1"
+                  />
                   <p className="max-w-2xl text-lg leading-8 text-white/72">
                     Your trusted mortgage partner for residential, commercial,
                     refinance, HELOC, and real estate strategy. I shop wholesale
@@ -235,16 +260,14 @@ export default function Home() {
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <Link
-                    href={contact.calendly}
-                    className={cn(
-                      buttonVariants({ size: "lg" }),
-                      "h-12 rounded-full bg-[hsl(var(--primary))] px-5 text-sm font-semibold text-[hsl(var(--primary-foreground))] hover:opacity-90"
-                    )}
-                  >
-                    <CalendarDays className="size-4" />
-                    Schedule Time With Me
+                  <MagneticButton>
+                  <Link href={contact.calendly} className="contents">
+                    <ShimmerButton className="h-12 w-full rounded-full px-5 font-semibold text-sm">
+                      <CalendarDays className="size-4" />
+                      Schedule Time With Me
+                    </ShimmerButton>
                   </Link>
+                  </MagneticButton>
                   <a
                     href="#quote"
                     className={cn(
@@ -275,6 +298,32 @@ export default function Home() {
                     <MessageSquare className="size-4" />
                     Text Me
                   </Link>
+                </div>
+
+                {/* ── quick-stats strip ── */}
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { value: 6.25, dec: 2, prefix: "",  suffix: "%", label: "Best Rate Today" },
+                    { value: 40,   dec: 0, prefix: "",  suffix: "+", label: "Lenders Shopped" },
+                    { value: 0,    dec: 0, prefix: "$", suffix: "",  label: "Broker Markup"   },
+                  ].map(({ value, dec, prefix, suffix, label }) => (
+                    <div
+                      key={label}
+                      className="subtle-panel rounded-[1.25rem] py-3 text-center"
+                    >
+                      <p className="text-xl font-bold tabular-nums text-white">
+                        <NumberTicker
+                          value={value}
+                          decimalPlaces={dec}
+                          prefix={prefix}
+                          suffix={suffix}
+                        />
+                      </p>
+                      <p className="mt-0.5 text-[9px] uppercase tracking-[0.12em] text-white/45">
+                        {label}
+                      </p>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -315,6 +364,8 @@ export default function Home() {
             </div>
           </div>
 
+          </MovingBorder>
+
           <div id="quote" className="space-y-5">
             <div className="glass-panel rounded-[2.1rem] p-5">
               <p className="eyebrow text-[11px] text-white/45">
@@ -324,15 +375,78 @@ export default function Home() {
                 Start your quote without the usual friction.
               </h2>
               <p className="mt-3 text-sm leading-7 text-white/68">
-                This keeps the stronger intake flow from the current landing
-                app, but wrapped inside your public Carrd-style experience
-                instead of a generic software landing page.
+                Share the basics for a scenario review. This is an intake
+                request for broker follow-up, not an automated approval or a
+                binding loan estimate.
+              </p>
+              <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-6 text-white/58">
+                By submitting, you authorize contact about your mortgage request
+                by phone, SMS, and email. Consent is not required to buy
+                services. Reply STOP to texts to opt out. Your information is
+                used for mortgage review and referral attribution, then routed
+                through approved server-side intake boundaries.
               </p>
             </div>
             <LeadCaptureWizard />
           </div>
         </section>
+        </CursorSpotlight>
 
+        <BlurFade delay={0.08}>
+        <section className="glass-panel overflow-hidden rounded-[2rem]">
+          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="eyebrow text-[11px] text-white/45">Market Pulse</p>
+              <h2 className="mt-2 display-copy text-2xl tracking-[-0.04em]">
+                Rate context for better conversations, not promises.
+              </h2>
+            </div>
+            <Link
+              href={contact.calendly}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10"
+              )}
+            >
+              <CalendarDays className="size-4" />
+              Talk through timing
+            </Link>
+          </div>
+          <div className="overflow-hidden border-b border-white/8 bg-black/20">
+            <Marquee pauseOnHover speed={42}>
+              {marketPulse.map((item) => (
+                <div
+                  key={item.label}
+                  className="inline-flex min-w-max items-center gap-3 px-5 py-3 text-sm"
+                >
+                  <TrendingUp className="size-4 text-[hsl(var(--primary))]" />
+                  <span className="font-semibold text-white/86">{item.label}</span>
+                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/68">
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </Marquee>
+          </div>
+          <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-4">
+            {marketPulse.map((item) => (
+              <div
+                key={item.label}
+                className="subtle-panel rounded-[1.4rem] p-4"
+              >
+                <p className="text-sm font-semibold text-white/86">
+                  {item.label}
+                </p>
+                <p className="mt-2 text-xs leading-6 text-white/58">
+                  {item.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+        </BlurFade>
+
+        <BlurFade delay={0.12}>
         <section className="section-divider pt-8">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {trustPoints.map((point) => (
@@ -348,7 +462,9 @@ export default function Home() {
             ))}
           </div>
         </section>
+        </BlurFade>
 
+        <BlurFade delay={0.1}>
         <section
           id="services"
           className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]"
@@ -358,8 +474,7 @@ export default function Home() {
               Advisory Approach
             </p>
             <h2 className="mt-4 display-copy text-3xl tracking-[-0.04em] md:text-5xl">
-              Tailored solutions, faster execution, and one advisor across the
-              process.
+              <TextGenerateEffect words="Tailored solutions, faster execution, and one advisor across the process." />
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-8 text-white/68">
               At West Capital Lending, I shop wholesale pricing across approved
@@ -388,12 +503,9 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {serviceLines.map((item) => (
-              <Card
-                key={item.title}
-                className="glass-panel rounded-[1.9rem] border-white/8 bg-transparent py-0 text-white shadow-none"
-              >
+          <div className="grid gap-4 md:grid-cols-2 md:grid-rows-2">
+            {serviceLines.map((item, index) => (
+              <SpotlightCard key={item.title} className={cn("glass-panel rounded-[1.9rem] border-white/8 text-white", index === 0 && "md:row-span-2")}>
                 <CardContent className="space-y-4 p-6">
                   <div className="flex size-12 items-center justify-center rounded-2xl bg-[hsl(var(--primary))]/18">
                     <Shield className="size-5 text-[hsl(var(--primary))]" />
@@ -407,11 +519,13 @@ export default function Home() {
                     </p>
                   </div>
                 </CardContent>
-              </Card>
+              </SpotlightCard>
             ))}
           </div>
         </section>
+        </BlurFade>
 
+        <BlurFade delay={0.1}>
         <section className="grid gap-8 lg:grid-cols-[1.06fr_0.94fr]">
           <div className="glass-panel rounded-[2.1rem] p-6 lg:p-8">
             <div className="flex flex-wrap items-center gap-3">
@@ -425,6 +539,22 @@ export default function Home() {
                 Borrower-first guidance
               </Badge>
             </div>
+            <div className="flex justify-center mb-6">
+              <OrbitingCircles
+                radius={70}
+                duration={22}
+                items={[
+                  <span key="1" className="text-xs font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-2 py-1">WCL</span>,
+                  <span key="2" className="text-xs font-bold text-seafoam bg-seafoam/10 border border-seafoam/20 rounded-full px-2 py-1" style={{color:'oklch(0.8871 0.1828 166.5465)'}}>FHA</span>,
+                  <span key="3" className="text-[10px] font-bold text-white/60 bg-white/5 border border-white/10 rounded-full px-2 py-1">VA</span>,
+                  <span key="4" className="text-[10px] font-bold text-white/60 bg-white/5 border border-white/10 rounded-full px-2 py-1">Conv</span>,
+                ]}
+              >
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-indigo-500/18 border border-indigo-500/20">
+                  <span className="text-lg">🏠</span>
+                </div>
+              </OrbitingCircles>
+            </div>
             <h2 className="mt-5 display-copy text-3xl tracking-[-0.04em] md:text-5xl">
               Mortgage guidance that feels personal, but still moves with real
               operational speed.
@@ -432,9 +562,9 @@ export default function Home() {
             <p className="mt-4 max-w-2xl text-base leading-8 text-white/68">
               The stronger content from the newer landing app stays here:
               borrower-first messaging, secure intake, educational chat, and a
-              clearer explanation of next steps. The difference is that it now
-              sits inside your actual public identity instead of looking like a
-              startup placeholder.
+              clearer explanation of next steps. The experience now sits inside
+              your actual public identity and keeps borrower education separate
+              from internal broker tooling.
             </p>
             <div className="mt-6 grid gap-3 md:grid-cols-2">
               {[
@@ -480,7 +610,9 @@ export default function Home() {
             ))}
           </div>
         </section>
+        </BlurFade>
 
+        <BlurFade delay={0.1}>
         <section
           id="contact"
           className="glass-panel rounded-[2.25rem] px-6 py-7 lg:px-8"
@@ -551,6 +683,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        </BlurFade>
 
         <footer className="px-2 pb-2 pt-2 text-center">
           <Image

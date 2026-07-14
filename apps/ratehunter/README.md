@@ -24,6 +24,7 @@ Production-ready Next.js landing page optimized for Cloudflare Pages deployment.
 - ✅ **Security**: CSP, HSTS, XSS protection, secure headers
 - ✅ **Performance**: Edge caching, auto-minify, Brotli, HTTP/3
 - ✅ **SEO**: robots.txt, sitemap, meta tags, Open Graph
+- ✅ **Security disclosures**: `/.well-known/security.txt` and a published PGP key
 - ✅ **PWA**: Progressive web app support with manifest
 - ✅ **Error Pages**: Custom 404 and 500 pages
 - ✅ **Analytics Ready**: Cloudflare Web Analytics integration
@@ -56,7 +57,7 @@ pnpm run start
 ## 📁 Project Structure
 
 ```
-ratehunter-landing/
+apps/ratehunter/
 ├── public/
 │   ├── _headers              # Security & performance headers
 │   ├── _redirects            # URL redirects
@@ -88,11 +89,16 @@ ratehunter-landing/
 | `_redirects`          | URL redirect rules                       |
 | `.env.example`        | Environment variables template           |
 
+The `public/.well-known/` assets ship with the rest of the Pages bundle, so
+`https://ratehunter.net/.well-known/security.txt` and
+`https://ratehunter.net/.well-known/pgp-key.asc` should load directly after
+deployment.
+
 ## 🌐 Cloudflare Pages Build Settings
 
 ```
 Framework preset: Next.js
-Root directory: apps/ratehunter/landing
+Root directory: apps/ratehunter
 Build command: npm run build:cf
 Build output: .open-next
 Install command: npm install
