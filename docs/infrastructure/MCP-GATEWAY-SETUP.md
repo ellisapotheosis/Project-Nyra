@@ -73,7 +73,7 @@ cd /home/ellisapotheosis/repos/project-nyra
 
 # Start Nexus Router MCP
 docker compose -f infra/hosts/oracle-vps/docker-compose.yml \
-  -f infra/mcp-gateway/nexus-router-docker-compose.yml \
+  -f infra/hosts/oracle-vps/docker-compose.nexus-router-mcp.yml \
   up -d nexus-router-mcp
 
 # Verify it's running
@@ -82,7 +82,8 @@ docker logs nyra-nexus-router-mcp
 
 ### Step 4: Configure Cloudflare Tunnel Route
 
-The tunnel route is automatically configured if you use the provided `cloudflared-config.yml`:
+The tunnel route is automatically configured if you use the provided
+`infra/hosts/oracle-vps/cloudflared-config-nexus-router.yml`:
 
 ```yaml
 - hostname: mcp-gateway.projectnyra.com
@@ -175,9 +176,9 @@ curl -H "Authorization: Bearer $MCP_GATEWAY_TOKEN" \
 
 | File | Purpose |
 |------|---------|
-| `nexus-router-mcp-config.yml` | MCP Gateway configuration (tools, auth, services) |
-| `cloudflared-config.yml` | Cloudflare Tunnel routing (updated with MCP gateway route) |
-| `nexus-router-docker-compose.yml` | Docker Compose services for MCP gateway |
+| `infra/hosts/oracle-vps/nexus-router-mcp-config.yml` | MCP Gateway configuration (tools, auth, services) |
+| `infra/hosts/oracle-vps/cloudflared-config-nexus-router.yml` | Cloudflare Tunnel routing for the MCP gateway |
+| `infra/hosts/oracle-vps/docker-compose.nexus-router-mcp.yml` | Docker Compose services for the MCP gateway |
 
 ## Security
 
@@ -316,4 +317,4 @@ results = client.call_tool('crm_search', {
 - [Cloudflare Deployment Guide](./CLOUDFLARE_DEPLOYMENT.md)
 - [Setup Checklist](./SETUP_CHECKLIST.md)
 - [Nexus Router Documentation](../nexus-router/README.md)
-- [Tunnel Configuration](../mcp-gateway/cloudflared-config.yml)
+- [Tunnel Configuration](../../infra/hosts/oracle-vps/cloudflared-config-nexus-router.yml)
