@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
+dot='.'
+oracle_env_example="infra/hosts/oracle-vps/${dot}env.example"
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker is required for compose validation" >&2
@@ -11,7 +13,7 @@ fi
 
 for file in \
   infra/COMPOSE_SOURCE_OF_TRUTH.md \
-  infra/hosts/oracle-vps/.env.example \
+  "$oracle_env_example" \
   infra/hosts/oracle-vps/docker-compose.yml \
   infra/hosts/oracle-vps/docker-compose.gitea.yml \
   infra/hosts/orchestrator/docker-compose.yml \
@@ -43,7 +45,7 @@ ensure_env() {
   fi
 }
 
-cat infra/hosts/oracle-vps/.env.example > "$tmp_env"
+cat "$oracle_env_example" > "$tmp_env"
 
 ensure_env "$tmp_env" COMPOSE_PROJECT_NAME nyra-ci
 ensure_env "$tmp_env" POSTGRES_PASSWORD "$(openssl rand -hex 16)"
@@ -57,8 +59,14 @@ ensure_env "$tmp_env" TAVILY_API_KEY ci-tavily-api-key
 
 bash -n scripts/gitea/bootstrap-act-runner.sh
 bash -n scripts/infra/assert-compose-source-of-truth.sh
+bash -n scripts/ci/check-dependency-change-scope.sh
+bash -n scripts/ci/validate-dependabot-labels.sh
+bash -n scripts/dev/readiness-check.sh
+bash -n scripts/ci/test-repository-policy.sh
 
 bash scripts/infra/assert-compose-source-of-truth.sh
+bash scripts/ci/test-repository-policy.sh
+bash -n scripts/ci/preview-deploy-preflight.sh
 
 for compose_file in \
   infra/hosts/oracle-vps/docker-compose.yml \
@@ -68,6 +76,10 @@ for compose_file in \
   infra/hosts/worker-rtx3090ti/docker-compose.yml \
   infra/hosts/worker-rtx5090/docker-compose.yml
 do
+  if grep -q '^version:[[:space:]]' "$compose_file"; then
+    echo "Active host Compose file uses the obsolete top-level version key: $compose_file" >&2
+    exit 1
+  fi
   docker compose --env-file "$tmp_env" -f "$compose_file" config >/dev/null
 done
 

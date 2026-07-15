@@ -1,0 +1,69 @@
+name: nyra-mcp-gateway
+
+services:
+  # Nexus Router MCP Gateway
+  nexus-router-mcp:
+    image: nexus-router:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nexus-router-mcp
+    restart: unless-stopped
+    ports:
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:7001:7001"
+    environment:
+      MCP_GATEWAY_PORT: 7001
+      MCP_GATEWAY_TOKEN: ${MCP_GATEWAY_TOKEN}
+      NODE_ENV: production
+
+      # Service endpoints
+      SUPABASE_URL: http://supabase-auth:9999
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      TWENTY_CRM_URL: http://twenty:3000
+      ACTIVEPIECES_URL: http://activepieces:5678
+
+      # Logging
+      LOG_LEVEL: info
+      LOG_FORMAT: json
+
+    volumes:
+      - ./nexus-router-mcp-config.yml:/etc/nexus-router/config.yml:ro
+      - nexus_router_logs:/var/log/nexus-router-mcp
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-H", "Authorization: Bearer ${MCP_GATEWAY_TOKEN}", "http://localhost:7001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+    networks: [nyra_net]
+    labels:
+      service: nexus-router
+      component: mcp-gateway
+      environment: production
+
+  # MCP Gateway Monitor (optional - for observability)
+  mcp-gateway-monitor:
+    image: prom/prometheus:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mcp-gateway-monitor
+    restart: unless-stopped
+    ports:
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:9090:9090"
+    volumes:
+      - ./prometheus-mcp.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_mcp_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks: [nyra_net]
+    labels:
+      service: nexus-router
+      component: monitoring
+
+volumes:
+  nexus_router_logs:
+    driver: local
+  prometheus_mcp_data:
+    driver: local
+
+networks:
+  nyra_net:
+    external: true
+    name: nyra_net

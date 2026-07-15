@@ -14,6 +14,13 @@ ingress:
   # Cloudflare Pages owns ratehunter.net and www.ratehunter.net.
   # Do not add apex/www routes to this tunnel.
 
+  # Public Project Nyra marketing/launch shell.
+  - hostname: projectnyra.com
+    service: http://webapp:3001
+
+  - hostname: www.projectnyra.com
+    service: http://webapp:3001
+
   # Broker/customer webapp. Keep Access-gated until app auth is fully live.
   - hostname: app.projectnyra.com
     service: http://webapp:3001
