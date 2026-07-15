@@ -50,7 +50,7 @@ git push origin main
 **Build settings**:
 
 - Framework preset: **Next.js**
-- Root directory: **apps/ratehunter/landing**
+- Root directory: **apps/ratehunter**
 - Install command: `npm install`
 - Build command: `npm run build:cf`
 - Build output directory: `.open-next`
@@ -193,7 +193,7 @@ Cloudflare automatically:
 
 - Check build logs in Cloudflare dashboard
 - Verify environment variables
-- Test locally: `cd apps/ratehunter/landing && npm install && npm run build:cf`
+- Test locally: `cd apps/ratehunter && npm install && npm run build:cf`
 
 **Domain not working?**
 

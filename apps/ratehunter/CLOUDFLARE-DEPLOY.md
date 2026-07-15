@@ -55,7 +55,7 @@ npm run cf:deploy
 Use the landing app as the Cloudflare project root so Pages only installs and builds this app:
 
 - **Framework preset**: `Next.js`
-- **Root directory**: `apps/ratehunter/landing`
+- **Root directory**: `apps/ratehunter`
 - **Install command**: `npm install`
 - **Build command**: `npm run build:cf`
 - **Build output directory**: `.open-next`
@@ -69,12 +69,12 @@ only static assets and will serve the branded 404 for `/`.
 
 #### If your Cloudflare project keeps using repo root (v2 root directory strategy)
 
-If the Cloudflare UI is currently configured with an empty root directory and a `cd ...` build command, use this exact fallback. **Note:** This is a legacy fallback for existing projects that cannot be easily migrated. New Cloudflare Pages projects should always prefer the explicit `apps/ratehunter/landing` root configuration (Option 1) to avoid monorepo isolation issues.
+If the Cloudflare UI is currently configured with an empty root directory and a `cd ...` build command, use this exact fallback. **Note:** This is a legacy fallback for existing projects that cannot be easily migrated. New Cloudflare Pages projects should always prefer the explicit `apps/ratehunter` root configuration (Option 1) to avoid monorepo isolation issues.
 
 - **Root directory**: _(leave blank)_
-- **Install command**: `cd apps/ratehunter/landing && npm install`
-- **Build command**: `cd apps/ratehunter/landing && npm run build:cf`
-- **Build output directory**: `apps/ratehunter/landing/.open-next`
+- **Install command**: `cd apps/ratehunter && npm install`
+- **Build command**: `cd apps/ratehunter && npm run build:cf`
+- **Build output directory**: `apps/ratehunter/.open-next`
 
 This avoids `pnpm install` running at monorepo root and prevents frozen-lockfile failures caused by unrelated workspace packages.
 
@@ -162,12 +162,12 @@ After running `npm run build:cf`, the `.open-next` directory contains:
 
 If the build fails, check:
 
-1. **Root directory**: Confirm the Cloudflare project root is `apps/ratehunter/landing`, not `/`
+1. **Root directory**: Confirm the Cloudflare project root is `apps/ratehunter`, not `/`
 
 2. **Dependencies**: Ensure app dependencies are installed
 
    ```bash
-   cd apps/ratehunter/landing
+   cd apps/ratehunter
    npm install
    ```
 
@@ -208,6 +208,11 @@ After deploying, set up a custom domain:
 2. Click "Set up a custom domain"
 3. Enter your domain (e.g., `ratehunter.net` or `www.ratehunter.net`)
 4. Follow DNS setup instructions
+
+After the custom domain is attached, verify:
+
+- `https://ratehunter.net/.well-known/security.txt`
+- `https://ratehunter.net/.well-known/pgp-key.asc`
 
 Update `wrangler.toml` to add routes:
 

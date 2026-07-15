@@ -20,6 +20,8 @@ services:
       - NODE_ENV=production
       - OPENAI_API_BASE=http://worker-5090-vllm:8000/v1
       - OPENAI_API_KEY=${NEXUS_ADMIN_TOKEN:-dummy}
+      - OPENCLAW_GATEWAY_AUTH=token
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-${NEXUS_ADMIN_TOKEN:-dummy}}
       - MEM0_API_KEY=${MEM0_API_KEY}
       - TWENTY_API_KEY=${TWENTY_CRM_API_KEY}
       - TWENTY_URL=${TWENTY_CRM_URL:-http://oracle.trex-fiordland.ts.net:3000}
@@ -29,7 +31,7 @@ services:
       - assistant-memory:/home/node/.memory
       - nyra_secrets:/run/nyra-secrets:ro
     entrypoint: >
-      sh -c "openclaw plugins install @memorytensor/openclaw-memos && exec openclaw gateway --port 18789"
+      sh -c "exec openclaw gateway --port 18789 --auth token"
     deploy:
       resources:
         reservations:

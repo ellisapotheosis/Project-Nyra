@@ -5,12 +5,7 @@
 # Connected via Tailscale mesh to orchestrator
 # ============================================================================
 
-version: '3.8'
-
 services:
-
-
-
   # ── Portainer Edge Agent ────────────────────────────────────────────────
   portainer-edge-agent:
     image: portainer/agent:2.27.9
@@ -119,7 +114,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-node-exporter
     restart: unless-stopped
     ports:
-      - '9100:9100'
+      - "9100:9100"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -132,7 +127,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-gpu-exporter
     restart: unless-stopped
     ports:
-      - '9835:9835'
+      - "9835:9835"
     deploy:
       resources:
         reservations:

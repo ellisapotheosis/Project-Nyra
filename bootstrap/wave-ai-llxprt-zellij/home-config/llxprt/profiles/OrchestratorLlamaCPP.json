@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "provider": "llama.cpp",
+  "model": "gpt-5",
+  "modelParams": {
+    "temperature": 0.7,
+    "max_tokens": 2048
+  },
+  "ephemeralSettings": {
+    "base-url": "http://100.64.0.10:8080/v1",
+    "context-limit": 32000
+  }
+}

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { KanbanBoard } from "@/components/leads/kanban-board";
 
 const metrics = [
   {
@@ -48,13 +49,6 @@ const metrics = [
   },
 ];
 
-const recentActivity = [
-  "New lead from RateHunter for $450,000 purchase loan",
-  "Quote generated for Michael Chen at 6.875%",
-  "Application submitted for Lisa Rodriguez FHA purchase",
-  "Disclosure package delivered to David Kim",
-];
-
 export default function PipelinePage() {
   return (
     <div className="space-y-6">
@@ -85,19 +79,12 @@ export default function PipelinePage() {
         ))}
       </div>
 
-      <Card>
+      <Card className="border-border/60 bg-background/20">
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle>Lead Pipeline Board</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {recentActivity.map((item) => (
-            <div
-              key={item}
-              className="rounded-2xl border border-border/60 bg-background/40 p-4 text-sm text-muted-foreground"
-            >
-              {item}
-            </div>
-          ))}
+        <CardContent>
+          <KanbanBoard />
         </CardContent>
       </Card>
     </div>

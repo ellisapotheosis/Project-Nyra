@@ -1,0 +1,141 @@
+{
+  "nyra-mission-control": {
+    "display:name": "Nyra Mission Control",
+    "description": "WaveTerm entrypoint for LLxprt HA, Jefe, Zellij, Letta, OpenClaw, and worker telemetry.",
+    "tabs": [
+      {
+        "name": "CONTROL",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "Zellij Durable Cockpit",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "NYRA_INCLUDE_3060=0 scripts/nyra-wave-zellij.sh"
+          },
+          {
+            "type": "terminal",
+            "name": "LLxprt HA",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "scripts/run-llxprt-code.sh --profile-load nyra-subscription-ha"
+          },
+          {
+            "type": "terminal",
+            "name": "Jefe",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "scripts/run-llxprt-jefe.sh"
+          },
+          {
+            "type": "terminal",
+            "name": "Bridge Health",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; date; curl -fsS http://127.0.0.1:8090/health || true; sleep 5; done"
+          }
+        ]
+      }
+    ]
+  },
+  "nyra-mission-control-3060": {
+    "display:name": "Nyra Mission Control + RTX3060",
+    "description": "Full Wave/Zellij cockpit with the optional RTX3060 OpenClaw/Ollama lane.",
+    "tabs": [
+      {
+        "name": "CONTROL-3060",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "Zellij Durable Cockpit",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "NYRA_INCLUDE_3060=1 scripts/nyra-wave-zellij.sh"
+          },
+          {
+            "type": "terminal",
+            "name": "LLxprt Spread",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "scripts/run-llxprt-code.sh --profile-load nyra-subscription-spread"
+          },
+          {
+            "type": "terminal",
+            "name": "Worker 3060",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=5 worker-rtx3060.trex-fiordland.ts.net 'docker ps --format \"table {{.Names}}\\t{{.Status}}\"; echo; curl -fsS http://127.0.0.1:11434/api/tags || true' || bash"
+          }
+        ]
+      }
+    ]
+  },
+  "nyra-provider-auth": {
+    "display:name": "LLxprt Provider Auth",
+    "description": "Interactive OAuth/keyring setup for subscription-backed LLxprt lanes.",
+    "tabs": [
+      {
+        "name": "AUTH",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "Auth Commands",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "printf '%s\\n' '/auth codex enable' '/auth anthropic enable' '/auth gemini enable' '/auth qwen enable' '/key save kimi <key>'; scripts/run-llxprt-code.sh --profile-load nyra-subscription-ha"
+          }
+        ]
+      }
+    ]
+  },
+  "nyra-openclaw-topology": {
+    "display:name": "OpenClaw Topology",
+    "description": "Logs and health checks for 5090, 3090Ti, and optional 3060 OpenClaw/PicoClaw lanes.",
+    "tabs": [
+      {
+        "name": "OPENCLAW",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "RTX5090 OpenClaw",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=5 worker-rtx5090.trex-fiordland.ts.net 'docker logs -f worker-5090-openclaw' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "RTX3090Ti OpenClaw",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=5 worker-rtx3090ti.trex-fiordland.ts.net 'docker logs -f worker-3090-openclaw' || bash"
+          },
+          {
+            "type": "terminal",
+            "name": "RTX3060 OpenClaw/PicoClaw",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "ssh -A -t -o ConnectTimeout=5 worker-rtx3060.trex-fiordland.ts.net 'docker logs -f worker-3060-openclaw || docker logs -f picoclaw' || bash"
+          }
+        ]
+      }
+    ]
+  },
+  "nyra-cluster-health": {
+    "display:name": "Nyra Cluster Health",
+    "description": "Docker-context and Nexus health monitor.",
+    "tabs": [
+      {
+        "name": "HEALTH",
+        "blocks": [
+          {
+            "type": "terminal",
+            "name": "Stack Status",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; make wave-stack-status; sleep 10; done"
+          },
+          {
+            "type": "terminal",
+            "name": "Nexus",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; date; curl -fsS http://orchestrator.trex-fiordland.ts.net:6000/health || true; sleep 5; done"
+          },
+          {
+            "type": "terminal",
+            "name": "GPU Mesh",
+            "cwd": "~/repos/project-nyra",
+            "cmd": "while true; do clear; for host in worker-rtx5090 worker-rtx3090ti worker-rtx3060; do echo \"[$host]\"; ssh -o ConnectTimeout=5 ${host}.trex-fiordland.ts.net 'nvidia-smi --query-gpu=name,utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits' 2>/dev/null || echo offline; echo; done; sleep 5; done"
+          }
+        ]
+      }
+    ]
+  }
+}

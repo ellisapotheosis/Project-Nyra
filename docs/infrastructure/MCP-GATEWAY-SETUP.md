@@ -73,7 +73,7 @@ cd /home/ellisapotheosis/repos/project-nyra
 
 # Start Nexus Router MCP
 docker compose -f infra/hosts/oracle-vps/docker-compose.yml \
-  -f infra/mcp-gateway/nexus-router-docker-compose.yml \
+  -f infra/hosts/oracle-vps/docker-compose.nexus-router-mcp.yml \
   up -d nexus-router-mcp
 
 # Verify it's running
