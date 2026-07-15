@@ -1125,32 +1125,41 @@ Do not manually duplicate hook-owned activation state unless recovering from mis
 
 ## Evidence-based skill progression
 
-Telemetry through 2026-07-15 supports exactly three advanced progression vectors for work in `/apps` and `/infra`. The dated PR observations below are historical examples; re-check current branch rules, workflow definitions, and provider status before applying them to a new change. In this section, a **boundary** is an independently reviewable application, deployment target, or recovery slice with its own build and verification contract; **preview preflight** is the repository check that validates that contract before provider deployment; and **OIDC** is the short-lived identity handoff from CI to an identity, secrets, or deployment provider.
+Telemetry through 2026-07-15 supports exactly three advanced progression vectors for work in `/apps` and `/infra`. The dated PR observations below are historical examples; re-check current branch rules, workflow definitions, and provider status before applying them to a new change. In this section, a **boundary** is an independently reviewable application, deployment target, or recovery slice with its own build and verification contract; **preview preflight** is the repository check that validates that contract before provider deployment; **OIDC** is the short-lived identity handoff from CI to an identity, secrets, or deployment provider; and **automated reviewers** are the Sourcery, Greptile, and CodeRabbit PR review bots.
 
 ### 1. Provenance-aware recovery and review-budget decomposition
 
 **Target.** Recover only traceable source material into the configured app root, in slices small enough for the available reviewers and automation.
 
-**Evidence.** [PR #742](https://github.com/ellisapotheosis/Project-Nyra/pull/742) restored 460 files and 76,629 additions, including a candidate `apps/projectnyra/src/app` tree. [PR #743](https://github.com/ellisapotheosis/Project-Nyra/pull/743) immediately removed overlapping files from that candidate root, moved the application surface back under the canonical `apps/projectnyra/app`, `components`, and `lib` roots, and removed embedded `.omc/state` runtime artifacts. Its preview preflight then failed on unresolved imports including `./rateLimit`, `@/lib/campaign-contract`, `@/lib/api/rateLimit`, and `@/lib/privacy/redaction`. Review automation also exceeded its practical capacity: Sourcery could not fetch the 460-file diff in PR #742 and rejected PR #743 for exceeding its diff-character limit. The pattern recurred in [PR #766](https://github.com/ellisapotheosis/Project-Nyra/pull/766) and [PR #767](https://github.com/ellisapotheosis/Project-Nyra/pull/767): 566- and 584-file integrations exceeded Sourcery's 300-file API limit, Greptile's 100-file limit, and CodeRabbit's 150-file limit.
+**Evidence.**
+
+- [PR #742](https://github.com/ellisapotheosis/Project-Nyra/pull/742) restored 460 files and 76,629 additions, including a candidate `apps/projectnyra/src/app` tree.
+- [PR #743](https://github.com/ellisapotheosis/Project-Nyra/pull/743) immediately removed overlapping files from that candidate root, moved the application surface back under the canonical `apps/projectnyra/app`, `components`, and `lib` roots, and removed embedded `.omc/state` runtime artifacts. Its preview preflight then failed on unresolved imports including `./rateLimit`, `@/lib/campaign-contract`, `@/lib/api/rateLimit`, and `@/lib/privacy/redaction`.
+- Automated review exceeded its practical capacity: Sourcery could not fetch PR #742's 460-file diff and rejected PR #743 for exceeding its diff-character limit. [PR #766](https://github.com/ellisapotheosis/Project-Nyra/pull/766) and [PR #767](https://github.com/ellisapotheosis/Project-Nyra/pull/767) repeated the pattern: 566- and 584-file integrations exceeded Sourcery's 300-file API limit, Greptile's 100-file limit, and CodeRabbit's 150-file limit.
 
 **Practice.**
 
 - Inventory every candidate path against the target package's `next.config.*`, `tsconfig.json`, workspace manifest, and current app root before restoring a stash, archive, or orphaned commit.
 - Recover one boundary at a time, record the source commit or blob in the PR, and reject `.omc`, cache, generated, and other runtime-state files.
-- Run `git diff --stat`, `git diff --name-only`, and `pnpm --filter projectnyra build` before opening the PR.
+- Run `git diff --stat` and `git diff --name-only`, then execute the affected package or host validation command selected from the deployment matrix before opening the PR; use `pnpm --filter <package> build` for an app boundary and `bash scripts/ci/validate-infra.sh` for an infra boundary.
 - Split recovery work whenever a boundary would exceed reviewer file or diff limits.
 
-**Graduation criteria.** For the next three recovery slices that are actually required, preserve one canonical app root, record source provenance, exclude runtime-state artifacts, avoid follow-up path relocation, and produce a green target-app build.
+**Graduation criteria.** For the next three recovery slices that are actually required, preserve the canonical target root, record source provenance, exclude runtime-state artifacts, avoid follow-up path relocation, and produce a green boundary-specific validation result: an affected-package build for an app slice or `bash scripts/ci/validate-infra.sh` for an infra slice.
 
 ### 2. Required-check release governance and asynchronous merge lifecycle ownership
 
 **Target.** Own each PR until its defined checks and review threads finish, and separate baseline failures from change-attributable failures before merging.
 
-**Evidence.** PR #742 merged 21 seconds after creation and PR #743 merged 13 seconds after creation; both accumulated failures after merge. PR #743's CodeRabbit review then reported that review failed because the PR was already closed. PR #743 subsequently showed failures in preview preflight, `Build & Deploy`, `crm-api`, `twenty-mcp-jezweb`, Cloudflare Pages, and Vercel, while the repository's `main` rules required thread resolution but did not require status checks. The next Dependabot series, [PR #744](https://github.com/ellisapotheosis/Project-Nyra/pull/744) through [PR #763](https://github.com/ellisapotheosis/Project-Nyra/pull/763), repeated zero-review closures and a shared `validate-compose-gitea-infisical` failure caused by `infra/mcp-gateway/nexus-router-docker-compose.yml` living outside `infra/hosts/*`. PR #766 then merged 26 seconds after creation with failed repository-policy, Docker, Cloudflare, and Vercel checks; PR #767 merged after 60 seconds with the same failure classes. On PR #767, the repository CI workflow's lint, test, security, and build jobs were skipped while CircleCI lint, test, and typecheck passed.
+**Evidence.**
+
+- PR #742 merged 21 seconds after creation and PR #743 merged 13 seconds after creation; both accumulated failures after merge. PR #743's CodeRabbit review then reported that review failed because the PR was already closed.
+- PR #743 subsequently showed failures in preview preflight, `Build & Deploy`, `crm-api`, `twenty-mcp-jezweb`, Cloudflare Pages, and Vercel, while the repository's `main` rules required thread resolution but did not require status checks.
+- The next Dependabot series, [PR #744](https://github.com/ellisapotheosis/Project-Nyra/pull/744) through [PR #763](https://github.com/ellisapotheosis/Project-Nyra/pull/763), repeated zero-review closures and a shared `validate-compose-gitea-infisical` failure caused by `infra/mcp-gateway/nexus-router-docker-compose.yml` living outside `infra/hosts/*`.
+- PR #766 merged 26 seconds after creation with failed repository-policy, Docker, Cloudflare, and Vercel checks. PR #767 merged after 60 seconds with the same failure classes; its repository CI workflow's lint, test, security, and build jobs were skipped while CircleCI lint, test, and typecheck passed.
 
 **Practice.**
 
-- Define an `/apps` and `/infra` merge gate comprising preview preflight, the target-app build, the relevant provider preview, scoped container builds, and completed review threads.
+- Define an `/apps` and `/infra` merge gate comprising preview preflight, the target-app build, the relevant provider preview, scoped container builds, and completed review threads. Until `scripts/github/review-and-merge-prs.sh` enforces every check conclusion, treat the preview, build, provider, and container portions as manual gates in addition to its automated metadata and review-thread checks.
 - Use `gh pr checks --watch` until every required check reaches a terminal state.
 - Compare failures with the base SHA before assigning causality, and classify skipped or neutral checks separately from blockers.
 - Merge only after automated and human feedback is complete. Treat a repository-owned baseline failure as a tracked blocker, not as evidence that an unrelated dependency change caused it.
@@ -1161,7 +1170,13 @@ Telemetry through 2026-07-15 supports exactly three advanced progression vectors
 
 **Target.** Make local, preflight, and provider execution use one app contract, then diagnose failures at the exact boundary where that contract breaks.
 
-**Evidence.** In PR #743, CircleCI lint, test, and typecheck passed while preview preflight and deploy checks failed; the RateHunter OpenNext workflow completed its Cloudflare build and uploaded `.open-next`, but deployment failed with GitHub API status 422 because no ref remained for the already merged and closed recovery branch. A separate `Build & Deploy` workflow failed earlier during Infisical OIDC secret retrieval and its `build:cf` path. In PR #742, six RateHunter tests passed while both the OpenNext Cloudflare build and fallback Next.js build exited nonzero, and the workflow hid diagnostic output with `2>/dev/null`. PRs #766 and #767 both failed `Build crm-api` because the Docker build contract referenced missing `/packages/crm-types/tsconfig.json`, while their Cloudflare app, landing, and Nexus previews and Vercel checks also failed. These failures show that package validation, repository preflight, container context, and provider execution are not exercising the same contract or ref lifecycle.
+**Evidence.**
+
+- In PR #743, CircleCI lint, test, and typecheck passed while preview preflight and deploy checks failed. The RateHunter OpenNext workflow completed its Cloudflare build and uploaded `.open-next`, but deployment failed with GitHub API status 422 because no ref remained for the already merged and closed recovery branch.
+- A separate `Build & Deploy` workflow on PR #743 failed earlier during Infisical OIDC secret retrieval and its `build:cf` path.
+- In PR #742, six RateHunter tests passed while both the OpenNext Cloudflare build and fallback Next.js build exited nonzero, and the workflow hid diagnostic output with `2>/dev/null`.
+- PRs #766 and #767 both failed `Build crm-api` because the Docker build contract referenced missing `/packages/crm-types/tsconfig.json`, while their Cloudflare app, landing, and Nexus previews and Vercel checks also failed.
+- Together, these failures show that package validation, repository preflight, container context, and provider execution are not exercising the same contract or ref lifecycle.
 
 **Practice.**
 
