@@ -18,8 +18,8 @@
 
 ## Phase 3: AI Orchestration & Memory
 
-- [ ] Task: Implement: Configure `Letta` stack orchestrator powered by `llxprt-jefe/code`
-- [ ] Task: Implement: Wire `Letta` task dispatching to 3-PC GPU cluster (openclaw/picoclaw)
+- [x] Task: Implement: Configure `Letta` stack orchestrator powered by `llxprt-jefe/code` [ca64988]
+- [x] Task: Implement: Wire `Letta` task dispatching to 3-PC GPU cluster (openclaw/picoclaw) [ca64988]
 - [ ] Task: Implement: Connect `mem0` to `falkordb` (graph) and `Qdrant` (vector) backends
 - [ ] Task: Implement: Integrate `openmemory mcp` diagnostic links into the Cockpit UI
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: AI Orchestration & Memory' (Protocol in workflow.md)
