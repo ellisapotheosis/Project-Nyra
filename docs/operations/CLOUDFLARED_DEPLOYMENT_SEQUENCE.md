@@ -30,9 +30,13 @@ curl -I https://app.projectnyra.com
 curl -I https://gitea.projectnyra.com
 curl https://projectnyra.com/.well-known/security.txt
 curl https://ratehunter.net/.well-known/security.txt
+curl -I https://cdn.projectnyra.com/security/projectnyra-pgp-key.asc
+curl -I https://cdn.projectnyra.com/security/ratehunter-pgp-key.asc
 ```
 
 - Public apex should return the public shell response.
 - `app.projectnyra.com` should either return the app response or redirect to
   Cloudflare Access login, depending on the active policy.
 - Access-gated endpoint should require Cloudflare Access session.
+- Disclosure metadata should be served by Cloudflare Security Center and the
+  referenced OpenPGP keys should be served from R2 through `cdn.projectnyra.com`.

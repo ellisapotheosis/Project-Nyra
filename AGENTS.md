@@ -150,7 +150,8 @@ Agents must place work in the correct location.
 
 ### Repo roots
 
-- `apps/projectnyra` → (projectnyra.com) Unified broker and operations command hub.
+- `apps/projectnyra-landing` → (projectnyra.com) Public 3D Project Nyra landing page.
+- `apps/projectnyra` → (app.projectnyra.com) Primary broker/customer webapp and operations command hub.
 - `apps/ratehunter` → (ratehunter.net) Public mortgage broker landing page (Isolated).
 
 - `services/*` → backend business services
@@ -622,90 +623,96 @@ This document exists to give future agents and humans one top-to-bottom picture 
 <claude-mem-context>
 # Memory Context
 
-# [project-nyra] recent context, 2026-05-09 6:56am PDT
+# [project-nyra] recent context, 2026-07-15 12:30pm PDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (19,715t read) | 2,074,417t work | 99% savings
+Stats: 50 obs (16,721t read) | 478,557t work | 97% savings
 
-### Apr 28, 2026
+### May 24, 2026
 
-S14 SSH cluster configuration fix for multi-machine homelab — user also issued permanent autonomy directive requiring Claude to run all executable commands without delegating back to user (Apr 28, 6:11 AM)
-S16 SSH completely unresponsive on worker-rtx5090 (Windows) — requires local PowerShell fix to restore sshd_config and restart service on port 2224 (Apr 28, 6:15 AM)
-S19 Project-nyra cluster network remediation — Oracle VPS SSH bootstrap problem: correct IP/port found but authentication blocked, awaiting user input on key injection method (Apr 28, 6:15 AM)
-S17 Full stack health audit + access guide for project-nyra: Wave AI + llxprt + OpenClaw + Zellij orchestrator, plus Paperclip, ClawTeam, NerveUI, and Gitea — user uncertain about whether a prior agent's Makefile run left everything healthy (Apr 28, 9:00 AM)
+S19 Troubleshoot worker-rtx5090 WSL/Ubuntu access issues; evolved into documenting LiteLLM + Letta routing architecture for cluster orchestration (May 24, 6:28 AM)
+S20 Infrastructure audit of Project Nyra to verify deployment matches canonical specification, including verification of Gitea, LiteLLM, LLXPRT, Nexus router, secrets, and network topology (May 24, 7:00 AM)
+S21 Continue execution of Project Nyra omni-prompting-pack-v3 non-UI foundation work (prompts 00-07) through validation and QA reporting. (May 24, 7:46 AM)
+S22 User asked for guidance on routing fresh domains from spaceship.com to Cloudflare to complete tunnel setup for oracle-vps and orchestrator infrastructure. Confirmed that Infisical machine identities are already injected via shell environment, eliminating need for hardcoded .env files. (May 24, 8:58 AM)
 
-### Apr 29, 2026
+### May 26, 2026
 
-S18 Oracle VPS SSH debugging — oci_api_key.pem format conversion attempt, still failing; user clarified correct IP is 100.64.0.3 (Apr 29, 1:11 AM)
-S20 Project-nyra cluster remediation — Oracle VPS SSH bootstrap blocked; session paused awaiting user choice of key injection method (OCI Console vs Infisical project ID) (Apr 29, 1:24 AM)
-S22 omc-setup — environment inspected, awaiting user config target choice (Apr 29, 1:30 AM)
+S23 Diagnose and complete Syncthing/Portainer infrastructure setup across orchestrator, 3 workers, and oracle VPS using corrected credentials and Tailscale network topology (May 26, 3:41 AM)
+S24 Should INFISICAL_TOKEN be removed after switching to INFISICAL_UNIVERSAL_AUTH_CLIENT_ID and INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET? (May 26, 7:57 AM)
 
-### May 3, 2026
+### May 27, 2026
 
-S23 Fix invalid approval_policy enum values in three Codex config.toml files (May 3, 5:40 AM)
-S21 omc-setup — initializing OMC for project-nyra (May 3, 5:40 AM)
+S25 Test Infisical universal auth secrets in ~/.zsh/99-secrets.zsh to determine if they are stale (May 27, 7:07 AM)
+S26 Fix Syncthing cluster connectivity issues affecting Chrome extension connection to orchestrator and workers (May 27, 7:16 AM)
 
-### May 4, 2026
+### May 28, 2026
 
-134 10:13a 🔵 Windows Codex Config Bug: `approval_mode = "never"` Invalid in `[apps]` Section
-135 " 🔵 Ubuntu vs Windows Codex Config Key Name Divergence: `sandbox` vs `sandbox_mode`
-136 " 🔵 Codex 0.128.0 Feature Flag Inventory — All Stable and Experimental Flags
-138 10:14a 🔵 Ubuntu Codex `default.rules` Is 52% Larger Than Windows — Rule Sets Have Diverged
-139 " 🔵 Windows `.tmp` Cache Has OMC Marketplace Clone With Full oh-my-claudecode Repo Structure
-140 " ✅ Ubuntu Codex Config Backed Up Before Autonomy/Permission Changes
-141 " 🔴 Both Codex Configs Rebuilt — Bug Fixed, Full Autonomy and Feature Parity Applied
-142 " 🔴 Both Codex Configs Verified Working — Windows Config No Longer Errors on Load
-143 " ⚖️ GitHub CLI Auth Switched from Token Env Vars to SSH-based CLI Auth
-144 2:21p ✅ New infra/zellij/scripts changes queued for PR from secondary PC
+S27 User requested review of Cloudflared tunnel setup and verification that everything is configured correctly post-domain migration (May 28, 10:44 AM)
 
-### May 5, 2026
+### May 31, 2026
 
-145 8:35a 🔵 Working tree change scope far larger than initial assessment — 274 files across infrastructure reorganization
-146 8:36a 🔴 pnpm-lock.yaml has hundreds of leftover conflict markers blocking commit on new branch
-152 9:11a 🟣 Superpowers Extension Installed for Gemini CLI
-153 " 🔵 Project-Nyra Monorepo Structure Mapped
-154 " 🔵 Project-Nyra Multi-Host Infrastructure Port Registry Documented
-155 9:13a 🔵 Project-Nyra Apps With package.json vs. Empty/Static Dirs Identified
-147 10:45a 🔵 Invalid approval_policy value in Codex config files
-148 10:46a 🔴 Fixed invalid approval_policy in three Codex config files
-149 " 🔵 Codex approval_policy schema documented in knowledge graph
-S24 Fix invalid approval_policy enum values in three Codex config.toml files across different locations (May 5, 10:46 AM)
-150 10:59a 🔵 Oracle VPS Secret Migration: Identified All OCI Credentials and Config Files Requiring Update
-156 " 🔵 Oracle VPS Infrastructure Reduction Requiring Secrets Rotation
-162 " 🔵 Infisical CLI Confirmed Installed Locally (v0.43.79)
-151 11:00a 🔵 Oracle VPS terraform.tfvars Missing; Infisical Confirmed as Secrets Backend; Full Secret Checklist Assembled
-157 11:04a ✅ Gemini CLI Superpowers Extension Installation
-160 " 🔵 project-nyra Monorepo App Structure
-158 11:05a 🔵 Oracle VPS Stack Architecture and Required Secrets Inventory
-159 " 🔵 SSH and OCI API Keys Confirmed Present Locally
-161 " 🔵 project-nyra App Port Assignments and Tech Stack Confirmed
-163 " 🔵 project-nyra Turbo Config and Environment State
-164 " 🟣 All 7 project-nyra Apps Launched as Background Processes
-165 11:06a 🔵 project-nyra App Routes Mapped from page.tsx Files
-166 " 🔵 App Startup Failures: Next.js 15 Port Flag Bug and Pre-occupied Port 3016
-167 " 🟣 Four More Apps Started Successfully via PORT= Env Var Fix
-168 11:07a 🔵 port 3016 EADDRINUSE Root Cause: workerd Process from Cloudflare Wrangler
-169 " 🟣 project-nyra Dev Environment Successfully Stood Up (6 of 7 Apps)
-170 " 🔵 Project-Nyra Complete Application Port Map
-171 " 🟣 Playwright Screenshot Script for All App Routes
-172 " 🔴 Three App Build Fixes: PostCSS, Root Layout, Missing Utils
-173 " 🔵 Mortgage-CRM UI Component Library Structure
-174 3:35p 🔴 Mortgage-CRM Hydration Mismatch Fixed with suppressHydrationWarning
-175 3:36p 🔴 Landing-Legacy PostCSS Config Was CJS Not ESM — Re-fixed
-176 " 🔴 Nyra-Admin Root Layout CSS Import Path Fixed
-177 3:38p ✅ Session Summary: Project-Nyra Full App Audit and Build Stabilization 2026-05-05
-178 3:39p ⚖️ Mine Workflow Complete: project-nyra Migration Readiness Confirmed
-179 " 🔵 Cockpit V1 Original Design Source Material Located
-180 5:32p ⚖️ Cockpit Migration Strategy: Build Campaign Management Dashboard Based on V1 Vision
-181 5:34p 🔵 Rich Shared Asset Library in packages/assets/ Contains Multiple Design Reference Directories
-182 5:37p 🔵 RTK Tool Limitation: Does Not Support Compound find Predicates
-183 " 🔵 Complete Image Asset Inventory for Project-Nyra Shared Assets
-184 " ⚖️ Session Checkpoint: Project-Nyra Phase 2 Planning State 2026-05-06
+S28 Investigate and fix Syncthing device connectivity issues in the Nyra infrastructure cluster; establish working bidirectional sync between orchestrator and 3 GPU worker nodes (May 31, 6:56 AM)
 
-Access 2074k tokens of past work via get_observations([IDs]) or mem-search skill.
+### Jul 14, 2026
+
+1823 3:35p 🔵 Local Projectnyra Application Code Complete; Security.txt Template Available
+1824 3:36p 🔵 Webapp Container Running with Built Image; Cloudflare Tunnel Properly Configured
+1825 " ✅ Created Projectnyra Security Configuration Files Locally
+1826 " ✅ Fixed VPS Directory Ownership and Synced Projectnyra Source Code
+1827 3:37p ✅ .env File Syntax Errors Fixed on VPS
+1828 3:38p 🔵 Additional .env Syntax Error on Line 256; Security Files Successfully Deployed
+1829 " 🔵 Systematic .env Malformation Affecting 14 Variables
+1830 " 🔵 .env Requires Complex Escaping Beyond Double-Quote Fix
+1831 3:39p 🔵 API Keys in .env Missing Proper Quote Escaping; Lines 126-130 Are Broken Continuations
+1832 " 🔵 Security.txt Not Accessible via HTTPS; Deployment Routing Issue
+1833 " 🔵 Webapp Requires Authentication for All Routes; Security.txt Blocked by Auth Middleware
+1834 " 🟣 RFC 9110 Security.txt Deployment Complete with OpenPGP Fingerprint
+
+### Jul 15, 2026
+
+1835 6:34a 🔵 Cloudflare Infrastructure Footprint Across Project Nyra
+1836 6:35a 🔵 Cloudflare API Authentication Missing
+1837 " 🔵 Cloudflare R2 Buckets Provisioned in Active Account
+1838 6:36a 🔵 Wrangler CLI Version Check Failed
+1839 " 🔵 Wrangler R2 CLI Operational; DNS Already Routed to R2
+1840 " 🔵 R2 Bucket nyra-cdn-assets Fully Operational with Custom Domain
+1841 " ✅ PGP Keys Deployed to R2 for Public Disclosure
+1842 6:37a 🔵 PGP Keys Successfully Deployed and Publicly Accessible via CDN
+1843 " ✅ Security.txt Configured via Cloudflare Security Center API
+1844 " 🔵 Security Disclosure Infrastructure Verified End-to-End
+1845 11:59a 🔵 Project-Nyra repository conventions documented in local skill
+1846 12:00p 🔵 Project-Nyra working tree has uncommitted changes 3 commits ahead of main
+1847 " 🔵 OMC session infrastructure active with persistent state tracking
+1848 12:01p 🔵 Ralph skill inactive since June 6 session termination
+1849 " 🔵 10 active development branches tracked across domain reorganization and infrastructure work
+1850 " 🔵 Project-Nyra tech stack: monorepo, Node.js 20, TypeScript, pnpm, turbo with Twenty CRM and Cloudflare infra
+1851 " 🔵 Mission state cleared; no active missions as of July 15 14:21 UTC
+1852 " 🔵 High checkpoint creation rate on July 15; 5 checkpoints recorded within ~30 minutes (18:09–18:09 local time)
+1853 12:02p 🔵 Most recent session (c1e632cb) ended with "resume" command; no active task modes or pending work
+1854 " 🟣 Mem0 + FalkorDB integration added; Letta stack and OpenClaw dispatching wired
+1855 12:03p 🟣 Security disclosure endpoints published; ratehunter and projectnyra expose RFC 9116 security.txt and PGP keys
+1856 " ⚖️ Cloudflare R2 migration planned for document storage; 98% egress cost savings ($4,500/month)
+1857 " 🟣 Infisical integrated with GitHub Actions for CI/CD secret injection; supports multiple environments
+1858 " 🔵 Oracle-VPS is primary infrastructure host; runs Twenty CRM, agents, and services via docker-compose
+1859 12:04p 🔵 Project-Nyra middleware.ts is currently empty (no-op export)
+1860 12:05p 🔵 Project-Nyra security.txt file is untracked in git; ratehunter version is committed
+1861 " ✅ Security disclosure files migrated from app-local paths to Cloudflare R2 CDN
+1862 12:07p 🔵 Infisical authentication missing for oracle-vps secret export
+1863 12:08p ✅ Created repair script for Oracle VPS .env from Infisical
+1864 " 🔵 Cloudflare API credentials available in shell; app-local security.txt blocked by Access
+1865 12:10p 🔵 Cloudflare zone lookup returns 403; API token lacks required permissions
+1866 " 🔵 Single generic CLOUDFLARE_ZONE_ID available; domain-specific zone IDs missing
+1867 " 🔵 Cloudflare Access app creation failed: domains not associated with zone
+1868 12:11p 🔵 Legacy Cloudflare API credentials available alongside token-based auth
+1869 " 🔵 security.txt contains unreachable canonical URL behind Cloudflare Access
+1870 " 🔵 Both token and legacy Cloudflare auth fail to access zone API
+1871 " ✅ Documented Cloudflare API and security.txt configuration blockers
+1872 12:12p 🔵 Production security.txt and PGP key URLs are publicly accessible and valid
+
+Access 479k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- OMX:AGENTS:START -->

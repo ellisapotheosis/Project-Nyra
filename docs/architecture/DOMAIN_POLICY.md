@@ -12,9 +12,13 @@ Project Nyra uses two domains with strict separation.
 
 ## Project Nyra
 
-`projectnyra.com` is the product and platform domain.
+`projectnyra.com` is the public 3D Project Nyra landing page. The primary
+webapp lives on `app.projectnyra.com`.
 
-- Product app: `app.projectnyra.com`
+- 3D landing page: `projectnyra.com` and `www.projectnyra.com`
+- Landing app location: `apps/projectnyra-landing`
+- Primary webapp: `app.projectnyra.com`
+- Primary webapp location: `apps/projectnyra`
 - Public API gateway: `api.projectnyra.com`
 - Webhooks: `hooks.projectnyra.com`
 - Admin/internal UIs: `*.projectnyra.com` behind Cloudflare Access unless explicitly public
