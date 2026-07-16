@@ -1163,6 +1163,7 @@ Telemetry through 2026-07-16 supports exactly three advanced progression vectors
 
 - Define an `/apps` and `/infra` merge gate comprising preview preflight, the target-app build, the relevant provider preview, scoped container builds, and completed review threads. Until `scripts/github/review-and-merge-prs.sh` enforces every check conclusion, treat the preview, build, provider, and container portions as manual gates in addition to its automated metadata and review-thread checks.
 - Use `gh pr checks --watch` until every required check reaches a terminal state.
+- Before an auto-PR or deployment workflow fetches a base or source ref, prove that the configured branch exists in the remote; PR #769's auto-PR job mapped `fix/*` to a missing `develop` branch.
 - Compare failures with the base SHA before assigning causality, and classify skipped or neutral checks separately from blockers.
 - Merge only after automated and human feedback is complete. Treat a repository-owned baseline failure as a tracked blocker, not as evidence that an unrelated dependency change caused it.
 
@@ -1184,6 +1185,7 @@ Telemetry through 2026-07-16 supports exactly three advanced progression vectors
 **Practice.**
 
 - Maintain a per-app deployment matrix covering the package script, exact build command, output directory, provider project, OIDC or secret source, workflow, and owning host under `infra/hosts/*`.
+- For every changed service image, record and test the exact `{Dockerfile, build context, COPY source}` tuple from the Docker matrix; PR #769's repository-relative `COPY services/...` repairs still failed when the workflow context did not contain those paths.
 - Make local validation, preview preflight, container builds, and provider jobs call the same script and consume the same output.
 - Never suppress build stderr, and correlate each failure to the exact commit SHA.
 - Classify failures as repository build, container context, ref lifecycle, auth handoff, provider configuration, or provider runtime before changing code.
