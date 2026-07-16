@@ -1,0 +1,22 @@
+{
+  "sessions": {
+    "49799ecf-58de-45a8-bd63-7ae9f764f803": {
+      "injectedPaths": [
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/infisical-self-host/SKILL.md"
+      ],
+      "timestamp": 1784143550972
+    },
+    "50ab0974-33a6-4ad2-a217-08a3f4ec6511": {
+      "injectedPaths": [
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/infisical-terraform/SKILL.md"
+      ],
+      "timestamp": 1784143595894
+    },
+    "45996f93-0694-4996-a1a3-236a4850729c": {
+      "injectedPaths": [
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/infisical-api/SKILL.md"
+      ],
+      "timestamp": 1784144039837
+    }
+  }
+}

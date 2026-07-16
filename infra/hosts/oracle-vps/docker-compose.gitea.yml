@@ -12,7 +12,11 @@ services:
     volumes:
       - gitea_db_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${GITEA_DB_USER:-gitea} -d ${GITEA_DB_NAME:-gitea}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${GITEA_DB_USER:-gitea} -d ${GITEA_DB_NAME:-gitea}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -27,8 +31,8 @@ services:
       gitea-db:
         condition: service_healthy
     ports:
-      - "${GITEA_HTTP_PORT:-3001}:3000"
-      - "${GITEA_SSH_PORT:-2222}:2222"
+      - "127.0.0.1:${GITEA_HTTP_PORT:-3001}:3000"
+      - "127.0.0.1:${GITEA_SSH_PORT:-2222}:2222"
     volumes:
       - gitea_data:/var/lib/gitea
       - gitea_config:/etc/gitea

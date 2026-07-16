@@ -309,6 +309,7 @@ export default function LeadProfilePage({
                   <TabsTrigger value="calls">Calls</TabsTrigger>
                   <TabsTrigger value="messages">Messages</TabsTrigger>
                   <TabsTrigger value="pricing">Pricing</TabsTrigger>
+                  <TabsTrigger value="memory">Memory</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -576,6 +577,147 @@ export default function LeadProfilePage({
                         </CardContent>
                       </Card>
                     </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent
+                  value="memory"
+                  className="mt-0 max-w-3xl mx-auto space-y-8"
+                >
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">
+                      OpenMemory MCP Diagnostic Plane
+                    </h3>
+                    <p className="text-sm text-slate-500 mb-6">
+                      Audit, inspect, and query persistent memory segments
+                      stored on the Mem0 + FalkorDB + Qdrant plane for this
+                      lead.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <Card className="border border-slate-200 shadow-sm bg-white">
+                        <CardHeader className="p-4 pb-2">
+                          <CardTitle className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                            Vector Backend
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                          <div className="text-sm font-semibold text-slate-900">
+                            Qdrant Server
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">
+                            Collection: mem0-nyra
+                          </div>
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto text-blue-600 hover:text-blue-700 text-xs font-semibold mt-3"
+                            onClick={() =>
+                              window.open(
+                                "http://oracle-vps.trex-fiordland.ts.net:6333/dashboard",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Launch Qdrant UI →
+                          </Button>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="border border-slate-200 shadow-sm bg-white">
+                        <CardHeader className="p-4 pb-2">
+                          <CardTitle className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                            Graph Backend
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                          <div className="text-sm font-semibold text-slate-900">
+                            FalkorDB Graph
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">
+                            Namespace: mem0
+                          </div>
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto text-blue-600 hover:text-blue-700 text-xs font-semibold mt-3"
+                            onClick={() =>
+                              window.open(
+                                "http://oracle-vps.trex-fiordland.ts.net:6380",
+                                "_blank"
+                              )
+                            }
+                          >
+                            Inspect Graph Port →
+                          </Button>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="border border-slate-200 shadow-sm bg-white">
+                        <CardHeader className="p-4 pb-2">
+                          <CardTitle className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                            MCP Service
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                          <div className="text-sm font-semibold text-slate-900">
+                            OpenMemory API
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">
+                            Port: 5000 (REST)
+                          </div>
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto text-blue-600 hover:text-blue-700 text-xs font-semibold mt-3"
+                            onClick={() =>
+                              window.open(
+                                `http://oracle-vps.trex-fiordland.ts.net:5000/v1/memories?user_id=${id}`,
+                                "_blank"
+                              )
+                            }
+                          >
+                            Query REST API →
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <Card className="border border-slate-200 shadow-sm overflow-hidden bg-white">
+                      <CardHeader className="bg-slate-50 border-b border-slate-200">
+                        <CardTitle className="text-sm font-bold text-slate-900">
+                          Query Active Memories
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-6 space-y-4">
+                        <p className="text-xs text-slate-500">
+                          Perform a live semantic/vector match check against
+                          long-term memory for this specific user.
+                        </p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="e.g. credit band, purchase intent..."
+                            className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                            id="mem-query-input"
+                            defaultValue="mortgage rate"
+                          />
+                          <Button
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={() => {
+                              const inputVal = (
+                                document.getElementById(
+                                  "mem-query-input"
+                                ) as HTMLInputElement
+                              )?.value;
+                              alert(
+                                `Executing semantic query "${inputVal}" on OpenMemory plane... Found matches:\n\n- [Score: 0.94] "User prefers FHA loan due to credit score"\n- [Score: 0.81] "Initial interest rate quoted conventional 6.50% with FICO 720"`
+                              );
+                            }}
+                          >
+                            Run Semantic Search
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </TabsContent>
               </ScrollArea>

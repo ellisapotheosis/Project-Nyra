@@ -199,7 +199,6 @@ status_line = [
 ]
 
 [agents]
-max_threads = 6
 max_depth = 2
 
 # MemPalace MCP Server

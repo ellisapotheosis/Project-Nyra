@@ -24,7 +24,7 @@ Production-ready Next.js landing page optimized for Cloudflare Pages deployment.
 - ✅ **Security**: CSP, HSTS, XSS protection, secure headers
 - ✅ **Performance**: Edge caching, auto-minify, Brotli, HTTP/3
 - ✅ **SEO**: robots.txt, sitemap, meta tags, Open Graph
-- ✅ **Security disclosures**: `/.well-known/security.txt` and a published PGP key
+- ✅ **Security disclosures**: Cloudflare-managed `/.well-known/security.txt` with an R2-hosted PGP key
 - ✅ **PWA**: Progressive web app support with manifest
 - ✅ **Error Pages**: Custom 404 and 500 pages
 - ✅ **Analytics Ready**: Cloudflare Web Analytics integration
@@ -89,10 +89,16 @@ apps/ratehunter/
 | `_redirects`          | URL redirect rules                       |
 | `.env.example`        | Environment variables template           |
 
-The `public/.well-known/` assets ship with the rest of the Pages bundle, so
-`https://ratehunter.net/.well-known/security.txt` and
-`https://ratehunter.net/.well-known/pgp-key.asc` should load directly after
-deployment.
+Production `security.txt` is managed by Cloudflare Security Center at the zone
+layer. The OpenPGP key referenced by `ratehunter.net` is hosted from the R2
+bucket `nyra-cdn-assets` through:
+
+```text
+https://cdn.projectnyra.com/security/ratehunter-pgp-key.asc
+```
+
+The `public/.well-known/` assets ship with the Pages bundle as fallback/static
+deploy copies. Keep their `Encryption:` field aligned with the R2 URL above.
 
 ## 🌐 Cloudflare Pages Build Settings
 
