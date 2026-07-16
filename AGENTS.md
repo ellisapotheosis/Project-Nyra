@@ -1125,7 +1125,7 @@ Do not manually duplicate hook-owned activation state unless recovering from mis
 
 ## Evidence-based skill progression
 
-Telemetry through 2026-07-15 supports exactly three advanced progression vectors for work in `/apps` and `/infra`. The dated PR observations below are historical examples; re-check current branch rules, workflow definitions, and provider status before applying them to a new change. In this section, a **boundary** is an independently reviewable application, deployment target, or recovery slice with its own build and verification contract; **preview preflight** is the repository check that validates that contract before provider deployment; **OIDC** is the short-lived identity handoff from CI to an identity, secrets, or deployment provider; and **automated reviewers** are the Sourcery, Greptile, and CodeRabbit PR review bots.
+Telemetry through 2026-07-16 supports exactly three advanced progression vectors for work in `/apps` and `/infra`. The dated PR observations below are historical examples; re-check current branch rules, workflow definitions, and provider status before applying them to a new change. In this section, a **boundary** is an independently reviewable application, deployment target, or recovery slice with its own build and verification contract; **preview preflight** is the repository check that validates that contract before provider deployment; **OIDC** is the short-lived identity handoff from CI to an identity, secrets, or deployment provider; and **automated reviewers** are the Sourcery, Greptile, and CodeRabbit PR review bots.
 
 ### 1. Provenance-aware recovery and review-budget decomposition
 
@@ -1136,6 +1136,7 @@ Telemetry through 2026-07-15 supports exactly three advanced progression vectors
 - [PR #742](https://github.com/ellisapotheosis/Project-Nyra/pull/742) restored 460 files and 76,629 additions, including a candidate `apps/projectnyra/src/app` tree.
 - [PR #743](https://github.com/ellisapotheosis/Project-Nyra/pull/743) immediately removed overlapping files from that candidate root, moved the application surface back under the canonical `apps/projectnyra/app`, `components`, and `lib` roots, and removed embedded `.omc/state` runtime artifacts. Its preview preflight then failed on unresolved imports including `./rateLimit`, `@/lib/campaign-contract`, `@/lib/api/rateLimit`, and `@/lib/privacy/redaction`.
 - Automated review exceeded its practical capacity: Sourcery could not fetch PR #742's 460-file diff and rejected PR #743 for exceeding its diff-character limit. [PR #766](https://github.com/ellisapotheosis/Project-Nyra/pull/766) and [PR #767](https://github.com/ellisapotheosis/Project-Nyra/pull/767) repeated the pattern: 566- and 584-file integrations exceeded Sourcery's 300-file API limit, Greptile's 100-file limit, and CodeRabbit's 150-file limit.
+- [PR #769](https://github.com/ellisapotheosis/Project-Nyra/pull/769) combined five CI/workflow files, eleven service Dockerfiles, test-harness configuration, and CRDT, cache, and monitoring changes in one 33-file “CI failures” change. CodeRabbit was rate-limited, while Sourcery found a nonexistent `mergeVectorClock` call and inconsistent 0-1 versus 0-100 utilization units in the same review.
 
 **Practice.**
 
@@ -1156,6 +1157,7 @@ Telemetry through 2026-07-15 supports exactly three advanced progression vectors
 - PR #743 subsequently showed failures in preview preflight, `Build & Deploy`, `crm-api`, `twenty-mcp-jezweb`, Cloudflare Pages, and Vercel, while the repository's `main` rules required thread resolution but did not require status checks.
 - The next Dependabot series, [PR #744](https://github.com/ellisapotheosis/Project-Nyra/pull/744) through [PR #763](https://github.com/ellisapotheosis/Project-Nyra/pull/763), repeated zero-review closures and a shared `validate-compose-gitea-infisical` failure caused by `infra/mcp-gateway/nexus-router-docker-compose.yml` living outside `infra/hosts/*`.
 - PR #766 merged 26 seconds after creation with failed repository-policy, Docker, Cloudflare, and Vercel checks. PR #767 merged after 60 seconds with the same failure classes; its repository CI workflow's lint, test, security, and build jobs were skipped while CircleCI lint, test, and typecheck passed.
+- PR #769 repeated that split-gate state before merge: CircleCI lint, test, and typecheck passed, but repository CI lint, test, security, and build were skipped while `actionlint`, `validate-compose-gitea-infisical`, Docker builds, all three Cloudflare previews, and Vercel failed.
 
 **Practice.**
 
@@ -1176,6 +1178,7 @@ Telemetry through 2026-07-15 supports exactly three advanced progression vectors
 - A separate `Build & Deploy` workflow on PR #743 failed earlier during Infisical OIDC secret retrieval and its `build:cf` path.
 - In PR #742, six RateHunter tests passed while both the OpenNext Cloudflare build and fallback Next.js build exited nonzero, and the workflow hid diagnostic output with `2>/dev/null`.
 - PRs #766 and #767 both failed `Build crm-api` because the Docker build contract referenced missing `/packages/crm-types/tsconfig.json`, while their Cloudflare app, landing, and Nexus previews and Vercel checks also failed.
+- PR #769 attempted Dockerfile repairs across eleven service images plus broader CI workflow repairs, yet twelve scoped image builds still failed alongside the app, landing, and Nexus Cloudflare previews and Vercel. That change confirms that editing container paths without proving the repository-policy, build-context, and provider contracts together does not restore release readiness.
 - Together, these failures show that package validation, repository preflight, container context, and provider execution are not exercising the same contract or ref lifecycle.
 
 **Practice.**
