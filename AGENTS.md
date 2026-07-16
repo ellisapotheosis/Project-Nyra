@@ -1140,7 +1140,7 @@ Telemetry through 2026-07-16 supports exactly three advanced progression vectors
 
 **Practice.**
 
-- Inventory every candidate path against the target package's `next.config.*`, `tsconfig.json`, workspace manifest, and current app root before restoring a stash, archive, or orphaned commit.
+- Inventory every candidate path against the target boundary's source of truth before restoring a stash, archive, or orphaned commit: for an app, use its `next.config.*`, `tsconfig.json`, workspace manifest, and current app root; for infra, use `infra/COMPOSE_SOURCE_OF_TRUTH.md`, the owning `infra/hosts/<host-name>` configuration, and `scripts/ci/validate-infra.sh`.
 - Recover one boundary at a time, record the source commit or blob in the PR, and reject `.omc`, cache, generated, and other runtime-state files.
 - Run `git diff --stat` and `git diff --name-only`, then execute the affected package or host validation command selected from the deployment matrix before opening the PR; use `pnpm --filter <package> build` for an app boundary and `bash scripts/ci/validate-infra.sh` for an infra boundary.
 - Split recovery work whenever a boundary would exceed reviewer file or diff limits.
@@ -1162,9 +1162,9 @@ Telemetry through 2026-07-16 supports exactly three advanced progression vectors
 **Practice.**
 
 - Define an `/apps` and `/infra` merge gate comprising preview preflight, the target-app build, the relevant provider preview, scoped container builds, and completed review threads. Until `scripts/github/review-and-merge-prs.sh` enforces every check conclusion, treat the preview, build, provider, and container portions as manual gates in addition to its automated metadata and review-thread checks.
-- Use `gh pr checks --watch` until every required check reaches a terminal state.
+- Use `gh pr checks --watch` until every required check reaches a terminal passing state. A failed required check blocks merge even when it also fails on the base SHA; keep that baseline failure blocked until it is resolved in a separate change or formally waived by the repository owner.
 - Before an auto-PR or deployment workflow fetches a base or source ref, prove that the configured branch exists in the remote; PR #769's auto-PR job mapped `fix/*` to a missing `develop` branch.
-- Compare failures with the base SHA before assigning causality, and classify skipped or neutral checks separately from blockers.
+- Compare failures with the base SHA before assigning causality. Treat skipped or neutral required checks as blockers unless the repository's documented policy explicitly permits that conclusion; record permitted skips or neutral results in the PR before merge.
 - Merge only after automated and human feedback is complete. Treat a repository-owned baseline failure as a tracked blocker, not as evidence that an unrelated dependency change caused it.
 
 **Graduation criteria.** Land three consecutive `/apps` or `/infra` PRs only after the defined gates and review threads complete, with no change-attributable post-merge failure and an explicit base-versus-change attribution for every failed check.
