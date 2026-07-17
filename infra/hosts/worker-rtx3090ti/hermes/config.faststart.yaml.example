@@ -2,7 +2,7 @@
 # configuration schema. The important boundary is the central LiteLLM endpoint.
 model:
   provider: custom
-  base_url: http://orchestrator.trex-fiordland.ts.net:4000/v1
+  base_url: ${LITELLM_BASE_URL}
   api_key: ${LITELLM_HERMES_PRODUCT_KEY}
   model: nyra/product-assistant
 
