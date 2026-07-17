@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1784125269805,
+  "lastScanned": 1784310285691,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
   "techStack": {
     "languages": [
@@ -96,7 +96,7 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1784125269661,
+      "lastAccessed": 1784310285574,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
@@ -108,14 +108,14 @@
       "path": "bootstrap",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1784125269662,
+      "lastAccessed": 1784310285576,
       "keyFiles": []
     },
     "conductor": {
       "path": "conductor",
       "purpose": null,
       "fileCount": 6,
-      "lastAccessed": 1784125269691,
+      "lastAccessed": 1784310285606,
       "keyFiles": [
         "index.md",
         "product-guidelines.md",
@@ -128,35 +128,39 @@
       "path": "data",
       "purpose": "Data files",
       "fileCount": 2,
-      "lastAccessed": 1784125269692,
+      "lastAccessed": 1784310285615,
       "keyFiles": ["campaign-templates.json", "seed-leads.json"]
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 2,
-      "lastAccessed": 1784125269693,
-      "keyFiles": ["OWNER_MANUAL_ACTIONS.md", "README.md"]
+      "fileCount": 3,
+      "lastAccessed": 1784310285619,
+      "keyFiles": [
+        "CLOUDFLARE-PAGES-DEPLOYMENT.md",
+        "OWNER_MANUAL_ACTIONS.md",
+        "README.md"
+      ]
     },
     "external": {
       "path": "external",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784125269694,
+      "lastAccessed": 1784310285620,
       "keyFiles": []
     },
     "infisical_backup": {
       "path": "infisical_backup",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784125269697,
+      "lastAccessed": 1784310285620,
       "keyFiles": []
     },
     "infra": {
       "path": "infra",
       "purpose": null,
       "fileCount": 14,
-      "lastAccessed": 1784125269706,
+      "lastAccessed": 1784310285621,
       "keyFiles": [
         "0-100-AUTONOMOUS-PROMPT-GOD.md",
         "CLAUDE.md",
@@ -169,21 +173,21 @@
       "path": "ops",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784125269712,
+      "lastAccessed": 1784310285622,
       "keyFiles": []
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1784125269728,
+      "lastAccessed": 1784310285626,
       "keyFiles": ["CLAUDE.md"]
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
-      "fileCount": 65,
-      "lastAccessed": 1784125269744,
+      "fileCount": 67,
+      "lastAccessed": 1784310285634,
       "keyFiles": [
         "Initialize-CodexEnvironment.sh",
         "agent-vault-infisical-sync.sh",
@@ -196,28 +200,28 @@
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 1,
-      "lastAccessed": 1784125269756,
+      "lastAccessed": 1784310285635,
       "keyFiles": ["CLAUDE.md"]
     },
     "skills": {
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784125269761,
+      "lastAccessed": 1784310285640,
       "keyFiles": []
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1784125269762,
+      "lastAccessed": 1784310285643,
       "keyFiles": ["CLAUDE.md"]
     },
     "tests": {
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 4,
-      "lastAccessed": 1784125269762,
+      "lastAccessed": 1784310285646,
       "keyFiles": [
         "README.md",
         "README_VITEST.md",
@@ -228,29 +232,32 @@
     "ops/scripts": {
       "path": "ops/scripts",
       "purpose": "Build/utility scripts",
-      "fileCount": 1,
-      "lastAccessed": 1784125269772,
-      "keyFiles": ["validate-docs-consolidation.sh"]
+      "fileCount": 2,
+      "lastAccessed": 1784310285676,
+      "keyFiles": [
+        "repair-oracle-env-from-infisical.sh",
+        "validate-docs-consolidation.sh"
+      ]
     },
     "packages/assets": {
       "path": "packages/assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1784125269784,
+      "lastAccessed": 1784310285677,
       "keyFiles": []
     },
     "packages/config": {
       "path": "packages/config",
       "purpose": "Configuration files",
       "fileCount": 2,
-      "lastAccessed": 1784125269794,
+      "lastAccessed": 1784310285678,
       "keyFiles": ["README.md", "package.json"]
     },
     "tests/fixtures": {
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
-      "lastAccessed": 1784125269804,
+      "lastAccessed": 1784310285691,
       "keyFiles": ["agents.json", "leads.json", "memory-patterns.json"]
     }
   },
