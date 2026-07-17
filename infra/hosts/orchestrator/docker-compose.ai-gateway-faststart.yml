@@ -1,0 +1,114 @@
+name: nyra-ai-faststart
+
+# Additive fast-start stack. It does not remove the current Oracle-VPS gateway.
+# Start locally, validate, then cut DNS/clients over deliberately.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+services:
+  ai-gateway-db:
+    image: ${LITELLM_POSTGRES_IMAGE:-postgres:16.4-alpine}
+    container_name: nyra-ai-gateway-db
+    restart: unless-stopped
+    env_file:
+      - /etc/projectnyra/secrets/ai-gateway.env
+    environment:
+      POSTGRES_DB: ${LITELLM_DB_NAME:-litellm}
+      POSTGRES_USER: ${LITELLM_DB_USER:-litellm}
+      POSTGRES_PASSWORD: ${LITELLM_DB_PASSWORD:?set LITELLM_DB_PASSWORD}
+    volumes:
+      - ai_gateway_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks: [nyra-network]
+    logging: *default-logging
+    security_opt: [no-new-privileges:true]
+
+  litellm:
+    image: ${LITELLM_IMAGE:-ghcr.io/berriai/litellm:main-stable}
+    container_name: nyra-litellm-gateway
+    restart: unless-stopped
+    command: ["--config", "/app/config.yaml", "--port", "4000", "--num_workers", "2"]
+    env_file:
+      - /etc/projectnyra/secrets/ai-gateway.env
+    environment:
+      DATABASE_URL: postgresql://${LITELLM_DB_USER:-litellm}:${LITELLM_DB_PASSWORD}@ai-gateway-db:5432/${LITELLM_DB_NAME:-litellm}
+      STORE_MODEL_IN_DB: "True"
+    ports:
+      - "127.0.0.1:${LITELLM_PORT:-4000}:4000"
+    volumes:
+      - ../../configs/litellm/config.faststart.yaml:/app/config.yaml:ro
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    depends_on:
+      ai-gateway-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:4000/health', timeout=5)\""]
+      interval: 15s
+      timeout: 8s
+      retries: 30
+      start_period: 45s
+    networks: [nyra-network]
+    logging: *default-logging
+    security_opt: [no-new-privileges:true]
+
+  omniroute:
+    image: ${OMNIROUTE_IMAGE:-diegosouzapw/omniroute:latest}
+    container_name: nyra-omniroute
+    profiles: [omniroute, all]
+    restart: unless-stopped
+    env_file:
+      - /etc/projectnyra/secrets/ai-gateway.env
+    environment:
+      PORT: "20128"
+      DATA_DIR: /app/data
+      REQUIRE_API_KEY: "true"
+      CLI_ALLOW_CONFIG_WRITES: "false"
+    ports:
+      - "127.0.0.1:${OMNIROUTE_PORT:-20128}:20128"
+    volumes:
+      - omniroute_data:/app/data
+    networks: [nyra-network]
+    logging: *default-logging
+    security_opt: [no-new-privileges:true]
+
+  nats:
+    image: ${NATS_IMAGE:-nats:2.11-alpine}
+    container_name: nyra-nats
+    profiles: [mesh, all]
+    restart: unless-stopped
+    command: ["-c", "/etc/nats/nats-server.conf"]
+    env_file:
+      - /etc/projectnyra/secrets/ai-gateway.env
+    ports:
+      - "${NATS_BIND_IP:-127.0.0.1}:${NATS_PORT:-4222}:4222"
+      - "127.0.0.1:${NATS_MONITOR_PORT:-8222}:8222"
+    volumes:
+      - ./nats-faststart.conf:/etc/nats/nats-server.conf:ro
+      - nats_jetstream:/data/jetstream
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8222/healthz >/dev/null"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    networks: [nyra-network]
+    logging: *default-logging
+    security_opt: [no-new-privileges:true]
+
+networks:
+  nyra-network:
+    external: true
+    name: ${NYRA_DOCKER_NETWORK:-nyra-network_nyra-network}
+
+volumes:
+  ai_gateway_postgres:
+  omniroute_data:
+  nats_jetstream:
