@@ -1,0 +1,14 @@
+# Merge this into ~/.hermes/config.yaml after verifying the installed Hermes
+# configuration schema. The important boundary is the central LiteLLM endpoint.
+model:
+  provider: custom
+  base_url: http://orchestrator.trex-fiordland.ts.net:4000/v1
+  api_key: ${LITELLM_HERMES_PRODUCT_KEY}
+  model: nyra/product-assistant
+
+api:
+  host: 127.0.0.1
+  port: 8642
+
+# Hermes is the always-on product/operations agent, not the authoritative
+# developer fleet scheduler. Tool access must remain scoped through LiteLLM MCP.
