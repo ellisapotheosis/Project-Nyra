@@ -35,11 +35,11 @@ spec:
       - name: N8N_PROTOCOL
         value: "https"
       - name: N8N_HOST
-        value: "n8n.nyra.oracle-vps.projectnyra.com"
+        value: "n8n.projectnyra.com"
       - name: N8N_PORT
         value: "5678"
       - name: WEBHOOK_URL
-        value: "https://n8n.nyra.oracle-vps.projectnyra.com/"
+        value: "https://n8n.projectnyra.com/"
       - name: DB_TYPE
         valueFrom:
           secret:
@@ -107,7 +107,7 @@ spec:
         maxUnavailable: 0
   networking:
     domains:
-      - name: n8n.nyra.oracle-vps.projectnyra.com
+      - name: n8n.projectnyra.com
         type: custom
     tls:
       enabled: true

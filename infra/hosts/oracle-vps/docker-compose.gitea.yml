@@ -46,9 +46,9 @@ services:
       GITEA__database__NAME: ${GITEA_DB_NAME:-gitea}
       GITEA__database__USER: ${GITEA_DB_USER:-gitea}
       GITEA__database__PASSWD: ${GITEA_DB_PASSWORD}
-      GITEA__server__DOMAIN: ${GITEA_DOMAIN:-git.oracle.trex-fiordland.ts.net}
-      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-https://git.oracle.trex-fiordland.ts.net/}
-      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-oracle.trex-fiordland.ts.net}
+      GITEA__server__DOMAIN: ${GITEA_DOMAIN:-gitea.projectnyra.com}
+      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-https://gitea.projectnyra.com/}
+      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-100.64.0.3}
       GITEA__server__SSH_PORT: ${GITEA_SSH_PORT:-2222}
       GITEA__server__SSH_LISTEN_PORT: 2222
       GITEA__server__START_SSH_SERVER: "true"

@@ -92,7 +92,7 @@ files, generated Cloudflare state, and current Project Nyra architecture rules.
 
 ## Owner-Bound Blockers
 
-- Replace the shared Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN`; the
+- Replace the shared Infisical `/hosts/oracle-vps` `ORACLE_TUNNEL_TOKEN`; the
   local machine identity could read secrets but not update/delete the mismatched
   shared value.
 - Validate `http://100.64.0.2:3007` from the orchestrator tunnel container or a

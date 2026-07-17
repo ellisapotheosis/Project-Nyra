@@ -16,7 +16,7 @@ All package deliverables listed by `prompts/99-MASTER-ONE-SHOT-PROMPT.md` exist.
 
 Remaining work is owner/environment-bound, not repo generation work:
 
-1. Replace the mismatched Oracle tunnel token in Infisical `/machines/oracle-vps`.
+1. Replace the mismatched Oracle tunnel token in Infisical `/hosts/oracle-vps`.
 2. Validate the Home Assistant Green Linkwarden origin from the orchestrator tunnel container or a Tailscale-authenticated shell.
 
 ## Deliverable checklist

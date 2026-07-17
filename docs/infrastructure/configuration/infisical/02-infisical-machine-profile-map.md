@@ -5,6 +5,7 @@ Use these Infisical paths per machine profile.
 ## `/machines/orchestrator`
 
 ### Required secrets
+
 - `INFISICAL_TOKEN`
 - `POSTGRES_PASSWORD`
 - `REDIS_PASSWORD`
@@ -39,6 +40,7 @@ Use these Infisical paths per machine profile.
 - `CF_TUNNEL_TOKEN`
 
 ### Useful tunables in Infisical
+
 - `MODEL_ROUTING_PREFER_LOCAL`
 - `MODEL_ROUTING_FALLBACK_CLOUD`
 - `REQUEST_TIMEOUT`
@@ -46,9 +48,10 @@ Use these Infisical paths per machine profile.
 
 ---
 
-## `/machines/oracle-vps`
+## `/hosts/oracle-vps`
 
 ### Required secrets
+
 - `INFISICAL_TOKEN`
 - `POSTGRES_PASSWORD`
 - `REDIS_PASSWORD`
@@ -72,6 +75,7 @@ Use these Infisical paths per machine profile.
 - `CLOUDFLARE_API_TOKEN`
 
 ### Useful tunables in Infisical
+
 - `BACKUP_SCHEDULE`
 - `BACKUP_RETENTION_DAYS`
 - `CONNECTION_POOL_SIZE`
@@ -82,6 +86,7 @@ Use these Infisical paths per machine profile.
 ## `/machines/worker-rtx5090`
 
 ### Required secrets
+
 - `INFISICAL_TOKEN`
 - `POSTGRES_PASSWORD`
 - `REDIS_PASSWORD`
@@ -96,6 +101,7 @@ Use these Infisical paths per machine profile.
 - `CLOUDFLARE_TUNNEL_TOKEN`
 
 ### Useful tunables in Infisical
+
 - `VLLM_MODEL`
 - `VLLM_MAX_MODEL_LEN`
 - `VLLM_GPU_MEMORY_UTILIZATION`
@@ -115,6 +121,7 @@ Use these Infisical paths per machine profile.
 ## `/machines/worker-rtx3090ti`
 
 ### Required secrets
+
 - `INFISICAL_TOKEN`
 - `POSTGRES_PASSWORD`
 - `REDIS_PASSWORD`
@@ -129,6 +136,7 @@ Use these Infisical paths per machine profile.
 - `CLOUDFLARE_TUNNEL_TOKEN`
 
 ### Useful tunables in Infisical
+
 - `VLLM_MODEL`
 - `VLLM_MAX_MODEL_LEN`
 - `VLLM_GPU_MEMORY_UTILIZATION`
@@ -148,6 +156,7 @@ Use these Infisical paths per machine profile.
 ## `/machines/worker-rtx3060`
 
 ### Required secrets
+
 - `INFISICAL_TOKEN`
 - `POSTGRES_PASSWORD`
 - `API_KEY_PC2`
@@ -160,6 +169,7 @@ Use these Infisical paths per machine profile.
 - `HF_TOKEN`
 
 ### Useful tunables in Infisical
+
 - `OLLAMA_NUM_GPU`
 - `OLLAMA_NUM_PARALLEL`
 - `OLLAMA_MAX_LOADED_MODELS`
@@ -172,6 +182,7 @@ Use these Infisical paths per machine profile.
 ## `/machines/homeassistant`
 
 ### Required secrets
+
 - `INFISICAL_TOKEN`
 - `N8N_BASIC_AUTH_USER`
 - `N8N_BASIC_AUTH_PASSWORD`
@@ -181,5 +192,6 @@ Use these Infisical paths per machine profile.
 - `SENDGRID_API_KEY`
 
 ### Useful tunables in Infisical
+
 - `REQUEST_TIMEOUT`
 - `RECOVERY_CHECK_INTERVAL`

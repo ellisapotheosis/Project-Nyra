@@ -2,7 +2,7 @@
 /**
  * Cloudflare Pages Deployment Automation
  *
- * Deploys projectnyra and nexus-ui to Cloudflare Pages with:
+ * Deploys projectnyra and projectnyra-nexus to Cloudflare Pages with:
  * - GitHub integration for auto-deploy on push
  * - Environment variables (Supabase, API URLs)
  * - Custom domain routing
@@ -18,12 +18,20 @@ import https from "https";
 
 const CF_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID;
 const CF_API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const CF_ZONE_ID = process.env.CLOUDFLARE_ZONE_ID;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
 if (!CF_ACCOUNT_ID || !CF_API_TOKEN) {
   console.error("❌ Missing required environment variables:");
   console.error("   CLOUDFLARE_API_TOKEN");
   console.error("   CLOUDFLARE_ACCOUNT_ID");
+  process.exit(1);
+}
+
+if (!SUPABASE_ANON_KEY) {
+  console.error("❌ Missing required environment variable: SUPABASE_ANON_KEY");
+  console.error(
+    "   Refusing to publish a placeholder key to Cloudflare Pages."
+  );
   process.exit(1);
 }
 
@@ -126,21 +134,23 @@ async function deployProject(
       ...env,
     };
 
-    for (const [key, value] of Object.entries(envVars)) {
-      try {
-        await cfApiCall(
-          "PUT",
-          `/accounts/${CF_ACCOUNT_ID}/pages/projects/${projectName}/deployments/staging`,
-          {
-            environment: "staging",
-            variables: [{ name: key, text: value }],
-          }
-        );
-        console.log(`    ${key}=***`);
-      } catch (e) {
-        // Ignore if deployment doesn't exist yet
+    const variables = Object.fromEntries(
+      Object.entries(envVars).map(([name, value]) => [
+        name,
+        { type: "plain_text", value },
+      ])
+    );
+    await cfApiCall(
+      "PATCH",
+      `/accounts/${CF_ACCOUNT_ID}/pages/projects/${projectName}`,
+      {
+        deployment_configs: {
+          preview: { env_vars: variables },
+          production: { env_vars: variables },
+        },
       }
-    }
+    );
+    for (const key of Object.keys(envVars)) console.log(`    ${key}=***`);
 
     // Add custom domain
     console.log(`  → Adding domain routing...`);
@@ -189,7 +199,7 @@ async function setupAccessPolicy(projectName, email) {
     console.log(`
     📋 Manual setup required in Cloudflare Dashboard:
     1. Go to Zero Trust → Access → Applications
-    2. Create application for: nexus-ui.projectnyra.com
+    2. Create application for: nexus.projectnyra.com
     3. Add authentication policy (require email: ${email})
     4. Done!
     `);
@@ -224,8 +234,6 @@ async function setupTunnel() {
          service: http://localhost:8000
        - hostname: api.projectnyra.com
          service: http://localhost:3100
-       - hostname: nexus-ui.projectnyra.com
-         service: http://localhost:6000
        - service: http_status:404
 
   5. Start tunnel:
@@ -242,7 +250,7 @@ async function main() {
   console.log(`
 ╔════════════════════════════════════════════════════════════════╗
 ║     Cloudflare Pages Deployment - Project Nyra                 ║
-║     Deploying: projectnyra, nexus-ui (admin)                   ║
+║     Deploying: projectnyra, projectnyra-nexus (admin)          ║
 ╚════════════════════════════════════════════════════════════════╝
   `);
 
@@ -254,22 +262,21 @@ async function main() {
       "Project-Nyra",
       "apps/projectnyra",
       {
-        NEXT_PUBLIC_SUPABASE_URL: "https://supabase.projectnyra.com",
-        NEXT_PUBLIC_SUPABASE_ANON_KEY:
-          process.env.SUPABASE_ANON_KEY || "set-in-dashboard",
+        NEXT_PUBLIC_SUPABASE_URL: "https://api.projectnyra.com",
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: SUPABASE_ANON_KEY,
         NEXT_PUBLIC_API_URL: "https://api.projectnyra.com",
       }
     );
 
-    // Deploy nexus-ui (admin dashboard with access control)
+    // Deploy Nexus UI (admin dashboard with access control)
     const nexusUI = await deployProject(
-      "nexus-ui",
-      "nexus-ui",
+      "projectnyra-nexus",
+      "projectnyra-nexus",
       "Project-Nyra",
       "apps/nexusUI",
       {
         NEXT_PUBLIC_ADMIN_MODE: "true",
-        NEXT_PUBLIC_NEXUS_BASE_URL: "https://nexus-ui.projectnyra.com",
+        NEXT_PUBLIC_NEXUS_BASE_URL: "https://nexus.projectnyra.com",
         NEXT_PUBLIC_API_URL: "https://api.projectnyra.com",
       }
     );
@@ -281,7 +288,7 @@ async function main() {
 
 📊 Deployed Projects:
   1. projectnyra.com (public product site)
-  2. nexus-ui.projectnyra.com (private admin, requires authentication)
+  2. nexus.projectnyra.com (private admin, requires authentication)
 
 🔄 Next Steps:
 
@@ -293,7 +300,7 @@ async function main() {
   2. Set Up NexusUI Authentication:
     `);
 
-    await setupAccessPolicy("nexus-ui", "edaneandersen@gmail.com");
+    await setupAccessPolicy("projectnyra-nexus", "edaneandersen@gmail.com");
 
     console.log(`
   3. Configure Backend Connectivity:

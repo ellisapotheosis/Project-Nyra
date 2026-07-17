@@ -41,7 +41,7 @@ Required follow-up:
 
 1. Rotate `ORCHESTRATOR_TUNNEL_TOKEN`; a token was pasted into chat during setup.
 2. Confirm Infisical `/machines/orchestrator` contains `ORCHESTRATOR_TUNNEL_ID` and `ORCHESTRATOR_TUNNEL_TOKEN`.
-3. Replace Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN` with the token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`.
+3. Replace Infisical `/hosts/oracle-vps` `ORACLE_TUNNEL_TOKEN` with the token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`.
 4. Add `SUPABASE_DB_URL_PASSWORD` as the URL-encoded form of `SUPABASE_DB_PASSWORD` if the raw password contains URL-reserved characters.
 5. Repair the stale Oracle Docker/Tailscale context so `docker --context oracle ...` works again without using the public SSH endpoint.
 6. Validate the Home Assistant Green Linkwarden origin from the orchestrator tunnel container. The route and Access apps exist, but the current Codex App session is logged out of Tailscale and cannot reach `100.64.0.2:3007`.
@@ -96,7 +96,7 @@ OpenLIT has been added to the Oracle VPS stack as `openlit.projectnyra.com`, rou
 
 1. In Cloudflare Zero Trust, add or confirm the Oracle tunnel public hostname `openlit.projectnyra.com`.
 2. Protect `openlit.projectnyra.com` with Cloudflare Access before exposing it outside Tailscale.
-3. In Infisical `/machines/oracle-vps`, set stable production values for `OPENLIT_NEXTAUTH_SECRET`,
+3. In Infisical `/hosts/oracle-vps`, set stable production values for `OPENLIT_NEXTAUTH_SECRET`,
    `OPENLIT_VAULT_ENCRYPTION_KEY`, and `OPENLIT_DB_PASSWORD`.
 4. Restart the Oracle main stack after those secrets are present.
 
@@ -155,7 +155,7 @@ Current state on 2026-07-02:
 
 - `projectnyra-landing` is the only Project Nyra surface that is currently a clean fit for Git-backed Cloudflare Pages.
 - `projectnyra-app` currently builds as a runtime Next.js app with dynamic broker routes and should stay behind the existing app origin path until it is intentionally migrated to a Workers/OpenNext deployment shape.
-- `projectnyra-nexus` should stay on the Cloudflare Tunnel + Cloudflare Access path because it is an operator surface tied to private control-plane status and authenticated service access.
+- `projectnyra-nexus` should stay on the Cloudflare Pages + Cloudflare Access path because it is an operator surface tied to private control-plane status and authenticated service access.
 
 Cloudflare-side fixes already applied by API:
 
@@ -193,13 +193,12 @@ Custom-domain decision:
 
 - Attach `projectnyra.com` and `www.projectnyra.com` to `projectnyra-landing` after removing any conflicting tunnel/DNS bindings.
 - Keep `app.projectnyra.com` on the current app origin path for now.
-- Keep `nexus.projectnyra.com` on the current tunnel + Access path.
+- Keep `nexus.projectnyra.com` on the current Cloudflare Pages + Access path.
 - Keep `nexus-router.projectnyra.com` on the current tunnel + Access + service-token path.
 
 Do not cut over these hostnames to Pages right now:
 
 - `app.projectnyra.com`
-- `nexus.projectnyra.com`
 - `nexus-router.projectnyra.com`
 - `openmemory.projectnyra.com`
 
@@ -457,7 +456,7 @@ Both tunnels need new tokens. The existing connectors were deleted from the CF a
 1. Go to Cloudflare Zero Trust → Tunnels → Create tunnel (or select existing oracle tunnel)
 2. Choose **Cloudflared** connector type
 3. Copy the tunnel token (starts with `ey...`)
-4. In Infisical -> Project -> `/machines/oracle-vps` -> add secret `ORACLE_TUNNEL_TOKEN=<token>`
+4. In Infisical -> Project -> `/hosts/oracle-vps` -> add secret `ORACLE_TUNNEL_TOKEN=<token>`
 5. Restart oracle cloudflared: `ssh ubuntu@100.64.0.3 "docker restart nyra-cloudflared"`
 
 **Orchestrator tunnel:**
@@ -548,7 +547,8 @@ down until this is resolved.
 ## Apply Cloudflare DNS for new subdomains
 
 Several new DNS records were added to `infra/cloudflare/generated-remote/dns-records.desired.json`:
-- `nexus-ui` CNAME → oracle tunnel (Nexus UI dashboard)
+
+- `nexus` CNAME → `projectnyra-nexus.pages.dev` (Nexus UI dashboard on Cloudflare Pages)
 - `mcp-gateway` CNAME → oracle tunnel (MCP Gateway Worker)
 - `switcher-3090` A record → 100.64.0.13 (worker-rtx3090ti Tailscale IP, grey-cloud)
 
@@ -656,24 +656,24 @@ Cloudflare at all. On oracle VPS, run:
 tailscale serve --bg https+insecure://localhost:3000
 ```
 
-This makes `https://oracle.trex-fiordland.ts.net` serve Nexus Router within the Tailscale network
+This makes `https://oracle-vps.trex-fiordland.ts.net` serve Nexus Router within the Tailscale network
 (no CF Access, no Bearer token needed from Tailscale-authenticated clients).
 
 For a clean `mcp-gateway.projectnyra.com` hostname inside Tailscale:
 
 1. Tailscale Admin Console → DNS → **Add nameserver** → Custom.
 2. Add a split-DNS rule for `projectnyra.com` pointing to a resolver on oracle VPS.
-3. Configure the oracle resolver to return `100.64.0.31` (oracle Tailscale IP) for
+3. Configure the oracle resolver to return `100.64.0.3` (oracle Tailscale IP) for
    `mcp-gateway.projectnyra.com`.
 
-Or simply use the Tailscale hostname directly: `https://oracle.trex-fiordland.ts.net/mcp`.
+Or use the direct internal service endpoint: `http://100.64.0.3:3000/mcp`.
 
 ---
 
 ## TwentyCRM API Key — Nexus Router
 
 The Nexus Router config references `TWENTYCRM_API_KEY` for the Twenty CRM MCP server at
-`http://100.64.0.31:3000/mcp`. The current value in Infisical `/clients/nexus` is a placeholder.
+`http://100.64.0.3:3000/mcp`. The current value in Infisical `/clients/nexus` is a placeholder.
 
 **Steps:**
 

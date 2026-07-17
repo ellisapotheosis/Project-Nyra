@@ -15,7 +15,7 @@
 #               └─► MCP servers
 #                       ├─ orchestrator-local (same Docker network)
 #                       │       └─► docker-mcp-toolkit :8811
-#                       └─ oracle VPS via Tailscale (100.64.0.31)
+#                       └─ oracle VPS via Tailscale (100.64.0.3)
 #                               ├─► openmemory-mcp :8765
 #                               ├─► infisical-mcp :8766
 #                               ├─► n8n :5678
@@ -108,35 +108,35 @@ path = "/mcp"
 [mcp.servers.docker-toolkit]
 url = "http://nyra-docker-toolkit:8811"
 
-# ── Oracle VPS MCP servers (100.64.0.31 via Tailscale mesh, always-on) ───────
+# ── Oracle VPS MCP servers (100.64.0.3 via Tailscale mesh, always-on) ───────
 
 # OpenMemory MCP: self-hosted mem0 memory server with Qdrant vector backend
 [mcp.servers.openmemory]
-url = "http://100.64.0.31:8765/mcp/nexus/sse/nyra"
+url = "http://100.64.0.3:8765/mcp/nexus/sse/nyra"
 
 # Infisical MCP: secrets read/write via @infisical/mcp
 [mcp.servers.infisical]
-url = "http://100.64.0.31:8766/sse"
+url = "http://100.64.0.3:8766/sse"
 
 # n8n: workflow execution
 [mcp.servers.n8n]
-url = "http://100.64.0.31:5678/mcp"
+url = "http://100.64.0.3:5678/mcp"
 
 # TwentyCRM: borrower/lead/deal management
 [mcp.servers.twenty]
-url = "http://100.64.0.31:3000/mcp"
+url = "http://100.64.0.3:3000/mcp"
 
 # Mem0 REST API: conversational memory
 [mcp.servers.mem0]
-url = "http://100.64.0.31:5000/sse"
+url = "http://100.64.0.3:5000/sse"
 
 # memOS: Hierarchical and tensor-based long-term memory
 [mcp.servers.memos]
-url = "http://100.64.0.31:8085/mcp"
+url = "http://100.64.0.3:8085/mcp"
 
 # Letta (MemGPT): Memory management and autonomous context orchestration
 [mcp.servers.letta]
-url = "http://100.64.0.31:8283/mcp"
+url = "http://100.64.0.3:8283/mcp"
 
 # Claudemem: Cross-session persistent observation memory (Orchestrator)
 [mcp.servers.claudemem]
@@ -152,7 +152,7 @@ url = "http://ha-mcp:8086/mcp"
 
 # Mempalace: memory palace graph-based indexing
 [mcp.servers.mempalace]
-url = "http://100.64.0.31:8002/sse"
+url = "http://100.64.0.3:8002/sse"
 
 # ── TOOL DISCOVERY & FUZZY SEARCH ────────────────────────────────────────────
 

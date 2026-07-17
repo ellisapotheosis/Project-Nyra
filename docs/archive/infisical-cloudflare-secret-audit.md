@@ -11,7 +11,7 @@ Required Infisical paths and variables:
 - `ORCHESTRATOR_TUNNEL_ID`
 - `ORCHESTRATOR_TUNNEL_TOKEN`
 
-`/machines/oracle-vps`
+`/hosts/oracle-vps`
 
 - `ORACLE_TUNNEL_ID`
 - `ORACLE_TUNNEL_TOKEN`

@@ -112,26 +112,30 @@ It must be the direct HTTPS URL of the public key file.
 
 ## Repair Oracle VPS compose `.env` from Infisical
 
-**Status:** Blocked until Infisical CLI auth or machine identity credentials are
-available in the local shell.
+**Status:** Complete as of 2026-07-17. `ssh oracle-vps` is working again,
+the local WSL Tailscale client is authenticated, and the Oracle compose `.env`
+was repaired from Infisical with a remote backup.
 
-Current evidence from 2026-07-15:
+Current evidence from 2026-07-17:
 
 - `ssh oracle-vps` works and lands on `nyra-oracle-vnic` as `ubuntu`.
 - Remote file exists:
   `/home/ubuntu/project-nyra/infra/hosts/oracle-vps/.env`
-- Redacted syntax scan found:
-  - `930` lines
-  - `846` active assignments
-  - `80` invalid dotenv lines
+- The prior remote file was backed up to:
+  `/home/ubuntu/project-nyra/infra/hosts/oracle-vps/.env.bak.20260717T082210Z`
+- Repaired file validation:
+  - `466` lines
+  - `364` active assignments
+  - `364` unique keys
+  - `0` invalid dotenv lines
   - `0` duplicate keys
-- Local `infisical` CLI is installed, but no noninteractive login/token was
-  available in this shell.
+- `docker compose -f infra/hosts/oracle-vps/docker-compose.yml --env-file infra/hosts/oracle-vps/.env config --quiet`
+  passes on Oracle.
+- Docker context `oracle` works again.
 
-Use the repair helper after logging in:
+Use the repair helper for future refreshes:
 
 ```bash
-infisical login
 DRY_RUN=1 bash ops/scripts/repair-oracle-env-from-infisical.sh
 bash ops/scripts/repair-oracle-env-from-infisical.sh
 ```
@@ -140,21 +144,79 @@ Defaults used by the script:
 
 - `INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef`
 - `INFISICAL_ENV=prod`
-- `INFISICAL_PATH=/machines/oracle-vps`
+- `INFISICAL_PATH=/hosts/oracle-vps`
 - `ORACLE_VPS_SSH_HOST=oracle-vps`
 - `ORACLE_VPS_ENV_PATH=/home/ubuntu/project-nyra/infra/hosts/oracle-vps/.env`
 
 The script:
 
-1. Exports the Infisical path to a private temp file.
-2. Validates dotenv syntax without printing secret values.
-3. Uploads the validated file to Oracle.
-4. Backs up the current remote `.env`.
-5. Installs the repaired file with mode `600`.
-6. Revalidates the remote file without printing secret values.
+1. Authenticates with `INFISICAL_TOKEN` or Universal Auth env vars when present.
+2. Exports the Infisical path to a private temp file.
+3. Validates dotenv syntax, including quoted multiline values, without printing
+   secret values.
+4. Uploads the validated file to Oracle.
+5. Backs up the current remote `.env`.
+6. Installs the repaired file with mode `600`.
+7. Revalidates the remote file without printing secret values.
 
 After repair, validate compose without dumping resolved secrets:
 
 ```bash
 ssh oracle-vps 'cd ~/project-nyra && docker compose -f infra/hosts/oracle-vps/docker-compose.yml --env-file infra/hosts/oracle-vps/.env config --quiet'
 ```
+
+---
+
+## Supabase public gateway hostname
+
+**Status:** The active public gateway is `https://api.projectnyra.com`, routed
+through the Oracle tunnel to `supabase-kong:8000`. Do not configure a separate
+`supabase.projectnyra.com` route unless the public hostname is intentionally
+changed everywhere; the app and self-hosted GoTrue configuration already use
+the `api` hostname.
+
+Validate after any tunnel or DNS change:
+
+```bash
+SUPABASE_URL=https://api.projectnyra.com bash scripts/verify-supabase.sh
+```
+
+## Cloudflare Pages credentials and production variables
+
+**Blocked by:** the current shell's Cloudflare API token is unauthorized and the
+Supabase anon key is not present locally. An owner must replace/refresh these
+values before running the Pages automation:
+
+```bash
+export CLOUDFLARE_API_TOKEN=REPLACE_ME_CLOUDFLARE_PAGES_TOKEN
+export CLOUDFLARE_ACCOUNT_ID=REPLACE_ME_CLOUDFLARE_ACCOUNT_ID
+export SUPABASE_ANON_KEY=REPLACE_ME_PUBLIC_SUPABASE_ANON_KEY
+node scripts/deploy-cloudflare-pages.js
+```
+
+The token must have account Pages project read/write access. The script refuses
+to publish a placeholder key and writes the configured variables to both preview
+and production deployment configs. Validate afterward with:
+
+```bash
+SUPABASE_URL=https://api.projectnyra.com \
+  SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+  bash scripts/verify-supabase.sh
+```
+
+## Reauthenticate Cloudflare MCP Portal admin credential (Grafbase Nexus)
+
+**Blocked by:** OAuth admin-credential reauthentication requires an interactive browser login — Cloudflare's API has no endpoint to complete the OAuth authorization-code exchange on your behalf.
+
+**Symptom:** `claude mcp` (or any MCP client) connecting to `mcp-gateway.projectnyra.com` gets `invalid_token` / `401` from the portal, even with valid MCP-client OAuth registration.
+
+**Root cause:** Cloudflare Access's MCP Server Portal (`mcp-server-portal`) holds a stored admin OAuth credential for its backend server `nyra` (`https://nexus-router.projectnyra.com/mcp`, served by the `ghcr.io/grafbase/nexus:stable` container, config at `infra/hosts/oracle-vps/nexus.toml`). That credential is now invalid (`status: stale`, `"Invalid oauth credentials. Please contact your administrator"`) — most likely invalidated by a `NEXUS_JWT_SECRET` rotation in Infisical `/clients/nexus` sometime after the credential was originally issued.
+
+**Steps (one-time, ~2 min):**
+
+1. [Cloudflare Zero Trust dashboard](https://one.dash.cloudflare.com/) → **Access controls** → **AI controls** → **MCP servers** tab
+2. Select **Project Nyra Nexus** (`nyra`) → **Edit** → **Authenticate server**
+3. Log in when redirected to Nexus's OAuth login page — this issues a fresh admin credential and refresh token
+4. Confirm server status flips from `stale`/`Error` to `Ready`
+
+**Also flagged (not fixed, no action needed unless you want it gone):** a second, orphaned MCP server registration named `nexus-router-mcp` exists in the same Cloudflare account (`auth_type: bearer`, pointing at `https://nexus.projectnyra.com` — that's actually the `apps/projectnyra` webapp's Nexus UI page, not an MCP endpoint). It isn't attached to the active portal and isn't causing the auth failure, but it's stale config. Delete via `DELETE /accounts/{account_id}/access/ai-controls/mcp/servers/nexus-router-mcp` if you want it cleaned up.

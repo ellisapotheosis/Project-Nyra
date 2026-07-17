@@ -623,13 +623,13 @@ This document exists to give future agents and humans one top-to-bottom picture 
 <claude-mem-context>
 # Memory Context
 
-# [project-nyra] recent context, 2026-07-15 12:30pm PDT
+# [project-nyra] recent context, 2026-07-17 6:35am PDT
 
 Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
 Format: ID TIME TYPE TITLE
 Fetch details: get_observations([IDs]) | Search: mem-search skill
 
-Stats: 50 obs (16,721t read) | 478,557t work | 97% savings
+Stats: 50 obs (17,958t read) | 935,336t work | 98% savings
 
 ### May 24, 2026
 
@@ -656,63 +656,60 @@ S27 User requested review of Cloudflared tunnel setup and verification that ever
 
 S28 Investigate and fix Syncthing device connectivity issues in the Nyra infrastructure cluster; establish working bidirectional sync between orchestrator and 3 GPU worker nodes (May 31, 6:56 AM)
 
-### Jul 14, 2026
+### Jul 17, 2026
 
-1823 3:35p 🔵 Local Projectnyra Application Code Complete; Security.txt Template Available
-1824 3:36p 🔵 Webapp Container Running with Built Image; Cloudflare Tunnel Properly Configured
-1825 " ✅ Created Projectnyra Security Configuration Files Locally
-1826 " ✅ Fixed VPS Directory Ownership and Synced Projectnyra Source Code
-1827 3:37p ✅ .env File Syntax Errors Fixed on VPS
-1828 3:38p 🔵 Additional .env Syntax Error on Line 256; Security Files Successfully Deployed
-1829 " 🔵 Systematic .env Malformation Affecting 14 Variables
-1830 " 🔵 .env Requires Complex Escaping Beyond Double-Quote Fix
-1831 3:39p 🔵 API Keys in .env Missing Proper Quote Escaping; Lines 126-130 Are Broken Continuations
-1832 " 🔵 Security.txt Not Accessible via HTTPS; Deployment Routing Issue
-1833 " 🔵 Webapp Requires Authentication for All Routes; Security.txt Blocked by Auth Middleware
-1834 " 🟣 RFC 9110 Security.txt Deployment Complete with OpenPGP Fingerprint
+1915 1:21a 🔵 Docker Compose config validation caught DNS name used as IP address; non-critical configuration issue
+1916 " 🔵 Root cause of docker-compose validation error: ORACLE_TAILSCALE_IP set to DNS hostname instead of IP
+1917 " ✅ Infisical secret corrected: ORACLE_TAILSCALE_IP set to IP address 100.64.0.3
+1918 1:22a 🟣 Docker Compose validation now passes with corrected Infisical secrets
+1919 " 🟣 Infrastructure repair completed end-to-end; 364 validated secrets deployed to oracle-vps
+1920 " 🟣 Remote infrastructure validation complete; critical services healthy and operational
+1926 2:27a 🔵 Oracle Tailscale IP hardcoded as 100.64.0.3 throughout codebase
+1927 " 🔵 Tailscale IP address mismatch for oracle-vps across documentation
+1928 " 🔵 Current WSL Tailscale endpoint hostname differs from requested configuration
+1929 2:29a ✅ Documentation cleanup begun on oracle setup and repair scripts
+1930 " ✅ Bulk oracle documentation standardization: IP and path consolidated to 100.64.0.3 and /hosts/oracle-vps
+1931 " 🔵 Oracle documentation cleanup incomplete: bulk-replace failed silently on critical files
+1932 2:30a ✅ Oracle documentation standardization completed successfully across 39+ files
+1933 " ✅ Oracle documentation cleanup finalized: Gitea configs standardized to 100.64.0.3, public routing preserved
+1934 2:31a ✅ Oracle documentation standardization completed: All problematic references eliminated
+1935 " ✅ Oracle infrastructure cleanup committed: 40 files standardized with 228 insertions across all layers
+1936 " ✅ Oracle Caddyfile standardized for internal Tailscale routing with 100.64.0.3 IP hostnames
+1937 " ✅ Caddyfile monitoring hostnames standardized to public domains for HTTPS termination
+1938 2:32a ✅ Oracle infrastructure cleanup COMPLETE: Zero problematic references remaining, all validations passing
+1939 " 🔵 Oracle cleanup verification: Remaining references only in archived/reference directories (acceptable)
+1940 " ✅ Oracle cleanup extended to archived directories: ALL problematic patterns eliminated from entire codebase
+1941 2:33a ✅ Oracle infrastructure cleanup FINALIZED: 46 files standardized, zero problematic patterns globally
+1942 2:38a ✅ Tailscale hostname changed from MiniApotheosis-wsl to orchestrator-wsl
+1943 2:39a 🔵 Hostname Strategy Clarified: Windows Default, -win Suffixes Remain
+1944 " 🔵 Tailscale Cluster DNS State Inventory
+1945 " ✅ Cloudflare A Record Created for orchestrator-wsl.projectnyra.com
+1946 " ✅ HOSTNAME_CONFIG.md Updated with Current Tailscale Topology
+1947 2:50a 🔵 DNS Resolution Dual-Path for orchestrator-wsl: Public Cloudflare vs. Tailscale Internal
+1948 " ✅ Config Files: -win Suffix Removal & IP Updates (Partially Incorrect)
+1949 " ✅ Orchestrator IP Assignment Error: 100.64.0.10 vs. Required 100.64.0.1
+1950 " 🔵 Tailscale Cluster Topology: Actual IPs Verified, orchestrator-wsl on Separate Range
+1951 6:29a 🔵 Cloudflare platform overview and product decision trees reviewed
+1952 " 🔵 Project Nyra Cloudflare infrastructure context: R2, disclosure files, and Access target apps identified
+1953 6:30a 🔵 Cloudflare infrastructure context and credentials available; Project Nyra has established tunnel and Pages setup
+1954 " 🔵 Extensive Cloudflare and Infisical integration established across Project Nyra infrastructure
+1955 " 🔵 Cloudflare Access policy automation infrastructure: two approaches (API + browser), existing app definitions missing Nyra Personal/Family/Agents/DASH
+1956 6:31a 🔵 Cloudflare Access policies "Nyra Agents", "Nyra Family", "Nyra Owner" already deployed to 40+ apps; no "Nyra Personal" policy found yet; DASH app not yet identified
+1957 " 🔵 Policies are reusable account-level resources; cannot update via app endpoint; need account-level policy update
+1958 6:32a 🔵 Account-level policy endpoint path identified: /accounts/{id}/access/policies/{policy_id}
+1959 " 🔵 Verified: correct account-level policy endpoint is /accounts/{id}/access/policies/{policy_id}
+1960 " 🔵 Account-level reusable policy structure verified; Nyra Owner applied to 32 apps
+1961 6:33a ✅ Nyra Owner policy successfully renamed to Nyra Personal via account-level PUT endpoint
+1962 " 🔵 Policy rename incomplete: 32 apps auto-updated, 7 apps still reference old policy names; DASH app not yet identified in 39-app list
+1963 " 🔵 Two policy types coexist: reusable (32 apps, auto-updated) vs non-reusable per-app policies (5 apps, manual update needed)
+1964 " 🔵 MCP-Gateway payload prepared with three reusable policies (Agents, Family, Personal) at precedences 1/2/3
+1965 6:34a ✅ MCP-Gateway successfully updated with three reusable policies (Agents, Family, Personal)
+1966 " ✅ Batch update: 3/4 drifted apps transitioned to reusable policies; nexus-router requires destinations field
+1967 6:35a ✅ nexus-router successfully updated with reusable policies; transitioned from non-reusable Nyra Owner to Personal/Family/Agents
+1968 " 🔵 Final validation: 35/35 non-dashboard apps have Personal/Family/Agents policies; 4 dashboard exceptions identified as DASH equivalent
+1969 " ✅ Access policy configuration complete; 30 API artifacts generated and validated in infra/cloudflare/apply-results/access-groups-20260717
 
-### Jul 15, 2026
-
-1835 6:34a 🔵 Cloudflare Infrastructure Footprint Across Project Nyra
-1836 6:35a 🔵 Cloudflare API Authentication Missing
-1837 " 🔵 Cloudflare R2 Buckets Provisioned in Active Account
-1838 6:36a 🔵 Wrangler CLI Version Check Failed
-1839 " 🔵 Wrangler R2 CLI Operational; DNS Already Routed to R2
-1840 " 🔵 R2 Bucket nyra-cdn-assets Fully Operational with Custom Domain
-1841 " ✅ PGP Keys Deployed to R2 for Public Disclosure
-1842 6:37a 🔵 PGP Keys Successfully Deployed and Publicly Accessible via CDN
-1843 " ✅ Security.txt Configured via Cloudflare Security Center API
-1844 " 🔵 Security Disclosure Infrastructure Verified End-to-End
-1845 11:59a 🔵 Project-Nyra repository conventions documented in local skill
-1846 12:00p 🔵 Project-Nyra working tree has uncommitted changes 3 commits ahead of main
-1847 " 🔵 OMC session infrastructure active with persistent state tracking
-1848 12:01p 🔵 Ralph skill inactive since June 6 session termination
-1849 " 🔵 10 active development branches tracked across domain reorganization and infrastructure work
-1850 " 🔵 Project-Nyra tech stack: monorepo, Node.js 20, TypeScript, pnpm, turbo with Twenty CRM and Cloudflare infra
-1851 " 🔵 Mission state cleared; no active missions as of July 15 14:21 UTC
-1852 " 🔵 High checkpoint creation rate on July 15; 5 checkpoints recorded within ~30 minutes (18:09–18:09 local time)
-1853 12:02p 🔵 Most recent session (c1e632cb) ended with "resume" command; no active task modes or pending work
-1854 " 🟣 Mem0 + FalkorDB integration added; Letta stack and OpenClaw dispatching wired
-1855 12:03p 🟣 Security disclosure endpoints published; ratehunter and projectnyra expose RFC 9116 security.txt and PGP keys
-1856 " ⚖️ Cloudflare R2 migration planned for document storage; 98% egress cost savings ($4,500/month)
-1857 " 🟣 Infisical integrated with GitHub Actions for CI/CD secret injection; supports multiple environments
-1858 " 🔵 Oracle-VPS is primary infrastructure host; runs Twenty CRM, agents, and services via docker-compose
-1859 12:04p 🔵 Project-Nyra middleware.ts is currently empty (no-op export)
-1860 12:05p 🔵 Project-Nyra security.txt file is untracked in git; ratehunter version is committed
-1861 " ✅ Security disclosure files migrated from app-local paths to Cloudflare R2 CDN
-1862 12:07p 🔵 Infisical authentication missing for oracle-vps secret export
-1863 12:08p ✅ Created repair script for Oracle VPS .env from Infisical
-1864 " 🔵 Cloudflare API credentials available in shell; app-local security.txt blocked by Access
-1865 12:10p 🔵 Cloudflare zone lookup returns 403; API token lacks required permissions
-1866 " 🔵 Single generic CLOUDFLARE_ZONE_ID available; domain-specific zone IDs missing
-1867 " 🔵 Cloudflare Access app creation failed: domains not associated with zone
-1868 12:11p 🔵 Legacy Cloudflare API credentials available alongside token-based auth
-1869 " 🔵 security.txt contains unreachable canonical URL behind Cloudflare Access
-1870 " 🔵 Both token and legacy Cloudflare auth fail to access zone API
-1871 " ✅ Documented Cloudflare API and security.txt configuration blockers
-1872 12:12p 🔵 Production security.txt and PGP key URLs are publicly accessible and valid
-
-Access 479k tokens of past work via get_observations([IDs]) or mem-search skill.
+Access 935k tokens of past work via get_observations([IDs]) or mem-search skill.
 </claude-mem-context>
 
 <!-- OMX:AGENTS:START -->

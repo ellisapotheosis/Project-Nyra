@@ -53,4 +53,4 @@ Runtime fixes applied:
 
 Remaining required owner action:
 
-- Replace the shared Infisical `/machines/oracle-vps` `ORACLE_TUNNEL_TOKEN`. It currently does not match `ORACLE_TUNNEL_ID`; this session used a runtime Cloudflare API token fetch because the machine identity can read secrets but cannot update/delete the existing shared secret.
+- Replace the shared Infisical `/hosts/oracle-vps` `ORACLE_TUNNEL_TOKEN`. It currently does not match `ORACLE_TUNNEL_ID`; this session used a runtime Cloudflare API token fetch because the machine identity can read secrets but cannot update/delete the existing shared secret.

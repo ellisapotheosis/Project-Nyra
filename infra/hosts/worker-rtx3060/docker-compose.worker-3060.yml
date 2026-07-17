@@ -19,7 +19,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: /machines/oracle-vps
+      INFISICAL_PATH: /hosts/oracle-vps
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks:
@@ -39,7 +39,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: /machines/oracle-vps
+      INFISICAL_PATH: /hosts/oracle-vps
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -244,7 +244,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
-      - LOKI_URL=${LOKI_URL:-http://oracle.trex-fiordland.ts.net:3100}
+      - LOKI_URL=${LOKI_URL:-http://100.64.0.3:3100}
       - WORKER_ID=worker-3060
     command: -config.file=/etc/promtail/config.yml
     depends_on:
