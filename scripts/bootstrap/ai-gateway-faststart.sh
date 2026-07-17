@@ -27,6 +27,11 @@ done
 [[ -f "$SECRETS" ]] || { echo "Missing $SECRETS. Copy ai-gateway.env.example and populate it from Infisical." >&2; exit 1; }
 [[ "$(stat -c '%a' "$SECRETS")" =~ ^(600|400)$ ]] || echo "WARNING: set $SECRETS to mode 0600" >&2
 
+set -a
+# The rendered Infisical file must use shell-compatible KEY=VALUE syntax.
+source "$SECRETS"
+set +a
+
 bash "$ROOT/scripts/infra/assert-compose-source-of-truth.sh"
 docker network inspect "${NYRA_DOCKER_NETWORK:-nyra-network_nyra-network}" >/dev/null 2>&1 || {
   echo "Required shared Docker network is missing. Start the base orchestrator stack first." >&2
