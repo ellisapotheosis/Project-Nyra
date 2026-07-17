@@ -5,7 +5,8 @@
 | Service                  | Level     | Public Hostname                                       | Notes                                                    |
 | :----------------------- | :-------- | :---------------------------------------------------- | :------------------------------------------------------- |
 | **TwentyCRM**            | Protected | `crm.projectnyra.com`                                 | Cloudflare Access required.                              |
-| **WebApp**               | Public    | `app.projectnyra.com`                                 | Primary broker/customer interface.                       |
+| **3D Landing Page**      | Public    | `projectnyra.com`                                     | Public Project Nyra landing surface.                     |
+| **WebApp**               | Protected | `app.projectnyra.com`                                 | Primary broker/customer interface.                       |
 | **Activepieces**         | Protected | `activepieces.projectnyra.com`                        | Internal automation dashboard.                           |
 | **n8n**                  | Protected | `n8n.projectnyra.com`                                 | Internal automation.                                     |
 | **Gitea**                | Protected | `gitea.projectnyra.com`                               | Repository hosting.                                      |
@@ -21,7 +22,7 @@
 
 ## Access Policy
 
-1. **Public**: Accessible by anyone with a browser (RateHunter landing/login).
+1. **Public**: Accessible by anyone with a browser (Project Nyra 3D landing and RateHunter landing/login).
 2. **Protected**: Accessible only via Cloudflare Access (SSO/Email required).
 3. **Private**: Accessible only via Tailscale (MagicDNS/Private Mesh).
 4. **Internal**: Accessible only within the Docker network (No host port exposure).

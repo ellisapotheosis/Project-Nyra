@@ -212,7 +212,11 @@ After deploying, set up a custom domain:
 After the custom domain is attached, verify:
 
 - `https://ratehunter.net/.well-known/security.txt`
-- `https://ratehunter.net/.well-known/pgp-key.asc`
+- `https://cdn.projectnyra.com/security/ratehunter-pgp-key.asc`
+
+Production `security.txt` is managed by Cloudflare Security Center. Its
+`Encryption:` field should point to the R2-hosted key above, not to a
+Pages-local `/.well-known/pgp-key.asc` URL.
 
 Update `wrangler.toml` to add routes:
 

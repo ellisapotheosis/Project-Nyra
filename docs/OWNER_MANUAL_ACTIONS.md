@@ -43,8 +43,9 @@ curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/a
 
 ## Publish `security.txt` and key URLs for `projectnyra.com` + `ratehunter.net`
 
-**Blocked by:** Cloudflare DNS / Access / Security dashboard settings require
-owner login.
+**Status:** Complete as of 2026-07-15. Cloudflare Security Center serves
+`security.txt` at the zone layer, and Cloudflare R2 serves the OpenPGP key
+files from `cdn.projectnyra.com`.
 
 **What is already done in repo:**
 
@@ -57,28 +58,103 @@ The published public key fingerprint is:
 
 - `6EFC 0D95 7A11 8EB7 DD3B F48C 41DB BAF8 8224 9BA5`
 
-**Steps (one-time, ~10 min):**
+Current production URLs:
+
+- `https://projectnyra.com/.well-known/security.txt`
+- `https://ratehunter.net/.well-known/security.txt`
+- `https://cdn.projectnyra.com/security/projectnyra-pgp-key.asc`
+- `https://cdn.projectnyra.com/security/ratehunter-pgp-key.asc`
+
+Cloudflare resources:
+
+- R2 bucket: `nyra-cdn-assets`
+- R2 custom domain: `cdn.projectnyra.com`
+- R2 object prefix: `security/`
+
+See `docs/operations/SECURITY_DISCLOSURE_ASSETS.md` for the current runbook.
+
+Resolved drift:
+
+- `app.projectnyra.com` is the primary webapp and remains Access-gated.
+- `projectnyra.com` is the public 3D landing page.
+- `projectnyra.com` Security TXT was updated on 2026-07-15 so `canonical`
+  contains only `https://projectnyra.com/.well-known/security.txt`.
+- A short-lived Cloudflare token scoped to `projectnyra.com` Zone Settings was
+  created for that update and revoked after the API call completed.
+
+**Historical fallback steps only:**
 
 1. In Cloudflare DNS / Tunnel config, make sure these hostnames resolve:
    - `projectnyra.com` → Oracle tunnel
    - `www.projectnyra.com` → Oracle tunnel
    - `app.projectnyra.com` → Oracle tunnel
    - `ratehunter.net` → Cloudflare Pages project
-2. In Cloudflare Access, add a bypass/public rule for:
+2. If the app-local fallback must be public, add a Cloudflare Access
+   bypass/public rule for:
    - `https://app.projectnyra.com/.well-known/*`
-   so `security.txt` and `pgp-key.asc` stay publicly fetchable even if the app
-   hostname is otherwise Access-gated.
+     so app-local fallback files stay publicly fetchable even if the app hostname
+     is otherwise Access-gated.
 3. Verify these URLs load publicly:
    - `https://projectnyra.com/.well-known/security.txt`
-   - `https://projectnyra.com/.well-known/pgp-key.asc`
-   - `https://app.projectnyra.com/.well-known/security.txt`
    - `https://ratehunter.net/.well-known/security.txt`
-   - `https://ratehunter.net/.well-known/pgp-key.asc`
+   - `https://cdn.projectnyra.com/security/projectnyra-pgp-key.asc`
+   - `https://cdn.projectnyra.com/security/ratehunter-pgp-key.asc`
 4. In Cloudflare dashboard, for each domain:
    - Go to **Security** → **Settings**
-   - Set the **Encryption** / public key URL to the exact `.asc` URL:
-     - `https://projectnyra.com/.well-known/pgp-key.asc`
-     - `https://ratehunter.net/.well-known/pgp-key.asc`
+   - Set the **Encryption** / public key URL to the exact R2 `.asc` URL:
+     - `https://cdn.projectnyra.com/security/projectnyra-pgp-key.asc`
+     - `https://cdn.projectnyra.com/security/ratehunter-pgp-key.asc`
 
 **Important:** Do not paste the bare site homepage into the Encryption field.
 It must be the direct HTTPS URL of the public key file.
+
+---
+
+## Repair Oracle VPS compose `.env` from Infisical
+
+**Status:** Blocked until Infisical CLI auth or machine identity credentials are
+available in the local shell.
+
+Current evidence from 2026-07-15:
+
+- `ssh oracle-vps` works and lands on `nyra-oracle-vnic` as `ubuntu`.
+- Remote file exists:
+  `/home/ubuntu/project-nyra/infra/hosts/oracle-vps/.env`
+- Redacted syntax scan found:
+  - `930` lines
+  - `846` active assignments
+  - `80` invalid dotenv lines
+  - `0` duplicate keys
+- Local `infisical` CLI is installed, but no noninteractive login/token was
+  available in this shell.
+
+Use the repair helper after logging in:
+
+```bash
+infisical login
+DRY_RUN=1 bash ops/scripts/repair-oracle-env-from-infisical.sh
+bash ops/scripts/repair-oracle-env-from-infisical.sh
+```
+
+Defaults used by the script:
+
+- `INFISICAL_PROJECT_ID=8374cea9-e5e8-4050-bda4-b91f25ab30ef`
+- `INFISICAL_ENV=prod`
+- `INFISICAL_PATH=/machines/oracle-vps`
+- `ORACLE_VPS_SSH_HOST=oracle-vps`
+- `ORACLE_VPS_ENV_PATH=/home/ubuntu/project-nyra/infra/hosts/oracle-vps/.env`
+
+The script:
+
+1. Exports the Infisical path to a private temp file.
+2. Validates dotenv syntax without printing secret values.
+3. Uploads the validated file to Oracle.
+4. Backs up the current remote `.env`.
+5. Installs the repaired file with mode `600`.
+6. Revalidates the remote file without printing secret values.
+
+After repair, validate compose without dumping resolved secrets:
+
+```bash
+ssh oracle-vps 'cd ~/project-nyra && docker compose -f infra/hosts/oracle-vps/docker-compose.yml --env-file infra/hosts/oracle-vps/.env config --quiet'
+```

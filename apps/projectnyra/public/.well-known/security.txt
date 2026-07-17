@@ -1,0 +1,5 @@
+Contact: mailto:apotheosis@ratehunter.net
+Expires: 2027-07-12T23:59:59.000Z
+Encryption: https://cdn.projectnyra.com/security/projectnyra-pgp-key.asc
+Canonical: https://projectnyra.com/.well-known/security.txt
+Preferred-Languages: en
