@@ -30,8 +30,8 @@ rm -f "$tmp_host_offender"
 
 bash scripts/infra/assert-compose-source-of-truth.sh >/dev/null
 
-grep -q 'APP_DIR: "apps/ratehunter"' .github/workflows/deploy-cloudflare-pages.yml
-grep -q 'PNPM_VERSION: "11.9.0"' .github/workflows/deploy-cloudflare-pages.yml
+grep -q 'APP_DIR: "apps/ratehunter/landing"' .github/workflows/deploy-cloudflare-pages.yml
+grep -q 'PNPM_VERSION: "10.27.0"' .github/workflows/deploy-cloudflare-pages.yml
 for preview_app in apps/projectnyra apps/ratehunter; do
   if [[ ! -f "$preview_app/package.json" ]]; then
     echo "repository policy test failed: preview app is missing: $preview_app" >&2
@@ -39,7 +39,7 @@ for preview_app in apps/projectnyra apps/ratehunter; do
   fi
 done
 
-printf '%s\n' dependencies github-actions javascript memory python >"$labels_file"
+printf '%s\n' apps dependencies docker go github-actions javascript memory npm packages python services >"$labels_file"
 bash scripts/ci/validate-dependabot-labels.sh "$labels_file" >/dev/null
 
 cat >"$dependabot_fixture" <<'EOF'
