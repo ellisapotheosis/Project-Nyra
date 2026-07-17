@@ -87,7 +87,17 @@ bash scripts/bootstrap/ai-gateway-faststart.sh --with-omniroute
 bash scripts/bootstrap/ai-gateway-faststart.sh --with-mesh
 ```
 
-## Cloudflare and tailnet access
+## Tailnet and Cloudflare access
+
+Preferred machine-to-machine path:
+
+```bash
+tailscale serve --bg 4000
+tailscale serve status
+```
+
+Keep LiteLLM bound to loopback and point workers at the HTTPS MagicDNS URL that
+Tailscale reports. Tailscale ACLs still apply.
 
 Attach the token-managed orchestrator tunnel to the same external Docker
 network and route approved hostnames to `http://nyra-litellm-gateway:4000`.
@@ -96,9 +106,9 @@ but they may share one origin. Do not place a browser-only Access challenge in
 front of MCP OAuth discovery or machine A2A traffic. Use Cloudflare service
 tokens plus LiteLLM virtual keys for machines.
 
-For direct tailnet access, set `LITELLM_BIND_IP=0.0.0.0` only after a Windows
-firewall/Tailscale ACL restricts TCP 4000 to the tailnet; otherwise keep the
-loopback binding and use Cloudflared on the shared Docker network.
+Only set `LITELLM_BIND_IP=0.0.0.0` when Tailscale Serve is unavailable and a
+Windows firewall/Tailscale ACL restricts TCP 4000 to the tailnet. Cloudflared
+remains the external/admin ingress path.
 
 ## Worker-local LiteLLM
 
