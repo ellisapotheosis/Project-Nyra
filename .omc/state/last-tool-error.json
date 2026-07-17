@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd ~/repos/project-nyra && rtk git status --porcelain=v2 --branch 2>&1 | wc -l && echo \\\"---fetch---\\\" && rtk git fetch origin 2>&1 && echo \\\"---log ahead/behind---\\\" && rtk git log --onel...",
+  "error": "Exit code 1\n156\n---fetch---\nFAILED: git fetch\nFrom https://github.com/ellisapotheosis/Project-Nyra\n * [new branch]          codex/skill-progression-2026-07-13 -> origin/codex/skill-progression-2026-07-13\n * [new branch]          fix/ci-failures-20260511 -> origin/fix/ci-failures-20260511\n * [new branch]          pr-768-fixes -> origin/pr-768-fixes\n * [new branch]          pr-769-fixes -> origin/pr-769-fixes\nCould not access submodule 'external/claw-code'",
+  "timestamp": "2026-07-16T23:19:30.510Z",
+  "retry_count": 2
+}

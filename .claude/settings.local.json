@@ -1,8 +1,6 @@
 {
   "permissions": {
     "allow": [
-      "*",
-      "mcp__*",
       "Bash",
       "Read",
       "Write",
@@ -39,10 +37,7 @@
     "defaultMode": "bypassPermissions"
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "nexus-router",
-    "serena"
-  ],
+  "enabledMcpjsonServers": ["nexus-router", "serena"],
   "outputStyle": "Explanatory",
   "bypassPermissionsModeAccepted": true,
   "experimental": {

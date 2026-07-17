@@ -1,5 +1,5 @@
 Contact: mailto:apotheosis@ratehunter.net
 Expires: 2027-07-12T23:59:59.000Z
-Encryption: https://ratehunter.net/.well-known/pgp-key.asc
+Encryption: https://cdn.projectnyra.com/security/ratehunter-pgp-key.asc
 Canonical: https://ratehunter.net/.well-known/security.txt
 Preferred-Languages: en
