@@ -86,7 +86,8 @@ async function deployProject(
   subdomain,
   repoName,
   rootDir,
-  env = {}
+  env = {},
+  customDomain = null
 ) {
   console.log(`\n📦 Setting up ${projectName} (${subdomain})`);
 
@@ -155,9 +156,10 @@ async function deployProject(
     // Add custom domain
     console.log(`  → Adding domain routing...`);
     const fullDomain =
-      subdomain === "projectnyra"
+      customDomain ??
+      (subdomain === "projectnyra"
         ? "projectnyra.com"
-        : `${subdomain}.projectnyra.com`;
+        : `${subdomain}.projectnyra.com`);
 
     try {
       await cfApiCall(
@@ -230,10 +232,8 @@ async function setupTunnel() {
   4. Configure tunnel (create ~/.cloudflared/config.yml):
      tunnel: project-nyra-api
      ingress:
-       - hostname: supabase.projectnyra.com
-         service: http://localhost:8000
        - hostname: api.projectnyra.com
-         service: http://localhost:3100
+         service: http://supabase-kong:8000
        - service: http_status:404
 
   5. Start tunnel:
@@ -278,7 +278,8 @@ async function main() {
         NEXT_PUBLIC_ADMIN_MODE: "true",
         NEXT_PUBLIC_NEXUS_BASE_URL: "https://nexus.projectnyra.com",
         NEXT_PUBLIC_API_URL: "https://api.projectnyra.com",
-      }
+      },
+      "nexus.projectnyra.com"
     );
 
     console.log(`
