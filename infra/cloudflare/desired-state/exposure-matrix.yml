@@ -18,7 +18,7 @@ tunnels:
   oracle:
     secret_token: ORACLE_TUNNEL_TOKEN
     secret_id: ORACLE_TUNNEL_ID
-    infisical_path: /machines/oracle-vps
+    infisical_path: /hosts/oracle-vps
 
 pages:
   - hostname: ratehunter.net
@@ -35,6 +35,10 @@ pages:
     target: cloudflare_pages
     access: public
     notes: www redirect alias for projectnyra.com landing page.
+  - hostname: nexus.projectnyra.com
+    target: cloudflare_pages
+    access: public_auth
+    notes: "Human UI for Nexus. Pages project: projectnyra-nexus."
 
 routes:
   - hostname: app.projectnyra.com
@@ -89,11 +93,6 @@ routes:
     tunnel: oracle
     origin: http://openwebui:8080
     exposure: public_auth
-  - hostname: nexus.projectnyra.com
-    tunnel: oracle
-    origin: http://nexus-ui:3016
-    exposure: public_auth
-    notes: Human UI for Nexus.
   - hostname: nexus-router.projectnyra.com
     tunnel: oracle
     origin: http://nexus:3000

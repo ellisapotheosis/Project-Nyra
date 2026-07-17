@@ -19,8 +19,8 @@ cp .env.example .env.local
 Defaults assume local tunnels or local services:
 
 ```text
-NEXUS_BASE_URL=http://oracle.trex-fiordland.ts.net:6000
-LITELLM_BASE_URL=http://oracle.trex-fiordland.ts.net:4000
+NEXUS_BASE_URL=http://100.64.0.3:6000
+LITELLM_BASE_URL=http://100.64.0.3:4000
 ```
 
 Leave `NEXUS_CONFIG_APPLY_ENABLED=false` unless an apply adapter has been implemented and reviewed.

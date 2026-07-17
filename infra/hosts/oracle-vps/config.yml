@@ -203,9 +203,9 @@ services:
       GITEA__database__USER: ${GITEA_DB_USER:-nyra}
       GITEA__mirror__DEFAULT_INTERVAL: 10m
       GITEA__mirror__ENABLED: "true"
-      GITEA__server__DOMAIN: ${GITEA_DOMAIN:-git.oracle.trex-fiordland.ts.net}
-      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-https://git.oracle.trex-fiordland.ts.net/}
-      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-oracle.trex-fiordland.ts.net}
+      GITEA__server__DOMAIN: ${GITEA_DOMAIN:-gitea.projectnyra.com}
+      GITEA__server__ROOT_URL: ${GITEA_ROOT_URL:-https://gitea.projectnyra.com/}
+      GITEA__server__SSH_DOMAIN: ${GITEA_SSH_DOMAIN:-100.64.0.3}
       GITEA__server__SSH_LISTEN_PORT: 2222
       GITEA__server__SSH_PORT: ${GITEA_SSH_PORT:-2222}
       GITEA__server__START_SSH_SERVER: "true"
@@ -405,7 +405,7 @@ services:
       - /usr/local/bin/agent-sidecar.sh
     environment:
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/hosts/oracle-vps}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
@@ -928,7 +928,7 @@ services:
     container_name: nyra-secrets-init
     environment:
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/hosts/oracle-vps}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}

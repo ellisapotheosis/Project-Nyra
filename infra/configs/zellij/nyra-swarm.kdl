@@ -49,10 +49,10 @@ layout {
             }
             pane split_direction="horizontal" size="40%" {
                 pane name="[HEAVY METAL] RTX-5090 (OpenClaw)" command="bash" {
-                    args "-c" "echo 'Connecting to Worker-5090...'; ssh -t worker-rtx5090-win 'docker exec -it worker-5090-openclaw bash || bash' || bash"
+                    args "-c" "echo 'Connecting to Worker-5090...'; ssh -t worker-rtx5090 'docker exec -it worker-5090-openclaw bash || bash' || bash"
                 }
                 pane name="[HEAVY METAL] RTX-3090Ti (OpenClaw)" command="bash" {
-                    args "-c" "echo 'Connecting to Worker-3090Ti...'; ssh -t worker-rtx3090ti-win 'docker exec -it worker-3090-openclaw bash || bash' || bash"
+                    args "-c" "echo 'Connecting to Worker-3090Ti...'; ssh -t worker-rtx3090ti 'docker exec -it worker-3090-openclaw bash || bash' || bash"
                 }
             }
         }

@@ -66,8 +66,8 @@ cp .env.example .env.local
 Important variables:
 
 - `NEXUS_UI_SETTINGS_PATH`: JSON settings file written by the app.
-- `NEXUS_BASE_URL`: Nexus Router base URL for status checks. Default: `http://oracle.trex-fiordland.ts.net:6000`.
-- `LITELLM_BASE_URL`: LiteLLM proxy URL for status checks. Default: `http://oracle.trex-fiordland.ts.net:4000`.
+- `NEXUS_BASE_URL`: Nexus Router base URL for status checks. Default: `http://100.64.0.3:6000`.
+- `LITELLM_BASE_URL`: LiteLLM proxy URL for status checks. Default: `http://100.64.0.3:4000`.
 - `LITELLM_MASTER_KEY`: optional secret used only for authenticated LiteLLM health/model calls.
 - `NEXUS_CONFIG_APPLY_ENABLED`: must remain `false` until a reviewed deployment adapter exists.
 - `NEXT_PUBLIC_WEBAPP_URL`: link target back to the broker webapp.

@@ -144,13 +144,13 @@ cat <<EOF > "$WAVE_CONFIG_DIR/presets/presets.json"
       {
         "name": "RTX3090Ti",
         "blocks": [
-          { "type": "terminal", "cmd": "ssh worker-rtx3090ti-win 'docker ps | grep openclaw'" }
+          { "type": "terminal", "cmd": "ssh worker-rtx3090ti 'docker ps | grep openclaw'" }
         ]
       },
       {
         "name": "RTX5090",
         "blocks": [
-          { "type": "terminal", "cmd": "ssh worker-rtx5090-win 'docker ps | grep vllm'" }
+          { "type": "terminal", "cmd": "ssh worker-rtx5090 'docker ps | grep vllm'" }
         ]
       }
     ]

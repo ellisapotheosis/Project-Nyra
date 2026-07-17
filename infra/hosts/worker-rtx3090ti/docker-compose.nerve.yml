@@ -12,10 +12,10 @@ services:
       NEXUS_API_URL: "http://orchestrator.trex-fiordland.ts.net:6000"
       OPENCLAW_GATEWAY_URL: "http://orchestrator.trex-fiordland.ts.net:8001"
       LITELLM_API_URL: "http://worker-3090-litellm:4000"
-      MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
+      MEM0_API_URL: ${MEM0_API_URL:-http://100.64.0.3:5000}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       DATABASE_URL: ${DATABASE_URL:-}
-      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
+      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://100.64.0.3:8089}
     depends_on:
       - litellm
     networks:

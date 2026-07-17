@@ -34,8 +34,6 @@ ingress:
     service: http://cadvisor:8080
   - hostname: openwebui.projectnyra.com
     service: http://openwebui:8080
-  - hostname: nexus.projectnyra.com
-    service: http://nexus-ui:3016
   - hostname: nexus-router.projectnyra.com
     service: http://nexus:3000
   - hostname: litellm.projectnyra.com

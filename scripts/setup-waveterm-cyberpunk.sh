@@ -150,12 +150,12 @@ cat <<EOF > "$WAVE_CONFIG_DIR/presets/presets.json"
           { 
             "type": "terminal", 
             "name": "Monitor (5090 vLLM)",
-            "cmd": "ssh worker-rtx5090-win 'docker logs -f worker-5090-vllm'" 
+            "cmd": "ssh worker-rtx5090 'docker logs -f worker-5090-vllm'" 
           },
           { 
             "type": "terminal", 
             "name": "Grid Stats (GPUs)",
-            "cmd": "watch -n 1 \"ssh worker-rtx3090ti-win 'nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits' && ssh worker-rtx3060-win 'nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits'\"" 
+            "cmd": "watch -n 1 \"ssh worker-rtx3090ti 'nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits' && ssh worker-rtx3060 'nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits'\"" 
           },
           { 
             "type": "terminal", 

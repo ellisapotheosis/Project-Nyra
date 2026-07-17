@@ -1,7 +1,7 @@
 name: nyra-cloudflared-oracle
 
 # Standalone cloudflared tunnel for the Oracle VPS.
-# Token: ORACLE_TUNNEL_TOKEN (from Infisical /machines/oracle-vps)
+# Token: ORACLE_TUNNEL_TOKEN (from Infisical /hosts/oracle-vps)
 # Config: infra/cloudflared/config.oracle.yml
 # Start:  docker compose -f infra/hosts/oracle-vps/docker-compose.cloudflared.yml up -d
 

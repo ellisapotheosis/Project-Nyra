@@ -12,7 +12,7 @@ services:
       - CLAWTEAM_FALLBACK_REPLICA=worker-rtx3060:9002
       - WORKER_NODES=["worker-rtx5090", "worker-rtx3090ti", "worker-rtx3060"]
       - NERVE_UI_ENABLED=true
-      - LITELLM_API_URL=http://oracle.trex-fiordland.ts.net:4000
+      - LITELLM_API_URL=http://100.64.0.3:4000
       - NEXUS_ROUTER_URL=http://localhost:7000
     ports:
       - "9001:9000"

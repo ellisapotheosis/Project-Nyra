@@ -78,7 +78,7 @@ Perfect for:
    DB_POSTGRESDB_PASSWORD=<password>
    ```
 5. Deploy (5-10 minutes)
-6. Access at `https://your-app.oracle-vps.projectnyra.com`
+6. Access at `https://n8n.projectnyra.com`
 7. Configure custom domain (optional)
 
 **Total Setup Time**: 15 minutes

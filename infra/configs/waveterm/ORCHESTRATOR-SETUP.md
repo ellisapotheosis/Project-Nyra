@@ -198,12 +198,12 @@ curl http://localhost:7123/health || echo "Letta API offline"
 ### Workers Not Connecting
 ```bash
 # Check SSH keys
-ssh-keyscan worker-rtx5090-win >> ~/.ssh/known_hosts
-ssh-keyscan worker-rtx3090ti-win >> ~/.ssh/known_hosts
+ssh-keyscan worker-rtx5090 >> ~/.ssh/known_hosts
+ssh-keyscan worker-rtx3090ti >> ~/.ssh/known_hosts
 
 # Test connectivity
-ssh worker-rtx5090-win "nvidia-smi" | head -10
-ssh worker-rtx3090ti-win "nvidia-smi" | head -10
+ssh worker-rtx5090 "nvidia-smi" | head -10
+ssh worker-rtx3090ti "nvidia-smi" | head -10
 ```
 
 ## Advanced Configuration

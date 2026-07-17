@@ -43,10 +43,10 @@ layout {
             // ==== UPPER: 3 CLI Panes with Full MCP Bridge ====
             pane split_direction="horizontal" size="65%" {
                 pane name="[CLAUDE] claude-code" command="bash" {
-                    args "-c" "export MCP_HTTP_URL=http://oracle.trex-fiordland.ts.net:6000/mcp; cd ~/repos/project-nyra && claude"
+                    args "-c" "export MCP_HTTP_URL=http://100.64.0.3:6000/mcp; cd ~/repos/project-nyra && claude"
                 }
                 pane name="[GEMINI] gemini-cli" command="bash" {
-                    args "-c" "export MCP_HTTP_URL=http://oracle.trex-fiordland.ts.net:6000/mcp; cd ~/repos/project-nyra && gemini"
+                    args "-c" "export MCP_HTTP_URL=http://100.64.0.3:6000/mcp; cd ~/repos/project-nyra && gemini"
                 }
                 pane name="[CODEX] codex-cli" command="bash" {
                     args "-c" "cd ~/repos/project-nyra && codex"
