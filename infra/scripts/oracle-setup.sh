@@ -41,7 +41,7 @@ else
 fi
 
 # ── 2. Tailscale — only install+register if not already on the tailnet ───────
-# The oracle VPS should already be registered as oracle.trex-fiordland.ts.net.
+# The oracle VPS should already be registered as 100.64.0.3.
 # This block only runs if tailscale is missing entirely (fresh VM).
 if ! command -v tailscale &>/dev/null; then
   echo "[Nyra] Tailscale not found. Installing..."

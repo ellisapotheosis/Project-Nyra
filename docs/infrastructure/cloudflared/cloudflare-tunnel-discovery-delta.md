@@ -22,6 +22,6 @@ Current live drift:
 Next required action:
 
 - Review `infra/cloudflare/desired-state/exposure-matrix.yml`.
-- Confirm Oracle tunnel ID/token are present in Infisical path `/machines/oracle-vps`.
+- Confirm Oracle tunnel ID/token are present in Infisical path `/hosts/oracle-vps`.
 - Confirm orchestrator token is rotated because a token was pasted into chat.
 - Approve Cloudflare API apply or manually create equivalent dashboard public hostnames and Access apps.

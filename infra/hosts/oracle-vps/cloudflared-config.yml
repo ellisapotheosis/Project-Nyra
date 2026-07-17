@@ -65,14 +65,8 @@ ingress:
   - hostname: openwebui.projectnyra.com
     service: http://openwebui:8080
 
-  - hostname: nexus-ui.projectnyra.com
-    service: http://nexus-ui:3016
-
   - hostname: litellm.projectnyra.com
     service: http://litellm:4000
-
-  - hostname: nexus.projectnyra.com
-    service: http://nexus-ui:3016
 
   - hostname: nexus-router.projectnyra.com
     service: http://nexus:3000

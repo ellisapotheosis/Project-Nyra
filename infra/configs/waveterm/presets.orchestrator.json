@@ -27,12 +27,12 @@
           {
             "type": "terminal",
             "name": "[GPU] RTX-5090 (DeepSeek)",
-            "cmd": "ssh -t worker-rtx5090-win 'echo ===RTX5090===; watch -n1 nvidia-smi; docker logs -f worker-5090-vllm' || bash"
+            "cmd": "ssh -t worker-rtx5090 'echo ===RTX5090===; watch -n1 nvidia-smi; docker logs -f worker-5090-vllm' || bash"
           },
           {
             "type": "terminal",
             "name": "[GPU] RTX-3090Ti (Llama)",
-            "cmd": "ssh -t worker-rtx3090ti-win 'echo ===RTX3090Ti===; watch -n1 nvidia-smi; docker logs -f worker-3090-vllm' || bash"
+            "cmd": "ssh -t worker-rtx3090ti 'echo ===RTX3090Ti===; watch -n1 nvidia-smi; docker logs -f worker-3090-vllm' || bash"
           }
         ]
       }

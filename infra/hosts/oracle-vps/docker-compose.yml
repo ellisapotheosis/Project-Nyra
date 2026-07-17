@@ -14,7 +14,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/hosts/oracle-vps}
     volumes:
       - nyra_secrets:/run/nyra-secrets
     networks: [nyra_net]
@@ -33,7 +33,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENV: ${INFISICAL_ENV:-prod}
-      INFISICAL_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/hosts/oracle-vps}
       INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-60}
     volumes:
       - nyra_secrets:/run/nyra-secrets
@@ -49,7 +49,7 @@ services:
     env_file: [.env.oracle]
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - "while true; do infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/machines/oracle-vps --format=dotenv --silent > /repo/.env && sleep 60; done"
+      - "while true; do infisical export --projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef --env=prod --path=/hosts/oracle-vps --format=dotenv --silent > /repo/.env && sleep 60; done"
     volumes:
       - ./.env:/repo/.env
     networks: [nyra_net]
@@ -519,7 +519,7 @@ services:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENVIRONMENT: ${INFISICAL_ENV:-prod}
-      INFISICAL_FOLDER_PATH: ${INFISICAL_PATH:-/machines/oracle-vps}
+      INFISICAL_FOLDER_PATH: ${INFISICAL_PATH:-/hosts/oracle-vps}
       INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
       INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
       NPM_CONFIG_CACHE: /tmp/.npm

@@ -2,19 +2,20 @@
 
 **Purpose**: Define hostname resolution strategy across the 4-node GPU cluster + Oracle VPS, covering local `/etc/hosts`, Tailscale mesh DNS, and Cloudflare public ingress.
 
-**Last Updated**: 2026-05-19
+**Last Updated**: 2026-07-17
 
 ---
 
 ## Cluster Hosts
 
-| Host                 | Role                                  | Network                     | Tailscale IP | Public Domain                            |
-| -------------------- | ------------------------------------- | --------------------------- | ------------ | ---------------------------------------- |
-| **orchestrator**     | Control Plane (LAN)                   | Local LAN                   | 100.64.1.10  | (N/A — internal only)                    |
-| **worker-rtx5090**   | GPU Worker — vLLM primary (32GB)      | Local LAN                   | 100.64.1.11  | (N/A — internal only)                    |
-| **worker-rtx3090ti** | GPU Worker — vLLM secondary (24GB)    | Local LAN                   | 100.64.1.12  | (N/A — internal only)                    |
-| **worker-rtx3060**   | GPU Worker — Ollama embeddings (12GB) | Local LAN                   | 100.64.1.13  | (N/A — internal only)                    |
-| **oracle-vps**       | Cloud Backend (VPS)                   | Tailscale + Public Internet | 100.64.1.31  | app.projectnyra.com, crm.projectnyra.com |
+| Host                 | Role                                  | Network                     | Tailscale IP   | Public Domain                            |
+| -------------------- | ------------------------------------- | --------------------------- | -------------- | ---------------------------------------- |
+| **orchestrator**     | Control Plane (Windows host)          | Tailscale                   | 100.64.0.10    | orchestrator.projectnyra.com             |
+| **orchestrator-wsl** | Control Plane sidecar (WSL Ubuntu)    | Tailscale                   | 100.87.255.119 | orchestrator-wsl.projectnyra.com         |
+| **worker-rtx5090**   | GPU Worker — vLLM primary (32GB)      | Tailscale                   | 100.64.0.11    | worker-rtx5090.projectnyra.com           |
+| **worker-rtx3090ti** | GPU Worker — vLLM secondary (24GB)    | Tailscale                   | 100.64.0.13    | worker-rtx3090ti.projectnyra.com         |
+| **worker-rtx3060**   | GPU Worker — Ollama embeddings (12GB) | Tailscale                   | 100.64.0.12    | worker-rtx3060.projectnyra.com           |
+| **oracle-vps**       | Cloud Backend (VPS)                   | Tailscale + Public Internet | 100.64.0.3     | app.projectnyra.com, crm.projectnyra.com |
 
 ---
 
@@ -30,18 +31,20 @@ Edit `/etc/hosts` and add the following block:
 
 ```
 # Project Nyra Cluster — Tailscale Mesh IPs
-100.64.1.10   orchestrator
-100.64.1.11   worker-rtx5090
-100.64.1.12   worker-rtx3090ti
-100.64.1.13   worker-rtx3060
-100.64.1.31   oracle-vps
+100.64.0.10      orchestrator
+100.87.255.119   orchestrator-wsl
+100.64.0.11      worker-rtx5090
+100.64.0.13      worker-rtx3090ti
+100.64.0.12      worker-rtx3060
+100.64.0.3       oracle-vps
 ```
 
 **Verify with:**
 
 ```bash
-getent hosts orchestrator    # Should return: 100.64.1.10 orchestrator
-getent hosts oracle-vps      # Should return: 100.64.1.31 oracle-vps
+getent hosts orchestrator      # Should return: 100.64.0.10 orchestrator
+getent hosts orchestrator-wsl  # Should return: 100.87.255.119 orchestrator-wsl
+getent hosts oracle-vps        # Should return: 100.64.0.3 oracle-vps
 ```
 
 #### 1b. On Oracle VPS (Cloud)
@@ -56,11 +59,12 @@ Add the entries to Oracle's `/etc/hosts`:
 
 ```
 # Project Nyra Cluster — Tailscale Mesh IPs
-100.64.1.10   orchestrator
-100.64.1.11   worker-rtx5090
-100.64.1.12   worker-rtx3090ti
-100.64.1.13   worker-rtx3060
-100.64.1.31   oracle-vps
+100.64.0.10      orchestrator
+100.87.255.119   orchestrator-wsl
+100.64.0.11      worker-rtx5090
+100.64.0.13      worker-rtx3090ti
+100.64.0.12      worker-rtx3060
+100.64.0.3       oracle-vps
 ```
 
 ### Verification
@@ -132,18 +136,18 @@ Project Nyra uses **Cloudflare Tunnel** (cloudflared) to expose public services 
 
 ### Public Service Routes
 
-| Service                | Internal Host | Internal Port | Public Domain                      | Type |
-| ---------------------- | ------------- | ------------- | ---------------------------------- | ---- |
+| Service                | Internal Host | Internal Port | Public Domain                        | Type |
+| ---------------------- | ------------- | ------------- | ------------------------------------ | ---- |
 | **Public Web Shell**   | oracle-vps    | 3001          | projectnyra.com, www.projectnyra.com | HTTP |
-| **Broker Webapp**      | oracle-vps    | 3001          | app.projectnyra.com                | HTTP |
-| **Nexus Router**       | oracle-vps    | 3000          | nexus.projectnyra.com              | HTTP |
-| **LiteLLM**            | oracle-vps    | 4000          | litellm.projectnyra.com            | HTTP |
-| **TwentyCRM**          | oracle-vps    | 3000          | crm.projectnyra.com                | HTTP |
-| **n8n Automation**     | oracle-vps    | 5678          | n8n.projectnyra.com                | HTTP |
-| **Grafana Dashboards** | oracle-vps    | 3000          | grafana.projectnyra.com            | HTTP |
-| **Admin Portal**       | orchestrator  | 3001          | admin.projectnyra.com              | HTTP |
-| **Home Assistant**     | ha-green      | 8123          | ha.projectnyra.com (orch. tunnel)  | HTTP |
-| **Prometheus Metrics** | oracle-vps    | 9090          | prometheus.projectnyra.com (gated) | HTTP |
+| **Broker Webapp**      | oracle-vps    | 3001          | app.projectnyra.com                  | HTTP |
+| **Nexus Router**       | oracle-vps    | 3000          | nexus.projectnyra.com                | HTTP |
+| **LiteLLM**            | oracle-vps    | 4000          | litellm.projectnyra.com              | HTTP |
+| **TwentyCRM**          | oracle-vps    | 3000          | crm.projectnyra.com                  | HTTP |
+| **n8n Automation**     | oracle-vps    | 5678          | n8n.projectnyra.com                  | HTTP |
+| **Grafana Dashboards** | oracle-vps    | 3000          | grafana.projectnyra.com              | HTTP |
+| **Admin Portal**       | orchestrator  | 3001          | admin.projectnyra.com                | HTTP |
+| **Home Assistant**     | ha-green      | 8123          | ha.projectnyra.com (orch. tunnel)    | HTTP |
+| **Prometheus Metrics** | oracle-vps    | 9090          | prometheus.projectnyra.com (gated)   | HTTP |
 
 ### Cloudflare Tunnel Configuration
 

@@ -98,7 +98,10 @@ jobs:
           ELAPSED=0
 
           BASE_BRANCH=$(gh pr view "$PR_NUMBER" --json baseRefName --jq '.baseRefName')
-          REQUIRED_CONTEXTS=$(gh api "/repos/${{ github.repository }}/branches/$BASE_BRANCH/protection/required_status_checks" --jq '.contexts // []' 2>/dev/null || echo '[]')
+          REQUIRED_CONTEXTS=$(gh api "/repos/${{ github.repository }}/branches/$BASE_BRANCH/protection/required_status_checks" --jq '.contexts // []' 2>/dev/null || true)
+          if ! printf '%s' "$REQUIRED_CONTEXTS" | jq -e 'type == "array"' >/dev/null 2>&1; then
+            REQUIRED_CONTEXTS='[]'
+          fi
           echo "Required contexts: $REQUIRED_CONTEXTS"
 
           while [ $ELAPSED -lt $MAX_WAIT ]; do

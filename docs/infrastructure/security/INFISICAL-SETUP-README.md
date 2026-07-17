@@ -211,7 +211,7 @@ I added or confirmed these direct `/base` keys in all three environments: `dev`,
 I then removed the duplicated direct copies of those network identity keys from:
 
 - `/machines/orchestrator`
-- `/machines/oracle-vps`
+- `/hosts/oracle-vps`
 - `/machines/worker-rtx3060`
 - `/machines/worker-rtx3090ti`
 - `/machines/worker-rtx5090`

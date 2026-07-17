@@ -270,14 +270,14 @@ supabase-kong.trex-fiordland.ts.net {
 # --- Observability & Monitoring ---
 
 # Prometheus Metrics
-prometheus-oracle.trex-fiordland.ts.net {
+prometheus.projectnyra.com {
 	reverse_proxy localhost:9090 {
 		header_up X-Forwarded-Proto https
 	}
 }
 
 # Grafana Dashboards
-grafana-oracle.trex-fiordland.ts.net {
+grafana.projectnyra.com {
 	reverse_proxy localhost:3003 {
 		header_up X-Forwarded-For {http.request.remote.host}
 		header_up X-Forwarded-Proto https
@@ -286,7 +286,7 @@ grafana-oracle.trex-fiordland.ts.net {
 }
 
 # Loki Log Aggregation
-loki-oracle.trex-fiordland.ts.net {
+loki.projectnyra.com {
 	reverse_proxy localhost:3100 {
 		header_up X-Forwarded-Proto https
 	}

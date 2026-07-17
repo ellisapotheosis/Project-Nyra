@@ -77,7 +77,7 @@
     {
       "name": "nexus",
       "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "content": "projectnyra-nexus.pages.dev",
       "proxied": true
     },
     {

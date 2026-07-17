@@ -31,7 +31,7 @@ services:
     restart: unless-stopped
     environment:
       MEM0_BASE_URL: http://mem0:5000
-      OPENMEMORY_MCP_URL: ${OPENMEMORY_MCP_URL:-http://oracle.trex-fiordland.ts.net:8765}
+      OPENMEMORY_MCP_URL: ${OPENMEMORY_MCP_URL:-http://100.64.0.3:8765}
       LETTA_BASE_URL: http://letta:8283
     expose:
       - "8080"

@@ -94,7 +94,7 @@
       "title": "GPU-5090",
       "width": 200,
       "height": 60,
-      "command": "ssh worker-rtx5090-win 'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits' || echo '0'",
+      "command": "ssh worker-rtx5090 'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits' || echo '0'",
       "unit": "%",
       "updateInterval": 2000,
       "thresholds": {
@@ -116,7 +116,7 @@
       "title": "GPU-3090Ti",
       "width": 200,
       "height": 60,
-      "command": "ssh worker-rtx3090ti-win 'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits' || echo '0'",
+      "command": "ssh worker-rtx3090ti 'nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits' || echo '0'",
       "unit": "%",
       "updateInterval": 2000,
       "thresholds": {

@@ -32,7 +32,7 @@ Expected warnings:
 
 Runtime validation:
 
-- `docker --context oracle ps` should use Tailscale/MagicDNS only, preferably `ssh://ubuntu@oracle.trex-fiordland.ts.net:2223`.
+- `docker --context oracle ps` should use Tailscale/MagicDNS only, preferably `ssh://ubuntu@100.64.0.3:2223`.
 - Do not use public Oracle IP addresses for Docker or SSH access.
 - `docker --context orchestrator ps` timed out over SSH to `orchestrator.trex-fiordland.ts.net:2223`.
 - The live orchestrator tunnel is connected and now has `links`, `linkwarden`, and `openclaw-gateway` routes.
