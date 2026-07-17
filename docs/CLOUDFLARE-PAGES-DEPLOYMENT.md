@@ -83,6 +83,17 @@ node scripts/deploy-cloudflare-pages.js
 - ✅ Routes domains (projectnyra.com, nexus.projectnyra.com)
 - ✅ Prints tunnel setup instructions
 
+### Live Pages Build Configuration
+
+The Git-integrated Pages projects must define a build command and root directory;
+leaving either unset causes Pages to skip the build and fail while looking for
+the default `.open-next` directory.
+
+| Pages project       | Root directory                                                   | Build command                                     | Output directory |
+| ------------------- | ---------------------------------------------------------------- | ------------------------------------------------- | ---------------- |
+| `projectnyra-app`   | `apps/projectnyra`                                               | `pnpm install --frozen-lockfile && pnpm build`    | `.next`          |
+| `projectnyra-nexus` | `apps/guidance/references/consolidated-archive-20260516/nexusUI` | `pnpm install --no-frozen-lockfile && pnpm build` | `.next`          |
+
 ### Step 4: Authenticate with Cloudflare Tunnel (oracle-vps)
 
 Run on `oracle-vps`:
