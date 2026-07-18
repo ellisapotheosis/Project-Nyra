@@ -1172,6 +1172,7 @@ Telemetry through 2026-07-18 supports exactly three advanced progression vectors
 
 - Define an `/apps` and `/infra` merge gate comprising preview preflight, the target-app build, the relevant provider preview, scoped container builds, and completed review threads. Until `scripts/github/review-and-merge-prs.sh` enforces every check conclusion, treat the preview, build, provider, and container portions as manual gates in addition to its automated metadata and review-thread checks.
 - Use `gh pr checks --watch` until every required check passes (not merely reaches a terminal state). A failed required check blocks merge even when it also fails on the base SHA; keep that baseline failure blocked until it is resolved in a separate change or formally waived by the repository owner. A missing conclusion, skipped result, or neutral required check is also a blocker unless the repository's documented policy explicitly permits it.
+- Make merge automation validate an explicit required-context allowlist: every context must be present and successful, and missing, skipped, neutral, failed, or unresolved results must block unless repository policy names the exception. Paginate GraphQL `reviewThreads` until `hasNextPage` is false before claiming that every automated and human thread is complete.
 - Before an auto-PR or deployment workflow fetches a base or source ref, prove that the configured branch exists in the remote; PR #769's auto-PR job mapped `fix/*` to a missing `develop` branch.
 - Compare failures with the base SHA before assigning causality. Treat skipped or neutral required checks as blockers unless the repository's documented policy explicitly permits that conclusion; record permitted skips or neutral results in the PR before merge.
 - Merge only after automated and human feedback is complete. Treat a repository-owned baseline failure as a tracked blocker, not as evidence that an unrelated dependency change caused it.
@@ -1197,6 +1198,7 @@ Telemetry through 2026-07-18 supports exactly three advanced progression vectors
 **Practice.**
 
 - Maintain a per-app deployment matrix covering the package script, exact build command, output directory, provider project, OIDC or secret source, workflow, and owning host under `infra/hosts/*`.
+- Treat a configured deployment target whose app directory is absent as a blocking preflight failure, not a successful skip; add a smoke assertion for every matrix target before its build or provider job starts.
 - For every changed service image, record and test the exact `{Dockerfile, build context, COPY source}` tuple from the Docker matrix; PR #769's repository-relative `COPY services/...` repairs still failed when the workflow context did not contain those paths.
 - Make local validation, preview preflight, container builds, and provider jobs call the same script and consume the same output.
 - Generate remote provider payloads from the reviewed desired state, diff generated-local and generated-remote host inventories before apply, and run machine-authenticated health probes through the same Cloudflare policy path used by CI.
