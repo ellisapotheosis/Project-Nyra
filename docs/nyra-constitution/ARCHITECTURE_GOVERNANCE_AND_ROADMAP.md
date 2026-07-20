@@ -42,18 +42,18 @@ Grafbase Nexus
 ├─ scoped MCP
 ├─ LLM protocol ingress
 ├─ tool registry and namespaces
-├─ auth/rate limits
+├─ authentication and rate limits
 └─ OpenTelemetry
         │
         ├─► LiteLLM
         │    ├─ RTX 5090
         │    ├─ RTX 3090 Ti
         │    ├─ RTX 3060
-        │    ├─ free routes
+        │    ├─ approved free routes
         │    └─ owner-enabled paid routes
         │
         ├─► narrow Letta bridge
-        ├─► read tools
+        ├─► read-only tools
         ├─► staged business tools
         └─► privileged admin tools isolated by scope
 ```
@@ -63,10 +63,10 @@ Grafbase Nexus
 | Component | Canonical role | Must not become |
 |---|---|---|
 | Twenty CRM | Mortgage CRM system of record | Agent scratchpad |
-| Supabase Auth | Web identity/session boundary | CRM/compliance bypass |
+| Supabase Auth | Web identity/session boundary | CRM or compliance bypass |
 | Nyra services | Domain logic and authorized mutations | Unaudited pass-throughs |
-| n8n/Activepieces | Replaceable execution adapters | Campaign truth/business brain |
-| Nexus | Governed tool/LLM ingress | Unauthenticated public proxy |
+| n8n/Activepieces | Replaceable execution adapters | Campaign truth or business brain |
+| Nexus | Governed tool and LLM ingress | Unauthenticated public proxy |
 | LiteLLM | Model routing and spend policy | Silent paid-spend escalator |
 | Letta | Stateful agent orchestration | Recursive universal authority |
 | Mem0/OpenMemory | Semantic/runtime memory | Transactional truth |
@@ -83,13 +83,12 @@ Intended responsibilities:
 
 - Nexus;
 - LiteLLM;
-- central or tiered OTel collector;
-- Grafana, Prometheus, Loki, Tempo as deployed;
-- OpenLIT;
+- central or tiered OpenTelemetry collector;
+- Grafana, Prometheus, Loki, Tempo, and OpenLIT as deployed;
 - Portainer server;
 - operator cockpit integrations;
 - private routing;
-- selected public tunnel only after final ingress ADR.
+- selected public tunnel only after the ingress ADR is finalized.
 
 ### Oracle VPS
 
@@ -100,16 +99,16 @@ Intended responsibilities:
 - Supabase/Auth and durable Postgres;
 - Redis;
 - Nyra business services;
-- n8n/Activepieces;
-- Qdrant/FalkorDB;
-- audit/event persistence;
-- selected public tunnel only after final ingress ADR.
+- n8n and Activepieces;
+- Qdrant and FalkorDB;
+- durable audit and event data;
+- selected public tunnel only after the ingress ADR is finalized.
 
 ### Worker RTX 5090
 
 - primary local reasoning and coding model;
-- repo-aware code tools where physically present;
 - private vLLM;
+- repo-aware code tools where physically present;
 - narrow Docker Desktop MCP gateway only where required.
 
 ### Worker RTX 3090 Ti
@@ -117,14 +116,6 @@ Intended responsibilities:
 - secondary heavy reasoning and coding model;
 - overflow capacity;
 - private vLLM;
-- narrow Docker Desktop MCP gateway.
-
-### Worker RTX 3060
-
-- embeddings;
-- extraction;
-- summarization;
-- utilityLLM;
 - narrow Docker Desktop MCP gateway.
 
 ### Worker RTX 3060
@@ -149,7 +140,7 @@ Only purpose-built browser and webhook endpoints:
 - `app.projectnyra.com`
 - `api.projectnyra.com`
 - `hooks.projectnyra.com`
-- optional browser-facing auth/API endpoint
+- an optional browser-facing auth/API endpoint
 
 ### Cloudflare Access or Tailscale only
 
@@ -159,19 +150,19 @@ Only purpose-built browser and webhook endpoints:
 - Twenty;
 - n8n;
 - Activepieces;
-- Letta admin;
-- Nexus diagnostics/admin;
-- LiteLLM admin;
+- Letta administration;
+- Nexus diagnostics and administration;
+- LiteLLM administration;
 - Supabase Studio;
 - Open WebUI.
 
-### Private Split DNS / MagicDNS
+### Private Split DNS or MagicDNS
 
 - worker model endpoints;
 - raw MCP servers;
 - databases and caches;
-- OTel collector;
-- Prometheus/Loki/Tempo internals;
+- OpenTelemetry collector;
+- Prometheus, Loki, and Tempo internals;
 - Docker gateways;
 - node exporters;
 - cAdvisor and GPU exporters.
@@ -193,8 +184,6 @@ Only purpose-built browser and webhook endpoints:
 
 ### Lead ingestion
 
-Responsibilities:
-
 - source adapters;
 - schema validation;
 - normalization;
@@ -207,8 +196,6 @@ Responsibilities:
 
 ### CRM API
 
-Responsibilities:
-
 - typed Twenty boundaries;
 - idempotent create and update;
 - object mapping;
@@ -219,11 +206,9 @@ Responsibilities:
 
 ### Compliance service
 
-Responsibilities:
-
 - consent;
 - DNC;
-- STOP/HELP;
+- STOP and HELP;
 - unsubscribe;
 - reply pause;
 - quiet hours;
@@ -234,21 +219,17 @@ Responsibilities:
 
 ### Campaign service
 
-Responsibilities:
-
 - versioned campaign definitions;
 - enrollment;
 - state machine;
 - scheduling;
-- pause/resume/stop/suppress/complete;
+- pause, resume, stop, suppress, and complete;
 - branch conditions;
 - reply handling;
 - step idempotency;
 - provider reconciliation.
 
 ### Communication service
-
-Responsibilities:
 
 - provider-neutral requests;
 - Twilio Voice and Messaging;
@@ -261,20 +242,16 @@ Responsibilities:
 
 ### Quote service
 
-Responsibilities:
-
 - deterministic calculations;
 - approved provider data;
 - assumptions ledger;
 - scenario versioning;
 - broker review;
 - expiration;
-- PDF/rendering;
+- PDF or rendered output;
 - CRM association.
 
 ### Assistant service
-
-Responsibilities:
 
 - safe agent tools;
 - context assembly;
@@ -287,18 +264,18 @@ Responsibilities:
 
 ## 7. Data authority
 
-| Data class | Authority | Projection/cache | Memory use |
+| Data class | Authority | Projection or cache | Memory use |
 |---|---|---|---|
-| Lead/contact | Twenty CRM | Nyra read models | summaries only |
-| Consent/suppression | Compliance service plus CRM mapping | UI projection | never inferred as truth |
-| Campaign state | Campaign service | CRM timeline/dashboard | summaries |
-| Communication event | Event ledger/communication service | CRM timeline | conversational context |
-| Quote/scenario | Quote service | CRM association | explanation context |
-| Identity/session | Supabase Auth | app session | no credential storage |
-| Agent state | Letta | operations dashboard | agent state only |
-| Semantic memory | Mem0/OpenMemory | retrieval | derived and correctable |
-| Graph relations | FalkorDB | retrieval | provenance required |
-| Embeddings | governed source plus Qdrant | retrieval | retention controlled |
+| Lead/contact | Twenty CRM | Nyra read models | Summaries only |
+| Consent/suppression | Compliance service plus CRM mapping | UI projection | Never inferred as truth |
+| Campaign state | Campaign service | CRM timeline/dashboard | Summaries |
+| Communication event | Event ledger and communication service | CRM timeline | Conversational context |
+| Quote/scenario | Quote service | CRM association | Explanation context |
+| Identity/session | Supabase Auth | App session | No credential storage |
+| Agent state | Letta | Operations dashboard | Agent state only |
+| Semantic memory | Mem0/OpenMemory | Retrieval | Derived and correctable |
+| Graph relations | FalkorDB | Retrieval | Provenance required |
+| Embeddings | Governed source plus Qdrant | Retrieval | Retention controlled |
 
 ## 8. Campaign state machine
 
@@ -310,12 +287,12 @@ draft
   → scheduled
   → step_due
   → compliance_check
-      ├─ denied → suppressed/stopped
+      ├─ denied → suppressed or stopped
       ├─ deferred → rescheduled
       ├─ approval_required → awaiting_approval
       └─ allowed → executing
   → provider_accepted
-  → delivered/completed
+  → delivered or completed
   → next_step_scheduled
 ```
 
@@ -329,7 +306,7 @@ DNC → global stop
 manual_pause → paused
 manual_stop → stopped
 booking_created → campaign-defined branch
-provider_failure → retry/dead-letter/manual review
+provider_failure → retry, dead-letter, or manual review
 ```
 
 ## 9. Event architecture
@@ -359,23 +336,9 @@ Core events:
 
 Events are versioned, idempotent, attributable, correlated, and PII-minimized.
 
-## 10. Idempotency
+Idempotency is required at lead intake, CRM upsert, enrollment creation, step scheduling, provider send, callback processing, timeline write, quote generation, and approval execution.
 
-Idempotency is required at:
-
-- lead intake;
-- CRM upsert;
-- enrollment creation;
-- step scheduling;
-- provider send;
-- callback processing;
-- timeline write;
-- quote generation;
-- approval execution.
-
-Provider callback uniqueness prefers provider event IDs and stable composite keys.
-
-## 11. Nexus target
+## 10. Nexus target
 
 Grafbase Nexus is the canonical agent ingress.
 
@@ -410,7 +373,7 @@ Recommended namespaces:
 
 A namespace maps to authentication scope, audit class, and agent policy. It is not merely a naming convention.
 
-## 12. Model routing
+## 11. Model routing
 
 Canonical aliases:
 
@@ -431,10 +394,10 @@ Production default behavior:
 - prefer healthy local workers;
 - use approved free or subscription-entitlement bridges where real;
 - do not silently spend metered API money;
-- record provider, alias, caller, fallback, token/cost estimate, and reason;
+- record provider, alias, caller, fallback, token or cost estimate, and reason;
 - fail honestly when no approved route is available.
 
-## 13. Letta orchestration
+## 12. Letta orchestration
 
 Use one canonical production Letta instance.
 
@@ -456,35 +419,18 @@ Required recursion controls:
 - cancellation propagation;
 - heartbeat and timeout.
 
-## 14. Memory architecture
+## 13. Memory architecture
 
-### Transactional truth
-
-Twenty CRM and governed Nyra Postgres.
-
-### Agent state
-
-Letta.
-
-### Semantic/runtime memory
-
-Mem0 and OpenMemory.
-
-### Graph memory
-
-FalkorDB.
-
-### Vector retrieval
-
-Qdrant.
-
-### Experimental cognition
-
-MemOS, MemoryTensor, Mempalace, and similar systems behind feature flags.
+- transactional truth: Twenty CRM and governed Nyra Postgres;
+- agent state: Letta;
+- semantic/runtime memory: Mem0 and OpenMemory;
+- graph memory: FalkorDB;
+- vector retrieval: Qdrant;
+- experimental cognition: MemOS, MemoryTensor, Mempalace, and similar systems behind feature flags.
 
 Every derived memory carries provenance, confidence, namespace, sensitivity, retention, valid time, contradiction links, and correction status.
 
-## 15. Agent governance
+## 14. Agent governance
 
 Every production agent declares:
 
@@ -501,57 +447,57 @@ Every production agent declares:
 - escalation;
 - observable identity.
 
-### Recommended tokens/scopes
+Recommended scopes:
 
 - `NEXUS_READONLY_TOKEN`
-- ` | Health-aware reroute or explicit degradation |
-| Letta unavailable | Business services remain available; stateful jobs pause |
-| Twenty unavailable | Queue idempotent writes and show degraded sync |
-| Workflow engine unavailable | Campaign remains authoritative and retries execution |
-| Compliance unavailable | Outbound communications fail closed |
-| Provider callback missing | Reconciliation job and timeout state |
-| OTel unavailable | Bounded buffering; safe product operation continues |
-| Approval unavailable | Consequential action remains pending |
+- `NEXUS_DEV_TOKEN`
+- `NEXUS_MEMORY_TOKEN`
+- `NEXUS_CRM_READ_TOKEN`
+- `NEXUS_CRM_STAGED_TOKEN`
+- `NEXUS_CAMPAIGN_STAGED_TOKEN`
+- `NEXUS_COMMS_STAGED_TOKEN`
+- `NEXUS_OPS_READ_TOKEN`
+- `NEXUS_OPS_CHANGE_TOKEN`
+- `NEXUS_ADMIN_TOKEN`
 
-## 16. Execution roadmap
+Tool tiers:
 
-### P0 — Truth and safety
+1. public and read-only context;
+2. internal read;
+3. staged write;
+4. approved execution;
+5. administrative or destructive.
 
-- merge this doctrine;
-- select final ingress topology;
-- lock Nexus CORS;
-- split MCP tools into scoped namespaces;
-- remove automatic paid fallback;
-- create narrow Letta bridge;
-- centralize telemetry;
-- validate secrets and public exposure;
-- reconcile staleayload digest;
+Administrative or destructive authority is never a general agent default.
+
+## 15. Human approval and audit
+
+Consequential actions use:
+
+```text
+draft → validated → policy-cleared → awaiting-human → approved → executing → verified
+```
+
+Approval binds to:
+
+- action;
+- target;
+- exact content or payload digest;
 - policy decision;
 - approver;
 - expiration.
 
-Payload changes invalidate prior approval.
+Payload changes invalidate approval.
 
-## 17. Security and privacy
+Every mutation and communication emits an append-only audit event. Corrections create new events rather than rewriting history.
 
-Threats include:
+## 16. Security and privacy
 
-- stolen credentials;
-- prompt injection;
-- overprivileged tools;
-- webhook replay;
-- public service exposure;
-- accidental paid spend;
-- stale memory;
-- cross-tenant leakage;
-- PII logging;
-- unapproved communication;
-- silent CRM corruption;
-- operator error.
+Threats include stolen credentials, prompt injection, overprivileged tools, webhook replay, public service exposure, accidental paid spend, stale memory, cross-tenant leakage, PII logging, unapproved communication, silent CRM corruption, and operator error.
 
 Controls include:
 
-- SSO/MFA;
+- SSO and MFA where available;
 - service identities;
 - short-lived credentials;
 - least privilege;
@@ -563,21 +509,14 @@ Controls include:
 - approval binding;
 - secret managers;
 - redaction;
-- backup/restore;
+- backup and restore;
 - kill switches.
 
 Do not place raw SSNs, credit reports, complete loan documents, bank data, or unrestricted message bodies in general logs, traces, prompts, vector stores, or graph memory.
 
-## 18. Observability
+## 17. Observability
 
-Nyra observes four planes:
-
-1. infrastructure;
-2. application;
-3. agent;
-4. business.
-
-Target topology:
+Nyra observes infrastructure, application, agent, and business planes.
 
 ```text
 Nexus / services / workers / agents
@@ -587,7 +526,7 @@ OpenTelemetry Collector
 ├─ metrics → Prometheus
 ├─ logs → Loki
 ├─ traces → Tempo
-└─ LLM/agent traces → OpenLIT
+└─ LLM and agent traces → OpenLIT
         │
         ▼
 Grafana + Alertmanager
@@ -601,11 +540,11 @@ Required dashboards:
 - compliance and suppression;
 - CRM sync;
 - campaign scheduler;
-- Nexus/tool calls;
+- Nexus and tool calls;
 - model routing and spend;
 - Letta orchestration;
 - memory systems;
-- host/container/GPU;
+- host, container, and GPU;
 - release health.
 
 P0 alerts:
@@ -613,26 +552,11 @@ P0 alerts:
 - outreach after suppression;
 - public exposure of a protected service;
 - audit pipeline failure;
-- committed/exposed secret;
+- committed or exposed secret;
 - CRM mutation without audit;
 - approval bypass.
 
-## 19. Operator cockpit
-
-Primary operator environment:
-
-- WaveTerm/WaveAI;
-- WSL2-native repositories;
-- Zellij persistent sessions.
-
-Recommended layouts:
-
-- `nyra-dev`;
-- `nyra-observability`;
-- `nyra-agents`;
-- `nyra-release`.
-
-## 20. Failure behavior
+## 18. Failure behavior
 
 | Failure | Required behavior |
 |---|---|
@@ -647,8 +571,6 @@ Recommended layouts:
 | OTel unavailable | Bounded buffering; safe business operations continue |
 | Provider callback missing | Reconciliation job and timeout state |
 
----
-
 # Finish-line roadmap
 
 ## P0 — Repository truth and safety
@@ -661,12 +583,12 @@ Recommended layouts:
 - remove automatic paid fallback;
 - implement narrow Letta bridge;
 - document public exposure;
-- establish central OTel path;
+- establish central OpenTelemetry routing;
 - validate secrets and service identity.
 
 Exit criteria:
 
-- docs match active config;
+- documentation matches active configuration;
 - no wildcard production CORS;
 - no automatic metered spend;
 - no broad general-agent Docker, secrets, CRM, or infrastructure write;
@@ -675,7 +597,7 @@ Exit criteria:
 
 ## P0 — Lead nurture vertical slice
 
-Build one complete production-quality path from RateHunter intake to broker-visible timeline.
+Build one complete path from RateHunter intake to broker-visible timeline.
 
 Acceptance:
 
@@ -684,7 +606,7 @@ Acceptance:
 - consent evidence;
 - Twenty upsert;
 - enrollment;
-- one voice/SMS/email sequence;
+- one voice, SMS, and email sequence;
 - provider callback;
 - STOP and reply pause;
 - quiet hours;
@@ -696,12 +618,12 @@ Acceptance:
 
 - lead cockpit;
 - campaign state;
-- manual call/SMS/email/pause/enroll/book actions;
+- manual call, SMS, email, pause, enroll, and book actions;
 - failed-run queue;
 - integration health;
 - approval inbox;
 - mobile navigation;
-- honest live/cached/mock/degraded labels.
+- honest live, cached, mock, and degraded labels.
 
 ## P1 — Public surfaces
 
@@ -719,10 +641,10 @@ Acceptance:
 - product thesis;
 - workflow diagram;
 - capabilities;
-- security/compliance posture;
+- security and compliance posture;
 - private AI architecture;
-- demo/request access;
-- strict separation from the authenticated app.
+- demo or request access;
+- separation from authenticated operations.
 
 ## P1 — Workflow adapters
 
@@ -736,7 +658,7 @@ Versioned importable workflows:
 - `reply.received`;
 - `booking.created`.
 
-Each workflow has auth, retry, dead-letter behavior, a Nyra callback, and an owner runbook.
+Each workflow has authentication, retry, dead-letter behavior, a Nyra callback, and an owner runbook.
 
 ## P2 — Quote desk
 
@@ -751,7 +673,7 @@ Each workflow has auth, retry, dead-letter behavior, a Nyra callback, and an own
 
 ## P2/P3 — Fulfillment intelligence
 
-- LendingPad/LOS milestones;
+- LendingPad or LOS milestones;
 - document intake;
 - OCR and extraction;
 - DTI support;
@@ -762,25 +684,11 @@ Each workflow has auth, retry, dead-letter behavior, a Nyra callback, and an own
 
 ## Testing pyramid
 
-### Unit
-
-Normalization, dedupe, state transitions, quiet hours, consent, STOP, mapping, quote math.
-
-### Contract
-
-Twenty, Twilio, SendGrid, workflows, Nexus, Letta bridge, Supabase/Auth.
-
-### Integration
-
-Lead-to-timeline, reply-to-pause, STOP-to-suppression, approval-to-send, provider-failure-to-retry.
-
-### End-to-end
-
-Borrower intake, broker review, communication, reply, booking, timeline.
-
-### Security
-
-Authorization, tenant isolation, webhook replay, secret scan, public-port audit, prompt injection, tool abuse.
+- unit: normalization, dedupe, state transitions, quiet hours, consent, STOP, mapping, quote math;
+- contract: Twenty, Twilio, SendGrid, workflows, Nexus, Letta bridge, Supabase/Auth;
+- integration: lead-to-timeline, reply-to-pause, STOP-to-suppression, approval-to-send, failure-to-retry;
+- end-to-end: borrower intake, broker review, communication, reply, booking, timeline;
+- security: authorization, tenant isolation, webhook replay, secret scan, public-port audit, prompt injection, and tool abuse.
 
 ## Definition of done
 
@@ -789,12 +697,12 @@ A capability is done only when:
 - source is implemented;
 - contracts are typed;
 - domain invariants are tested;
-- auth and scopes are enforced;
+- authorization and scopes are enforced;
 - idempotency exists;
 - audit exists;
 - telemetry is redacted;
 - failure mode is documented;
-- retry/dead-letter exists;
+- retry and dead-letter behavior exist;
 - owner steps are recorded;
 - smoke checks pass;
 - UI state is honest;
