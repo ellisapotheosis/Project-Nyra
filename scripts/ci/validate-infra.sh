@@ -56,6 +56,13 @@ ensure_env "$tmp_env" PORTAINER_EDGE_KEY ci-portainer-edge-key
 ensure_env "$tmp_env" ORCHESTRATOR_TUNNEL_TOKEN ci-orchestrator-tunnel-token
 ensure_env "$tmp_env" FIRECRAWL_API_KEY ci-firecrawl-api-key
 ensure_env "$tmp_env" TAVILY_API_KEY ci-tavily-api-key
+ensure_env "$tmp_env" OMNIROUTE_API_KEY ci-omniroute-api-key
+ensure_env "$tmp_env" OMNIROUTE_API_KEY_SECRET ci-omniroute-api-key-secret
+ensure_env "$tmp_env" OMNIROUTE_INITIAL_PASSWORD ci-omniroute-initial-password
+ensure_env "$tmp_env" OMNIROUTE_JWT_SECRET ci-omniroute-jwt-secret
+ensure_env "$tmp_env" CLOUDFLARE_API_TOKEN ci-cloudflare-api-token
+ensure_env "$tmp_env" INFISICAL_TOKEN ci-infisical-token
+ensure_env "$tmp_env" INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET ci-infisical-client-secret
 
 bash -n scripts/gitea/bootstrap-act-runner.sh
 bash -n scripts/infra/assert-compose-source-of-truth.sh
