@@ -1,5 +1,5 @@
 # Generate Combined .env Files for Each Machine
-# This script downloads secrets from /shared and /machines/<pc-name>
+# This script downloads secrets from /shared and /hosts/<pc-name>
 # and merges them into a single .env file for each PC
 
 param(
@@ -22,25 +22,25 @@ $machines = @(
     @{
         Name = "orchestrator-mini"
         Role = "orchestrator"
-        Path = "/machines/orchestrator-mini"
+        Path = "/hosts/orchestrator"
         OutputFile = "combined\orchestrator-mini.env"
     },
     @{
         Name = "worker-rtx3060"
         Role = "worker"
-        Path = "/machines/worker-rtx3060"
+        Path = "/hosts/worker-rtx3060"
         OutputFile = "combined\worker-rtx3060.env"
     },
     @{
         Name = "worker-rtx5090"
         Role = "worker"
-        Path = "/machines/worker-rtx5090"
+        Path = "/hosts/worker-rtx5090"
         OutputFile = "combined\worker-rtx5090.env"
     },
     @{
         Name = "worker-rtx3090ti"
         Role = "worker"
-        Path = "/machines/worker-rtx3090ti"
+        Path = "/hosts/worker-rtx3090ti"
         OutputFile = "combined\worker-rtx3090ti.env"
     }
 )

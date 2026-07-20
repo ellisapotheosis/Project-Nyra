@@ -1,5 +1,5 @@
 # Upload Machine-Specific Variables to Infisical
-# This script uploads machine-specific .env files to /machines/<pc-name> paths
+# This script uploads machine-specific .env files to /hosts/<pc-name> paths
 # Run this AFTER you've migrated shared variables to /shared
 
 param(
@@ -22,22 +22,22 @@ $machines = @(
     @{
         Name = "orchestrator"
         File = "orchestrator-mini.env"
-        Path = "/machines/orchestrator"
+        Path = "/hosts/orchestrator"
     },
     @{
         Name = "worker-rtx3060"
         File = "worker-rtx3060.env"
-        Path = "/machines/worker-rtx3060"
+        Path = "/hosts/worker-rtx3060"
     },
     @{
         Name = "worker-rtx5090"
         File = "worker-rtx5090.env"
-        Path = "/machines/worker-rtx5090"
+        Path = "/hosts/worker-rtx5090"
     },
     @{
         Name = "worker-rtx3090ti"
         File = "worker-rtx3090ti.env"
-        Path = "/machines/worker-rtx3090ti"
+        Path = "/hosts/worker-rtx3090ti"
     }
 )
 

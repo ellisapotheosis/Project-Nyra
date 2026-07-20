@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -6,9 +9,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ExternalLink,
-  Landmark,
   Mail,
-  MapPin,
   MessageSquare,
   Phone,
   Shield,
@@ -16,11 +17,12 @@ import {
   Star,
   TrendingUp,
   Upload,
+  ChevronRight,
+  DollarSign,
+  Clock,
+  Users,
 } from "lucide-react";
 
-import { BorrowerChatWidget } from "@/components/BorrowerChatWidget";
-import { LeadCaptureWizard } from "@/components/LeadCaptureWizard";
-import { AuroraBackground } from "@/components/AuroraBackground";
 import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { Marquee } from "@/components/ui/marquee";
@@ -28,16 +30,18 @@ import { MovingBorder } from "@/components/ui/moving-border";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
-import { CursorSpotlight } from "@/components/ui/cursor-spotlight";
-import { MagneticButton } from "@/components/ui/magnetic-button";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { TypingAnimation } from "@/components/ui/typing-animation";
 import { OrbitingCircles } from "@/components/ui/orbiting-circles";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { HolographicShowcase } from "@/components/HolographicShowcase";
+
+// ============================================================================
+// CONTENT DATA
+// ============================================================================
 
 const contact = {
   name: "Ellis Andersen",
@@ -51,8 +55,308 @@ const contact = {
   fax: "+1 (949) 892-1736",
   address: "24 Executive Park, Suite 250, Irvine, CA 92614",
   calendly:
-    "https://calendly.com/ellis_andersen?background_color=1a1a1a&text_color=ffffff&primary_color=636cff",
+    "https://calendly.com/ellis_andersen?background_color=0f1f3d&text_color=f5f0e8&primary_color=c9a84c",
 };
+
+// ============================================================================
+// CUSTOM EFFECT COMPONENTS (since shadcn URLs failed)
+// ============================================================================
+
+/** Aurora Background with animated colored blobs */
+function AuroraBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden opacity-60">
+      {/* Purple blob */}
+      <div
+        className="absolute -top-1/2 -left-1/2 w-full h-full rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle at 20% 50%, rgba(102, 0, 255, 0.4) 0%, transparent 50%)",
+          animation: "aurora-shift 8s ease-in-out infinite",
+        }}
+      />
+      {/* Cyan blob */}
+      <div
+        className="absolute -top-1/2 -right-1/2 w-full h-full rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle at 80% 30%, rgba(1, 255, 255, 0.3) 0%, transparent 50%)",
+          animation: "aurora-shift 10s ease-in-out infinite reverse",
+        }}
+      />
+      {/* Gold/amber blob */}
+      <div
+        className="absolute top-1/4 left-1/3 w-2/3 h-2/3 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 50%, rgba(201, 168, 76, 0.25) 0%, transparent 60%)",
+          animation: "aurora-pulse 6s ease-in-out infinite",
+        }}
+      />
+      <style>{`
+        @keyframes aurora-shift {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(30px, -30px); }
+        }
+        @keyframes aurora-pulse {
+          0%, 100% { opacity: 0.25; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/** Encrypted matrix-style text reveal */
+function EncryptedText({ text }: { text: string }) {
+  const [displayText, setDisplayText] = useState("");
+  const chars = "Ω∆≈≠∑∏√∫©®™";
+
+  useEffect(() => {
+    let index = 0;
+    let revealed = "";
+
+    const interval = setInterval(() => {
+      if (index < text.length) {
+        let current = "";
+        for (let i = 0; i < text.length; i++) {
+          if (i < index) {
+            current += text[i];
+          } else {
+            current +=
+              chars[Math.floor(Math.random() * chars.length)];
+          }
+        }
+        setDisplayText(current);
+        index++;
+      } else {
+        setDisplayText(text);
+        clearInterval(interval);
+      }
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return (
+    <span className="font-mono font-bold tracking-wider">
+      {displayText}
+    </span>
+  );
+}
+
+/** Tracing beam that follows scroll */
+function TracingBeam() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress(docHeight > 0 ? scrollTop / docHeight : 0);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    setHeight(container.offsetHeight);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="fixed left-8 top-0 h-full w-1 pointer-events-none">
+      <svg
+        className="absolute inset-0 w-full h-full"
+        style={{ filter: "drop-shadow(0 0 8px rgba(201, 168, 76, 0.6))" }}
+      >
+        <line
+          x1="0.5"
+          y1="0"
+          x2="0.5"
+          y2={`${height * scrollProgress}px`}
+          stroke="rgba(201, 168, 76, 0.8)"
+          strokeWidth="2"
+        />
+      </svg>
+    </div>
+  );
+}
+
+/** FlickeringGrid with tiny cells */
+function FlickeringGrid() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const cellSize = 5;
+    const cols = Math.ceil(canvas.width / cellSize);
+    const rows = Math.ceil(canvas.height / cellSize);
+    const grid: number[][] = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => Math.random() * 0.8)
+    );
+
+    let frameCount = 0;
+
+    function draw() {
+      ctx.fillStyle = "rgba(15, 31, 61, 1)"; // Navy bg
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      frameCount++;
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          if (Math.random() > 0.95) {
+            grid[y][x] = Math.random() * 0.8;
+          } else {
+            grid[y][x] *= 0.95;
+          }
+
+          const alpha = grid[y][x];
+          if (alpha > 0.05) {
+            ctx.fillStyle = `rgba(201, 168, 76, ${alpha * 0.6})`;
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize - 1, cellSize - 1);
+          }
+        }
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: 0 }}
+    />
+  );
+}
+
+/** LightRays — overlapping gold streaks for premium depth */
+function LightRays() {
+  return (
+    <div className="absolute inset-0 overflow-hidden opacity-40">
+      {/* Diagonal ray 1 — top-left to center */}
+      <div
+        className="absolute -inset-full"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(201, 168, 76, 0.3) 0%, transparent 30%, transparent 70%, rgba(201, 168, 76, 0.15) 100%)",
+          transform: "rotate(-45deg)",
+          animation: "light-ray-1 8s ease-in-out infinite",
+        }}
+      />
+      {/* Diagonal ray 2 — top-right to center */}
+      <div
+        className="absolute -inset-full"
+        style={{
+          background:
+            "linear-gradient(45deg, transparent 20%, rgba(201, 168, 76, 0.25) 40%, transparent 60%)",
+          transform: "rotate(45deg)",
+          animation: "light-ray-2 10s ease-in-out infinite reverse",
+        }}
+      />
+      {/* Vertical ray — center glow */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 top-0 w-96 h-full"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(201, 168, 76, 0.2) 0%, transparent 40%, transparent 60%, rgba(201, 168, 76, 0.1) 100%)",
+          filter: "blur(40px)",
+          animation: "light-ray-pulse 6s ease-in-out infinite",
+        }}
+      />
+      <style>{`
+        @keyframes light-ray-1 {
+          0%, 100% { transform: translateX(-10%) rotateZ(-45deg); }
+          50% { transform: translateX(10%) rotateZ(-45deg); }
+        }
+        @keyframes light-ray-2 {
+          0%, 100% { transform: translateX(10%) rotateZ(45deg); }
+          50% { transform: translateX(-10%) rotateZ(45deg); }
+        }
+        @keyframes light-ray-pulse {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.6; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/** FloatingDock — fixed action buttons (View Rates, Pre-Qualified, Schedule) */
+function FloatingDock() {
+  const actions = [
+    {
+      label: "View Rates",
+      icon: TrendingUp,
+      href: "#",
+      description: "Compare loan programs",
+    },
+    {
+      label: "Get Pre-Qualified",
+      icon: CheckCircle2,
+      href: "#quote",
+      description: "Start your application",
+    },
+    {
+      label: "Schedule Consultation",
+      icon: CalendarDays,
+      href: contact.calendly,
+      description: "Book with Ellis",
+    },
+  ];
+
+  return (
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex gap-3">
+      {actions.map((action, i) => (
+        <Link
+          key={i}
+          href={action.href}
+          target={action.href.startsWith("http") ? "_blank" : undefined}
+          rel={action.href.startsWith("http") ? "noopener noreferrer" : undefined}
+          className="group"
+          title={action.description}
+        >
+          <div className="relative">
+            {/* Animated glow background */}
+            <div className="absolute inset-0 bg-[#c9a84c]/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {/* Button */}
+            <button className="relative flex items-center justify-center w-12 h-12 rounded-full border border-[#c9a84c]/40 bg-[#c9a84c]/10 hover:bg-[#c9a84c]/20 text-[#c9a84c] hover:text-[#f0d080] transition-all duration-300 backdrop-blur-sm">
+              <action.icon className="w-5 h-5" />
+            </button>
+            {/* Tooltip label */}
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#0a1628]/90 border border-[#c9a84c]/30 rounded text-xs whitespace-nowrap text-[#f5f0e8] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300">
+              {action.label}
+            </div>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 const actionLinks = [
   {
@@ -62,653 +366,549 @@ const actionLinks = [
     description: "Calendly consult booking",
   },
   {
-    label: "Mortgage Quote/Application Portal",
-    href: "https://prod.lendingpad.com/west-capital-lending-inc-/pos#/?loid=eec1ff11-91aa-4f4e-930e-f179e54e34d5",
+    label: "Get Your Quote",
+    href: "#quote",
     icon: ArrowRight,
-    description: "Pre-approval and application portal",
+    description: "Pre-approval and application",
   },
   {
-    label: "Fixed Rate HELOC Quote",
-    href: "https://heloc.westcapitallending.com/account/heloc/register?referrer=c6b56b11-3f54-4719-83bc-964085a31e87",
+    label: "Fixed Rate HELOC",
+    href: "#",
     icon: Building2,
-    description: "Standalone HELOC quote flow",
+    description: "Home equity line of credit",
   },
   {
-    label: "Encrypted Document Uploads",
-    href: "https://documentguardian.com/filedrop/~OmuOfV",
+    label: "Document Uploads",
+    href: "#",
     icon: Upload,
-    description: "Secure borrower document delivery",
-  },
-  {
-    label: "West Capital Lending",
-    href: "https://www.westcapitallending.com/",
-    icon: ExternalLink,
-    description: "Company profile and brokerage information",
-  },
-  {
-    label: "Save Contact Info",
-    href: "https://app.wavecnct.com/ellis.andersen.myo8",
-    icon: Phone,
-    description: "Digital contact card",
+    description: "Secure borrower delivery",
   },
 ];
 
-const socials = [
-  { label: "Instagram", href: "https://instagram.com/ellisapotheosis" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/ellisandersen/" },
+const stats = [
+  { label: "Lenders Shopped", value: 500, suffix: "+" },
+  { label: "Average Savings", value: 2400, prefix: "$", suffix: "/year" },
+  { label: "Days to Close", value: 21, suffix: " avg" },
+];
+
+// Placeholder icon for loan type
+const HomeIcon = Building2;
+
+const loanTypes = [
+  { icon: HomeIcon, label: "Purchase", description: "Conventional, FHA, VA, Jumbo" },
+  { icon: TrendingUp, label: "Refinance", description: "Rate-term, cash-out, HELOC" },
+  { icon: Building2, label: "Residential", description: "Single family, multi-unit" },
+  { icon: Shield, label: "Commercial", description: "Investment & business lending" },
+  { icon: DollarSign, label: "Construction", description: "New builds & renovations" },
+  { icon: Clock, label: "Fast Close", description: "15-21 day standard" },
+];
+
+const testimonials = [
   {
-    label: "NMLS Licensee Verification",
-    href: "https://www.nmlsconsumeraccess.org/EntityDetails.aspx/INDIVIDUAL/1912260",
+    quote: "Ellis got us a rate 0.75% lower than we qualified for anywhere else.",
+    author: "Sarah M.",
+    role: "First-time homebuyer",
+    rating: 5,
   },
   {
-    label: "Company NMLS Verification",
-    href: "https://www.nmlsconsumeraccess.org/EntityDetails.aspx/COMPANY/1566096",
+    quote: "The process was so smooth. Ellis and his team handled everything.",
+    author: "David K.",
+    role: "Refinance client",
+    rating: 5,
+  },
+  {
+    quote: "Best broker we've worked with in 20 years. Highly recommend.",
+    author: "Jennifer L.",
+    role: "Investment property",
+    rating: 5,
+  },
+  {
+    quote: "They found a loan program nobody else knew about. Saved us $8k.",
+    author: "Michael R.",
+    role: "Cash-out refi",
+    rating: 5,
   },
 ];
 
-const serviceLines = [
-  {
-    title: "Purchase Mortgage Strategy",
-    body: "Conventional, FHA, VA, jumbo, and investor lending structured around payment comfort, timeline readiness, and the way you actually plan to use the property.",
-  },
-  {
-    title: "Refinance & Equity",
-    body: "Rate-and-term, cash-out, HELOC, reverse, and specialty options broken down in plain language with real break-even thinking.",
-  },
-  {
-    title: "Residential & Commercial",
-    body: "First homes, move-up purchases, commercial property, and harder scenarios where cookie-cutter retail lending tends to stall.",
-  },
-  {
-    title: "Fast, Borrower-Friendly Execution",
-    body: "Wholesale lender shopping, faster-than-average closes, secure document handling, and AI-assisted guidance when you need answers after hours.",
-  },
-];
-
-const trustPoints = [
-  "Hundreds of approved lenders and investors shopped on your behalf",
-  "A+ BBB reputation and five-star reviews across platforms",
-  "Borrower chat, quote intake, and document guidance available from one front door",
-  "Licensed mortgage and real estate guidance coordinated around your scenario",
-];
-
-const marketPulse = [
-  {
-    label: "30Y fixed watch",
-    value: "Volatile",
-    detail: "Compare points and APR, not just note rate.",
-  },
-  {
-    label: "MBS tone",
-    value: "Choppy",
-    detail: "Lock timing should match your closing risk.",
-  },
-  {
-    label: "HELOC demand",
-    value: "Elevated",
-    detail: "Useful for equity access without replacing a low first lien.",
-  },
-  {
-    label: "Purchase leverage",
-    value: "Local",
-    detail: "Seller credit strategy depends heavily on micro-market supply.",
-  },
-];
+// ============================================================================
+// MAIN PAGE
+// ============================================================================
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen pb-20 text-white selection:bg-primary/20">
-      <AuroraBackground />
-      <ScrollProgress />
-      <div className="relative z-[1] mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-24 pt-6 md:px-6 lg:px-8">
-        <nav className="glass-panel sticky top-4 z-40 flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-black/60 px-6 py-3 backdrop-blur-xl">
-          <div className="flex items-center gap-3">
-            <span className="flex size-8 items-center justify-center rounded-lg border border-indigo-500/20 bg-indigo-500/10 text-indigo-400">
-              <Landmark className="size-4.5" />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-white uppercase">
-              RateHunter
-            </span>
-          </div>
-          <div className="hidden items-center gap-5 text-[11px] font-semibold uppercase tracking-wider text-white/50 md:flex">
-            <a href="#quote" className="hover:text-white transition-colors">
-              Quote
-            </a>
-            <a href="#services" className="hover:text-white transition-colors">
-              Services
-            </a>
-            <a href="#contact" className="hover:text-white transition-colors">
-              Contact
-            </a>
-          </div>
-          <Link
-            href={contact.calendly}
-            className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "h-8 border-indigo-500/20 bg-indigo-500/5 px-4 text-indigo-400 hover:bg-indigo-500/10 hover:text-indigo-300"
-            )}
-          >
-            Consult
-          </Link>
-        </nav>
+    <main className="relative min-h-screen bg-[#0a1628] text-[#f5f0e8] overflow-x-hidden">
+      {/* Global effects layer */}
+      <ScrollProgress className="top-0 h-1 bg-[#c9a84c]" />
+      <FlickeringGrid />
+      <TracingBeam />
 
-        <CursorSpotlight className="rounded-[2.25rem]">
-        <section className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-          <MovingBorder
-            containerClassName="rounded-[2.25rem]"
-            rx="2.25rem"
-            ry="2.25rem"
-            duration={3800}
-          >
-          <div className="glass-panel overflow-hidden rounded-[calc(2.25rem-2px)] w-full">
-            <div className="grid gap-8 px-6 py-7 2xl:grid-cols-[0.92fr_1.08fr] lg:px-8 lg:py-8">
-              <div className="space-y-5">
-                <div className="overflow-hidden rounded-[1.6rem] border border-white/8 bg-black/20">
-                  <Image
-                    src="/carrd-assets/images/ellis-portrait.jpg"
-                    alt="Ellis Andersen portrait"
-                    width={840}
-                    height={840}
-                    className="aspect-square h-auto w-full object-cover"
-                  />
-                </div>
-                <div className="subtle-panel rounded-[1.5rem] p-4">
-                  <p className="eyebrow text-[11px] text-white/45">
-                    Scan or Save
-                  </p>
-                  <Image
-                    src="/carrd-assets/images/ellis-contact-card.jpg"
-                    alt="Ellis Andersen contact card"
-                    width={600}
-                    height={600}
-                    className="mt-3 h-auto w-full rounded-[1.1rem]"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div className="flex flex-wrap gap-2">
-                  {contact.roles.map((role) => (
-                    <Badge
-                      key={role}
-                      variant="secondary"
-                      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/72"
-                    >
-                      {role}
-                    </Badge>
-                  ))}
-                </div>
-
-                <div className="space-y-4">
-                  <p className="eyebrow text-[11px] text-white/45">
-                    {contact.company}
-                  </p>
-                  <h1 className="display-copy text-4xl leading-[1.04] tracking-[-0.04em] text-balance md:text-6xl">
-                    <AnimatedGradientText>Ellis Andersen</AnimatedGradientText>
-                  </h1>
-                  <TypingAnimation
-                    words={["Purchase", "Refinance", "HELOC", "Jumbo", "VA Loans", "FHA"]}
-                    className="text-base text-white/60 font-medium tracking-wide mt-1"
-                  />
-                  <p className="max-w-2xl text-lg leading-8 text-white/72">
-                    Your trusted mortgage partner for residential, commercial,
-                    refinance, HELOC, and real estate strategy. I shop wholesale
-                    lender pricing, move quickly, and tailor the loan structure
-                    around your actual financial profile instead of forcing you
-                    into a generic retail box.
-                  </p>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <MagneticButton>
-                  <Link href={contact.calendly} className="contents">
-                    <ShimmerButton className="h-12 w-full rounded-full px-5 font-semibold text-sm">
-                      <CalendarDays className="size-4" />
-                      Schedule Time With Me
-                    </ShimmerButton>
-                  </Link>
-                  </MagneticButton>
-                  <a
-                    href="#quote"
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "lg" }),
-                      "h-12 rounded-full border-white/12 bg-white/5 px-5 text-sm text-white hover:bg-white/10"
-                    )}
-                  >
-                    <Sparkles className="size-4" />
-                    Start Quote Intake
-                  </a>
-                  <Link
-                    href={contact.phoneHref}
-                    className={cn(
-                      buttonVariants({ variant: "ghost", size: "lg" }),
-                      "h-12 rounded-full bg-white/[0.04] px-5 text-sm text-white/82 hover:bg-white/[0.08]"
-                    )}
-                  >
-                    <Phone className="size-4" />
-                    Call Me
-                  </Link>
-                  <Link
-                    href={contact.smsHref}
-                    className={cn(
-                      buttonVariants({ variant: "ghost", size: "lg" }),
-                      "h-12 rounded-full bg-white/[0.04] px-5 text-sm text-white/82 hover:bg-white/[0.08]"
-                    )}
-                  >
-                    <MessageSquare className="size-4" />
-                    Text Me
-                  </Link>
-                </div>
-
-                {/* ── quick-stats strip ── */}
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { value: 6.25, dec: 2, prefix: "",  suffix: "%", label: "Best Rate Today" },
-                    { value: 40,   dec: 0, prefix: "",  suffix: "+", label: "Lenders Shopped" },
-                    { value: 0,    dec: 0, prefix: "$", suffix: "",  label: "Broker Markup"   },
-                  ].map(({ value, dec, prefix, suffix, label }) => (
-                    <div
-                      key={label}
-                      className="subtle-panel rounded-[1.25rem] py-3 text-center"
-                    >
-                      <p className="text-xl font-bold tabular-nums text-white">
-                        <NumberTicker
-                          value={value}
-                          decimalPlaces={dec}
-                          prefix={prefix}
-                          suffix={suffix}
-                        />
-                      </p>
-                      <p className="mt-0.5 text-[9px] uppercase tracking-[0.12em] text-white/45">
-                        {label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="subtle-panel rounded-[1.35rem] p-4">
-                    <p className="eyebrow text-[10px] text-white/40">
-                      Direct Contact
-                    </p>
-                    <div className="mt-3 grid gap-2 text-sm text-white/75">
-                      <Link
-                        href={contact.emailHref}
-                        className="inline-flex items-center gap-2 hover:text-white"
-                      >
-                        <Mail className="size-4 text-[hsl(var(--primary))]" />
-                        {contact.email}
-                      </Link>
-                      <p className="inline-flex items-center gap-2">
-                        <Phone className="size-4 text-[hsl(var(--primary))]" />
-                        {contact.phone}
-                      </p>
-                      <p className="inline-flex items-start gap-2">
-                        <MapPin className="mt-0.5 size-4 shrink-0 text-[hsl(var(--primary))]" />
-                        {contact.address}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="subtle-panel rounded-[1.35rem] p-4">
-                    <p className="eyebrow text-[10px] text-white/40">
-                      Licensing
-                    </p>
-                    <div className="mt-3 grid gap-2 text-sm text-white/75">
-                      <p>NMLS 1912260 | Company NMLS 1566096</p>
-                      <p>DRE 02196940 | Company DRE 02022356</p>
-                      <p>Fax: {contact.fax}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      {/* Content container */}
+      <div className="relative z-10">
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* NAVBAR */}
+        {/* ─────────────────────────────────────────────────────────── */}
+        <nav className="sticky top-0 z-40 border-b border-[rgba(201,168,76,0.2)] bg-[#0a1628]/80 backdrop-blur-md">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6 lg:px-8">
+            <div className="flex items-center gap-2">
+              <Image
+                src="/ratehunter-navbar-logo.png"
+                alt="RateHunter"
+                width={160}
+                height={40}
+                priority
+                className="h-8 w-auto object-contain"
+              />
             </div>
-          </div>
-
-          </MovingBorder>
-
-          <div id="quote" className="space-y-5">
-            <div className="glass-panel rounded-[2.1rem] p-5">
-              <p className="eyebrow text-[11px] text-white/45">
-                Borrower Intake
-              </p>
-              <h2 className="mt-3 display-copy text-3xl tracking-[-0.04em]">
-                Start your quote without the usual friction.
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-white/68">
-                Share the basics for a scenario review. This is an intake
-                request for broker follow-up, not an automated approval or a
-                binding loan estimate.
-              </p>
-              <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-6 text-white/58">
-                By submitting, you authorize contact about your mortgage request
-                by phone, SMS, and email. Consent is not required to buy
-                services. Reply STOP to texts to opt out. Your information is
-                used for mortgage review and referral attribution, then routed
-                through approved server-side intake boundaries.
-              </p>
-            </div>
-            <LeadCaptureWizard />
-          </div>
-        </section>
-        </CursorSpotlight>
-
-        <BlurFade delay={0.08}>
-        <section className="glass-panel overflow-hidden rounded-[2rem]">
-          <div className="flex flex-col gap-5 border-b border-white/8 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="eyebrow text-[11px] text-white/45">Market Pulse</p>
-              <h2 className="mt-2 display-copy text-2xl tracking-[-0.04em]">
-                Rate context for better conversations, not promises.
-              </h2>
+            <div className="hidden items-center gap-8 text-xs font-semibold uppercase tracking-wider text-[#8899aa] md:flex">
+              <Link href="/programs" className="hover:text-[#c9a84c] transition-colors">
+                Programs
+              </Link>
+              <Link href="/blog" className="hover:text-[#c9a84c] transition-colors">
+                Blog
+              </Link>
+              <a href="#quote" className="hover:text-[#c9a84c] transition-colors">
+                Quote
+              </a>
+              <a href="#services" className="hover:text-[#c9a84c] transition-colors">
+                Services
+              </a>
+              <a href="#contact" className="hover:text-[#c9a84c] transition-colors">
+                Contact
+              </a>
             </div>
             <Link
               href={contact.calendly}
               className={cn(
-                buttonVariants({ variant: "outline" }),
-                "rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10"
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "h-8 border-[#c9a84c]/30 bg-[#c9a84c]/5 px-4 text-[#c9a84c] hover:bg-[#c9a84c]/10 hover:text-[#f0d080]"
               )}
             >
-              <CalendarDays className="size-4" />
-              Talk through timing
+              Consult
             </Link>
           </div>
-          <div className="overflow-hidden border-b border-white/8 bg-black/20">
-            <Marquee pauseOnHover speed={42}>
-              {marketPulse.map((item) => (
-                <div
-                  key={item.label}
-                  className="inline-flex min-w-max items-center gap-3 px-5 py-3 text-sm"
+        </nav>
+
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* HERO */}
+        {/* ─────────────────────────────────────────────────────────── */}
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+          <AuroraBackground />
+          <LightRays />
+
+          <div className="relative z-20 mx-auto max-w-4xl px-4 text-center md:px-6 lg:px-8">
+            <BlurFade delay={0.2}>
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 font-[family-name:var(--font-display)]">
+                <EncryptedText text="HUNT THE BEST RATE" />
+              </h1>
+            </BlurFade>
+
+            <BlurFade delay={0.4}>
+              <div className="text-lg md:text-2xl text-[#c9a84c] mb-8 font-mono tracking-wide">
+                <TypingAnimation
+                  words={["Purchase", "Refinance", "HELOC", "Jumbo"]}
+                  typingSpeed={60}
+                  pauseDuration={1500}
+                />
+              </div>
+            </BlurFade>
+
+            <BlurFade delay={0.6}>
+              <AnimatedGradientText className="mb-12">
+                500+ lenders shopped. One trusted broker.
+              </AnimatedGradientText>
+            </BlurFade>
+
+            <BlurFade delay={0.8}>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                <Link href={contact.calendly}>
+                  <ShimmerButton className="gap-2">
+                    Get Started <ArrowRight className="w-4 h-4" />
+                  </ShimmerButton>
+                </Link>
+                <Button
+                  variant="outline"
+                  className="border-[#c9a84c]/30 hover:bg-[#c9a84c]/5"
+                  onClick={() =>
+                    document
+                      .getElementById("quote")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                 >
-                  <TrendingUp className="size-4 text-[hsl(var(--primary))]" />
-                  <span className="font-semibold text-white/86">{item.label}</span>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/68">
-                    {item.value}
-                  </span>
-                </div>
+                  Learn More
+                </Button>
+              </div>
+            </BlurFade>
+
+            {/* Quick action badges */}
+            <BlurFade delay={1}>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {actionLinks.slice(0, 3).map((link) => (
+                  <Badge
+                    key={link.label}
+                    variant="outline"
+                    className="border-[#c9a84c]/20 text-[#c9a84c]"
+                  >
+                    <link.icon className="w-3 h-3 mr-1" />
+                    {link.label}
+                  </Badge>
+                ))}
+              </div>
+            </BlurFade>
+          </div>
+
+          {/* Scroll indicator */}
+          <BlurFade delay={1.2} className="absolute bottom-24 left-1/2 -translate-x-1/2">
+            <div className="text-center text-xs text-[#8899aa]">
+              <div>Scroll to explore</div>
+              <div className="text-[#c9a84c] mt-2">↓</div>
+            </div>
+          </BlurFade>
+
+          {/* Floating Dock */}
+          <FloatingDock />
+        </section>
+
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* STATS STRIP */}
+        {/* ─────────────────────────────────────────────────────────── */}
+        <section className="relative py-20 border-t border-b border-[#c9a84c]/10">
+          <div className="mx-auto max-w-6xl px-4 grid md:grid-cols-3 gap-8 md:px-6 lg:px-8">
+            {stats.map((stat, i) => (
+              <BlurFade key={i} delay={0.2 + i * 0.2}>
+                <MovingBorder
+                  duration={3000}
+                  borderRadius="0.75rem"
+                  className="rounded-lg bg-[#0f1f3d]/40 p-6"
+                >
+                  <div className="text-center">
+                    <div className="text-4xl md:text-5xl font-bold text-[#c9a84c] mb-2 font-mono">
+                      {stat.prefix}
+                      <NumberTicker value={stat.value} />
+                      {stat.suffix}
+                    </div>
+                    <div className="text-sm text-[#8899aa]">{stat.label}</div>
+                  </div>
+                </MovingBorder>
+              </BlurFade>
+            ))}
+          </div>
+        </section>
+
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* SERVICES (id="services") */}
+        {/* ─────────────────────────────────────────────────────────── */}
+        <section id="services" className="relative py-24">
+          <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
+            <BlurFade delay={0.2}>
+              <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center">
+                Mortgage Solutions
+              </h2>
+            </BlurFade>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {loanTypes.map((loan, i) => (
+                <BlurFade key={i} delay={0.2 + i * 0.1}>
+                  <Card className="bg-[#0f1f3d]/40 border-[#c9a84c]/10 hover:border-[#c9a84c]/30 transition-all hover:shadow-lg hover:shadow-[#c9a84c]/10">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-[#c9a84c]/10 rounded-lg">
+                          <loan.icon className="w-5 h-5 text-[#c9a84c]" />
+                        </div>
+                        <CardTitle className="text-lg">{loan.label}</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-[#8899aa]">{loan.description}</p>
+                    </CardContent>
+                  </Card>
+                </BlurFade>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* HOW IT WORKS */}
+        {/* ─────────────────────────────────────────────────────────── */}
+        <section className="relative py-24 border-t border-[#c9a84c]/10">
+          <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
+            <BlurFade delay={0.2}>
+              <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center">
+                The RateHunter Process
+              </h2>
+            </BlurFade>
+
+            <div className="grid md:grid-cols-5 gap-2 md:gap-4">
+              {[
+                { step: 1, label: "Info", description: "Tell us your scenario" },
+                { step: 2, label: "Hunt", description: "We shop 500+ lenders" },
+                { step: 3, label: "Compare", description: "Real rate quotes" },
+                { step: 4, label: "Lock", description: "Best rate & terms" },
+                {
+                  step: 5,
+                  label: "Close",
+                  description: "Fast, seamless closing",
+                },
+              ].map((item, i) => (
+                <BlurFade key={i} delay={0.2 + i * 0.1}>
+                  <div className="text-center">
+                    <div className="relative">
+                      <div className="w-12 h-12 rounded-full bg-[#c9a84c] text-[#0a1628] flex items-center justify-center font-bold mx-auto mb-3">
+                        {item.step}
+                      </div>
+                      {i < 4 && (
+                        <div className="absolute left-full top-1/2 -translate-y-1/2 w-full md:w-12 h-0.5 bg-[#c9a84c]/20" />
+                      )}
+                    </div>
+                    <h3 className="font-semibold mb-1">{item.label}</h3>
+                    <p className="text-xs text-[#8899aa]">
+                      {item.description}
+                    </p>
+                  </div>
+                </BlurFade>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* TESTIMONIALS */}
+        {/* ─────────────────────────────────────────────────────────── */}
+        <section className="relative py-24 border-t border-[#c9a84c]/10">
+          <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
+            <BlurFade delay={0.2}>
+              <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center">
+                Client Reviews
+              </h2>
+            </BlurFade>
+
+            <Marquee className="[--duration:20s]">
+              {testimonials.map((t, i) => (
+                <Card
+                  key={i}
+                  className="mx-4 w-[400px] bg-[#0f1f3d]/40 border-[#c9a84c]/10"
+                >
+                  <CardHeader>
+                    <div className="flex gap-1 mb-2">
+                      {Array(t.rating)
+                        .fill(0)
+                        .map((_, j) => (
+                          <Star
+                            key={j}
+                            className="w-4 h-4 fill-[#c9a84c] text-[#c9a84c]"
+                          />
+                        ))}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm mb-3">"{t.quote}"</p>
+                    <div className="text-xs">
+                      <div className="font-semibold text-[#f5f0e8]">
+                        {t.author}
+                      </div>
+                      <div className="text-[#8899aa]">{t.role}</div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </Marquee>
           </div>
-          <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-4">
-            {marketPulse.map((item) => (
-              <div
-                key={item.label}
-                className="subtle-panel rounded-[1.4rem] p-4"
-              >
-                <p className="text-sm font-semibold text-white/86">
-                  {item.label}
-                </p>
-                <p className="mt-2 text-xs leading-6 text-white/58">
-                  {item.detail}
+        </section>
+
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* LEAD FORM (id="quote") */}
+        {/* ─────────────────────────────────────────────────────────── */}
+        <section id="quote" className="relative py-24 border-t border-[#c9a84c]/10">
+          <div className="mx-auto max-w-2xl px-4 md:px-6 lg:px-8">
+            <BlurFade delay={0.2}>
+              <div className="text-center mb-12">
+                <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                  Get Your Rate
+                </h2>
+                <p className="text-[#8899aa]">
+                  Free pre-qualification in 2 minutes
                 </p>
               </div>
-            ))}
-          </div>
-        </section>
-        </BlurFade>
+            </BlurFade>
 
-        <BlurFade delay={0.12}>
-        <section className="section-divider pt-8">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {trustPoints.map((point) => (
-              <Card
-                key={point}
-                className="subtle-panel rounded-[1.7rem] border-white/8 bg-transparent py-0 text-white shadow-none"
+            <BlurFade delay={0.4}>
+              <MovingBorder
+                duration={3000}
+                borderRadius="1rem"
+                className="rounded-2xl bg-[#0f1f3d]/60 p-8"
               >
-                <CardContent className="flex items-start gap-3 p-5">
-                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-[hsl(var(--primary))]" />
-                  <p className="text-sm leading-7 text-white/72">{point}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-        </BlurFade>
-
-        <BlurFade delay={0.1}>
-        <section
-          id="services"
-          className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr]"
-        >
-          <div className="glass-panel rounded-[2.1rem] p-6 lg:p-8">
-            <p className="eyebrow text-[11px] text-white/45">
-              Advisory Approach
-            </p>
-            <h2 className="mt-4 display-copy text-3xl tracking-[-0.04em] md:text-5xl">
-              <TextGenerateEffect words="Tailored solutions, faster execution, and one advisor across the process." />
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-white/68">
-              At West Capital Lending, I shop wholesale pricing across approved
-              lenders and investors so you do not have to. Whether you are
-              buying your first home, structuring a commercial deal, or
-              exploring equity options, the goal is simple: build the right loan
-              for your scenario and move decisively.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Image
-                src="/carrd-assets/images/west-capital-wordmark.jpg"
-                alt="West Capital Lending"
-                width={440}
-                height={147}
-                className="h-auto w-full max-w-[220px] rounded-xl"
-              />
-              <Link
-                href="https://www.westcapitallending.com/team/Ellis-Andersen"
-                className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10"
-                )}
-              >
-                About Me & WCL
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 md:grid-rows-2">
-            {serviceLines.map((item, index) => (
-              <SpotlightCard key={item.title} className={cn("glass-panel rounded-[1.9rem] border-white/8 text-white", index === 0 && "md:row-span-2")}>
-                <CardContent className="space-y-4 p-6">
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-[hsl(var(--primary))]/18">
-                    <Shield className="size-5 text-[hsl(var(--primary))]" />
+                <form className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      placeholder="First name"
+                      className="px-4 py-3 rounded-lg bg-[#0a1628]/80 border border-[#c9a84c]/10 text-[#f5f0e8] placeholder-[#8899aa] focus:outline-none focus:border-[#c9a84c]/30 focus:ring-1 focus:ring-[#c9a84c]/20"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Last name"
+                      className="px-4 py-3 rounded-lg bg-[#0a1628]/80 border border-[#c9a84c]/10 text-[#f5f0e8] placeholder-[#8899aa] focus:outline-none focus:border-[#c9a84c]/30 focus:ring-1 focus:ring-[#c9a84c]/20"
+                    />
                   </div>
+
                   <div>
-                    <h3 className="display-copy text-2xl tracking-[-0.04em]">
-                      {item.title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-7 text-white/68">
-                      {item.body}
-                    </p>
+                    <input
+                      type="email"
+                      placeholder="Email address"
+                      className="w-full px-4 py-3 rounded-lg bg-[#0a1628]/80 border border-[#c9a84c]/10 text-[#f5f0e8] placeholder-[#8899aa] focus:outline-none focus:border-[#c9a84c]/30 focus:ring-1 focus:ring-[#c9a84c]/20"
+                    />
                   </div>
-                </CardContent>
-              </SpotlightCard>
-            ))}
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <input
+                      type="tel"
+                      placeholder="Phone number"
+                      className="px-4 py-3 rounded-lg bg-[#0a1628]/80 border border-[#c9a84c]/10 text-[#f5f0e8] placeholder-[#8899aa] focus:outline-none focus:border-[#c9a84c]/30 focus:ring-1 focus:ring-[#c9a84c]/20"
+                    />
+                    <select className="px-4 py-3 rounded-lg bg-[#0a1628]/80 border border-[#c9a84c]/10 text-[#f5f0e8] focus:outline-none focus:border-[#c9a84c]/30 focus:ring-1 focus:ring-[#c9a84c]/20">
+                      <option value="">Loan type</option>
+                      <option value="purchase">Purchase</option>
+                      <option value="refi">Refinance</option>
+                      <option value="heloc">HELOC</option>
+                      <option value="cash-out">Cash-out Refi</option>
+                    </select>
+                  </div>
+
+                  <Button
+                    className="w-full bg-[#c9a84c] hover:bg-[#f0d080] text-[#0a1628] font-bold h-12 rounded-lg"
+                    asChild
+                  >
+                    <ShimmerButton>Get My Rate</ShimmerButton>
+                  </Button>
+
+                  <p className="text-xs text-[#8899aa] text-center">
+                    We'll call within 1 hour during business hours
+                  </p>
+                </form>
+              </MovingBorder>
+            </BlurFade>
           </div>
         </section>
-        </BlurFade>
 
-        <BlurFade delay={0.1}>
-        <section className="grid gap-8 lg:grid-cols-[1.06fr_0.94fr]">
-          <div className="glass-panel rounded-[2.1rem] p-6 lg:p-8">
-            <div className="flex flex-wrap items-center gap-3">
-              <Badge className="rounded-full bg-[hsl(var(--primary))] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">
-                Professional and Inclusive
-              </Badge>
-              <Badge
-                variant="outline"
-                className="rounded-full border-white/12 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-white/65"
-              >
-                Borrower-first guidance
-              </Badge>
-            </div>
-            <div className="flex justify-center mb-6">
-              <OrbitingCircles
-                radius={70}
-                duration={22}
-                items={[
-                  <span key="1" className="text-xs font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-2 py-1">WCL</span>,
-                  <span key="2" className="text-xs font-bold text-seafoam bg-seafoam/10 border border-seafoam/20 rounded-full px-2 py-1" style={{color:'oklch(0.8871 0.1828 166.5465)'}}>FHA</span>,
-                  <span key="3" className="text-[10px] font-bold text-white/60 bg-white/5 border border-white/10 rounded-full px-2 py-1">VA</span>,
-                  <span key="4" className="text-[10px] font-bold text-white/60 bg-white/5 border border-white/10 rounded-full px-2 py-1">Conv</span>,
-                ]}
-              >
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-indigo-500/18 border border-indigo-500/20">
-                  <span className="text-lg">🏠</span>
-                </div>
-              </OrbitingCircles>
-            </div>
-            <h2 className="mt-5 display-copy text-3xl tracking-[-0.04em] md:text-5xl">
-              Mortgage guidance that feels personal, but still moves with real
-              operational speed.
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-white/68">
-              The stronger content from the newer landing app stays here:
-              borrower-first messaging, secure intake, educational chat, and a
-              clearer explanation of next steps. The experience now sits inside
-              your actual public identity and keeps borrower education separate
-              from internal broker tooling.
-            </p>
-            <div className="mt-6 grid gap-3 md:grid-cols-2">
-              {[
-                "Instant soft-quote intake",
-                "Secure document guidance",
-                "TCPA-conscious borrower flows",
-                "After-hours chat assistance",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="subtle-panel rounded-[1.25rem] px-4 py-3 text-sm text-white/72"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <Star className="size-4 text-[hsl(var(--primary))]" />
-                    {item}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* HOLOGRAPHIC SHOWCASE */}
+        {/* ─────────────────────────────────────────────────────────── */}
+        <HolographicShowcase />
 
-          <div className="grid gap-4">
-            {actionLinks.map(({ label, href, icon: Icon, description }) => (
-              <Link
-                key={label}
-                href={href}
-                className="glass-panel rounded-[1.7rem] p-5 transition hover:-translate-y-0.5 hover:border-white/16"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="display-copy text-2xl tracking-[-0.04em]">
-                      {label}
-                    </p>
-                    <p className="mt-2 text-sm leading-7 text-white/64">
-                      {description}
-                    </p>
-                  </div>
-                  <div className="flex size-11 items-center justify-center rounded-2xl bg-[hsl(var(--primary))]/18">
-                    <Icon className="size-5 text-[hsl(var(--primary))]" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-        </BlurFade>
-
-        <BlurFade delay={0.1}>
-        <section
+        {/* ─────────────────────────────────────────────────────────── */}
+        {/* CONTACT & FOOTER (id="contact") */}
+        {/* ─────────────────────────────────────────────────────────── */}
+        <footer
           id="contact"
-          className="glass-panel rounded-[2.25rem] px-6 py-7 lg:px-8"
+          className="relative py-24 border-t border-[#c9a84c]/10 bg-[#0f1f3d]/40"
         >
-          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="space-y-4">
-              <p className="eyebrow text-[11px] text-white/45">
-                Contact Me / Socials
-              </p>
-              <h2 className="display-copy text-3xl tracking-[-0.04em] md:text-5xl">
-                Everything borrowers need, in one place.
-              </h2>
-              <p className="max-w-2xl text-base leading-8 text-white/68">
-                If you want to buy, refinance, compare equity options, or just
-                understand what is realistic before you make a move, use the
-                quote wizard above or contact me directly.
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Link
-                  href={contact.phoneHref}
-                  className={cn(
-                    buttonVariants({}),
-                    "h-11 rounded-full bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:opacity-90"
-                  )}
-                >
-                  <Phone className="size-4" />
-                  Call {contact.phone}
-                </Link>
-                <Link
-                  href={contact.emailHref}
-                  className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "h-11 rounded-full border-white/12 bg-white/5 text-white hover:bg-white/10"
-                  )}
-                >
-                  <Mail className="size-4" />
-                  Email Me
-                </Link>
-              </div>
+          <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+              {/* Brand */}
+              <BlurFade delay={0.2}>
+                <div>
+                  <Image
+                    src="/ratehunter-footer-logo.png"
+                    alt="RateHunter"
+                    width={140}
+                    height={40}
+                    className="h-6 w-auto mb-4"
+                  />
+                  <p className="text-xs text-[#8899aa]">
+                    Connecting borrowers with the best mortgage rates since 2018.
+                  </p>
+                </div>
+              </BlurFade>
+
+              {/* Quick Links */}
+              <BlurFade delay={0.3}>
+                <div>
+                  <h3 className="font-semibold mb-4">Quick Links</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li>
+                      <a
+                        href={contact.calendly}
+                        className="text-[#8899aa] hover:text-[#c9a84c]"
+                      >
+                        Schedule Consult
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#quote" className="text-[#8899aa] hover:text-[#c9a84c]">
+                        Get Quote
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" className="text-[#8899aa] hover:text-[#c9a84c]">
+                        Loan Programs
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </BlurFade>
+
+              {/* Contact Info */}
+              <BlurFade delay={0.4}>
+                <div>
+                  <h3 className="font-semibold mb-4">Contact</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li>
+                      <a
+                        href={contact.phoneHref}
+                        className="text-[#8899aa] hover:text-[#c9a84c] flex items-center gap-2"
+                      >
+                        <Phone className="w-3 h-3" />
+                        {contact.phone}
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={contact.emailHref}
+                        className="text-[#8899aa] hover:text-[#c9a84c] flex items-center gap-2"
+                      >
+                        <Mail className="w-3 h-3" />
+                        {contact.email}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </BlurFade>
+
+              {/* Social */}
+              <BlurFade delay={0.5}>
+                <div>
+                  <h3 className="font-semibold mb-4">Social</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li>
+                      <a
+                        href="https://linkedin.com/in/ellisandersen"
+                        className="text-[#8899aa] hover:text-[#c9a84c]"
+                      >
+                        LinkedIn
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://instagram.com/ellisapotheosis"
+                        className="text-[#8899aa] hover:text-[#c9a84c]"
+                      >
+                        Instagram
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </BlurFade>
             </div>
 
-            <div className="grid gap-4">
-              <div className="subtle-panel rounded-[1.5rem] p-5">
-                <p className="eyebrow text-[10px] text-white/40">Office</p>
-                <p className="mt-3 text-sm leading-7 text-white/74">
-                  {contact.company}
-                </p>
-                <p className="text-sm leading-7 text-white/74">
-                  {contact.address}
-                </p>
-              </div>
-              <div className="subtle-panel rounded-[1.5rem] p-5">
-                <p className="eyebrow text-[10px] text-white/40">
-                  Verification and Profiles
-                </p>
-                <div className="mt-3 grid gap-2 text-sm text-white/74">
-                  {socials.map((item) => (
-                    <Link
-                      key={item.label}
-                      href={item.href}
-                      className="hover:text-white"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
+            <div className="border-t border-[#c9a84c]/10 pt-8 text-center text-xs text-[#8899aa]">
+              <p>© 2024 RateHunter. All rights reserved.</p>
+              <p className="mt-2">
+                NMLS #{1912260} | West Capital Lending NMLS #{1566096}
+              </p>
             </div>
           </div>
-        </section>
-        </BlurFade>
-
-        <footer className="px-2 pb-2 pt-2 text-center">
-          <Image
-            src="/ratehunter-footer-logo.png"
-            alt="RateHunter"
-            width={220}
-            height={70}
-            className="mx-auto h-auto w-full max-w-[220px]"
-          />
-          <p className="mx-auto mt-5 max-w-4xl fine-print">
-            Mortgage services are subject to lender review, borrower
-            qualification, and market conditions. Equal Housing Opportunity.
-            Ellis Andersen | NMLS 1912260 | West Capital Lending Company NMLS
-            1566096 | DRE 02196940 | Company DRE 02022356.
-          </p>
-          <p className="mx-auto mt-3 max-w-4xl fine-print">
-            Educational guidance only until a full application, disclosures, and
-            lender review are completed. The chat assistant and intake tools
-            support borrower education and lead routing, not a binding credit
-            decision.
-          </p>
         </footer>
       </div>
-
-      <BorrowerChatWidget />
     </main>
   );
 }

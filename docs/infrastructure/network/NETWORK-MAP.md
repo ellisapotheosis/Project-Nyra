@@ -11,6 +11,8 @@
 | MCP (spline-mcp)    | `spline-mcp.trex-fiordland.ts.net` | TBD after registration | Spline 3D design MCP; Split DNS: `spline-mcp.projectnyra.com`; port 8779 |
 | MCP (meshy-mcp)     | `meshy-mcp.trex-fiordland.ts.net`  | TBD after registration | Meshy AI 3D gen MCP; Split DNS: `meshy-mcp.projectnyra.com`; port 8780 |
 | MCP (loki-website-mcp) | `loki-website-mcp.trex-fiordland.ts.net` | TBD after registration | Loki website builder MCP; Split DNS: `loki-website-mcp.projectnyra.com`; port 8781 |
+| LiteLLM Router | `litellm-router.trex-fiordland.ts.net` | TBD after registration | Private LiteLLM gateway; Split DNS: `litellm-router.projectnyra.com`; port 4000 |
+| A2A Integration | `a2a.trex-fiordland.ts.net` | TBD after registration | Private OmniRoute A2A surface; Split DNS: `a2a.projectnyra.com`; port 20128, path `/a2a` |
 
 ## Cloudflare Tunnels (ratehunter.net namespace)
 

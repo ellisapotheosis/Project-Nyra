@@ -13,7 +13,7 @@ tunnels:
   orchestrator:
     secret_token: ORCHESTRATOR_TUNNEL_TOKEN
     secret_id: ORCHESTRATOR_TUNNEL_ID
-    infisical_path: /machines/orchestrator
+    infisical_path: /hosts/orchestrator
     known_active_tunnel_id: ae0bd53a-f22e-4414-8593-5b765dcd044b
   oracle:
     secret_token: ORACLE_TUNNEL_TOKEN
@@ -245,3 +245,20 @@ tailscale_private:
       origin: http://loki-website-mcp:8781
       port: 8781
       description: Loki website builder MCP server (not Grafana Loki log aggregator)
+    - name: litellm-router
+      magicdns: litellm-router.trex-fiordland.ts.net
+      split_dns: litellm-router.projectnyra.com
+      tailscale_service: svc:litellm-router
+      origin: http://127.0.0.1:4000
+      port: 4000
+      description: Private OpenAI-compatible LiteLLM routing gateway
+      notes: Tailscale-only; do not add to Cloudflare ingress or public DNS.
+    - name: a2a
+      magicdns: a2a.trex-fiordland.ts.net
+      split_dns: a2a.projectnyra.com
+      tailscale_service: svc:a2a
+      origin: http://127.0.0.1:20128
+      port: 20128
+      path: /a2a
+      description: Private A2A integration endpoint backed by OmniRoute
+      notes: Tailscale-only. Keep provider-management APIs out of this route and require the Nyra token broker before onboarding agents.

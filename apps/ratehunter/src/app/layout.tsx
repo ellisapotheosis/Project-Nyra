@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./themes/apotheosis.css";
+import { NyraEffects } from "@/components/NyraEffects";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ratehunter.net";
 
@@ -58,7 +59,10 @@ export default function RootLayout({
           content="black-translucent"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <NyraEffects />
+        {children}
+      </body>
     </html>
   );
 }

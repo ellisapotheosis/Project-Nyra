@@ -20,6 +20,8 @@ Machine-readable desired state: `infra/cloudflare/desired-state/exposure-matrix.
 | `spline-mcp`       | `spline-mcp.trex-fiordland.ts.net`       | `spline-mcp.projectnyra.com`        | 8779 | Spline 3D design tool MCP server         |
 | `meshy-mcp`        | `meshy-mcp.trex-fiordland.ts.net`        | `meshy-mcp.projectnyra.com`         | 8780 | Meshy AI 3D generation MCP server        |
 | `loki-website-mcp` | `loki-website-mcp.trex-fiordland.ts.net` | `loki-website-mcp.projectnyra.com`  | 8781 | Loki website builder MCP (not Grafana Loki) |
+| `litellm-router` | `litellm-router.trex-fiordland.ts.net` | `litellm-router.projectnyra.com` | 4000 | Private OpenAI-compatible LiteLLM routing gateway |
+| `a2a` | `a2a.trex-fiordland.ts.net` | `a2a.projectnyra.com` | 20128 | Private A2A integration endpoint; use `/a2a` |
 
 > **Port note**: Ports 8765–8778 are used by existing Cloudflare-tunneled MCP servers
 > (see `mcp_policy.direct_candidates` in `exposure-matrix.yml`). Tailscale-private MCPs
@@ -95,8 +97,16 @@ Tailscale admin console (Settings → Keys). Store in Infisical under `/mcp/tail
 After `docker compose up -d`, the device appears in the Tailscale admin console within
 ~30 seconds and receives MagicDNS hostname `spline-mcp.trex-fiordland.ts.net` automatically.
 
-Repeat the sidecar pattern for `meshy-mcp` (port 8780) and `loki-website-mcp` (port 8781),
-substituting the appropriate auth key env var and hostname.
+Repeat the sidecar pattern for `meshy-mcp` (port 8780), `loki-website-mcp` (port 8781),
+`litellm-router` (port 4000), and `a2a` (port 20128), substituting the appropriate auth
+key env var and hostname. For the existing Oracle services, the sidecar may instead be
+implemented with Tailscale VIP Services named `svc:litellm-router` and `svc:a2a` that
+forward to `127.0.0.1:4000` and `127.0.0.1:20128` respectively.
+
+The A2A hostname is intentionally separate from LiteLLM. Route only OmniRoute's
+`/a2a` surface there; do not expose its dashboard, provider-management APIs, or the
+LiteLLM master key to A2A clients. The Nyra token broker and read-only skill allowlist
+must be in place before onboarding another agent.
 
 ---
 
@@ -118,6 +128,15 @@ tailscale serve status
 ```
 
 Repeat for meshy-mcp and loki-website-mcp.
+
+For the two Oracle VIP services, configure the equivalent forwards:
+
+```bash
+tailscale serve --service=svc:litellm-router --https=443 --yes http://127.0.0.1:4000
+tailscale serve --service=svc:a2a --https=443 --yes http://127.0.0.1:20128/a2a
+```
+
+The A2A client URL is `https://a2a.projectnyra.com/a2a` after split DNS is active.
 
 ---
 
@@ -185,6 +204,8 @@ $ORIGIN projectnyra.com.
 spline-mcp       300 IN A <tailscale-ip-of-spline-mcp>
 meshy-mcp        300 IN A <tailscale-ip-of-meshy-mcp>
 loki-website-mcp 300 IN A <tailscale-ip-of-loki-website-mcp>
+litellm-router    300 IN A <tailscale-ip-of-litellm-router>
+a2a               300 IN A <tailscale-ip-of-a2a>
 ```
 
 Then in Tailscale Admin → DNS → Custom nameserver:
@@ -208,6 +229,8 @@ dig loki-website-mcp.trex-fiordland.ts.net +short
 dig spline-mcp.projectnyra.com +short        # should return same Tailscale IP
 dig meshy-mcp.projectnyra.com +short
 dig loki-website-mcp.projectnyra.com +short
+dig litellm-router.projectnyra.com +short
+dig a2a.projectnyra.com +short
 
 # 4. Reachability
 curl http://spline-mcp.trex-fiordland.ts.net:8779/
@@ -215,6 +238,8 @@ curl http://spline-mcp.projectnyra.com:8779/
 
 # If using tailscale serve (HTTPS):
 curl https://spline-mcp.trex-fiordland.ts.net/
+curl https://litellm-router.projectnyra.com/health/readiness
+curl https://a2a.projectnyra.com/a2a
 ```
 
 ---

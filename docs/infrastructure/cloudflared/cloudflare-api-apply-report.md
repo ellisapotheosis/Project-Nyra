@@ -2,7 +2,7 @@
 
 Updated: 2026-05-08
 
-Cloudflare API apply was run through Infisical `/machines/orchestrator` using
+Cloudflare API apply was run through Infisical `/hosts/orchestrator` using
 global API key authentication because the locally loaded bearer token did not
 have Cloudflare Tunnel read/edit permissions.
 

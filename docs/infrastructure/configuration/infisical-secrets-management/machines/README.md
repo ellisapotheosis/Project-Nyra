@@ -1,6 +1,6 @@
 # Machine-Specific Environment Configuration
 
-This directory contains machine-specific environment variable configurations for the Project-Nyra 4-PC distributed GPU cluster. Each machine has its own `.env` file that gets uploaded to Infisical under `/machines/<pc-name>` paths.
+This directory contains machine-specific environment variable configurations for the Project-Nyra 4-PC distributed GPU cluster. Each machine has its own `.env` file that gets uploaded to Infisical under `/hosts/<pc-name>` paths.
 
 ## 🏗️ Architecture Overview
 
@@ -10,7 +10,7 @@ This directory contains machine-specific environment variable configurations for
 Infisical Project: apotheosis (8374cea9-e5e8-4050-bda4-b91f25ab30ef)
 └── dev environment
     ├── /shared                          # Shared variables (API keys, passwords, database)
-    └── /machines/
+    └── /hosts/
         ├── orchestrator-mini            # Orchestrator-specific variables
         ├── worker-rtx3060              # RTX 3060 worker variables
         ├── worker-rtx5090              # RTX 5090 worker variables
@@ -87,7 +87,7 @@ cd machines
 
 ### 2. Generate Combined .env Files
 
-After uploading, generate combined .env files that merge `/shared` + `/machines/<pc>`:
+After uploading, generate combined .env files that merge `/shared` + `/hosts/<pc>`:
 
 ```powershell
 # Generate all combined files
@@ -135,7 +135,7 @@ docker compose -f infra/cluster-setup/docker-compose.worker.yml up -d
 
 ## 📊 Variable Categories
 
-### Machine-Specific Variables (in /machines/<pc>)
+### Machine-Specific Variables (in /hosts/<pc>)
 
 These override shared variables and are unique per machine:
 
@@ -170,10 +170,10 @@ Common across all machines:
 ```
 Local .env files          Infisical Paths
 ─────────────────         ───────────────
-orchestrator-mini.env  →  /machines/orchestrator-mini
-worker-rtx3060.env     →  /machines/worker-rtx3060
-worker-rtx5090.env     →  /machines/worker-rtx5090
-worker-rtx3090ti.env   →  /machines/worker-rtx3090ti
+orchestrator-mini.env  →  /hosts/orchestrator
+worker-rtx3060.env     →  /hosts/worker-rtx3060
+worker-rtx5090.env     →  /hosts/worker-rtx5090
+worker-rtx3090ti.env   →  /hosts/worker-rtx3090ti
 
 [upload-machines-to-infisical.ps1]
 ```
@@ -265,7 +265,7 @@ Take the values from `machine-info.json` and replace placeholders in:
 **What it does**:
 1. Reads each machine's .env file
 2. Parses variables (skips comments and empty lines)
-3. Uploads to `/machines/<pc-name>` path in Infisical
+3. Uploads to `/hosts/<pc-name>` path in Infisical
 4. Reports success/failure counts
 5. Skips `TO_BE_*` placeholders in dry-run mode
 
@@ -285,7 +285,7 @@ Skipped:  0
 
 ### generate-combined-env.ps1
 
-**Purpose**: Download variables from Infisical and merge `/shared` + `/machines/<pc>` into single .env file.
+**Purpose**: Download variables from Infisical and merge `/shared` + `/hosts/<pc>` into single .env file.
 
 **Parameters**:
 - `-MachineRole <name>` - Generate only for specific machine
@@ -306,7 +306,7 @@ Skipped:  0
 
 **What it does**:
 1. Exports variables from `/shared` using Infisical CLI
-2. Exports variables from `/machines/<pc-name>` using Infisical CLI
+2. Exports variables from `/hosts/<pc-name>` using Infisical CLI
 3. Merges into single .env file (machine-specific overrides shared)
 4. Adds header comments documenting structure
 5. Saves to `combined/<machine>.env` if `-OutputToFiles` specified
@@ -319,7 +319,7 @@ Skipped:  0
 # ==============================================================================
 # This file combines:
 #   1. /shared - Shared project variables (API keys, database, etc.)
-#   2. /machines/orchestrator-mini - Machine-specific overrides
+#   2. /hosts/orchestrator - Machine-specific overrides
 # ==============================================================================
 
 # ==============================================================================
@@ -331,7 +331,7 @@ POSTGRES_PASSWORD=...
 ...
 
 # ==============================================================================
-# MACHINE-SPECIFIC VARIABLES (from /machines/orchestrator-mini)
+# MACHINE-SPECIFIC VARIABLES (from /hosts/orchestrator)
 # ==============================================================================
 # These override shared variables if there are conflicts
 
@@ -374,7 +374,7 @@ infisical secrets list --path="/shared" --env=dev --projectId="8374cea9-e5e8-405
 
 2. **Test uploading single variable**:
 ```powershell
-infisical secrets set "TEST_VAR" "test_value" --path="/machines/orchestrator-mini" --env=dev --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+infisical secrets set "TEST_VAR" "test_value" --path="/hosts/orchestrator" --env=dev --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
 ```
 
 3. **Run upload script with verbose**:

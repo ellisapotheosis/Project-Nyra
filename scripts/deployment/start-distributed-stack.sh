@@ -7,10 +7,10 @@ COMPOSE_FILE="$REPO_ROOT/infra/compose/distributed/nyra-distributed-compose.yml"
 
 resolve_role_path() {
   case "$1" in
-    orchestrator) printf '/orchestrator\n' ;;
-    oracle) printf '/oracle\n' ;;
-    worker) printf '/%s\n' "${NYRA_NODE_ROLE:-worker-rtx5090}" ;;
-    homeassistant) printf '/homeassistant\n' ;;
+    orchestrator) printf '/hosts/orchestrator\n' ;;
+    oracle) printf '/hosts/oracle-vps\n' ;;
+    worker) printf '/hosts/%s\n' "${NYRA_NODE_ROLE:-worker-rtx5090}" ;;
+    homeassistant) printf '/hosts/homeassistant\n' ;;
     *)
       echo "unsupported role: $1" >&2
       return 1

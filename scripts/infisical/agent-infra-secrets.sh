@@ -21,7 +21,7 @@ export-template Print a key/path manifest as CSV.
 
 Environment selection:
   INFISICAL_ENV=prod                 single environment
-  INFISICAL_ENVS=dev,stag,prod       multiple environments
+  INFISICAL_ENVS=dev,staging,prod    multiple environments
   INFISICAL_SOURCE_ENV=prod          fallback source env for existing secret values
 USAGE
 }
@@ -31,7 +31,8 @@ rand_hex() {
 }
 
 rand_b64url() {
-  openssl rand -base64 "${1:-48}" | tr '+/' '-_' | tr -d '=\n'
+  # Hex avoids wrapped base64 lines, which are invalid in dotenv imports.
+  openssl rand -hex "${1:-48}"
 }
 
 ensure_generated_file() {

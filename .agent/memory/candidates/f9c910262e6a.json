@@ -1,0 +1,39 @@
+{
+  "id": "f9c910262e6a",
+  "key": "pattern_high-stakes_completed_secrets_f9c910",
+  "name": "pattern_high-stakes_completed_secrets_f9c910",
+  "claim": "High-stakes op completed (secret): source ~/.zsh/99-secrets.zsh 2>/dev/null",
+  "conditions": [
+    "bash",
+    "cmd",
+    "completed",
+    "dev",
+    "high-stakes",
+    "null",
+    "out",
+    "secret",
+    "secrets",
+    "zsh"
+  ],
+  "evidence_ids": [
+    "2026-07-19T02:03:21.948113+00:00",
+    "2026-07-20T15:49:30.588094+00:00"
+  ],
+  "cluster_size": 2,
+  "canonical_salience": 9.0,
+  "staged_at": "2026-07-20T15:49:40.312690+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-20T15:49:40.312690+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-20T15:52:54.769344+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

@@ -9,7 +9,7 @@ model_auto_compact_token_limit = 200000
 # End oh-my-codex seeded behavioral defaults
 
 approval_policy = "never"
-model = "gpt-5.5"
+model = "gpt-5.6-luna"
 network_access = "enabled"
 personality = "pragmatic"
 sandbox = "danger-full-access"
@@ -103,6 +103,10 @@ startup_timeout_sec = 120
 [mcp_servers.nexus-router]
 startup_timeout_sec = 120
 url = "https://nexus-router.projectnyra.com/mcp"
+
+[mcp_servers.mcp-gateway]
+startup_timeout_sec = 120
+url = "https://mcp-gateway.projectnyra.com/mcp"
 
 [mcp_servers.playwright]
 args = [
