@@ -1,0 +1,34 @@
+/* Holographic theme for projectnyra portal */
+:root[data-theme="holographic"],
+:root[data-color-scheme="holographic"] {
+  --background: #0a0e27;
+  --foreground: #ffffff;
+  --primary: #00d9ff;
+  --primary-foreground: #0a0e27;
+  --secondary: #0099ff;
+  --secondary-foreground: #ffffff;
+  --accent: #c400ff;
+  --accent-foreground: #ffffff;
+  --muted: #8899cc;
+  --muted-foreground: #ffffff;
+  --card: #0f1a3d;
+  --card-foreground: #ffffff;
+  --popover: #1a2f4d;
+  --popover-foreground: #ffffff;
+  --destructive: #ff0066;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 217, 255, 0.2);
+  --input: #0f1a3d;
+  --ring: #00d9ff;
+}
+
+[data-theme="holographic"],
+[data-color-scheme="holographic"] {
+  color-scheme: dark;
+}
+
+[data-theme="holographic"] body,
+[data-color-scheme="holographic"] body {
+  background-color: #0a0e27;
+  color: #ffffff;
+}

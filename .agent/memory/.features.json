@@ -1,0 +1,14 @@
+{
+  "memory_search_fts": {
+    "enabled": true,
+    "beta": true
+  },
+  "tldraw": {
+    "enabled": true,
+    "beta": true
+  },
+  "mission_control": {
+    "enabled": true,
+    "beta": true
+  }
+}

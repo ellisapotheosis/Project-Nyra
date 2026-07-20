@@ -263,7 +263,7 @@ if (-not $SkipInfisical) {
             Write-Host "✓ Secrets downloaded to .env.worker-5090" -ForegroundColor $ColorSuccess
         } else {
             Write-Host "⚠ No secrets found at $path" -ForegroundColor $ColorWarning
-            Write-Host "  You may need to run: infra/machines/upload-to-infisical.ps1" -ForegroundColor $ColorWarning
+            Write-Host "  You may need to run the host-boundary Infisical upload script" -ForegroundColor $ColorWarning
         }
     } catch {
         Write-Host "⚠ Failed to download secrets (may not exist yet)" -ForegroundColor $ColorWarning

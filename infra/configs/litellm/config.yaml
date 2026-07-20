@@ -112,6 +112,31 @@ model_list:
       api_key: os.environ/LLXPRT_BRIDGE_API_KEY
       timeout: 60
 
+  # ── OmniRoute provider gateway ───────────────────────────────────────────
+  # OmniRoute owns provider OAuth/API keys and its own combination routing.
+  # Keep these opt-in aliases until response streaming and tool calls are
+  # verified end to end through LiteLLM.
+  - model_name: omniroute/auto
+    litellm_params:
+      model: openai/auto
+      api_base: http://omniroute:20128/v1
+      api_key: os.environ/OMNIROUTE_API_KEY
+      timeout: 180
+
+  - model_name: omniroute/coding
+    litellm_params:
+      model: openai/auto/coding
+      api_base: http://omniroute:20128/v1
+      api_key: os.environ/OMNIROUTE_API_KEY
+      timeout: 300
+
+  - model_name: omniroute/fast
+    litellm_params:
+      model: openai/auto/fast
+      api_base: http://omniroute:20128/v1
+      api_key: os.environ/OMNIROUTE_API_KEY
+      timeout: 90
+
   # ── OpenRouter Free Tier ───────────────────────────────────────────────────
   # Requires OPENROUTER_API_KEY in Infisical at /nyra:
   #   infisical secrets set OPENROUTER_API_KEY=sk-or-v1-... --env=dev --path=/nyra
@@ -183,6 +208,62 @@ router_settings:
 
 litellm_settings:
   set_verbose: false
+  # Parallel MCP comparison surface. Nexus remains the production MCP
+  # aggregator; LiteLLM exposes the same allowlisted upstreams at /mcp for
+  # semantic search, permissions, and cost/latency experiments.
+  mcp_aliases:
+    cloudflare: cloudflare
+    cloudflare_api: cloudflare_api
+    cloudflare_docs: cloudflare_docs
+    cloudflare_bindings: cloudflare_bindings
+    cloudflare_builds: cloudflare_builds
+    cloudflare_observability: cloudflare_observability
+    cloudflare_ai_gateway: cloudflare_ai_gateway
+
+# These are intentionally the same seven upstreams currently registered in
+# infra/hosts/oracle-vps/nexus.toml. `transport: http` selects Streamable HTTP;
+# no mcp-remote or stdio wrapper is used.
+mcp_servers:
+  cloudflare:
+    url: "https://mcp.cloudflare.com/mcp"
+    transport: "http"
+    allow_all_keys: true
+    auth_type: "bearer_token"
+    auth_value: os.environ/CLOUDFLARE_API_TOKEN
+  cloudflare_api:
+    url: "https://mcp.cloudflare.com/mcp"
+    transport: "http"
+    allow_all_keys: true
+    auth_type: "bearer_token"
+    auth_value: os.environ/CLOUDFLARE_API_TOKEN
+  cloudflare_docs:
+    url: "https://docs.mcp.cloudflare.com/mcp"
+    transport: "http"
+    allow_all_keys: true
+  cloudflare_bindings:
+    url: "https://bindings.mcp.cloudflare.com/mcp"
+    transport: "http"
+    allow_all_keys: true
+    auth_type: "bearer_token"
+    auth_value: os.environ/CLOUDFLARE_API_TOKEN
+  cloudflare_builds:
+    url: "https://builds.mcp.cloudflare.com/mcp"
+    transport: "http"
+    allow_all_keys: true
+    auth_type: "bearer_token"
+    auth_value: os.environ/CLOUDFLARE_API_TOKEN
+  cloudflare_observability:
+    url: "https://observability.mcp.cloudflare.com/mcp"
+    transport: "http"
+    allow_all_keys: true
+    auth_type: "bearer_token"
+    auth_value: os.environ/CLOUDFLARE_API_TOKEN
+  cloudflare_ai_gateway:
+    url: "https://ai-gateway.mcp.cloudflare.com/mcp"
+    transport: "http"
+    allow_all_keys: true
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+  store_model_in_db: true

@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      administration: read
+      security-events: read
     outputs:
       enabled: ${{ steps.check.outputs.enabled }}
     steps:

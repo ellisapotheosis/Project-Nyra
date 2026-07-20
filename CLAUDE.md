@@ -1,176 +1,108 @@
-# CLAUDE.md
+# Project Instructions (Claude Code)
 
-Claude Code CLI rules for Project Nyra.
+This project uses the **agentic-stack** portable brain. All memory, skills,
+and protocols live in `.agent/`.
 
-Claude must read `AGENTS.md` before making changes.
+## Session start — read in this order
+1. `.agent/AGENTS.md` — the map of the whole brain
+2. `.agent/memory/personal/PREFERENCES.md` — how the user works
+3. `.agent/memory/working/REVIEW_QUEUE.md` — pending lessons awaiting review
+4. `.agent/memory/semantic/LESSONS.md` — what we've already learned
+5. `.agent/protocols/permissions.md` — hard constraints, read before any tool call
 
-## Cluster Architecture
-- **Orchestrator (LAN)**: Control Plane, Nexus Router, LiteLLM, OpenClaw, Monitoring.
-- **Oracle-VPS (Cloud)**: Twenty CRM, Gitea, DBs, Campaign Engine, Public Ingress.
-- **Workers (GPU)**: vLLM (5090, 3090 Ti), Ollama (3060).
-- **Syncthing**: Synchronizes `~/` across the 4 local nodes (orchestrator + 3 workers).
+## Before every non-trivial action — recall first
 
-## Required behavior
-- Follow `AGENTS.md` as the global project contract.
-- Prefer small, verifiable changes.
-- Keep implementation aligned with the current Nyra architecture.
-- If a step requires a human login or MFA, add it to `docs/OWNER_MANUAL_ACTIONS.md` and continue.
-
-## Serena MCP
-Recommended environment when using Serena with Claude Code:
+For any task involving **deploy**, **ship**, **release**, **migration**,
+**schema change**, **supabase**, **edge function**, **timestamp** /
+**timezone** / **date**, **failing test**, **debug**, **investigate**, or
+**refactor**, run recall FIRST and present the results before acting:
 
 ```bash
-export MCP_TIMEOUT=60000
-export ENABLE_TOOL_SEARCH=true
+python3 .agent/tools/recall.py "<one-line description of what you're about to do>"
 ```
 
-Recommended Serena registration:
+Show the output in a `Consulted lessons before acting:` block. If a surfaced
+lesson would be violated by your intended action, stop and explain why.
+
+## While working
+
+### Skills
+Read `.agent/skills/_index.md` and load the full `SKILL.md` for any skill
+whose triggers match the task. Don't skip this — skills carry constraints
+the permissions file doesn't cover.
+
+### Workspace
+Update `.agent/memory/working/WORKSPACE.md` when:
+- You start a new task (write the goal and first step)
+- Your hypothesis changes
+- You complete or abandon a task (clear it so the next session is clean)
+
+### Brain state
+Quick overview any time:
+```bash
+python3 .agent/tools/show.py
+```
+
+### Teaching the agent a new rule
+When you discover something that should never happen again:
+```bash
+python3 .agent/tools/learn.py "<the rule, phrased as a principle>" \
+    --rationale "<why — include the incident that taught you this>"
+```
+
+## Manual memory logging — when and how
+
+The PostToolUse hook captures every tool call automatically, but its
+reflections are mechanical. For **significant events** you must call
+`memory_reflect.py` explicitly with a rich `--note`. These are the entries
+the dream cycle promotes into lessons.
+
+### When to log manually
+- After completing a major feature or fixing a bug that took real investigation
+- After any rollback, incident, or unexpected failure
+- After any architectural decision (why you chose approach A over B)
+- After discovering a project-specific constraint (e.g. "this table has a
+  trigger that fires on every insert — don't bulk insert")
+- After a Supabase migration, RLS policy change, or edge function deploy
+- Any time you think "I wish I had known this an hour ago"
+
+### How to write a good entry
 
 ```bash
-claude mcp add --scope user serena -- \
-  uvx --from git+https://github.com/oraios/serena \
-  serena start-mcp-server --context=claude-code --project-from-cwd
+# Good: specific, domain-rich, future-oriented
+python3 .agent/tools/memory_reflect.py \
+    "supabase-migration" \
+    "applied add_user_tier_column migration" \
+    "migration succeeded; 847 rows backfilled to tier=free" \
+    --importance 8 \
+    --note "RLS policy on user_profiles must be updated whenever a new column is added that affects row visibility. Missed this, caused 401s in staging for 20 minutes."
+
+# Good: failure with root cause
+python3 .agent/tools/memory_reflect.py \
+    "edge-function" \
+    "deployed notify-on-signup" \
+    "deploy failed: missing RESEND_API_KEY in production env" \
+    --fail \
+    --importance 9 \
+    --note "Production env vars for edge functions must be set in supabase secrets, not .env. The .env file is ignored at deploy time."
+
+# Bad: vague, no content words for clustering
+python3 .agent/tools/memory_reflect.py \
+    "claude-code" "did stuff" "ok" --importance 3
 ```
 
-## Config placement
-- Global Serena config: `~/.serena/serena_config.yml`
-- Project Serena config: `<repo>/.serena/project.yml`
+### Importance guide
+| Value | When |
+|---|---|
+| 9–10 | Production incident, data migration, rollback, security issue |
+| 7–8 | Deploy, schema change, architectural decision, non-obvious constraint |
+| 5–6 | Refactor, significant bug fix, API contract change |
+| 3–4 | Routine edit, file creation, test run |
 
-<!-- rtk-instructions v2 -->
-# RTK (Rust Token Killer) - Token-Optimized Commands
-
-## Golden Rule
-
-**Always prefix commands with `rtk`**. If RTK has a dedicated filter, it uses it. If not, it passes through unchanged. This means RTK is always safe to use.
-
-**Important**: Even in command chains with `&&`, use `rtk`:
-```bash
-# ❌ Wrong
-git add . && git commit -m "msg" && git push
-
-# ✅ Correct
-rtk git add . && rtk git commit -m "msg" && rtk git push
-```
-
-## RTK Commands by Workflow
-
-### Build & Compile (80-90% savings)
-```bash
-rtk cargo build         # Cargo build output
-rtk cargo check         # Cargo check output
-rtk cargo clippy        # Clippy warnings grouped by file (80%)
-rtk tsc                 # TypeScript errors grouped by file/code (83%)
-rtk lint                # ESLint/Biome violations grouped (84%)
-rtk prettier --check    # Files needing format only (70%)
-rtk next build          # Next.js build with route metrics (87%)
-```
-
-### Test (60-99% savings)
-```bash
-rtk cargo test          # Cargo test failures only (90%)
-rtk go test             # Go test failures only (90%)
-rtk jest                # Jest failures only (99.5%)
-rtk vitest              # Vitest failures only (99.5%)
-rtk playwright test     # Playwright failures only (94%)
-rtk pytest              # Python test failures only (90%)
-rtk rake test           # Ruby test failures only (90%)
-rtk rspec               # RSpec test failures only (60%)
-rtk test <cmd>          # Generic test wrapper - failures only
-```
-
-### Git (59-80% savings)
-```bash
-rtk git status          # Compact status
-rtk git log             # Compact log (works with all git flags)
-rtk git diff            # Compact diff (80%)
-rtk git show            # Compact show (80%)
-rtk git add             # Ultra-compact confirmations (59%)
-rtk git commit          # Ultra-compact confirmations (59%)
-rtk git push            # Ultra-compact confirmations
-rtk git pull            # Ultra-compact confirmations
-rtk git branch          # Compact branch list
-rtk git fetch           # Compact fetch
-rtk git stash           # Compact stash
-rtk git worktree        # Compact worktree
-```
-
-Note: Git passthrough works for ALL subcommands, even those not explicitly listed.
-
-### GitHub (26-87% savings)
-```bash
-rtk gh pr view <num>    # Compact PR view (87%)
-rtk gh pr checks        # Compact PR checks (79%)
-rtk gh run list         # Compact workflow runs (82%)
-rtk gh issue list       # Compact issue list (80%)
-rtk gh api              # Compact API responses (26%)
-```
-
-### JavaScript/TypeScript Tooling (70-90% savings)
-```bash
-rtk pnpm list           # Compact dependency tree (70%)
-rtk pnpm outdated       # Compact outdated packages (80%)
-rtk pnpm install        # Compact install output (90%)
-rtk npm run <script>    # Compact npm script output
-rtk npx <cmd>           # Compact npx command output
-rtk prisma              # Prisma without ASCII art (88%)
-```
-
-### Files & Search (60-75% savings)
-```bash
-rtk ls <path>           # Tree format, compact (65%)
-rtk read <file>         # Code reading with filtering (60%)
-rtk grep <pattern>      # Search grouped by file (75%)
-rtk find <pattern>      # Find grouped by directory (70%)
-```
-
-### Analysis & Debug (70-90% savings)
-```bash
-rtk err <cmd>           # Filter errors only from any command
-rtk log <file>          # Deduplicated logs with counts
-rtk json <file>         # JSON structure without values
-rtk deps                # Dependency overview
-rtk env                 # Environment variables compact
-rtk summary <cmd>       # Smart summary of command output
-rtk diff                # Ultra-compact diffs
-```
-
-### Infrastructure (85% savings)
-```bash
-rtk docker ps           # Compact container list
-rtk docker images       # Compact image list
-rtk docker logs <c>     # Deduplicated logs
-rtk kubectl get         # Compact resource list
-rtk kubectl logs        # Deduplicated pod logs
-```
-
-### Network (65-70% savings)
-```bash
-rtk curl <url>          # Compact HTTP responses (70%)
-rtk wget <url>          # Compact download output (65%)
-```
-
-### Meta Commands
-```bash
-rtk gain                # View token savings statistics
-rtk gain --history      # View command history with savings
-rtk discover            # Analyze Claude Code sessions for missed RTK usage
-rtk proxy <cmd>         # Run command without filtering (for debugging)
-rtk init                # Add RTK instructions to CLAUDE.md
-rtk init --global       # Add RTK to ~/.claude/CLAUDE.md
-```
-
-## Token Savings Overview
-
-| Category | Commands | Typical Savings |
-|----------|----------|-----------------|
-| Tests | vitest, playwright, cargo test | 90-99% |
-| Build | next, tsc, lint, prettier | 70-87% |
-| Git | status, log, diff, add, commit | 59-80% |
-| GitHub | gh pr, gh run, gh issue | 26-87% |
-| Package Managers | pnpm, npm, npx | 70-90% |
-| Files | ls, read, grep, find | 60-75% |
-| Infrastructure | docker, kubectl | 85% |
-| Network | curl, wget | 65-70% |
-
-Overall average: **60-90% token reduction** on common development operations.
-<!-- /rtk-instructions -->
+## Rules that override all defaults
+- Never force push to `main`, `production`, or `staging`.
+- Never delete episodic or semantic memory entries — archive them.
+- Never modify `.agent/protocols/permissions.md` — only humans edit it.
+- Never hand-edit `.agent/memory/semantic/LESSONS.md` — use `graduate.py`.
+- If `REVIEW_QUEUE.md` shows pending > 10 or oldest > 7 days, review
+  candidates before starting substantive work.

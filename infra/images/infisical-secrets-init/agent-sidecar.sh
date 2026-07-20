@@ -1,6 +1,7 @@
 #!/bin/sh
-# Live secrets rotation sidecar — polls Infisical and refreshes /run/nyra-secrets/* files.
-set -e
+# Live secret-file rotation sidecar. Consumers must explicitly read
+# /run/nyra-secrets/current/<lower-case-key>; container environments do not rotate.
+set -eu
 
 POLL_INTERVAL="${INFISICAL_POLL_INTERVAL:-300s}"
 echo "[Infisical Agent] Starting live-rotation sidecar (interval: ${POLL_INTERVAL})"
@@ -11,31 +12,20 @@ refresh_secrets() {
     --projectId="$INFISICAL_PROJECT_ID" \
     --env="$INFISICAL_ENV" \
     --path="$INFISICAL_PATH" \
-    --format=dotenv > /tmp/nyra_agent_raw.env 2>/dev/null || {
+    --format=json > /tmp/nyra_agent_raw.json 2>/dev/null || {
       echo "[Infisical Agent] WARNING: export failed, retaining current secrets"
       return 1
     }
 
-  while IFS= read -r line || [ -n "$line" ]; do
-    case "$line" in
-      \#*|"") continue ;;
-    esac
-    key="${line%%=*}"
-    val="${line#*=}"
-    val="${val%\"}"
-    val="${val#\"}"
-    fname=$(printf '%s' "$key" | tr '[:upper:]' '[:lower:]')
-    mkdir -p "$(dirname "/run/nyra-secrets/${fname}")"
-    printf '%s' "$val" > "/run/nyra-secrets/${fname}"
-    done < /tmp/nyra_agent_raw.env
-
-  rm -f /tmp/nyra_agent_raw.env
+  /usr/local/bin/materialize-secrets.sh /tmp/nyra_agent_raw.json
+  rm -f /tmp/nyra_agent_raw.json
   echo "[Infisical Agent] Secrets refreshed at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 
 # Parse interval number for sleep (strip trailing 's' if present)
 SLEEP_SECS=$(printf '%s' "$POLL_INTERVAL" | tr -d 's')
 
+refresh_secrets || true
 while true; do
   sleep "$SLEEP_SECS"
   refresh_secrets || true

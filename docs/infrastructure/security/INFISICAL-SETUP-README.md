@@ -5,10 +5,11 @@ This file is the single audit trail for the secrets work I did in this session.
 Infisical environments updated:
 
 - `dev`
-- `stag`
+- `staging`
 - `prod`
 
-The project does not use the long-form slugs `development`, `staging`, or `production` in the CLI checks I ran.
+The project uses `dev`, `staging`, and `prod` as its Infisical CLI slugs. The long-form
+slugs `development` and `production` are not valid substitutes here.
 
 ## Short Answer
 
@@ -28,7 +29,7 @@ The project does not use the long-form slugs `development`, `staging`, or `produ
 The top-level folder tree already contained existing secrets under paths like:
 
 - `/providers/*`
-- `/machines/*`
+- `/hosts/*`
 - `/clients/*`
 - `/databases/*`
 
@@ -91,7 +92,7 @@ Path: `/clients/composio`
 These are present in:
 
 - `dev`
-- `stag`
+- `staging`
 - `prod`
 
 No `COMPOSIO_*` values should be stored directly on a machine path unless that specific machine needs a different value from the shared Composio client path.
@@ -135,7 +136,7 @@ These paths are not required and should not hold these service secrets:
 Cleanup status:
 
 - `/oracle` was deleted in `dev`.
-- `/oracle` was deleted in `stag`.
+- `/oracle` was deleted in `staging`.
 - `/oracle` was deleted in `prod`.
 
 The correct active paths are:
@@ -160,13 +161,13 @@ Cleanup status:
 - `/worker-rtx3090ti` was deleted.
 - `/worker-rtx5090` was deleted.
 
-Machine-specific settings now belong directly under `/machines/<host-name>`, with no nested folders.
+Machine-specific settings now belong directly under `/hosts/<host-name>`, with no nested folders.
 
 ## Base Network Map
 
 The shared host network map belongs in `/base`, not directly in each machine path.
 
-I added or confirmed these direct `/base` keys in all three environments: `dev`, `stag`, and `prod`.
+I added or confirmed these direct `/base` keys in all three environments: `dev`, `staging`, and `prod`.
 
 - `ORCHESTRATOR_IP`
 - `ORCHESTRATOR_LAN_IP`
@@ -210,11 +211,11 @@ I added or confirmed these direct `/base` keys in all three environments: `dev`,
 
 I then removed the duplicated direct copies of those network identity keys from:
 
-- `/machines/orchestrator`
+- `/hosts/orchestrator`
 - `/hosts/oracle-vps`
-- `/machines/worker-rtx3060`
-- `/machines/worker-rtx3090ti`
-- `/machines/worker-rtx5090`
+- `/hosts/worker-rtx3060`
+- `/hosts/worker-rtx3090ti`
+- `/hosts/worker-rtx5090`
 
 Verification used `--include-imports=false`, so the check distinguished direct machine secrets from `/base` values imported through symlinks.
 
@@ -227,7 +228,12 @@ Ownership notes:
 
 ## Final State
 
-- Runtime secrets are in Infisical.
+- The canonical host and app boundary folders exist in `dev`, `staging`, and
+  `prod`.
+- The available host runtime secrets are in Infisical under `/hosts/...` in
+  `dev` and have passed key-level readback verification.
+- Staging/prod host values and real app values remain input-gated and were not
+  copied from `dev`.
 - Generated local values are only in `secrets/infisical/agent-infra.generated.env`.
 - Checked-in files are templates, scripts, and this README.
 

@@ -193,7 +193,7 @@ Located in: `docs/configuration/infisical-secrets-management/envtree/dev/shared/
 - `CLOUDFLARE_API_TOKEN` - CDN and DNS
 - `N8N_API_KEY` - Workflow automation
 
-### Machine-Specific Variables (in `/machines/<hostname>`)
+### Machine-Specific Variables (in `/hosts/<hostname>`)
 
 Located in: `docs/configuration/infisical-secrets-management/machines/`
 
@@ -275,7 +275,7 @@ Use Infisical for team access control:
 
 2. **With Infisical Sync**:
    ```bash
-   # Pull latest from Infisical /shared + /machines/orchestrator-mini
+   # Pull latest from Infisical /shared + /hosts/orchestrator
    cd docs/configuration/infisical-secrets-management/machines
    ./generate-combined-env.ps1 -MachineRole "orchestrator-mini"
 
@@ -436,7 +436,7 @@ Use Infisical for team access control:
 
 2. **Categorize appropriately**:
    - Shared → Add to `/shared` in Infisical
-   - Machine-specific → Add to `/machines/<hostname>` in Infisical
+   - Machine-specific → Add to `/hosts/<hostname>` in Infisical
 
 3. **Update documentation**:
    - Add to this guide under appropriate category
@@ -495,7 +495,7 @@ Use Infisical for team access control:
 - [ ] Install Infisical CLI
 - [ ] Set `INFISICAL_ACCESS_TOKEN` environment variable
 - [ ] Upload shared secrets to `/shared` path
-- [ ] Upload machine-specific configs to `/machines/<hostname>`
+- [ ] Upload machine-specific configs to `/hosts/<hostname>`
 - [ ] Test combined .env generation
 - [ ] Deploy to each PC in cluster
 

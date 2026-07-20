@@ -3,7 +3,7 @@
 # =============================================================================
 # Project Nyra - Infisical Mirror-Sync Script
 # =============================================================================
-# Merges /shared secrets and /machines/[host] secrets into local .env files.
+# Merges /shared secrets and /hosts/[host] secrets into local .env files.
 # =============================================================================
 
 # Validation
@@ -28,8 +28,8 @@ for dir in "$BASE_DIR"/*/; do
     folder_name=$(basename "$dir")
     
     # Define the target path in Infisical
-    # Logic: /machines/[folder_name]
-    infisical_path="/machines/$folder_name"
+    # Logic: /hosts/[folder_name]
+    infisical_path="/hosts/$folder_name"
     
     echo "🔍 Processing $folder_name -> $infisical_path"
 

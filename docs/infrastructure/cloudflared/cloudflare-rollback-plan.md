@@ -11,7 +11,7 @@ Backups created before apply:
 
 Rollback tunnel configs:
 
-1. Use the same Infisical path used for apply: `/machines/orchestrator`.
+1. Use the same Infisical path used for apply: `/hosts/orchestrator`.
 2. PUT the backed-up `.result.config` payloads back to:
    - `/accounts/{account_id}/cfd_tunnel/{ORCHESTRATOR_TUNNEL_ID}/configurations`
    - `/accounts/{account_id}/cfd_tunnel/{ORACLE_TUNNEL_ID}/configurations`

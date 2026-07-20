@@ -300,7 +300,7 @@ jobs:
               INFISICAL_ENV="prod"
               ;;
             preview|staging)
-              INFISICAL_ENV="stag"
+              INFISICAL_ENV="staging"
               ;;
             *)
               INFISICAL_ENV="dev"
@@ -318,20 +318,11 @@ jobs:
             SECRETS_FETCHED=true
             FETCH_PATH="/CI-CD"
             FETCH_ENV="$INFISICAL_ENV"
-          elif [ "$INFISICAL_ENV" = "stag" ] && infisical export --env=staging --path=/CI-CD --format=dotenv --token="$TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
-            # Backward-compatible fallback if legacy slug exists
-            SECRETS_FETCHED=true
-            FETCH_PATH="/CI-CD"
-            FETCH_ENV="staging"
           # Backward-compatible fallback path
           elif infisical export --env="$INFISICAL_ENV" --path=/shared --format=dotenv --token="$TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
             SECRETS_FETCHED=true
             FETCH_PATH="/shared"
             FETCH_ENV="$INFISICAL_ENV"
-          elif [ "$INFISICAL_ENV" = "stag" ] && infisical export --env=staging --path=/shared --format=dotenv --token="$TOKEN" > /tmp/cloudflare-secrets.env 2>/dev/null; then
-            SECRETS_FETCHED=true
-            FETCH_PATH="/shared"
-            FETCH_ENV="staging"
           fi
 
           # Export secrets to a file for the next job
