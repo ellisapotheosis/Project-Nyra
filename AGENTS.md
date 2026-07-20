@@ -102,7 +102,7 @@
 
 ## Evidence-based skill progression: 2026-07-20
 
-These three progression vectors come only from observed Project Nyra pull-request and review telemetry. Treat the evidence and graduation checks as executable contributor criteria, not general reading topics.
+These three progression vectors come only from observed Project Nyra pull-request and review telemetry. Treat the evidence and graduation checks as executable contributor criteria, not general reading topics. Refresh this dated evidence snapshot on each progression-map run while preserving the higher-level practice and graduation contracts until newer telemetry disproves them.
 
 ### 1. Provenance-aware recovery and review-budget decomposition
 
@@ -121,7 +121,7 @@ These three progression vectors come only from observed Project Nyra pull-reques
 
 **Practice steps:**
 
-1. Evaluate the exact candidate SHA against an explicit context allowlist. Treat failed, missing, skipped, neutral, cancelled, or pending contexts as blocking unless a written repository policy names an exception.
+1. Create and maintain the explicit context allowlist in `.github/required-checks.yml`, validated against `.github/workflows/*.yml`, `.circleci/config.yml`, and provider contexts observed on the PR. Evaluate the exact candidate SHA against it; treat failed, missing, skipped, neutral, cancelled, or pending contexts as blocking unless that policy names an exception.
 2. Prove protected work executed: a successful availability/detector job does not substitute for a skipped CodeQL `Analyze`, test, security, build, or deployment job.
 3. Exhaust paginated review threads and wait for each configured asynchronous reviewer to reach a terminal state before merging. If feedback arrives after merge, assign an owner and ship a follow-up or revert before calling the loop closed.
 4. Graduate only after one `/apps` or `/infra` PR shows every required exact-head context successful, all review pages exhausted with zero unresolved threads, and no late feedback left without a tracked disposition.
@@ -132,7 +132,7 @@ These three progression vectors come only from observed Project Nyra pull-reques
 
 **Practice steps:**
 
-1. Maintain a parity matrix for each affected app/service: workspace package and lockfile, install/build command, expected output, Dockerfile and build context, provider root/output settings, required secrets, workflow job, network/auth boundary, and owning `infra/hosts/<host-name>/` deployment.
+1. Create and maintain `infra/hosts/app-deployment-parity.yml` as the machine-readable parity matrix for each affected app/service: workspace package and lockfile, install/build command, expected output, Dockerfile and build context, provider root/output settings, required secrets, workflow job, network/auth boundary, and owning `infra/hosts/<host-name>/` deployment.
 2. Reproduce the first failing boundary locally or in an isolated CI job, then preserve the exact command and error as regression evidence. Validate frozen-lockfile installs in every Docker consumer; do not mask a failing build by skipping downstream test, security, build, or deploy jobs.
 3. Validate the same artifact through package build, container build, and Cloudflare/Vercel preview paths where configured. For gateways and adapters, add unauthorized, privacy-route, saturation, upstream-outage, redaction, and rollback tests that prove fail-closed behavior.
 4. Graduate only after a targeted `/apps` or `/infra` change passes its package checks, Docker build, provider preview, trust-boundary probes, and exact-head aggregate gates with no skipped downstream validation or unresolved P0 review item.
