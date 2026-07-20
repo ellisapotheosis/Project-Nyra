@@ -14,24 +14,39 @@ import {
 
 const themes = [
   {
+    value: "void",
+    label: "Void",
+    color: "oklch(0.5038 0.2937 285.3753)",
+  },
+  {
     value: "mint-midnight",
     label: "Mint Midnight",
-    color: "oklch(0.5038 0.2937 285.3753)",
+    color: "oklch(0.8871 0.1828 166.5465)",
   },
   {
     value: "mint-midnight-glow",
     label: "Mint Midnight Glow",
-    color: "oklch(0.8871 0.1828 166.5465)",
+    color: "oklch(0.60 0.18 166)",
   },
   {
-    value: "apotheosis",
-    label: "Apotheosis",
-    color: "oklch(0.8653 0.1475 204.0171)",
+    value: "azure",
+    label: "Azure",
+    color: "oklch(0.71 0.14 237)",
   },
   {
-    value: "virtus",
-    label: "Virtus",
-    color: "oklch(0.9325 0.0337 285.7280)",
+    value: "indigo",
+    label: "Indigo",
+    color: "oklch(0.598 0.185 279)",
+  },
+  {
+    value: "shadowpriest",
+    label: "Shadowpriest",
+    color: "oklch(0.60 0.225 306)",
+  },
+  {
+    value: "holographic",
+    label: "Holographic",
+    color: "#00d9ff",
   },
 ] as const;
 

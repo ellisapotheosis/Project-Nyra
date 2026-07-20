@@ -1,5 +1,28 @@
 {
   "mcpServers": {
+    "cloudflare-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cloudflare/mcp-server-cloudflare"
+      ],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}",
+        "MCP_ENDPOINT": "https://mcp-gateway.projectnyra.com/mcp",
+        "CF_ACCESS_CLIENT_ID": "6fb77c5bdd11e8b220720ddae1cd01da.access",
+        "CF_ACCESS_CLIENT_SECRET": "${CF_ACCESS_CLIENT_SECRET}"
+      }
+    },
+    "nexus-router": {
+      "type": "http",
+      "url": "https://nexus-router.projectnyra.com/mcp",
+      "startup_timeout_sec": 90
+    },
+    "mcp-gateway": {
+      "type": "http",
+      "url": "https://mcp-gateway.projectnyra.com/mcp",
+      "startup_timeout_sec": 90
+    },
     "serena": {
       "command": "serena",
       "args": [
@@ -11,14 +34,21 @@
     },
     "ssh": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-ssh"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-ssh"
+      ],
       "env": {
         "SSH_ALLOWED_HOSTS": "*.trex-fiordland.ts.net,100.64.0.*,github.com,gitea.ratehunter.net"
       }
     },
     "shadcn": {
       "command": "npx",
-      "args": ["shadcn@latest", "mcp"]
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
     }
-  }
+  },
+  "disabledMcpServers": []
 }

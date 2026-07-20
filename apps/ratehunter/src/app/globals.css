@@ -1,11 +1,29 @@
+/* Typography System */
+@import url("https://fonts.googleapis.com/css2?family=Monaspace+Krypton:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap");
+
+@import "./themes/holographic.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* Typography */
+  --font-mono: "Monaspace Krypton", "Courier New", monospace;
   --font-inter:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, sans-serif;
+
+  /* Premium Brand Fonts */
+  --font-wordmark: "Orbitron", sans-serif; /* Safest, most balanced */
+  --font-bold-concept: "Space Grotesk", sans-serif; /* Bold alternative (Nebula Chronos fallback) */
+  --font-tech: "IBM Plex Mono", monospace; /* Tech alternative (Nexium fallback) */
+  --font-cyber: "Orbitron", sans-serif; /* Aggressive cyber (Cyberform fallback) */
+  --font-rune: "Orbitron", sans-serif; /* Symbol/rune base (Runefa fallback) */
+
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 0, 0, 0;
   --background-end-rgb: 0, 0, 0;
@@ -37,6 +55,59 @@ body {
 }
 
 @layer components {
+  /* Typography System */
+  .font-wordmark {
+    font-family: var(--font-wordmark);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .font-bold-concept {
+    font-family: var(--font-bold-concept);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .font-tech {
+    font-family: var(--font-tech);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .font-cyber {
+    font-family: var(--font-cyber);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .font-rune {
+    font-family: var(--font-rune);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  /* Heading hierarchy with premium fonts */
+  .heading-h1 {
+    @apply font-wordmark text-5xl md:text-6xl font-bold tracking-tight;
+  }
+
+  .heading-h2 {
+    @apply font-bold-concept text-3xl md:text-4xl font-bold tracking-wide;
+  }
+
+  .heading-h3 {
+    @apply font-tech text-xl md:text-2xl font-bold tracking-wide;
+  }
+
+  .heading-h4 {
+    @apply font-cyber text-lg font-bold tracking-wider;
+  }
+
+  .logo-wordmark {
+    @apply font-wordmark text-2xl md:text-3xl font-bold tracking-wider;
+  }
+
   .btn-primary {
     @apply bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest py-3 px-8 rounded-xl transition-all duration-200 shadow-xl shadow-indigo-500/20 active:scale-95;
   }
@@ -164,4 +235,82 @@ body::before {
 .shimmer:hover::after {
   transform: translateX(100%);
   transition: transform 0.6s ease;
+}
+
+/* Nyra cursor glow */
+:root {
+  --cursor-x: 50vw;
+  --cursor-y: 50vh;
+}
+
+.nyra-cursor-glow {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    800px circle at var(--cursor-x) var(--cursor-y),
+    rgba(176, 38, 255, 0.10) 0%,
+    rgba(0, 240, 255, 0.08) 25%,
+    rgba(138, 255, 193, 0.05) 45%,
+    transparent 70%
+  );
+  transition: background 0.08s ease;
+}
+
+/* Dot grid overlay — 40px repeating dot pattern fading at edges */
+.nyra-dot-grid {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+.nyra-dot-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.055) 1px,
+    transparent 0px
+  );
+  background-size: 40px 40px;
+  mask-image: radial-gradient(
+    70% 60% at 50% 40%,
+    black,
+    transparent
+  );
+  -webkit-mask-image: radial-gradient(
+    70% 60% at 50% 40%,
+    black,
+    transparent
+  );
+}
+
+/* Nyra click ripple */
+.nyra-ripple {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 240, 255, 0.75);
+  pointer-events: none;
+  z-index: 9999;
+  animation: ripple-expand 0.65s ease-out forwards;
+}
+
+@keyframes ripple-expand {
+  from {
+    width: 0;
+    height: 0;
+    opacity: 0.9;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+  }
+  to {
+    width: 140px;
+    height: 140px;
+    opacity: 0;
+    box-shadow: 0 0 0px rgba(0, 240, 255, 0);
+  }
 }

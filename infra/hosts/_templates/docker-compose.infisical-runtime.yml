@@ -1,7 +1,7 @@
 # Shared Infisical runtime overlay.
 #
 # Use this with the host compose file from the repo root:
-#   NYRA_INFISICAL_PATH=/machines/orchestrator \
+#   NYRA_INFISICAL_PATH=/hosts/orchestrator \
 #   docker --context <ctx> compose -f infra/hosts/<host>/docker-compose.yml \
 #     -f infra/hosts/_templates/docker-compose.infisical-runtime.yml up -d
 #

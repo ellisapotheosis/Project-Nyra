@@ -12,6 +12,32 @@ Manual tasks that AI agents cannot complete for you because they require:
 
 Agents should always document these steps here instead of blocking.
 
+## Credential exposure response: 2026-07-19
+
+Several externally supplied shell and `.env` blocks contained credentials and
+tokens. Treat every value in those blocks as compromised. The values were not
+copied into the repository or imported into Infisical by the boundary importer.
+
+Owner-only actions:
+
+1. Revoke and replace the exposed GitHub, Infisical, Cloudflare, Docker Hub,
+   npm, CircleCI, Turbo, Sentry, Codecov, Greptile, Hugging Face, Firecrawl,
+   Tavily, provider, SMTP/SendGrid, tunnel, CRM, Portainer, and Agent Vault
+   credentials.
+2. Rotate the affected Infisical machine identities and access tokens before
+   running any further bulk promotion.
+3. Replace the corresponding values in the external secret manager, then
+   verify the new values under `/hosts/<host>` or the appropriate typed shared
+   path. Do not place them in chat, documentation, or tracked env templates.
+4. Reissue independent host credentials where the intake reused one token
+   across orchestrator, Oracle, and workers.
+5. After rotation, run the metadata-only audit and the host smoke checks. A
+   successful Infisical login alone is not evidence that downstream credentials
+   are valid.
+
+This is a required security gate for the current environment promotion. No
+secret values from the exposed intake are eligible for import.
+
 ## Cloudflare
 
 ### Cloudflare Tunnel desired-state apply for Project Nyra subdomains
@@ -40,7 +66,7 @@ Apply status:
 Required follow-up:
 
 1. Rotate `ORCHESTRATOR_TUNNEL_TOKEN`; a token was pasted into chat during setup.
-2. Confirm Infisical `/machines/orchestrator` contains `ORCHESTRATOR_TUNNEL_ID` and `ORCHESTRATOR_TUNNEL_TOKEN`.
+2. Confirm Infisical `/hosts/orchestrator` contains `ORCHESTRATOR_TUNNEL_ID` and `ORCHESTRATOR_TUNNEL_TOKEN`.
 3. Replace Infisical `/hosts/oracle-vps` `ORACLE_TUNNEL_TOKEN` with the token for tunnel `02fa18b6-ffcd-4b37-91ba-409642d5fb8f`.
 4. Add `SUPABASE_DB_URL_PASSWORD` as the URL-encoded form of `SUPABASE_DB_PASSWORD` if the raw password contains URL-reserved characters.
 5. Repair the stale Oracle Docker/Tailscale context so `docker --context oracle ...` works again without using the public SSH endpoint.
@@ -155,7 +181,7 @@ Current state on 2026-07-02:
 
 - `projectnyra-landing` is the only Project Nyra surface that is currently a clean fit for Git-backed Cloudflare Pages.
 - `projectnyra-app` currently builds as a runtime Next.js app with dynamic broker routes and should stay behind the existing app origin path until it is intentionally migrated to a Workers/OpenNext deployment shape.
-- `projectnyra-nexus` should stay on the Cloudflare Pages + Cloudflare Access path because it is an operator surface tied to private control-plane status and authenticated service access.
+- `projectnyra-nexus` should stay on the Cloudflare Tunnel + Cloudflare Access path because it is an operator surface tied to private control-plane status and authenticated service access.
 
 Cloudflare-side fixes already applied by API:
 
@@ -193,12 +219,13 @@ Custom-domain decision:
 
 - Attach `projectnyra.com` and `www.projectnyra.com` to `projectnyra-landing` after removing any conflicting tunnel/DNS bindings.
 - Keep `app.projectnyra.com` on the current app origin path for now.
-- Keep `nexus.projectnyra.com` on the current Cloudflare Pages + Access path.
+- Keep `nexus.projectnyra.com` on the current tunnel + Access path.
 - Keep `nexus-router.projectnyra.com` on the current tunnel + Access + service-token path.
 
 Do not cut over these hostnames to Pages right now:
 
 - `app.projectnyra.com`
+- `nexus.projectnyra.com`
 - `nexus-router.projectnyra.com`
 - `openmemory.projectnyra.com`
 
@@ -463,7 +490,7 @@ Both tunnels need new tokens. The existing connectors were deleted from the CF a
 
 1. Same process — create/select orchestrator tunnel in CF Zero Trust
 2. Copy the tunnel token
-3. In Infisical → `/machines/orchestrator` → add secret `ORCHESTRATOR_TUNNEL_TOKEN=<token>`
+3. In Infisical → `/hosts/orchestrator` → add secret `ORCHESTRATOR_TUNNEL_TOKEN=<token>`
 4. Restart orchestrator tunnel: `make cf-orch-down && make cf-orch-up`
 
 **Set public hostname rules** in CF Zero Trust → Tunnels → (each tunnel) → Public Hostnames
@@ -547,8 +574,7 @@ down until this is resolved.
 ## Apply Cloudflare DNS for new subdomains
 
 Several new DNS records were added to `infra/cloudflare/generated-remote/dns-records.desired.json`:
-
-- `nexus` CNAME → `projectnyra-nexus.pages.dev` (Nexus UI dashboard on Cloudflare Pages)
+- `nexus-ui` CNAME → oracle tunnel (Nexus UI dashboard)
 - `mcp-gateway` CNAME → oracle tunnel (MCP Gateway Worker)
 - `switcher-3090` A record → 100.64.0.13 (worker-rtx3090ti Tailscale IP, grey-cloud)
 
@@ -656,24 +682,24 @@ Cloudflare at all. On oracle VPS, run:
 tailscale serve --bg https+insecure://localhost:3000
 ```
 
-This makes `https://oracle-vps.trex-fiordland.ts.net` serve Nexus Router within the Tailscale network
+This makes `https://oracle.trex-fiordland.ts.net` serve Nexus Router within the Tailscale network
 (no CF Access, no Bearer token needed from Tailscale-authenticated clients).
 
 For a clean `mcp-gateway.projectnyra.com` hostname inside Tailscale:
 
 1. Tailscale Admin Console → DNS → **Add nameserver** → Custom.
 2. Add a split-DNS rule for `projectnyra.com` pointing to a resolver on oracle VPS.
-3. Configure the oracle resolver to return `100.64.0.3` (oracle Tailscale IP) for
+3. Configure the oracle resolver to return `100.64.0.31` (oracle Tailscale IP) for
    `mcp-gateway.projectnyra.com`.
 
-Or use the direct internal service endpoint: `http://100.64.0.3:3000/mcp`.
+Or simply use the Tailscale hostname directly: `https://oracle.trex-fiordland.ts.net/mcp`.
 
 ---
 
 ## TwentyCRM API Key — Nexus Router
 
 The Nexus Router config references `TWENTYCRM_API_KEY` for the Twenty CRM MCP server at
-`http://100.64.0.3:3000/mcp`. The current value in Infisical `/clients/nexus` is a placeholder.
+`http://100.64.0.31:3000/mcp`. The current value in Infisical `/clients/nexus` is a placeholder.
 
 **Steps:**
 
@@ -703,7 +729,7 @@ infisical secrets set TWENTYCRM_API_KEY="<your-key>" \
 ## Home Assistant — Long-Lived Access Token
 
 The `ha-mcp` container (Home Assistant MCP bridge) requires a long-lived access token in
-`/machines/homeassistant` → `HASS_TOKEN` in Infisical.
+`/hosts/homeassistant` → `HASS_TOKEN` in Infisical.
 
 **Steps:**
 
@@ -714,17 +740,17 @@ The `ha-mcp` container (Home Assistant MCP bridge) requires a long-lived access 
 
 ```bash
 infisical secrets set HASS_TOKEN="<your-token>" \
-  --path /machines/homeassistant \
+  --path /hosts/homeassistant \
   --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
   --env dev
 
 infisical secrets set HASS_TOKEN="<your-token>" \
-  --path /machines/homeassistant \
+  --path /hosts/homeassistant \
   --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
   --env staging
 
 infisical secrets set HASS_TOKEN="<your-token>" \
-  --path /machines/homeassistant \
+  --path /hosts/homeassistant \
   --projectId 8374cea9-e5e8-4050-bda4-b91f25ab30ef \
   --env prod
 ```

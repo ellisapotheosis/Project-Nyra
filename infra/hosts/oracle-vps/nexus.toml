@@ -1,9 +1,8 @@
 ##############################################################################
 # Project Nyra - Grafbase Nexus on oracle-vps
 #
-# Minimal healthy bootstrap config for the public Nexus endpoint.
-# Add MCP downstreams only after each endpoint passes an Oracle-local initialize
-# smoke check. Broken downstream MCP servers can keep Nexus from serving.
+# Grafbase Nexus configuration for the public Oracle endpoint.
+# Cloudflare credentials are injected by the Oracle deployment environment.
 ##############################################################################
 
 [llm]
@@ -24,3 +23,41 @@ forward_token = false
 [mcp]
 enabled = true
 path = "/mcp"
+
+[mcp.servers.cloudflare]
+protocol = "streamable-http"
+url = "https://mcp.cloudflare.com/mcp"
+auth.token = "{{ env.CLOUDFLARE_API_TOKEN }}"
+
+# Explicit Code Mode/API namespace for clients that use the Cloudflare
+# configuration name `cloudflare-api`. It intentionally targets the same
+# native Cloudflare MCP endpoint as the general Cloudflare API server.
+[mcp.servers.cloudflare-api]
+protocol = "streamable-http"
+url = "https://mcp.cloudflare.com/mcp"
+
+[mcp.servers.cloudflare-docs]
+protocol = "streamable-http"
+url = "https://docs.mcp.cloudflare.com/mcp"
+
+[mcp.servers.cloudflare-bindings]
+protocol = "streamable-http"
+url = "https://bindings.mcp.cloudflare.com/mcp"
+auth.token = "{{ env.CLOUDFLARE_API_TOKEN }}"
+
+[mcp.servers.cloudflare-builds]
+protocol = "streamable-http"
+url = "https://builds.mcp.cloudflare.com/mcp"
+auth.token = "{{ env.CLOUDFLARE_API_TOKEN }}"
+
+[mcp.servers.cloudflare-observability]
+protocol = "streamable-http"
+url = "https://observability.mcp.cloudflare.com/mcp"
+auth.token = "{{ env.CLOUDFLARE_API_TOKEN }}"
+
+# Cloudflare AI Gateway MCP server. This is the native Nexus equivalent of:
+#   npx mcp-remote https://ai-gateway.mcp.cloudflare.com/mcp
+# Keep it as a direct streamable-HTTP upstream; no wrapper process is needed.
+[mcp.servers.cloudflare-ai-gateway]
+protocol = "streamable-http"
+url = "https://ai-gateway.mcp.cloudflare.com/mcp"

@@ -42,14 +42,17 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="mint-midnight"
+          defaultTheme="void"
           disableTransitionOnChange={false}
           enableSystem={false}
           themes={[
+            "void",
             "mint-midnight",
             "mint-midnight-glow",
-            "apotheosis",
-            "virtus",
+            "azure",
+            "indigo",
+            "shadowpriest",
+            "holographic",
           ]}
         >
           <SiteHeader />

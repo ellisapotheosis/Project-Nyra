@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "agentic_stack_version": "0.19.0",
+  "abs_target": "/home/ellisapotheosis/repos/project-nyra",
+  "installed_at": "2026-07-19T01:26:18Z",
+  "adapters": {
+    "claude-code": {
+      "installed_at": "2026-07-19T01:26:18Z",
+      "files_written": [],
+      "files_overwritten": [
+        "CLAUDE.md",
+        ".claude/settings.json"
+      ],
+      "files_alerted": [],
+      "file_results": [
+        {
+          "dst": "CLAUDE.md",
+          "result": "written_overwrite"
+        },
+        {
+          "dst": ".claude/settings.json",
+          "result": "written_overwrite"
+        }
+      ],
+      "post_install_results": [],
+      "brain_root_primitive": "$CLAUDE_PROJECT_DIR"
+    },
+    "codex": {
+      "installed_at": "2026-07-19T01:26:13Z",
+      "files_written": [],
+      "files_overwritten": [],
+      "files_alerted": [],
+      "file_results": [
+        {
+          "dst": "AGENTS.md",
+          "result": "left_alone"
+        }
+      ],
+      "post_install_results": [],
+      "skills_link": {
+        "target": ".agent/skills",
+        "dst": ".agents/skills",
+        "fallback": "rsync_with_delete"
+      },
+      "skills_link_pre_existed": false
+    }
+  }
+}

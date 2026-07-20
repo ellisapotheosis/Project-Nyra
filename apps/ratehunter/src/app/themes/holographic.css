@@ -1,0 +1,381 @@
+/* ============================================================================
+   HOLOGRAPHIC AESTHETIC THEME
+   Deep obsidian + neon cyan/electric blue + violet + chromatic aberration
+   ============================================================================ */
+
+:root[data-theme="holographic"] {
+  --bg-primary: #0a0e27; /* Deep obsidian */
+  --bg-secondary: #0f1a3d; /* Slightly lighter obsidian */
+  --bg-tertiary: #1a2f4d; /* Deep blue */
+
+  --accent-primary: #00d9ff; /* Neon cyan */
+  --accent-secondary: #0099ff; /* Electric blue */
+  --accent-tertiary: #c400ff; /* Vivid violet */
+  --accent-glow: #00ffff; /* Bright cyan glow */
+
+  --text-primary: #ffffff; /* Stark white */
+  --text-secondary: #e0e7ff; /* Off-white */
+  --text-muted: #8899cc; /* Soft blue-gray */
+
+  --border-primary: rgba(0, 217, 255, 0.3);
+  --border-secondary: rgba(0, 153, 255, 0.2);
+  --glow-primary: rgba(0, 217, 255, 0.5);
+  --glow-secondary: rgba(0, 153, 255, 0.3);
+}
+
+body[data-theme="holographic"] {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Deep obsidian gradient mesh background */
+body[data-theme="holographic"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      ellipse 120% 80% at 20% 10%,
+      rgba(0, 153, 255, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 100% 100% at 80% 90%,
+      rgba(0, 217, 255, 0.06) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 80% 60% at 60% 40%,
+      rgba(196, 0, 255, 0.04) 0%,
+      transparent 50%
+    ),
+    #0a0e27;
+  pointer-events: none;
+}
+
+/* Chromatic aberration effect on text */
+.holographic-text {
+  position: relative;
+  display: inline-block;
+}
+
+.holographic-text::before {
+  content: attr(data-text);
+  position: absolute;
+  left: -0.02em;
+  top: 0;
+  z-index: -1;
+  color: rgba(0, 217, 255, 0.7);
+  opacity: 0.5;
+}
+
+.holographic-text::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0.02em;
+  top: 0;
+  z-index: -1;
+  color: rgba(196, 0, 255, 0.7);
+  opacity: 0.5;
+}
+
+/* Scanning lines texture */
+.holographic-scanlines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 217, 255, 0.03) 0px,
+    rgba(0, 217, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  animation: scan-shift 8s linear infinite;
+}
+
+@keyframes scan-shift {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(10px);
+  }
+}
+
+/* Animated particle grid */
+.holographic-grid {
+  position: relative;
+  overflow: hidden;
+}
+
+.holographic-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      0deg,
+      transparent 24%,
+      rgba(0, 217, 255, 0.05) 25%,
+      rgba(0, 217, 255, 0.05) 26%,
+      transparent 27%,
+      transparent 74%,
+      rgba(0, 217, 255, 0.05) 75%,
+      rgba(0, 217, 255, 0.05) 76%,
+      transparent 77%,
+      transparent
+    ),
+    linear-gradient(
+      90deg,
+      transparent 24%,
+      rgba(0, 217, 255, 0.05) 25%,
+      rgba(0, 217, 255, 0.05) 26%,
+      transparent 27%,
+      transparent 74%,
+      rgba(0, 217, 255, 0.05) 75%,
+      rgba(0, 217, 255, 0.05) 76%,
+      transparent 77%,
+      transparent
+    );
+  background-size: 50px 50px;
+  pointer-events: none;
+  animation: grid-drift 20s linear infinite;
+}
+
+@keyframes grid-drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* Neon glow card style */
+.holographic-card {
+  background: rgba(15, 26, 61, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.holographic-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow:
+    0 0 30px rgba(0, 217, 255, 0.3),
+    0 0 60px rgba(0, 153, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Neon text glow */
+.holographic-glow {
+  color: var(--accent-primary);
+  text-shadow:
+    0 0 10px rgba(0, 217, 255, 0.8),
+    0 0 20px rgba(0, 217, 255, 0.4),
+    0 0 30px rgba(0, 153, 255, 0.2);
+}
+
+.holographic-glow-secondary {
+  color: var(--accent-secondary);
+  text-shadow:
+    0 0 10px rgba(0, 153, 255, 0.8),
+    0 0 20px rgba(0, 153, 255, 0.4);
+}
+
+.holographic-glow-violet {
+  color: var(--accent-tertiary);
+  text-shadow:
+    0 0 10px rgba(196, 0, 255, 0.8),
+    0 0 20px rgba(196, 0, 255, 0.4);
+}
+
+/* Glowing border animation */
+@keyframes border-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(0, 217, 255, 0.5), inset 0 0 5px rgba(0, 217, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.8), inset 0 0 10px rgba(0, 217, 255, 0.2);
+  }
+}
+
+.holographic-border-animated {
+  animation: border-glow 2s ease-in-out infinite;
+}
+
+/* Neon button */
+.holographic-button {
+  background: transparent;
+  border: 2px solid var(--accent-primary);
+  color: var(--accent-primary);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.holographic-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(0, 217, 255, 0.2),
+    transparent
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.holographic-button:hover {
+  background: rgba(0, 217, 255, 0.1);
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.6), inset 0 0 20px rgba(0, 217, 255, 0.1);
+  border-color: var(--accent-glow);
+  color: var(--accent-glow);
+}
+
+.holographic-button:hover::before {
+  transform: translateX(100%);
+}
+
+/* Input field styling */
+.holographic-input {
+  background: rgba(15, 26, 61, 0.5);
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.holographic-input::placeholder {
+  color: var(--text-muted);
+}
+
+.holographic-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.3), inset 0 0 10px rgba(0, 217, 255, 0.05);
+  background: rgba(15, 26, 61, 0.8);
+}
+
+/* Data stream lines effect */
+.data-stream {
+  position: relative;
+  overflow: hidden;
+}
+
+.data-stream::before,
+.data-stream::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 217, 255, 0.8),
+    transparent
+  );
+}
+
+.data-stream::before {
+  top: 0;
+  animation: data-flow-down 3s ease-in infinite;
+}
+
+.data-stream::after {
+  bottom: 0;
+  animation: data-flow-up 3s ease-in infinite;
+}
+
+@keyframes data-flow-down {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes data-flow-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+/* Glitch effect */
+@keyframes glitch-1 {
+  0% {
+    clip-path: inset(40% 0 61% 0);
+  }
+  20% {
+    clip-path: inset(92% 0 1% 0);
+  }
+  40% {
+    clip-path: inset(43% 0 1% 0);
+  }
+  60% {
+    clip-path: inset(25% 0 58% 0);
+  }
+  80% {
+    clip-path: inset(54% 0 7% 0);
+  }
+  100% {
+    clip-path: inset(58% 0 43% 0);
+  }
+}
+
+.holographic-glitch {
+  position: relative;
+}
+
+.holographic-glitch::before,
+.holographic-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+.holographic-glitch::before {
+  animation: glitch-1 2s infinite;
+  color: rgba(0, 217, 255, 0.8);
+  z-index: -1;
+}
+
+.holographic-glitch::after {
+  animation: glitch-1 2s infinite reverse;
+  color: rgba(196, 0, 255, 0.8);
+  z-index: -2;
+}

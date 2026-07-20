@@ -4,6 +4,110 @@ Steps that require a human login, MFA, or dashboard UI because the API is blocke
 
 ---
 
+## Configure OmniRoute Providers and Enable Its Private A2A Endpoint
+
+**Blocked by:** provider OAuth and the OmniRoute dashboard session. These
+connections must be completed by the account owner and are intentionally not
+automated or exposed through Nexus MCP.
+
+**Prerequisites:** deploy the `omniroute` and `litellm` services from
+`infra/hosts/oracle-vps/docker-compose.yml`, and store these values in
+Infisical at `/hosts/oracle-vps`:
+
+- `OMNIROUTE_INITIAL_PASSWORD`
+- `OMNIROUTE_JWT_SECRET`
+- `OMNIROUTE_API_KEY_SECRET`
+- `OMNIROUTE_API_KEY`
+
+Deploy Oracle through the canonical Infisical bootstrap wrapper. Compose resolves
+`${VAR}` before any secrets container starts, so the runtime agent cannot create
+the environment for the same invocation:
+
+```bash
+source ~/.zsh/99-secrets.zsh
+ops/scripts/infisical-oracle-compose.sh --env prod config --quiet
+ops/scripts/infisical-oracle-compose.sh --env prod up -d
+```
+
+The wrapper uses a short-lived Universal Auth token to export `/hosts/oracle-vps`
+to a mode-`0600` temporary file and removes it after Compose returns. The
+`infisical-agent` container separately refreshes atomic file generations under
+`/run/nyra-secrets/current/` for consumers that explicitly support secret files;
+it cannot rotate already-running container environment variables.
+
+**Steps (one-time, ~10 min):**
+
+1. Open a private dashboard tunnel from an authorized workstation:
+
+```bash
+ssh -L 20128:127.0.0.1:20128 oracle-vps
+```
+
+2. Browse to `http://127.0.0.1:20128`, authenticate with the initial password,
+   and connect only the provider accounts approved for Nyra use.
+3. In **Endpoints**, enable **A2A**. Leave OmniRoute MCP disabled: Nexus remains
+   the only MCP aggregation endpoint and agents must not receive provider or
+   credential-management tools.
+4. Keep `OMNIROUTE_API_KEY` exclusively in LiteLLM. Do not give it to an A2A
+   client or agent: current OmniRoute A2A authentication matches this static key
+   directly and does not enforce dashboard key scopes. Do not add A2A consumers
+   until a Nyra-owned authenticated proxy or token broker enforces an explicit
+   read-only skill allowlist.
+5. Run `ops/scripts/verify-omniroute-integration.sh --provider` on
+   `oracle-vps` to verify private LiteLLM completion and streaming. Run it once
+   more with `--a2a` to verify A2A discovery and enablement.
+
+**Security boundary:** OmniRoute has no Cloudflare hostname and binds port
+`20128` to Oracle loopback only. Its provider connections, API keys, and A2A
+endpoint are private LiteLLM/A2A upstreams, never direct browser or worker
+endpoints.
+
+---
+
+## Complete Agent Vault Access and Recovery
+
+**Current verified state:** the self-hosted Infisical instance named
+`agent-vault` is healthy on Oracle and is exposed at
+`https://agent-vault.projectnyra.com`. It is protected by Cloudflare Access.
+The `/security/infisical/agent-vault` folder in the managed Infisical project
+contains nine Agent Vault bootstrap/configuration entries in each of `dev`,
+`staging`, and `prod`.
+
+**Important boundary:** this Agent Vault is a separate, self-hosted Infisical
+instance with its own PostgreSQL database. It does not automatically share or
+replicate secrets with the managed Infisical project. Do not build a bidirectional
+sync or copy the complete managed secret set into it.
+
+**Owner actions required:**
+
+1. Browse to `https://agent-vault.projectnyra.com` and complete the Cloudflare
+   Access login first.
+2. Use the existing Agent Vault instance-user email/password at the Infisical
+   sign-in page. The service is `inviteOnlySignup=true`; it already has an
+   initialized organization and user, so do not attempt first-user signup.
+3. Record and protect that instance-admin recovery path. Email is currently not
+   configured, so invitations and password recovery cannot be delivered.
+4. Configure SMTP in the self-hosted Infisical instance before inviting another
+   user or relying on password reset. Keep public signup disabled.
+5. Treat `https://infisical.projectnyra.com` as an unfinished alias: it currently
+   returns `404`. Either point it to the same Access application and origin as
+   `agent-vault.projectnyra.com`, or remove it from the tunnel/desired-state
+   configuration. Do not use it as a login URL until it is verified.
+6. Repair or remove the stale `agent-vault.trex-fiordland.ts.net` Caddy route;
+   it currently returns `502` and is not a valid access path.
+
+**What is not needed now:**
+
+- An Infisical Gateway is only needed when the managed Infisical control plane
+  must reach a private database/API/resource for integrations or dynamic secrets.
+- An Infisical Proxy is a client-side cache/availability layer; it does not link
+  the managed project to this self-hosted instance.
+- The existing Oracle `infisical-agent` only materializes `/hosts/oracle-vps`
+  files for explicitly compatible consumers. It is unrelated to Agent Vault UI
+  login and should not be used as a vault-to-vault replication mechanism.
+
+---
+
 ## Move CF Access App Launcher to projectnyra.cloudflareaccess.com
 
 **Blocked by:** Cloudflare API error `12106` — `auth_domain_cannot_be_updated_dash_sso`.

@@ -1,6 +1,7 @@
 #!/bin/sh
-set -e
+set -eu
 echo "[Nyra Secrets Init] Fetching secrets from Infisical..."
+umask 077
 mkdir -p /run/nyra-secrets
 
 infisical export \
@@ -10,21 +11,7 @@ infisical export \
   --path="$INFISICAL_PATH" \
   --format=json > /tmp/nyra_secrets_raw.json
 
-# Use jq to create individual files directly in a subshell to avoid shell splitting issues
-jq -c '.[]' /tmp/nyra_secrets_raw.json | while read -r row; do
-    key=$(echo "$row" | jq -r '.key')
-    val=$(echo "$row" | jq -r '.value')
-    
-    if [ -z "$key" ] || [ "$key" = "null" ]; then continue; fi
-    
-    fname=$(printf '%s' "$key" | tr '[:upper:]' '[:lower:]')
-    echo "[Nyra Secrets Init] Writing secret: $fname"
-    
-    target="/run/nyra-secrets/${fname}"
-    mkdir -p "$(dirname "$target")"
-    
-    printf '%s' "$val" > "$target"
-done
+/usr/local/bin/materialize-secrets.sh /tmp/nyra_secrets_raw.json
 
 rm -f /tmp/nyra_secrets_raw.json
-echo "[Nyra Secrets Init] Done. Secrets written to /run/nyra-secrets/"
+echo "[Nyra Secrets Init] Done. Secrets available at /run/nyra-secrets/current/."

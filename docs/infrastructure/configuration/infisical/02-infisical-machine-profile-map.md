@@ -2,7 +2,7 @@
 
 Use these Infisical paths per machine profile.
 
-## `/machines/orchestrator`
+## `/hosts/orchestrator`
 
 ### Required secrets
 
@@ -83,7 +83,7 @@ Use these Infisical paths per machine profile.
 
 ---
 
-## `/machines/worker-rtx5090`
+## `/hosts/worker-rtx5090`
 
 ### Required secrets
 
@@ -118,7 +118,7 @@ Use these Infisical paths per machine profile.
 
 ---
 
-## `/machines/worker-rtx3090ti`
+## `/hosts/worker-rtx3090ti`
 
 ### Required secrets
 
@@ -153,7 +153,7 @@ Use these Infisical paths per machine profile.
 
 ---
 
-## `/machines/worker-rtx3060`
+## `/hosts/worker-rtx3060`
 
 ### Required secrets
 
@@ -179,7 +179,7 @@ Use these Infisical paths per machine profile.
 
 ---
 
-## `/machines/homeassistant`
+## `/hosts/homeassistant`
 
 ### Required secrets
 

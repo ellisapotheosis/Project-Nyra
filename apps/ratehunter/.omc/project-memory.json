@@ -1,0 +1,276 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1784322639336,
+  "projectRoot": "/home/ellisapotheosis/repos/project-nyra/apps/ratehunter",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "15.5.15",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "jest",
+        "version": "29.7.0",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npx tsc --noEmit src/app/page.tsx 2>&1 | head -20",
+    "testCommand": "npm test",
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "build:cf": "opennextjs-cloudflare build && node scripts/prepare-cloudflare-pages-output.mjs",
+      "preview": "wrangler pages dev .open-next",
+      "deploy": "wrangler pages deploy .open-next",
+      "deploy:production": "wrangler pages deploy .open-next --branch=main",
+      "deploy:preview": "wrangler pages deploy .open-next --branch=preview",
+      "start": "next start",
+      "lint": "eslint . --ignore-pattern .open-next --ignore-pattern .next --max-warnings=0",
+      "test": "jest --watch",
+      "test:ci": "pnpm exec jest --ci --passWithNoTests",
+      "typecheck": "tsc --noEmit",
+      "cf:login": "wrangler login",
+      "cf:deploy": "npm run build:cf && npm run deploy"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": "*.test.ts",
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "scripts",
+      "src",
+      "tests"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "landing": {
+      "path": "landing",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1784322639319,
+      "keyFiles": []
+    },
+    "landing-legacy": {
+      "path": "landing-legacy",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1784322639320,
+      "keyFiles": []
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 3,
+      "lastAccessed": 1784322639327,
+      "keyFiles": [
+        "manifest.json",
+        "ratehunter-footer-logo.png",
+        "ratehunter-navbar-logo.png"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 2,
+      "lastAccessed": 1784322639329,
+      "keyFiles": [
+        "build-cf.sh",
+        "prepare-cloudflare-pages-output.mjs"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1784322639329,
+      "keyFiles": []
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 3,
+      "lastAccessed": 1784322639329,
+      "keyFiles": [
+        "chatStream.test.ts",
+        "ingest.test.ts",
+        "tenant.test.ts"
+      ]
+    },
+    "landing/public": {
+      "path": "landing/public",
+      "purpose": "Public files",
+      "fileCount": 0,
+      "lastAccessed": 1784322639330,
+      "keyFiles": []
+    },
+    "landing/src": {
+      "path": "landing/src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1784322639330,
+      "keyFiles": []
+    },
+    "landing-legacy/public": {
+      "path": "landing-legacy/public",
+      "purpose": "Public files",
+      "fileCount": 0,
+      "lastAccessed": 1784322639331,
+      "keyFiles": []
+    },
+    "landing-legacy/src": {
+      "path": "landing-legacy/src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1784322639331,
+      "keyFiles": []
+    },
+    "src/app": {
+      "path": "src/app",
+      "purpose": "Application code",
+      "fileCount": 3,
+      "lastAccessed": 1784322639332,
+      "keyFiles": [
+        "globals.css",
+        "layout.tsx",
+        "page.tsx"
+      ]
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 3,
+      "lastAccessed": 1784322639333,
+      "keyFiles": [
+        "AuroraBackground.tsx",
+        "BorrowerChatWidget.tsx",
+        "LeadCaptureWizard.tsx"
+      ]
+    },
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
+      "fileCount": 1,
+      "lastAccessed": 1784322639334,
+      "keyFiles": [
+        "utils.ts"
+      ]
+    },
+    "src/utils": {
+      "path": "src/utils",
+      "purpose": "Utility functions",
+      "fileCount": 2,
+      "lastAccessed": 1784322639335,
+      "keyFiles": [
+        "chatStream.ts",
+        "tenant.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/app/page.tsx",
+      "accessCount": 16,
+      "lastAccessed": 1784520857862,
+      "type": "file"
+    },
+    {
+      "path": "src/app/globals.css",
+      "accessCount": 4,
+      "lastAccessed": 1784562696369,
+      "type": "file"
+    },
+    {
+      "path": "src/app/blog/conventional-purchase-guide/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1784518681498,
+      "type": "file"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1784424571858,
+      "type": "file"
+    },
+    {
+      "path": "src/components/NyraEffects.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1784424579800,
+      "type": "file"
+    },
+    {
+      "path": "src/app/programs/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1784426524706,
+      "type": "file"
+    },
+    {
+      "path": "src/app/blog/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1784518620898,
+      "type": "file"
+    },
+    {
+      "path": "src/app/themes/holographic.css",
+      "accessCount": 1,
+      "lastAccessed": 1784520765112,
+      "type": "file"
+    },
+    {
+      "path": "src/components/HolographicShowcase.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1784520827936,
+      "type": "file"
+    },
+    {
+      "path": "src/app/typography/page.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1784562750067,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
