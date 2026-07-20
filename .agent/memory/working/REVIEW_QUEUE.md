@@ -10,6 +10,6 @@ Run `python .agent/tools/list_candidates.py` for detail, then:
 
 ## Priority order (top 10)
 
-- **e2a87704241d** (priority=448.97, size=30, rejections=0) — FAILURE in claude-code: Command failed: curl -s http://localhost:3001 2>&1 | hea
+- **e2a87704241d** (priority=493.87, size=33, rejections=0) — FAILURE in claude-code: Command failed: curl -s http://localhost:3001 2>&1 | hea
 - **829d1928d3e6** (priority=308.67, size=11, rejections=0) — FAILURE in claude-code: High-stakes op FAILED (secret): export CF_ACCESS_CLIENT_
 - **f9c910262e6a** (priority=18.00, size=2, rejections=0) — High-stakes op completed (secret): source ~/.zsh/99-secrets.zsh 2>/dev/null
