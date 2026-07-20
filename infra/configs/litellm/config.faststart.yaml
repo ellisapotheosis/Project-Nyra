@@ -1,0 +1,147 @@
+# Project Nyra — authoritative LiteLLM gateway fast-start configuration
+# Keep this central. Worker hosts expose inference/agent endpoints; they do not
+# need separate organization-wide LiteLLM gateways.
+
+model_list:
+  # ── Stable, always-on product inference: worker-rtx3090ti ────────────────
+  - model_name: nyra/product-assistant
+    litellm_params:
+      model: os.environ/WORKER_3090_LITELLM_MODEL
+      api_base: os.environ/WORKER_3090_VLLM_BASE_URL
+      api_key: os.environ/WORKER_LOCAL_API_KEY
+      timeout: 180
+      stream_timeout: 300
+
+  - model_name: local/rtx3090ti
+    litellm_params:
+      model: os.environ/WORKER_3090_LITELLM_MODEL
+      api_base: os.environ/WORKER_3090_VLLM_BASE_URL
+      api_key: os.environ/WORKER_LOCAL_API_KEY
+      timeout: 180
+
+  # ── Interactive/burst development inference: worker-rtx5090 ─────────────
+  - model_name: nyra/dev-local
+    litellm_params:
+      model: os.environ/WORKER_5090_LITELLM_MODEL
+      api_base: os.environ/WORKER_5090_VLLM_BASE_URL
+      api_key: os.environ/WORKER_LOCAL_API_KEY
+      timeout: 240
+      stream_timeout: 420
+
+  - model_name: local/rtx5090
+    litellm_params:
+      model: os.environ/WORKER_5090_LITELLM_MODEL
+      api_base: os.environ/WORKER_5090_VLLM_BASE_URL
+      api_key: os.environ/WORKER_LOCAL_API_KEY
+      timeout: 240
+
+  # ── Utility node: embeddings + inexpensive background chat ───────────────
+  - model_name: nyra/memory-chat
+    litellm_params:
+      model: os.environ/WORKER_3060_CHAT_LITELLM_MODEL
+      api_base: os.environ/WORKER_3060_OLLAMA_BASE_URL
+      timeout: 120
+
+  - model_name: nyra/embeddings
+    litellm_params:
+      model: os.environ/WORKER_3060_EMBED_LITELLM_MODEL
+      api_base: os.environ/WORKER_3060_OLLAMA_BASE_URL
+      timeout: 120
+
+  # ── Official OAuth/subscription capacity through private OmniRoute ───────
+  - model_name: nyra/dev-premium
+    litellm_params:
+      model: os.environ/OMNIROUTE_CODEX_LITELLM_MODEL
+      api_base: os.environ/OMNIROUTE_BASE_URL
+      api_key: os.environ/OMNIROUTE_API_KEY
+      timeout: 900
+      stream_timeout: 1200
+
+  - model_name: nyra/dev-review
+    litellm_params:
+      model: os.environ/OMNIROUTE_CLAUDE_LITELLM_MODEL
+      api_base: os.environ/OMNIROUTE_BASE_URL
+      api_key: os.environ/OMNIROUTE_API_KEY
+      timeout: 900
+      stream_timeout: 1200
+
+  - model_name: nyra/research-free
+    litellm_params:
+      model: os.environ/OMNIROUTE_FREE_LITELLM_MODEL
+      api_base: os.environ/OMNIROUTE_BASE_URL
+      api_key: os.environ/OMNIROUTE_API_KEY
+      timeout: 300
+
+  # ── Optional independent free-provider diversity ──────────────────────────
+  - model_name: openrouter/free-fallback
+    litellm_params:
+      model: os.environ/OPENROUTER_FREE_LITELLM_MODEL
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 180
+
+router_settings:
+  routing_strategy: usage-based-routing-v2
+  num_retries: 2
+  retry_after: 2
+  allowed_fails: 2
+  cooldown_time: 30
+  fallbacks:
+    - {"nyra/product-assistant": ["local/rtx5090", "openrouter/free-fallback"]}
+    - {"nyra/dev-local": ["local/rtx3090ti", "nyra/research-free"]}
+    - {"nyra/dev-premium": ["nyra/dev-local", "nyra/research-free"]}
+    - {"nyra/dev-review": ["nyra/dev-local", "nyra/research-free"]}
+    - {"nyra/memory-chat": ["local/rtx3090ti"]}
+
+litellm_settings:
+  drop_params: true
+  set_verbose: false
+  request_timeout: 900
+  mcp_aliases:
+    nexus: nexus_router
+
+# Nexus remains the private downstream MCP aggregator during migration.
+mcp_servers:
+  nexus_router:
+    url: os.environ/NEXUS_MCP_URL
+    transport: http
+    description: Project Nyra private Nexus MCP aggregator
+    auth_type: bearer_token
+    auth_value: os.environ/NEXUS_API_KEY
+    allow_all_keys: false
+
+# Stateful agents are exposed through thin A2A edge adapters on worker hosts.
+# Version 0.3 is pinned for the initial command-adapter implementation; LiteLLM
+# can normalize its messaging paths for 1.0 clients. Upgrade adapters to native
+# 1.0 before making task APIs a hard public contract.
+agents:
+  - agent_name: llxprt-dev
+    agent_card_params:
+      name: Project Nyra LLxprt Development Agent
+      description: Subscription-backed coding agent hosted on worker-rtx5090
+      url: os.environ/LLXPRT_A2A_URL
+      protocolVersion: "0.3"
+    litellm_params:
+      require_trace_id_on_calls_to_agent: true
+
+  - agent_name: hermes-product
+    agent_card_params:
+      name: Project Nyra Hermes Product Assistant
+      description: Always-on mortgage/product assistant hosted on worker-rtx3090ti
+      url: os.environ/HERMES_A2A_URL
+      protocolVersion: "0.3"
+    litellm_params:
+      require_trace_id_on_calls_to_agent: true
+
+  - agent_name: openharness-dev
+    agent_card_params:
+      name: Project Nyra OpenHarness Development Agent
+      description: Lightweight subscription-backed review and maintenance worker
+      url: os.environ/OPENHARNESS_A2A_URL
+      protocolVersion: "0.3"
+    litellm_params:
+      require_trace_id_on_calls_to_agent: true
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+  store_model_in_db: true
