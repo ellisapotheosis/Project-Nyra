@@ -7,19 +7,23 @@ name: "CodeQL Advanced"
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
     paths-ignore:
-      - "**/*.md"
-      - "**/*.txt"
-      - "docs/archive/**"
+      - '**/*.md'
+      - '**/*.txt'
+      - 'docs/archive/**'
+      - 'data/app-guidance/**'
+      - 'infra/cleanup_archive/**'
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
     paths-ignore:
-      - "**/*.md"
-      - "**/*.txt"
-      - "docs/archive/**"
+      - '**/*.md'
+      - '**/*.txt'
+      - 'docs/archive/**'
+      - 'data/app-guidance/**'
+      - 'infra/cleanup_archive/**'
   schedule:
-    - cron: "37 12 * * 1"
+    - cron: '37 12 * * 1'
   workflow_dispatch: # Allows you to run this manually from the Actions tab
 
 # Cancels previous runs if you push a new commit to the same branch (saves usage minutes)
@@ -28,19 +32,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  code-scanning-disabled:
-    name: Code Scanning Not Enabled
-    if: vars.ENABLE_CODE_SCANNING != 'true'
+  code-scanning-check:
+    name: Code scanning availability
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      administration: read
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
     steps:
-      - name: Explain skipped analysis
-        run: |
-          echo "::notice::Skipping CodeQL because ENABLE_CODE_SCANNING is not set to true."
-          echo "Enable GitHub code scanning for this repository, then set repository variable ENABLE_CODE_SCANNING=true." >> "$GITHUB_STEP_SUMMARY"
+    - name: Check repository code scanning status
+      id: check
+      uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+      with:
+        script: |
+          try {
+            await github.request('GET /repos/{owner}/{repo}/code-scanning/default-setup', {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            core.setOutput('enabled', 'true');
+          } catch (error) {
+            if (error.status === 403 || error.status === 404) {
+              core.warning('Code scanning is not enabled for this repository; skipping CodeQL analysis.');
+              core.setOutput('enabled', 'false');
+              return;
+            }
+            throw error;
+          }
 
   analyze:
-    if: vars.ENABLE_CODE_SCANNING == 'true'
     name: Analyze (${{ matrix.language }})
+    needs: code-scanning-check
+    if: needs.code-scanning-check.outputs.enabled == 'true'
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     permissions:
       security-events: write
@@ -52,41 +76,42 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - language: actions
-            build-mode: none
-          # I have enabled these common languages for you.
-          # If your project does NOT contain one of these, you can delete the 2 lines for that language.
-          - language: python
-            build-mode: none
-          - language: javascript-typescript
-            build-mode: none
+        - language: actions
+          build-mode: none
+        # I have enabled these common languages for you.
+        # If your project does NOT contain one of these, you can delete the 2 lines for that language.
+        - language: python
+          build-mode: none
+        - language: javascript-typescript
+          build-mode: none
         # Add more here if needed (e.g., 'go', 'ruby', 'java-kotlin')
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
+    - name: Checkout repository
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      with:
+        persist-credentials: false
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: ${{ matrix.language }}
-          build-mode: ${{ matrix.build-mode }}
-          config-file: ./.github/codeql/codeql-config.yml
-          # "security-and-quality" finds more issues than the default
-          queries: security-and-quality
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+        # "security-and-quality" finds more issues than the default
+        queries: security-and-quality
+        config-file: ./.github/codeql/codeql-config.yml
 
-      # Only runs for manual build modes (not needed for Python/JS/Actions usually)
-      - if: matrix.build-mode == 'manual'
-        shell: bash
-        run: |
-          echo 'If you are using a "manual" build mode for one or more of the' \
-            'languages you are analyzing, replace this with the commands to build' \
-            'your code, for example:'
-          echo '  make bootstrap'
-          echo '  make release'
+    # Only runs for manual build modes (not needed for Python/JS/Actions usually)
+    - if: matrix.build-mode == 'manual'
+      shell: bash
+      run: |
+        echo 'If you are using a "manual" build mode for one or more of the' \
+          'languages you are analyzing, replace this with the commands to build' \
+          'your code, for example:'
+        echo '  make bootstrap'
+        echo '  make release'
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-        continue-on-error: true
-        with:
-          category: "/language:${{ matrix.language }}"
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      with:
+        category: "/language:${{ matrix.language }}"
