@@ -1,23 +1,34 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+/* Project Nyra Typography — Operator Console + AI Infrastructure */
+/* Public landing: WOFF2 subsets only. Internal dashboard: can add NF builds */
+@import url("https://fonts.googleapis.com/css2?family=Monaspace+Krypton:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Premium Brand Fonts */
-  --font-wordmark: "Orbitron", var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
-  --font-bold-concept: "Space Grotesk", var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
-  --font-tech: "IBM Plex Mono", var(--font-space-mono), ui-monospace, monospace;
-  --font-cyber: "Orbitron", var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
-  --font-rune: "Orbitron", var(--font-michroma), ui-serif, serif;
+  /* Project Nyra Typography — Operator Console / AI Infrastructure Brand */
+  /* Logo/Display: Orbitron — customized wordmark only */
+  --font-wordmark: "Orbitron", ui-sans-serif, system-ui, sans-serif;
 
-  /* Existing fonts */
-  --font-sans: var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-space-mono), ui-monospace, monospace;
+  /* Body/Product UI: Geist — modern, readable, professional */
+  --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
+
+  /* Terminal/Telemetry: Monaspace Krypton — INGEST→SYNC→DRIP→QUOTE→CLOSE */
+  /* For public site: WOFF2 subset. For internal: consider Monaspace Krypton NF */
+  --font-terminal: "Monaspace Krypton", ui-monospace, monospace;
+
+  /* System labels/MCP/Nexus: Monaspace Krypton monospace */
+  --font-mono: "Monaspace Krypton", "Space Mono", ui-monospace, monospace;
+
+  /* Fallback body */
+  --font-sans: "Geist", var(--font-electrolize), ui-sans-serif, system-ui, sans-serif;
+
+  /* Legacy serif (Michroma) */
   --font-serif: var(--font-michroma), ui-serif, serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
