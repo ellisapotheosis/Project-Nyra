@@ -6,6 +6,7 @@ ROOT="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 required=(
   "README.md"
   "PROJECT_NYRA_MASTER_CONSTITUTION_WHITEPAPER.md"
+  "AI_CONTROL_PLANE_AND_PR_RECONCILIATION_2026-07-19.md"
   "ARCHITECTURE_GOVERNANCE_AND_ROADMAP.md"
   "REPO_TRUTH_CONFLICT_REGISTER_AND_ADRS.md"
   "MASTER_AGENT_HANDOFF_PROMPT.md"
@@ -28,5 +29,15 @@ for path in "${required[@]}"; do
     echo "Warning: unresolved marker found in $path" >&2
   fi
 done
+
+if ! grep -q 'LiteLLM is the canonical' "$ROOT/AI_CONTROL_PLANE_AND_PR_RECONCILIATION_2026-07-19.md"; then
+  echo "AI control-plane gateway decision is missing" >&2
+  exit 1
+fi
+
+if ! grep -q 'A2A 1.0' "$ROOT/AI_CONTROL_PLANE_AND_PR_RECONCILIATION_2026-07-19.md"; then
+  echo "A2A migration target is missing" >&2
+  exit 1
+fi
 
 echo "Project Nyra constitution package validation passed."
