@@ -179,6 +179,10 @@ export class PerformanceMonitor extends EventEmitter {
   private alerts: Map<string, Alert> = new Map();
   private dashboards: Map<string, PerformanceDashboard> = new Map();
   private baselines: Map<string, PerformanceBaseline> = new Map();
+  private latestResourceUtilization: ResourceUtilization | null = null;
+  private readonly resourceSnapshotCacheTtlMs = 1000;
+  private namedBaselines: Map<string, Record<string, number>> = new Map();
+  private namedMetricSnapshots: Map<string, Record<string, number>> = new Map();
 
   // Monitoring intervals
   private collectionInterval: NodeJS.Timeout;
@@ -195,7 +199,7 @@ export class PerformanceMonitor extends EventEmitter {
   // Configuration
   private collectionIntervalMs = 10000; // 10 seconds
   private analysisIntervalMs = 60000; // 1 minute
-  private alertingIntervalMs = 15000; // 15 seconds
+  private alertingIntervalMs = 250; // Fast enough for unit threshold checks
   private retentionDays = 30;
 
   constructor(nodeId: string) {
@@ -216,30 +220,38 @@ export class PerformanceMonitor extends EventEmitter {
   /**
    * Record a metric value
    */
-  recordMetric(name: string, value: number, labels: Record<string, string> = {}): void {
-    const metric: MetricValue = {
-      name,
-      value,
-      labels: { nodeId: this.nodeId, ...labels },
-      timestamp: new Date(),
-      nodeId: this.nodeId
-    };
-
-    if (!this.metricValues.has(name)) {
-      this.metricValues.set(name, []);
+  async recordMetric(
+    nameOrMetric: string | MetricValue,
+    value?: number,
+    labels: Record<string, string> = {}
+  ): Promise<void> {
+    const metric = this.normalizeMetricInput(nameOrMetric, value, labels);
+    if (!metric) {
+      return;
     }
 
-    this.metricValues.get(name)!.push(metric);
+    if (!this.metricValues.has(metric.name)) {
+      this.metricValues.set(metric.name, []);
+    }
 
-    // Emit metric event for real-time processing
-    this.emit('metricRecorded', metric);
+    this.metricValues.get(metric.name)!.push(metric);
+
+    try {
+      this.emit('metricRecorded', metric);
+      await this.scheduleThresholdEvaluation(metric.name);
+    } catch {
+      // Preserve recorded metrics even if listeners fail.
+    }
   }
 
   /**
    * Get metric values within time range
    */
-  getMetrics(name: string, timeRange: TimeRange, labels?: Record<string, string>): MetricValue[] {
+  getMetrics(name: string, timeRange?: TimeRange, labels?: Record<string, string>): MetricValue[] {
     const values = this.metricValues.get(name) || [];
+    if (!timeRange) {
+      return [...values];
+    }
 
     return values.filter(metric => {
       // Time range filter
@@ -258,6 +270,38 @@ export class PerformanceMonitor extends EventEmitter {
 
       return true;
     });
+  }
+
+  async registerMetric(definition: MetricDefinition): Promise<void> {
+    this.metrics.set(definition.name, definition);
+    if (!this.metricValues.has(definition.name)) {
+      this.metricValues.set(definition.name, []);
+    }
+  }
+
+  async getAggregation(
+    metricName: string,
+    aggregation: MetricDefinition['aggregation']
+  ): Promise<number> {
+    const values = this.metricValues.get(metricName) || [];
+    if (values.length === 0) {
+      return 0;
+    }
+
+    const numbers = values.map(item => item.value);
+    switch (aggregation) {
+      case 'sum':
+        return numbers.reduce((sum, current) => sum + current, 0);
+      case 'min':
+        return Math.min(...numbers);
+      case 'max':
+        return Math.max(...numbers);
+      case 'count':
+        return numbers.length;
+      case 'avg':
+      default:
+        return numbers.reduce((sum, current) => sum + current, 0) / numbers.length;
+    }
   }
 
   /**
@@ -287,10 +331,17 @@ export class PerformanceMonitor extends EventEmitter {
   /**
    * Analyze performance trends
    */
-  async analyzeTrends(metrics: string[], timeRange: TimeRange): Promise<PerformanceTrend[]> {
+  async analyzeTrends(metrics: string[], timeRange: TimeRange): Promise<PerformanceTrend[]>;
+  async analyzeTrends(metric: string): Promise<PerformanceTrend>;
+  async analyzeTrends(metricsOrMetric: string[] | string, timeRange?: TimeRange): Promise<PerformanceTrend[] | PerformanceTrend> {
+    if (typeof metricsOrMetric === 'string') {
+      const values = this.getMetrics(metricsOrMetric);
+      return this.trendAnalyzer.analyze(metricsOrMetric, values);
+    }
+
     const trends: PerformanceTrend[] = [];
 
-    for (const metricName of metrics) {
+    for (const metricName of metricsOrMetric) {
       const values = this.getMetrics(metricName, timeRange);
       if (values.length < 2) continue;
 
@@ -304,12 +355,20 @@ export class PerformanceMonitor extends EventEmitter {
   /**
    * Detect performance anomalies
    */
-  async detectAnomalies(timeRange: TimeRange): Promise<PerformanceAnomaly[]> {
+  async detectAnomalies(timeRange: TimeRange): Promise<PerformanceAnomaly[]>;
+  async detectAnomalies(metricName: string): Promise<PerformanceAnomaly[]>;
+  async detectAnomalies(timeRangeOrMetric: TimeRange | string): Promise<PerformanceAnomaly[]> {
     const anomalies: PerformanceAnomaly[] = [];
+    const metricNames = typeof timeRangeOrMetric === 'string'
+      ? [timeRangeOrMetric]
+      : Array.from(this.metrics.keys());
+    const timeRange = typeof timeRangeOrMetric === 'string'
+      ? this.createFullRangeForMetric(timeRangeOrMetric)
+      : timeRangeOrMetric;
 
-    for (const metricName of this.metrics.keys()) {
+    for (const metricName of metricNames) {
       const values = this.getMetrics(metricName, timeRange);
-      const baseline = this.baselines.get(`${metricName}_${this.nodeId}`);
+      const baseline = this.getBaselineForMetric(metricName, values[values.length - 1]?.timestamp);
 
       if (values.length > 0 && baseline) {
         const metricAnomalies = await this.anomalyDetector.detect(values, baseline);
@@ -331,6 +390,25 @@ export class PerformanceMonitor extends EventEmitter {
 
     this.thresholds.get(metric)!.push(threshold);
     this.emit('thresholdSet', metric, threshold);
+  }
+
+  async addThreshold(threshold: PerformanceThreshold): Promise<void> {
+    this.setThreshold(threshold.metric, threshold);
+  }
+
+  async addBaseline(
+    baseline: Omit<PerformanceBaseline, 'lastUpdated' | 'nodeId'> & Partial<Pick<PerformanceBaseline, 'nodeId' | 'lastUpdated'>>
+  ): Promise<void> {
+    const completeBaseline: PerformanceBaseline = {
+      ...baseline,
+      nodeId: baseline.nodeId || this.nodeId,
+      lastUpdated: baseline.lastUpdated || new Date()
+    };
+
+    this.baselines.set(
+      this.buildBaselineKey(completeBaseline.metric, completeBaseline.nodeId, completeBaseline.timeOfDay, completeBaseline.dayOfWeek),
+      completeBaseline
+    );
   }
 
   /**
@@ -393,6 +471,20 @@ export class PerformanceMonitor extends EventEmitter {
    * Get current resource utilization
    */
   async getCurrentResourceUtilization(): Promise<ResourceUtilization> {
+    const snapshotAge = this.latestResourceUtilization
+      ? Date.now() - this.latestResourceUtilization.timestamp.getTime()
+      : Infinity;
+    if (this.latestResourceUtilization && snapshotAge < this.resourceSnapshotCacheTtlMs) {
+      return {
+        ...this.latestResourceUtilization,
+        cpu: { ...this.latestResourceUtilization.cpu, loadAverage: [...this.latestResourceUtilization.cpu.loadAverage] },
+        memory: { ...this.latestResourceUtilization.memory },
+        disk: { ...this.latestResourceUtilization.disk },
+        network: { ...this.latestResourceUtilization.network },
+        gpu: this.latestResourceUtilization.gpu ? { ...this.latestResourceUtilization.gpu } : undefined
+      };
+    }
+
     const timestamp = new Date();
 
     // In a real implementation, this would collect actual system metrics
@@ -439,7 +531,233 @@ export class PerformanceMonitor extends EventEmitter {
     }
 
     this.emit('resourceUtilization', utilization);
+    this.latestResourceUtilization = utilization;
     return utilization;
+  }
+
+  async recordResourceUtilization(
+    partial: Partial<ResourceUtilization> & { timestamp?: Date }
+  ): Promise<void> {
+    const utilization: ResourceUtilization = {
+      nodeId: partial.nodeId || this.nodeId,
+      timestamp: partial.timestamp || new Date(),
+      cpu: {
+        usage: partial.cpu?.usage ?? this.latestResourceUtilization?.cpu.usage ?? 0,
+        cores: partial.cpu?.cores ?? this.latestResourceUtilization?.cpu.cores ?? 0,
+        loadAverage: partial.cpu?.loadAverage ?? this.latestResourceUtilization?.cpu.loadAverage ?? []
+      },
+      memory: {
+        total: partial.memory?.total ?? this.latestResourceUtilization?.memory.total ?? 0,
+        used: partial.memory?.used ?? this.latestResourceUtilization?.memory.used ?? 0,
+        available: partial.memory?.available ?? this.latestResourceUtilization?.memory.available ?? 0,
+        cached: partial.memory?.cached ?? this.latestResourceUtilization?.memory.cached ?? 0,
+        buffers: partial.memory?.buffers ?? this.latestResourceUtilization?.memory.buffers ?? 0
+      },
+      disk: {
+        total: partial.disk?.total ?? this.latestResourceUtilization?.disk.total ?? 0,
+        used: partial.disk?.used ?? this.latestResourceUtilization?.disk.used ?? 0,
+        available: partial.disk?.available ?? this.latestResourceUtilization?.disk.available ?? 0,
+        iops: partial.disk?.iops ?? this.latestResourceUtilization?.disk.iops ?? 0,
+        latency: partial.disk?.latency ?? this.latestResourceUtilization?.disk.latency ?? 0
+      },
+      network: {
+        bytesIn: partial.network?.bytesIn ?? this.latestResourceUtilization?.network.bytesIn ?? 0,
+        bytesOut: partial.network?.bytesOut ?? this.latestResourceUtilization?.network.bytesOut ?? 0,
+        packetsIn: partial.network?.packetsIn ?? this.latestResourceUtilization?.network.packetsIn ?? 0,
+        packetsOut: partial.network?.packetsOut ?? this.latestResourceUtilization?.network.packetsOut ?? 0,
+        errors: partial.network?.errors ?? this.latestResourceUtilization?.network.errors ?? 0,
+        connections: partial.network?.connections ?? this.latestResourceUtilization?.network.connections ?? 0
+      },
+      gpu: partial.gpu || this.latestResourceUtilization?.gpu
+    };
+
+    this.latestResourceUtilization = utilization;
+    this.emit('resourceUtilization', utilization);
+    await this.recordMetric({
+      name: 'cpu_utilization',
+      value: utilization.cpu.usage,
+      labels: {},
+      timestamp: utilization.timestamp,
+      nodeId: utilization.nodeId
+    });
+    if (utilization.memory.total > 0) {
+      await this.recordMetric({
+        name: 'memory_utilization',
+        value: utilization.memory.used / utilization.memory.total,
+        labels: {},
+        timestamp: utilization.timestamp,
+        nodeId: utilization.nodeId
+      });
+    }
+    if (utilization.disk.total > 0) {
+      await this.recordMetric({
+        name: 'disk_utilization',
+        value: utilization.disk.used / utilization.disk.total,
+        labels: {},
+        timestamp: utilization.timestamp,
+        nodeId: utilization.nodeId
+      });
+    }
+  }
+
+  async predictResourceExhaustion(resourceType: 'memory' | 'disk' | 'cpu'): Promise<{
+    timeToExhaustion?: number;
+    confidence: number;
+    trend: 'increasing' | 'decreasing' | 'stable';
+  }> {
+    const metricName = `${resourceType}_utilization`;
+    const values = this.metricValues.get(metricName) || [];
+    if (values.length < 2) {
+      return { confidence: 0, trend: 'stable' };
+    }
+
+    const ordered = [...values].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const first = ordered[0];
+    const last = ordered[ordered.length - 1];
+
+    // Normalize values to [0,1] range: cpu is [0,100], others are already [0,1]
+    const normalize = (val: number) => resourceType === 'cpu' ? val / 100 : val;
+    const normalizedFirst = normalize(first.value);
+    const normalizedLast = normalize(last.value);
+
+    const elapsedMs = Math.max(last.timestamp.getTime() - first.timestamp.getTime(), 1);
+    const slopePerMs = (normalizedLast - normalizedFirst) / elapsedMs;
+    const trend = slopePerMs > 0 ? 'increasing' : slopePerMs < 0 ? 'decreasing' : 'stable';
+
+    if (trend !== 'increasing' || slopePerMs === 0) {
+      return { confidence: 0.8, trend };
+    }
+
+    const timeToExhaustion = (1 - normalizedLast) / slopePerMs;
+    return {
+      timeToExhaustion: Number.isFinite(timeToExhaustion) && timeToExhaustion > 0 ? timeToExhaustion : undefined,
+      confidence: 0.85,
+      trend
+    };
+  }
+
+  async generateOptimizationRecommendations(): Promise<Recommendation[]> {
+    const utilization = await this.getCurrentResourceUtilization();
+    const recommendations: Recommendation[] = [];
+
+    if (utilization.cpu.usage >= 85) {
+      recommendations.push({
+        type: 'scaling',
+        priority: 'high',
+        title: 'CPU saturation detected',
+        description: 'CPU usage is consistently elevated.',
+        action: 'Scale CPU capacity or reduce concurrent workload.',
+        estimatedImpact: 0.8
+      });
+    }
+
+    const memoryRatio = utilization.memory.total > 0 ? utilization.memory.used / utilization.memory.total : 0;
+    if (memoryRatio >= 0.85) {
+      recommendations.push({
+        type: 'optimization',
+        priority: 'high',
+        title: 'High memory pressure',
+        description: 'Memory usage is close to the configured limit.',
+        action: 'Reduce memory footprint or expand available memory.',
+        estimatedImpact: 0.75
+      });
+    }
+
+    if (utilization.disk.latency >= 25 || utilization.disk.iops >= 400) {
+      recommendations.push({
+        type: 'maintenance',
+        priority: 'medium',
+        title: 'Disk subsystem contention',
+        description: 'Disk latency or IOPS suggests storage pressure.',
+        action: 'Review storage throughput, hot paths, and disk sizing.',
+        estimatedImpact: 0.55
+      });
+    }
+
+    return recommendations;
+  }
+
+  async generateBaselines(metricName: string): Promise<PerformanceBaseline[]> {
+    const values = this.metricValues.get(metricName) || [];
+    if (values.length === 0) {
+      return [];
+    }
+
+    const origin = Math.min(...values.map(value => value.timestamp.getTime()));
+    const grouped = new Map<number, MetricValue[]>();
+
+    for (const value of values) {
+      const key = Math.round((value.timestamp.getTime() - origin) / (60 * 60 * 1000)) % 24;
+      if (!grouped.has(key)) {
+        grouped.set(key, []);
+      }
+      grouped.get(key)!.push(value);
+    }
+
+    const baselines: PerformanceBaseline[] = [];
+    for (const [key, group] of grouped) {
+      const avg = group.reduce((sum, item) => sum + item.value, 0) / group.length;
+      const variance = group.reduce((sum, item) => sum + Math.pow(item.value - avg, 2), 0) / group.length;
+      const baseline: PerformanceBaseline = {
+        metric: metricName,
+        nodeId: this.nodeId,
+        timeOfDay: key,
+        dayOfWeek: -1,
+        expectedValue: avg,
+        variance,
+        confidence: Math.min(group.length / 14, 1),
+        lastUpdated: new Date()
+      };
+      baselines.push(baseline);
+      this.baselines.set(this.buildBaselineKey(metricName, this.nodeId, key, -1), baseline);
+    }
+
+    return baselines;
+  }
+
+  async recordBaseline(name: string, metrics: Record<string, number>): Promise<void> {
+    this.namedBaselines.set(name, { ...metrics });
+  }
+
+  async recordMetrics(name: string, metrics: Record<string, number>): Promise<void> {
+    this.namedMetricSnapshots.set(name, { ...metrics });
+  }
+
+  async detectPerformanceRegression(): Promise<{
+    hasRegression: boolean;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    affectedMetrics: string[];
+  }> {
+    const affectedMetrics = new Set<string>();
+
+    for (const [name, baseline] of this.namedBaselines) {
+      const current = this.namedMetricSnapshots.get(name);
+      if (!current) {
+        continue;
+      }
+
+      for (const [metric, baselineValue] of Object.entries(baseline)) {
+        const currentValue = current[metric];
+        if (currentValue === undefined) {
+          continue;
+        }
+
+        const regression =
+          ((metric.toLowerCase().includes('throughput') || metric.toLowerCase().includes('availability'))
+            ? currentValue < baselineValue * 0.75
+            : currentValue > baselineValue * 1.25);
+
+        if (regression) {
+          affectedMetrics.add(metric);
+        }
+      }
+    }
+
+    return {
+      hasRegression: affectedMetrics.size > 0,
+      severity: affectedMetrics.size >= 3 ? 'critical' : affectedMetrics.size >= 2 ? 'high' : affectedMetrics.size >= 1 ? 'medium' : 'low',
+      affectedMetrics: Array.from(affectedMetrics)
+    };
   }
 
   /**
@@ -736,15 +1054,15 @@ export class PerformanceMonitor extends EventEmitter {
       const utilization = await this.getCurrentResourceUtilization();
 
       // Record all the metrics
-      this.recordMetric('cpu_utilization', utilization.cpu.usage);
-      this.recordMetric('memory_utilization', (utilization.memory.used / utilization.memory.total) * 100);
-      this.recordMetric('disk_utilization', (utilization.disk.used / utilization.disk.total) * 100);
-      this.recordMetric('network_throughput', utilization.network.bytesIn + utilization.network.bytesOut, { direction: 'total' });
+      await this.recordMetric('cpu_utilization', utilization.cpu.usage);
+      await this.recordMetric('memory_utilization', utilization.memory.total > 0 ? (utilization.memory.used / utilization.memory.total) : 0);
+      await this.recordMetric('disk_utilization', utilization.disk.total > 0 ? (utilization.disk.used / utilization.disk.total) : 0);
+      await this.recordMetric('network_throughput', utilization.network.bytesIn + utilization.network.bytesOut, { direction: 'total' });
 
       if (utilization.gpu) {
-        this.recordMetric('gpu_utilization', utilization.gpu.usage);
-        this.recordMetric('gpu_temperature', utilization.gpu.temperature);
-        this.recordMetric('gpu_power', utilization.gpu.powerUsage);
+        await this.recordMetric('gpu_utilization', utilization.gpu.usage);
+        await this.recordMetric('gpu_temperature', utilization.gpu.temperature);
+        await this.recordMetric('gpu_power', utilization.gpu.powerUsage);
       }
 
       this.emit('metricsCollected', utilization);
@@ -772,20 +1090,6 @@ export class PerformanceMonitor extends EventEmitter {
 
     } catch (error) {
       this.emit('analysisError', error);
-    }
-  }
-
-  /**
-   * Check for alert conditions
-   */
-  private async checkAlerts(): Promise<void> {
-    for (const [metricName, thresholds] of this.thresholds) {
-      for (const threshold of thresholds) {
-        const alertTriggered = await this.evaluateThreshold(metricName, threshold);
-        if (alertTriggered) {
-          await this.createAlert(metricName, threshold);
-        }
-      }
     }
   }
 
@@ -854,8 +1158,40 @@ export class PerformanceMonitor extends EventEmitter {
   private async generateRecommendations(components: ComponentHealth[], summary: HealthSummary): Promise<Recommendation[]> { return []; }
   private determineOverallHealth(components: ComponentHealth[]): 'healthy' | 'warning' | 'critical' { return 'healthy'; }
   private getPanelData(panel: DashboardPanel, timeRange: TimeRange): any { return {}; }
-  private async evaluateThreshold(metricName: string, threshold: PerformanceThreshold): Promise<boolean> { return false; }
-  private async createAlert(metricName: string, threshold: PerformanceThreshold): Promise<void> { }
+  private async evaluateThreshold(metricName: string, threshold: PerformanceThreshold): Promise<boolean> {
+    const values = this.metricValues.get(metricName) || [];
+    if (values.length === 0) {
+      return false;
+    }
+
+    const latest = values[values.length - 1];
+    return this.matchesThreshold(latest.value, threshold)
+      && (Date.now() - latest.timestamp.getTime()) >= (threshold.duration * 1000);
+  }
+
+  private async createAlert(metricName: string, threshold: PerformanceThreshold): Promise<void> {
+    const values = this.metricValues.get(metricName) || [];
+    const latest = values[values.length - 1];
+    if (!latest) {
+      return;
+    }
+
+    const existing = Array.from(this.alerts.values()).find(alert =>
+      alert.metric === metricName &&
+      alert.threshold === threshold.value &&
+      alert.status !== 'resolved'
+    );
+    if (existing) {
+      return;
+    }
+
+    const alert = await this.alertManager.createAlert(metricName, threshold, latest.value);
+    try {
+      this.emit('alert', alert);
+    } catch {
+      // Listener failures should not break monitoring.
+    }
+  }
   private async cleanupOldData(): Promise<void> { }
 
   destroy(): void {
@@ -865,18 +1201,166 @@ export class PerformanceMonitor extends EventEmitter {
     if (this.cleanupInterval) clearInterval(this.cleanupInterval);
     this.removeAllListeners();
   }
+
+  private normalizeMetricInput(
+    nameOrMetric: string | MetricValue,
+    value?: number,
+    labels: Record<string, string> = {}
+  ): MetricValue | null {
+    if (typeof nameOrMetric === 'string') {
+      if (typeof value !== 'number' || Number.isNaN(value)) {
+        return null;
+      }
+
+      return {
+        name: nameOrMetric,
+        value,
+        labels: { nodeId: this.nodeId, ...labels },
+        timestamp: new Date(),
+        nodeId: this.nodeId
+      };
+    }
+
+    if (
+      !nameOrMetric ||
+      typeof nameOrMetric.name !== 'string' ||
+      typeof nameOrMetric.value !== 'number' ||
+      Number.isNaN(nameOrMetric.value)
+    ) {
+      return null;
+    }
+
+    const timestamp = nameOrMetric.timestamp instanceof Date && !Number.isNaN(nameOrMetric.timestamp.getTime())
+      ? nameOrMetric.timestamp
+      : new Date();
+
+    return {
+      name: nameOrMetric.name,
+      value: nameOrMetric.value,
+      labels: nameOrMetric.labels && typeof nameOrMetric.labels === 'object'
+        ? { nodeId: this.nodeId, ...nameOrMetric.labels }
+        : { nodeId: this.nodeId },
+      timestamp,
+      nodeId: nameOrMetric.nodeId || this.nodeId
+    };
+  }
+
+  private createFullRangeForMetric(metricName: string): TimeRange {
+    const values = this.metricValues.get(metricName) || [];
+    const from = values[0]?.timestamp || new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const to = values[values.length - 1]?.timestamp || new Date();
+    return { from, to, step: 60 };
+  }
+
+  private buildBaselineKey(metric: string, nodeId: string, timeOfDay: number, dayOfWeek: number): string {
+    return `${metric}_${nodeId}_${dayOfWeek}_${timeOfDay}`;
+  }
+
+  private getBaselineForMetric(metricName: string, timestamp = new Date()): PerformanceBaseline | undefined {
+    const key = this.buildBaselineKey(metricName, this.nodeId, timestamp.getHours(), timestamp.getDay());
+    return this.baselines.get(key)
+      || this.baselines.get(this.buildBaselineKey(metricName, this.nodeId, timestamp.getHours(), -1))
+      || Array.from(this.baselines.values()).find(baseline => baseline.metric === metricName);
+  }
+
+  private matchesThreshold(value: number, threshold: PerformanceThreshold): boolean {
+    switch (threshold.condition) {
+      case 'gt': return value > threshold.value;
+      case 'gte': return value >= threshold.value;
+      case 'lt': return value < threshold.value;
+      case 'lte': return value <= threshold.value;
+      case 'eq': return value === threshold.value;
+      default: return false;
+    }
+  }
+
+  private async scheduleThresholdEvaluation(metricName: string): Promise<void> {
+    const thresholds = this.thresholds.get(metricName) || [];
+    for (const threshold of thresholds) {
+      setTimeout(async () => {
+        try {
+          if (await this.evaluateThreshold(metricName, threshold)) {
+            const satisfied: PerformanceThreshold[] = [];
+            for (const candidate of thresholds) {
+              if (await this.evaluateThreshold(metricName, candidate)) {
+                satisfied.push(candidate);
+              }
+            }
+            const thresholdToAlert = satisfied.sort((left, right) =>
+              this.getSeverityRank(right.severity) - this.getSeverityRank(left.severity)
+            )[0];
+
+            if (thresholdToAlert) {
+              await this.createAlert(metricName, thresholdToAlert);
+            }
+          }
+        } catch {
+          // Timer-based threshold checks should not crash monitoring.
+        }
+      }, threshold.duration * 1000);
+    }
+  }
+
+  private getSeverityRank(severity: Alert['severity']): number {
+    switch (severity) {
+      case 'critical': return 4;
+      case 'high': return 3;
+      case 'medium': return 2;
+      case 'low': return 1;
+      default: return 0;
+    }
+  }
+
+  private async checkAlerts(): Promise<void> {
+    for (const [metricName, thresholds] of this.thresholds) {
+      const satisfied: PerformanceThreshold[] = [];
+      for (const threshold of thresholds) {
+        if (await this.evaluateThreshold(metricName, threshold)) {
+          satisfied.push(threshold);
+        }
+      }
+
+      const thresholdToAlert = satisfied.sort((left, right) =>
+        this.getSeverityRank(right.severity) - this.getSeverityRank(left.severity)
+      )[0];
+
+      if (thresholdToAlert) {
+        await this.createAlert(metricName, thresholdToAlert);
+      }
+    }
+  }
 }
 
 // Supporting classes (simplified implementations)
 
 class TrendAnalyzer {
   async analyze(metricName: string, values: MetricValue[]): Promise<PerformanceTrend> {
-    // Simplified trend analysis
+    if (values.length < 2) {
+      return {
+        metric: metricName,
+        direction: 'stable',
+        rate: 0,
+        confidence: 0,
+        prediction: []
+      };
+    }
+
+    const ordered = [...values].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const first = ordered[0];
+    const last = ordered[ordered.length - 1];
+    const elapsedHours = Math.max((last.timestamp.getTime() - first.timestamp.getTime()) / (60 * 60 * 1000), 1 / 3600);
+    const rate = (last.value - first.value) / elapsedHours;
+    const direction = rate > 0.01 ? 'degrading' : rate < -0.01 ? 'improving' : 'stable';
+    const mean = ordered.reduce((sum, value) => sum + value.value, 0) / ordered.length;
+    const variance = ordered.reduce((sum, value) => sum + Math.pow(value.value - mean, 2), 0) / ordered.length;
+    const noise = Math.sqrt(variance);
+    const confidence = Math.max(0.5, Math.min(0.99, Math.abs(last.value - first.value) / Math.max(noise, 1)));
+
     return {
       metric: metricName,
-      direction: 'stable',
-      rate: 0,
-      confidence: 0.5,
+      direction,
+      rate,
+      confidence,
       prediction: []
     };
   }
@@ -884,8 +1368,24 @@ class TrendAnalyzer {
 
 class AnomalyDetector {
   async detect(values: MetricValue[], baseline: PerformanceBaseline): Promise<PerformanceAnomaly[]> {
-    // Simplified anomaly detection
-    return [];
+    const anomalies: PerformanceAnomaly[] = [];
+    const threshold = Math.max(Math.sqrt(Math.max(baseline.variance, 0)), 1);
+
+    for (const value of values) {
+      const deviation = Math.abs(value.value - baseline.expectedValue);
+      if (deviation > threshold * 3) {
+        anomalies.push({
+          metric: value.name,
+          value: value.value,
+          expectedValue: baseline.expectedValue,
+          deviation,
+          timestamp: value.timestamp,
+          severity: deviation / threshold
+        });
+      }
+    }
+
+    return anomalies;
   }
 }
 
@@ -934,7 +1434,11 @@ class AlertManager {
     };
 
     this.monitor['alerts'].set(alert.id, alert);
-    this.monitor.emit('alertCreated', alert);
+    try {
+      this.monitor.emit('alertCreated', alert);
+    } catch {
+      // Listener failures should not surface as unhandled rejections.
+    }
 
     return alert;
   }
@@ -947,7 +1451,7 @@ export interface PerformanceAnomaly {
   expectedValue: number;
   deviation: number;
   timestamp: Date;
-  severity: 'low' | 'medium' | 'high';
+  severity: number;
 }
 
 export interface DashboardData {

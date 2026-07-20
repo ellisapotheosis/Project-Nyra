@@ -98,6 +98,49 @@ describe('IntelligentCacheManager', () => {
       const cacheId = 'lru-cache';
       const maxSize = 5;
 
+      cacheManager.setStrategy(cacheId, {
+        name: 'test-lru',
+        evictionPolicy: {
+          algorithm: 'lru',
+          parameters: {
+            maxSize,
+            memoryThreshold: 1,
+            importanceWeight: 0,
+            accessPatternWeight: 1,
+            temporalWeight: 0,
+          },
+        },
+        prefetchPolicy: {
+          enabled: false,
+          strategies: [],
+          maxPrefetchSize: 0,
+          confidence_threshold: 1,
+          networkBandwidthLimit: 0,
+        },
+        ttlPolicy: {
+          defaultTTL: 60,
+          dynamicTTL: false,
+          factors: {
+            accessFrequency: 0,
+            importance: 0,
+            dataType: 0,
+            updateFrequency: 0,
+          },
+        },
+        partitioningStrategy: {
+          enabled: false,
+          type: 'hash',
+          partitions: [],
+          rebalanceThreshold: 1,
+        },
+        replicationStrategy: {
+          enabled: false,
+          factor: 1,
+          consistency: 'weak',
+          placement: 'random',
+        },
+      });
+
       // Fill cache beyond capacity
       for (let i = 0; i < 8; i++) {
         await cacheManager.put(cacheId, `key-${i}`, `value-${i}`);
