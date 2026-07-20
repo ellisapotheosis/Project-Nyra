@@ -112,7 +112,7 @@ These three progression vectors come only from observed Project Nyra pull-reques
 
 1. Before a recovery or synchronization PR, record the base SHA and classify every changed path as canonical guidance, `/apps`, `/infra`, generated/runtime state, or unrelated work.
 2. Diff canonical files such as `AGENTS.md`, `.agent/AGENTS.md`, app manifests, deployment configuration, and `infra/hosts/<host-name>/` independently; flag replacement-scale deletions and source-of-truth conflicts before staging.
-3. Split work before any review provider's observed file or diff ceiling is crossed. Keep a machine-readable manifest of intentionally replaced canonical files and their selected provenance.
+3. Split work before any review provider's observed file or diff ceiling is crossed. Create `.agent/recovery-manifest.yml` with one entry per intentionally replaced canonical file containing `path`, `canonical_source`, `source_sha`, `base_sha`, `reason`, and `expected_deletions`; create and run `python3 .agent/tools/validate_recovery_manifest.py --base <base-sha>` before staging. The validator must fail on a missing entry, replacement-scale deletion outside the manifest, or conflicting canonical source.
 4. Graduate only after a recovery exercise preserves all intended `/apps` and `/infra` behavior, introduces no unexplained canonical-document deletion, and receives an actual automated or human review for every slice.
 
 ### 2. Fail-closed exact-head release governance and late-review ownership
@@ -121,7 +121,7 @@ These three progression vectors come only from observed Project Nyra pull-reques
 
 **Practice steps:**
 
-1. Create and maintain the explicit context allowlist in `.github/required-checks.yml`, validated against `.github/workflows/*.yml`, `.circleci/config.yml`, and provider contexts observed on the PR. Evaluate the exact candidate SHA against it; treat failed, missing, skipped, neutral, cancelled, or pending contexts as blocking unless that policy names an exception.
+1. Create and maintain `.github/required-checks.yml` as the authoritative allowlist for exact-head contexts and asynchronous reviewers, validated against `.github/workflows/*.yml`, `.circleci/config.yml`, and provider contexts observed on the PR. Create and run `python3 .agent/tools/validate_pr_gate.py --pr <number> --head <sha>`; fail closed when the policy is missing or names an unknown, missing, or unrecognized requirement. Operators may not substitute an ad hoc gate set. Treat failed, skipped, neutral, cancelled, or pending requirements as blocking unless that policy names an exception.
 2. Prove protected work executed: a successful availability/detector job does not substitute for a skipped CodeQL `Analyze`, test, security, build, or deployment job.
 3. Exhaust paginated review threads and wait for each configured asynchronous reviewer to reach a terminal state before merging. If feedback arrives after merge, assign an owner and ship a follow-up or revert before calling the loop closed.
 4. Graduate only after one `/apps` or `/infra` PR shows every required exact-head context successful, all review pages exhausted with zero unresolved threads, and no late feedback left without a tracked disposition.
@@ -132,9 +132,9 @@ These three progression vectors come only from observed Project Nyra pull-reques
 
 **Practice steps:**
 
-1. Create and maintain `infra/hosts/app-deployment-parity.yml` as the machine-readable parity matrix for each affected app/service: workspace package and lockfile, install/build command, expected output, Dockerfile and build context, provider root/output settings, required secrets, workflow job, network/auth boundary, and owning `infra/hosts/<host-name>/` deployment.
+1. Create and maintain `infra/hosts/app-deployment-parity.yml` as the machine-readable parity matrix for each affected app/service: workspace package and lockfile, install/build command, expected output, Dockerfile and build context, provider root/output settings, required secrets, workflow job, network/auth boundary, owning `infra/hosts/<host-name>/` deployment, lockfile hash, container image digest, and build-provenance identifier.
 2. Reproduce the first failing boundary locally or in an isolated CI job, then preserve the exact command and error as regression evidence. Validate frozen-lockfile installs in every Docker consumer; do not mask a failing build by skipping downstream test, security, build, or deploy jobs.
-3. Validate the same artifact through package build, container build, and Cloudflare/Vercel preview paths where configured. For gateways and adapters, add unauthorized, privacy-route, saturation, upstream-outage, redaction, and rollback tests that prove fail-closed behavior.
+3. Validate the same immutable artifact through package build, container build, and Cloudflare/Vercel preview paths where configured; record per-boundary evidence against the parity-matrix identity so independent rebuilds cannot be treated as one validated artifact. For gateways and adapters, add unauthorized, privacy-route, saturation, upstream-outage, redaction, and rollback tests that prove fail-closed behavior.
 4. Graduate only after a targeted `/apps` or `/infra` change passes its package checks, Docker build, provider preview, trust-boundary probes, and exact-head aggregate gates with no skipped downstream validation or unresolved P0 review item.
 
 <!-- TODO: Awaiting further telemetry on closed /apps and /infra issues -->
