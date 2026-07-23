@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "type": "loadbalancer",
+  "policy": "failover",
+  "backends": [
+    "lm-studio-local",
+    "ollama-local-qwen3-coder",
+    "cerebras-glm-4-7-fast-no-reasoning"
+  ],
+  "ephemeralSettings": {
+    "failover_retry_count": 1,
+    "failover_status_codes": [
+      429,
+      500,
+      502,
+      503,
+      504
+    ],
+    "failover_on_network_errors": true
+  }
+}

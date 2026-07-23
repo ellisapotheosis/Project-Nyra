@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "provider": "openai",
+  "model": "zai-org/GLM-5-TEE",
+  "modelParams": {
+    "max_tokens": 8192,
+    "temperature": 1
+  },
+  "ephemeralSettings": {
+    "context-limit": 200000,
+    "base-url": "https://api.chutes.ai/v1",
+    "auth-key-name": "chutes",
+    "streaming": "enabled"
+  }
+}

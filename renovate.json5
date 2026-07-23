@@ -1,0 +1,26 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "platform": "forgejo",
+  "endpoint": "https://git.projectnyra.com/api/v1",
+  "username": "renovate[bot]",
+  "onboarding": true,
+  "requireConfig": "required",
+  "extends": ["config:recommended"],
+  "labels": ["dependencies", "renovate"],
+  "enabledManagers": ["docker-compose", "github-actions", "npm", "pnpm", "regex"],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "pinDigests": true
+    },
+    {
+      "matchUpdateTypes": ["patch", "digest"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "matchFileNames": ["archive/**"],
+      "enabled": false
+    }
+  ]
+}

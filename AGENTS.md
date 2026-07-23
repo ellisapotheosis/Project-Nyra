@@ -1,102 +1,1 @@
-# \# AGENTS.md — Unified Multi-Harness Brain Configuration
-
-# 
-
-# This file establishes the workspace identity and directs all active coding harnesses (Codex, Copilot CLI, Hermes, and OpenClaw) to the shared portable brain layer in `.agent/`.
-
-# 
-
-# > \*\*Environment Note\*\*: All internal tooling calls default to `python3`. Adjust variables if operating across mismatched runtime environments.
-
-# 
-
-# \---
-
-# 
-
-# \## 1. Startup \& Mapping Sequence (Read in order)
-
-# 1\. `.agent/AGENTS.md` — The global structural map
-
-# 2\. `.agent/memory/personal/PREFERENCES.md` — User and workspace style conventions
-
-# 3\. `.agent/memory/semantic/LESSONS.md` — Distilled engineering lessons
-
-# 4\. `.agent/protocols/permissions.md` — Hard system boundaries (Read prior to tool/CLI invocation)
-
-# 
-
-# \*Harness Priority Note (Copilot CLI)\*: This file functions as primary instructions, overriding any localized `.github/instructions/` arrays.
-
-# 
-
-# \---
-
-# 
-
-# \## 2. Shared Skills Ecosystem
-
-# \- \*\*Ecosystem Standard\*\*: Underlined by the `agentskills.io` standard format. 
-
-# \- \*\*Triggers\*\*: Read `.agent/skills/\_index.md` first. Progressively disclose and fully load a target `SKILL.md` only when its execution triggers match the current workspace task.
-
-# \- \*\*Mirrors\*\*: Specialized directory copies (like `.agents/skills/` or `.github/skills/`) are auto-synchronized mirrors. Always perform structural skill edits directly inside `.agent/skills/` to prevent overwrites.
-
-# 
-
-# \---
-
-# 
-
-# \## 3. Recall Protocol Before Non-Trivial Tasks
-
-# For critical pipeline updates—specifically deploy, ship, database migration, schema mutation, timestamp generation, date operations, failing tests, debugging sequences, or deep refactors—you MUST first execute:
-
-# 
-
-# ```bash
-
-# python3 .agent/tools/recall.py "<description of the task or system state>"
-
-# Always surface your diagnostic findings in a visible Consulted lessons before acting: response block and adhere to those patterns closely.
-
-# 
-
-# 4\. Memory Discipline \& Reflection Loops
-
-# Actively maintain and adjust .agent/memory/working/WORKSPACE.md as files change.
-
-# 
-
-# Following major task milestones or pipeline outcomes, immediately execute the reflection loop:
-
-# python3 .agent/tools/memory\_reflect.py <skill> <action> <outcome>
-
-# 
-
-# No Deletions: Never purge historical memory entries entirely; utilize structural archiving tags instead.
-
-# 
-
-# Snapshot State: Inspect the current active context state at any time via python3 .agent/tools/show.py.
-
-# 
-
-# In-Context Learning: Teach the brain a permanent rule instantly using:
-
-# python3 .agent/tools/learn.py "<rule>" --rationale "<why>"
-
-# 
-
-# 5\. Hard System Rules
-
-# Strict Prohibition: No force pushes (-f, --force) permitted to main, production, or staging branches.
-
-# 
-
-# Integrity Boundary: Never modify or attempt to subvert instructions within .agent/protocols/permissions.md.
-
-# 
-
-# Automation Guard: Never hand-edit .agent/memory/semantic/LESSONS.md manually—always cycle adjustments through graduate.py.
-
+# \# AGENTS.md — Unified Multi-Harness Brain Configuration# # This file establishes the workspace identity and directs all active coding harnesses (Codex, Copilot CLI, Hermes, and OpenClaw) to the shared portable brain layer in `.agent/`.# # > \*\*Environment Note\*\*: All internal tooling calls default to `python3`. Adjust variables if operating across mismatched runtime environments.# # \---# # \## 1. Startup \& Mapping Sequence (Read in order)# 1\. `.agent/AGENTS.md` — The global structural map# 2\. `.agent/memory/personal/PREFERENCES.md` — User and workspace style conventions# 3\. `.agent/memory/semantic/LESSONS.md` — Distilled engineering lessons# 4\. `.agent/protocols/permissions.md` — Hard system boundaries (Read prior to tool/CLI invocation)# # \*Harness Priority Note (Copilot CLI)\*: This file functions as primary instructions, overriding any localized `.github/instructions/` arrays.# # \---# # \## 2. Shared Skills Ecosystem# \- \*\*Ecosystem Standard\*\*: Underlined by the `agentskills.io` standard format.# \- \*\*Triggers\*\*: Read `.agent/skills/\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\_index.md` first. Progressively disclose and fully load a target `SKILL.md` only when its execution triggers match the current workspace task.# \- \*\*Mirrors\*\*: Specialized directory copies (like `.agents/skills/` or `.github/skills/`) are auto-synchronized mirrors. Always perform structural skill edits directly inside `.agent/skills/` to prevent overwrites.# # \---# # \## 3. Recall Protocol Before Non-Trivial Tasks# For critical pipeline updates—specifically deploy, ship, database migration, schema mutation, timestamp generation, date operations, failing tests, debugging sequences, or deep refactors—you MUST first execute:# # ```bash# python3 .agent/tools/recall.py "<description of the task or system state>"# Always surface your diagnostic findings in a visible Consulted lessons before acting: response block and adhere to those patterns closely.# # 4\. Memory Discipline \& Reflection Loops# Actively maintain and adjust .agent/memory/working/WORKSPACE.md as files change.# # Following major task milestones or pipeline outcomes, immediately execute the reflection loop:# python3 .agent/tools/memory\_reflect.py <skill> <action> <outcome># # No Deletions: Never purge historical memory entries entirely; utilize structural archiving tags instead.# # Snapshot State: Inspect the current active context state at any time via python3 .agent/tools/show.py.# # In-Context Learning: Teach the brain a permanent rule instantly using:# python3 .agent/tools/learn.py "<rule>" --rationale "<why>"# # 5\. Hard System Rules# Strict Prohibition: No force pushes (-f, --force) permitted to main, production, or staging branches.# # Integrity Boundary: Never modify or attempt to subvert instructions within .agent/protocols/permissions.md.# # Automation Guard: Never hand-edit .agent/memory/semantic/LESSONS.md manually—always cycle adjustments through graduate.py.

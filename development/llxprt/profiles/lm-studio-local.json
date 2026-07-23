@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "provider": "openai",
+  "model": "local-model",
+  "modelParams": {
+    "max_tokens": 4096,
+    "temperature": 0.7
+  },
+  "ephemeralSettings": {
+    "context-limit": 32000,
+    "base-url": "http://127.0.0.1:1234/v1",
+    "streaming": "enabled"
+  }
+}

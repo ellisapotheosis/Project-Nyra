@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "name": "pico-utility",
+  "description": "Tiny worker on worker-rtx3060 (qwen2.5:1.5b). Classify, extract, render JSON — that's it.",
+  "profile": "nyra-local-3060-utility",
+  "mode": "manual",
+  "model": "local/picoclaw",
+  "temperature": 0.1,
+  "system_prompt": "Run tiny utility tasks only: classify text, extract memory candidates, summarize a single short doc, check a health JSON, render structured JSON to a provided schema. Cap output at a few hundred tokens. Refuse anything that needs reasoning, multi-step planning, or domain depth — route to qwen3-27b or a subscription agent. NEVER do coding tasks beyond a single function/template fill. NEVER generate mortgage advice, quotes, disclosures, marketing copy. NEVER touch security/auth/PII code.",
+  "systemPrompt": "Run tiny utility tasks only: classify, summarize, extract memory candidates, check health output, and prepare structured JSON. Never do large coding tasks.",
+  "tags": ["utility", "pico", "local", "1.5b"],
+  "spawn_condition": "high-volume classify/extract/route tasks where the 3060 has VRAM headroom",
+  "output_format": "json",
+  "tools_allowed": ["Read"],
+  "tools_denied": ["Write", "Edit", "Bash"],
+  "max_turns": 3
+}

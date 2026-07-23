@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "provider": "codex",
+  "model": "gpt-5.4",
+  "modelParams": {
+    "temperature": 0.7,
+    "max_tokens": 4096
+  },
+  "ephemeralSettings": {
+    "context-limit": 262144
+  },
+  "auth": {
+    "type": "oauth",
+    "buckets": [
+      "default"
+    ]
+  }
+}

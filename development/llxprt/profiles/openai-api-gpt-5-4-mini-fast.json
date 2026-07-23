@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "provider": "openai",
+  "model": "gpt-5.4-mini",
+  "modelParams": {
+    "max_tokens": 8192
+  },
+  "ephemeralSettings": {
+    "context-limit": 200000,
+    "auth-key-name": "openai",
+    "reasoning.effort": "medium",
+    "streaming": "enabled"
+  }
+}

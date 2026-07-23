@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "type": "loadbalancer",
+  "policy": "failover",
+  "backends": [
+    "claude-fable-5-apex",
+    "codex-gpt-5-5-xhigh",
+    "claude-opus-4-8-xhigh",
+    "gemini-3-1-pro-agent",
+    "cerebras-glm-4-7-agentic",
+    "qwen3-coder-plus-oauth-or-key"
+  ],
+  "ephemeralSettings": {
+    "failover_retry_count": 1,
+    "failover_retry_delay_ms": 1000,
+    "failover_status_codes": [
+      429,
+      500,
+      502,
+      503,
+      504
+    ],
+    "failover_on_network_errors": true
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "provider": "qwen",
+  "model": "qwen3.6-plus",
+  "modelParams": {
+    "max_tokens": 8192,
+    "temperature": 0.7
+  },
+  "ephemeralSettings": {
+    "context-limit": 200000,
+    "auth-key-name": "qwen",
+    "streaming": "enabled"
+  }
+}

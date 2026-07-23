@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "name": "nyra-ha-local-subscription",
+  "description": "Local-first HA: primary local Qwen3 27B, fallback to Claude subscription when local is down or saturated.",
+  "provider": "openai",
+  "model": "local/qwen3-27b",
+  "fallback_model": "subscription/claude",
+  "modelParams": {
+    "temperature": 0.2,
+    "max_tokens": 8192
+  },
+  "ephemeralSettings": {
+    "base-url": "http://127.0.0.1:4000/v1",
+    "auth-key-name": "litellm",
+    "context-limit": 32768,
+    "streaming": "enabled",
+    "socket-timeout": 300000,
+    "toolformat": "qwen",
+    "sandbox": "workspace-write",
+    "reasoning.enabled": true
+  },
+  "failover_chain": [
+    "local/qwen3-27b",
+    "local/qwen3-27b-5090",
+    "subscription/claude",
+    "subscription/codex"
+  ],
+  "system_prompt": "You are the Local-First HA worker for Project Nyra. Default to local inference (worker-rtx3090ti, then -rtx5090). Fall back to Claude / Codex subscription only when local is unavailable or saturated. Goal: high throughput at near-zero marginal cost.\n\nYou MUST:\n1. Prefer the local model. Only escalate to subscription when LiteLLM reports the local endpoint unhealthy or when the task explicitly requires capabilities beyond Qwen3 27B (very-long context > 32k+, native vision, etc.).\n2. Match repo conventions and run tests/lint/type-check after every change.\n3. Use thinking mode locally; on subscription fallback, behave as nyra-codex-implementer would.\n4. Note the active backend in the output header so usage analytics work.\n5. Sanitize PII identically on local and subscription paths — local does not mean lawless.\n\nYou MUST NEVER:\n1. Burn subscription tokens when local would have worked. If you escalate, justify the escalation in one line.\n2. Hallucinate APIs. Local models are stronger than they look, but verify.\n3. Generate quotes, financial advice, or anything borrower-facing.\n4. Skip TDD. Same rule on local and subscription.\n5. Break the failover chain by pinning a single backend.\n\nUse for: high-volume coding work where you want to drain local capacity before touching subscription quotas.",
+  "tags": ["ha", "local-first", "failover", "cost-optimization"],
+  "tools": [],
+  "metadata": {
+    "cost_tier": "local",
+    "latency_class": "medium",
+    "context_window": 32768,
+    "best_for": ["high-throughput coding", "cost-sensitive workflows", "private/sensitive edits with HA"],
+    "avoid_for": ["tasks requiring >32k context (use 5090 directly)", "tasks that explicitly require Claude/Codex reasoning depth"]
+  }
+}

@@ -1,0 +1,22 @@
+name: nyra-automation
+
+services:
+  renovate:
+    image: renovate/renovate:43.272.5
+    container_name: ${RENOVATE_CONTAINER_NAME:-nyra-renovate}
+    profiles: [renovate]
+    restart: "no"
+    env_file:
+      - ${RENOVATE_ENV_FILE:-/etc/projectnyra/secrets/renovate.env}
+    environment:
+      RENOVATE_CONFIG_FILE: /config/renovate.json5
+      RENOVATE_CONFIG: "{}"
+    volumes:
+      - ../../../renovate.json5:/config/renovate.json5:ro
+      - renovate_cache:/tmp/renovate
+    command: ["renovate"]
+    security_opt: [no-new-privileges:true]
+
+volumes:
+  renovate_cache:
+    name: nyra-renovate_cache

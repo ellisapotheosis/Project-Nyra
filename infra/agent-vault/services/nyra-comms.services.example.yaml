@@ -1,0 +1,58 @@
+# Agent Vault Services Configuration — Communications
+# Location: Reference/template only — actual services configured via Agent Vault UI or CLI
+# Do NOT commit real credentials here.
+
+# Usage:
+# agent-vault vault service add \
+#   --vault nyra-comms \
+#   --name sendgrid \
+#   --host api.sendgrid.com \
+#   --auth-type bearer \
+#   --token-key SENDGRID_API_KEY
+
+services:
+  sendgrid:
+    host: api.sendgrid.com
+    port: 443
+    auth_type: bearer
+    token_key: SENDGRID_API_KEY
+    description: "SendGrid API (email)"
+
+  resend:
+    host: api.resend.com
+    port: 443
+    auth_type: bearer
+    token_key: RESEND_API_KEY
+    description: "Resend API (transactional email)"
+
+  twilio:
+    host: api.twilio.com
+    port: 443
+    auth_type: basic
+    username_key: TWILIO_ACCOUNT_SID
+    password_key: TWILIO_AUTH_TOKEN
+    description: "Twilio API (SMS, voice, video)"
+
+# CLI Commands:
+#
+# agent-vault vault service add \
+#   --vault nyra-comms \
+#   --name sendgrid \
+#   --host api.sendgrid.com \
+#   --auth-type bearer \
+#   --token-key SENDGRID_API_KEY
+#
+# agent-vault vault service add \
+#   --vault nyra-comms \
+#   --name resend \
+#   --host api.resend.com \
+#   --auth-type bearer \
+#   --token-key RESEND_API_KEY
+#
+# agent-vault vault service add \
+#   --vault nyra-comms \
+#   --name twilio \
+#   --host api.twilio.com \
+#   --auth-type basic \
+#   --username-key TWILIO_ACCOUNT_SID \
+#   --password-key TWILIO_AUTH_TOKEN

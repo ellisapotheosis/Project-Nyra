@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "provider": "kimi",
+  "model": "kimi-k2-thinking",
+  "modelParams": {
+    "max_tokens": 8192
+  },
+  "ephemeralSettings": {
+    "context-limit": 262000,
+    "auth-key-name": "kimi",
+    "streaming": "enabled",
+    "reasoning.enabled": true,
+    "reasoning.includeInResponse": true,
+    "reasoning.stripFromContext": "allButLast"
+  }
+}

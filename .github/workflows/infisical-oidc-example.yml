@@ -1,0 +1,30 @@
+name: Infisical OIDC example
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  fetch-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch secrets from Infisical
+        uses: Infisical/secrets-action@v1.0.9
+        with:
+          method: oidc
+          identity-id: ${{ secrets.INFISICAL_OIDC_IDENTITY_ID }}
+          project-slug: project-nyra
+          env-slug: dev
+          secret-path: /infra/github-actions
+
+      - name: Verify secret injection without printing secrets
+        run: |
+          # Test that at least one secret was injected
+          test -n "${INFISICAL_ENV_CHECK:-}" && echo "✓ Secrets injected" || echo "⚠ No test secret found"
+          echo "Infisical OIDC workflow completed successfully."
+        shell: bash

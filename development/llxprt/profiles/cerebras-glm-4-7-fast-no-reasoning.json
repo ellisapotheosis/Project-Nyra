@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "provider": "openai",
+  "model": "zai-glm-4.7",
+  "modelParams": {
+    "max_tokens": 4096,
+    "temperature": 0.8,
+    "top_p": 0.95,
+    "reasoning_effort": "none"
+  },
+  "ephemeralSettings": {
+    "context-limit": 64000,
+    "base-url": "https://api.cerebras.ai/v1",
+    "auth-key-name": "cerebras",
+    "streaming": "enabled"
+  }
+}

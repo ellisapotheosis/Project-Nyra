@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"ssh worker-rtx3090ti \\\"docker mcp server ls 2>&1; echo '---'; docker mcp gateway run --help 2>&1; echo '---catalog---'; docker mcp catalog show 2>&1 | head -50\\\"\",\"description\":\"Inspect Do...",
-  "error": "Exit code 255\n'head' is not recognized as an internal or external command,\r\noperable program or batch file.",
-  "timestamp": "2026-07-17T17:44:36.358Z",
-  "retry_count": 8
+  "tool_input_preview": "{\"command\":\"git commit -m \\\"$(cat <<'EOF'\\nfeat(security): implement Infisical Cloud + Agent Vault + secret scanning workflow\\n\\nReplaced self-hosted Infisical server with Infisical Cloud + Agent Vaul...",
+  "error": "Exit code 1\n\u001b[0;34m=================================================================\u001b[0m\n\u001b[0;34mProject Nyra Secret Scan\u001b[0m\n\u001b[0;34mMode: staged\u001b[0m\n\u001b[0;34mCI: false\u001b[0m\n\u001b[0;34mRoot: /home/ellisapotheosis/repos/project-nyra\u001b[0m\n\u001b[0;34m=================================================================\u001b[0m\n\u001b[90m7:25PM\u001b[0m \u001b[32mINF\u001b[0m \u001b[1m1 commits scanned.\u001b[0m\n\n\u001b[0;31m[nyra-secret-scan]\u001b[0m suspected secret material found.\nRemediation:\n  1. Remove the secret from the file.\n  2. Rotate the exposed ...",
+  "timestamp": "2026-07-23T02:25:12.271Z",
+  "retry_count": 2
 }

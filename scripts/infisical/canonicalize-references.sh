@@ -10,6 +10,14 @@ ENVIRONMENTS=(dev staging prod)
 MODE=plan
 DELETE_DUPLICATES=0
 ONLY_KEYS=""
+INFISICAL_BIN="${INFISICAL_BIN:-/usr/bin/infisical}"
+JQ_BIN="${JQ_BIN:-/usr/bin/jq}"
+SORT_BIN="${SORT_BIN:-/usr/bin/sort}"
+GREP_BIN="${GREP_BIN:-/usr/bin/grep}"
+SHA256SUM_BIN="${SHA256SUM_BIN:-/usr/bin/sha256sum}"
+MKTEMP_BIN="${MKTEMP_BIN:-/usr/bin/mktemp}"
+RM_BIN="${RM_BIN:-/bin/rm}"
+CUT_BIN="${CUT_BIN:-/usr/bin/cut}"
 
 usage() {
   printf '%s\n' \
@@ -27,8 +35,8 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-command -v infisical >/dev/null || { printf '%s\n' 'infisical CLI is required' >&2; exit 1; }
-command -v jq >/dev/null || { printf '%s\n' 'jq is required' >&2; exit 1; }
+command -v "$INFISICAL_BIN" >/dev/null || { printf '%s\n' 'infisical CLI is required' >&2; exit 1; }
+command -v "$JQ_BIN" >/dev/null || { printf '%s\n' 'jq is required' >&2; exit 1; }
 
 # key|canonical path|canonical key
 MAPPINGS=(
@@ -67,18 +75,20 @@ MAPPINGS=(
   'SENTRY_AUTH_TOKEN|/providers/sentry|SENTRY_AUTH_TOKEN'
   'SENTRY_API|/providers/sentry|SENTRY_API'
   'LETTA_API_KEY|/providers/letta|LETTA_API_KEY'
+  'LETTA_DB_PASSWORD|/providers/letta|LETTA_DB_PASSWORD'
+  'LETTA_SERVER_PASSWORD|/providers/letta|LETTA_SERVER_PASSWORD'
   'NEXUS_ADMIN_TOKEN|/providers/nexus|NEXUS_ADMIN_TOKEN'
   'NEXUS_API_KEY|/providers/nexus|NEXUS_API_KEY'
   'NEXUS_ROUTER_API_KEY|/providers/nexus|NEXUS_ROUTER_API_KEY'
   'NEXUS_JWT_SECRET|/providers/nexus|NEXUS_JWT_SECRET'
 )
 
-tmpdir="$(mktemp -d)"
-trap 'rm -rf "$tmpdir"' EXIT
+tmpdir="$("$MKTEMP_BIN" -d)"
+trap '"$RM_BIN" -rf "$tmpdir"' EXIT
 
 login() {
   if [[ -z "${INFISICAL_TOKEN:-}" ]]; then
-    INFISICAL_TOKEN="$(infisical login --method=universal-auth \
+    INFISICAL_TOKEN="$("$INFISICAL_BIN" login --method=universal-auth \
       --client-id="${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:?missing INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}" \
       --client-secret="${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:?missing INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}" \
       --plain 2>/dev/null)"
@@ -88,24 +98,24 @@ login() {
 
 export_json() {
   local env="$1" path="$2" out="$3"
-  infisical export --projectId "$PROJECT_ID" --env "$env" --path "$path" \
+  "$INFISICAL_BIN" export --projectId "$PROJECT_ID" --env "$env" --path "$path" \
     --format=json --expand=false --silent >"$out" 2>/dev/null
 }
 
 has_key() {
   local file="$1" key="$2"
-  jq -e --arg key "$key" 'any(.[]; .key == $key)' "$file" >/dev/null
+  "$JQ_BIN" -e --arg key "$key" 'any(.[]; .key == $key)' "$file" >/dev/null
 }
 
 folders_under() {
   local env="$1" parent="$2" file child
-  file="$tmpdir/folders-${env//\//_}-$(printf '%s' "$parent" | sha256sum | cut -d' ' -f1).json"
-  infisical secrets folders get --projectId "$PROJECT_ID" --env "$env" --path "$parent" \
+  file="$tmpdir/folders-${env//\//_}-$(printf '%s' "$parent" | "$SHA256SUM_BIN" | "$CUT_BIN" -d' ' -f1).json"
+  "$INFISICAL_BIN" secrets folders get --projectId "$PROJECT_ID" --env "$env" --path "$parent" \
     --output json --silent >"$file" 2>/dev/null || return 0
   while IFS= read -r child; do
     printf '%s\n' "$child"
     folders_under "$env" "$child"
-  done < <(jq -r '.[] | (.folderPath + "/" + .folderName)' "$file" 2>/dev/null | sort -u)
+  done < <("$JQ_BIN" -r '.[] | (.folderPath + "/" + .folderName)' "$file" 2>/dev/null | "$SORT_BIN" -u)
 }
 
 canonical_file() {
@@ -139,13 +149,15 @@ for env in "${ENVIRONMENTS[@]}"; do
   {
     printf '%s\n' /hosts/orchestrator /hosts/oracle-vps /hosts/worker-rtx3060 \
       /hosts/worker-rtx3090ti /hosts/worker-rtx5090 /hosts/homeassistant \
-      /apps/projectnyra /apps/ratehunter /apps/projectnyra-landing
+      /apps/projectnyra /apps/ratehunter /apps/projectnyra-landing \
+      /clients/letta
     folders_under "$env" /hosts
     folders_under "$env" /apps
-  } | sort -u >"$destination_list"
+    folders_under "$env" /clients
+  } | "$SORT_BIN" -u >"$destination_list"
   for mapping in "${MAPPINGS[@]}"; do
     IFS='|' read -r key source_path source_key <<<"$mapping"
-    if [[ -n "$ONLY_KEYS" ]] && ! printf '%s\n' ",${ONLY_KEYS}," | /usr/bin/grep -q ",$key,"; then
+    if [[ -n "$ONLY_KEYS" ]] && ! printf '%s\n' ",${ONLY_KEYS}," | "$GREP_BIN" -q ",$key,"; then
       continue
     fi
     if ! canonical_file "$env" "$source_path" "$source_key"; then
@@ -156,17 +168,17 @@ for env in "${ENVIRONMENTS[@]}"; do
     while IFS= read -r destination; do
       [[ "$destination" == /hosts/* || "$destination" == /apps/* ]] || continue
       [[ "$destination" != "$source_path" ]] || continue
-      destination_file="$tmpdir/destination-${env}-$(printf '%s' "$destination" | sha256sum | cut -d' ' -f1).json"
+      destination_file="$tmpdir/destination-${env}-$(printf '%s' "$destination" | "$SHA256SUM_BIN" | "$CUT_BIN" -d' ' -f1).json"
       export_json "$env" "$destination" "$destination_file" || continue
       has_key "$destination_file" "$key" || continue
       printf 'reference env=%s path=%s key=%s source=%s/%s\n' \
         "$env" "$destination" "$key" "$source_path" "$source_key"
       [[ "$MODE" == apply ]] || continue
       set_reference "$env" "$destination" "$key" "$source_path" "$source_key"
-      verify_file="$tmpdir/verify-${env}-$(printf '%s' "$destination" | sha256sum | cut -d' ' -f1).json"
+      verify_file="$tmpdir/verify-${env}-$(printf '%s' "$destination" | "$SHA256SUM_BIN" | "$CUT_BIN" -d' ' -f1).json"
       export_json "$env" "$destination" "$verify_file"
       expected="\${${env}.${source_path#/}.${source_key}}"
-      actual="$(jq -r --arg key "$key" '.[] | select(.key == $key) | .value' "$verify_file")"
+      actual="$("$JQ_BIN" -r --arg key "$key" '.[] | select(.key == $key) | .value' "$verify_file")"
       [[ "$actual" == "$expected" ]] || { printf 'verification-failed env=%s path=%s key=%s\n' "$env" "$destination" "$key" >&2; exit 1; }
       if [[ "$DELETE_DUPLICATES" -eq 1 ]]; then
         delete_key "$env" "$destination" "$key"

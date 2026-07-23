@@ -107,6 +107,48 @@
       "skillPath": "skills/brutalist-skill/SKILL.md",
       "computedHash": "e66e5a2a8b73cef79ab6546459c665e8b983645689c5f3772f7eed8b9f1e8e0e"
     },
+    "infisical-agent": {
+      "source": "infisical/ai-skills",
+      "sourceType": "github",
+      "skillPath": "skills/infisical-agent/SKILL.md",
+      "computedHash": "6294dd96dc5d0d63f3a9fececadc9065e6aea214107e271e7ee980f1da11cf99"
+    },
+    "infisical-api": {
+      "source": "infisical/ai-skills",
+      "sourceType": "github",
+      "skillPath": "skills/infisical-api/SKILL.md",
+      "computedHash": "c421d30f17f2e351fa7c211d601c3522eee4459f3a2cd745422139d8d3d2a78f"
+    },
+    "infisical-dynamic-secrets": {
+      "source": "infisical/ai-skills",
+      "sourceType": "github",
+      "skillPath": "skills/infisical-dynamic-secrets/SKILL.md",
+      "computedHash": "eddc5514fce9bf6cf39d0af4285967c440f19612db10c0b180ad8a078397ef89"
+    },
+    "infisical-secret-syncs": {
+      "source": "infisical/ai-skills",
+      "sourceType": "github",
+      "skillPath": "skills/infisical-secret-syncs/SKILL.md",
+      "computedHash": "87bf586e0850d8d97f7f5e812efff399cf5ebe04e0e6f84514426dee32840aad"
+    },
+    "infisical-self-host": {
+      "source": "infisical/ai-skills",
+      "sourceType": "github",
+      "skillPath": "skills/infisical-self-host/SKILL.md",
+      "computedHash": "ecc34c9ca7923598c00004a9b5053c9a212044db114c365368d017dfc1b47d30"
+    },
+    "infisical-terraform": {
+      "source": "infisical/ai-skills",
+      "sourceType": "github",
+      "skillPath": "skills/infisical-terraform/SKILL.md",
+      "computedHash": "6b40b8fec009e8b4f9fb9a9f556a46eb805d92e054ab8977a807223d339cbde3"
+    },
+    "infisical-user-setup-guide": {
+      "source": "infisical/ai-skills",
+      "sourceType": "github",
+      "skillPath": "skills/infisical-setup/SKILL.md",
+      "computedHash": "cba1d5aeff511e72ec8520cd000d6af0f3cb1728156a7b5cb08312cebf1e4f5c"
+    },
     "redesign-existing-projects": {
       "source": "Leonxlnx/taste-skill",
       "sourceType": "github",

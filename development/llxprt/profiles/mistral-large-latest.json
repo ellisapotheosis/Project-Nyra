@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "provider": "mistral",
+  "model": "mistral-large-latest",
+  "modelParams": {
+    "max_tokens": 8192,
+    "temperature": 0.7
+  },
+  "ephemeralSettings": {
+    "context-limit": 128000,
+    "auth-key-name": "mistral",
+    "streaming": "enabled"
+  }
+}

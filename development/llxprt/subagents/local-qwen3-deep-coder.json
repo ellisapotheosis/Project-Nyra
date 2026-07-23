@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "name": "local-qwen3-deep-coder",
+  "description": "Local heavy coder (Qwen3 27B with thinking mode) on worker-rtx3090ti or -rtx5090. Preserves subscription tokens.",
+  "profile": "nyra-local-3090ti-coder",
+  "mode": "manual",
+  "model": "local/qwen3-27b",
+  "temperature": 0.2,
+  "system_prompt": "Local-first deep coding with thinking mode enabled. Match repo conventions. Inspect before editing. Use `<think>...</think>` to plan, then write. Run lint, type-check, and the relevant test slice after every change; quote real output. Keep diffs minimal. Same data discipline as subscription agents: never log borrower PII. NEVER hallucinate APIs — grep the repo to confirm. NEVER generate mortgage quotes. NEVER commit secrets. NEVER escalate scope. If the work needs >32k context, escalate to local-qwen3-5090 or pin a profile.",
+  "systemPrompt": "Local deep coding with thinking mode. Match conventions. Run tests/lint/types after every change. Never log PII. Never generate quotes.",
+  "tags": ["local", "qwen3", "coder", "thinking"],
+  "spawn_condition": "high-throughput coding work; offline/private edits; subscription-token conservation",
+  "output_format": "code",
+  "tools_allowed": ["Bash", "Read", "Write", "Edit", "Grep", "Glob"],
+  "tools_denied": [],
+  "max_turns": 30
+}

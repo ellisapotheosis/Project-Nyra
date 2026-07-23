@@ -1,0 +1,28 @@
+# Agent Vault Services Configuration — GitHub
+# Location: Reference/template only — actual services configured via Agent Vault UI or CLI
+# Do NOT commit real credentials here.
+
+# Usage:
+# agent-vault vault service add \
+#   --vault nyra-github \
+#   --name github-api \
+#   --host api.github.com \
+#   --auth-type bearer \
+#   --token-key GITHUB_TOKEN
+
+services:
+  github-api:
+    host: api.github.com
+    port: 443
+    auth_type: bearer
+    token_key: GITHUB_TOKEN
+    description: "GitHub REST API (repos, issues, PRs, actions)"
+
+# CLI Commands:
+#
+# agent-vault vault service add \
+#   --vault nyra-github \
+#   --name github-api \
+#   --host api.github.com \
+#   --auth-type bearer \
+#   --token-key GITHUB_TOKEN

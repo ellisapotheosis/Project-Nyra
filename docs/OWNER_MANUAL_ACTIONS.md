@@ -2,6 +2,30 @@
 
 Steps that require a human login, MFA, or dashboard UI because the API is blocked.
 
+## Forgejo migration checkpoints
+
+The Forgejo migration is intentionally staged. The live Oracle Gitea source is
+currently unhealthy because its PostgreSQL password does not match the existing
+database volume, and the remote deployment copy differs from the repository.
+Do not delete the Gitea volumes.
+
+Owner actions after the automated backup succeeds:
+
+1. Restore or repair the original Gitea database credential and confirm
+   `http://127.0.0.1:3001/api/healthz` on Oracle returns successfully.
+2. Review the backup under `/var/backups/projectnyra/gitea/` and approve a
+   maintenance window for a side-by-side Forgejo 10.0.1 staging migration.
+3. Create a Forgejo administrator and Actions runner registration token after
+   staging passes repository, LFS, package, webhook, clone, and SSH checks.
+4. Store those values only in Infisical paths `/apps/forgejo` and
+   `/apps/forgejo-runner`, then run
+   `scripts/infisical/sync-forgejo-secrets.sh` on the deployment host.
+5. Approve the final Forgejo 16 upgrade and Cloudflare `git.projectnyra.com`
+   DNS/Access cutover only after the staged API and rollback tests pass.
+
+Forgejo Actions runs untrusted repository code. Use a dedicated pinned runner
+with the smallest required labels; do not reuse a general-purpose host runner.
+
 ---
 
 ## Configure OmniRoute Providers and Enable Its Private A2A Endpoint
@@ -98,13 +122,50 @@ sync or copy the complete managed secret set into it.
 
 **What is not needed now:**
 
-- An Infisical Gateway is only needed when the managed Infisical control plane
-  must reach a private database/API/resource for integrations or dynamic secrets.
 - An Infisical Proxy is a client-side cache/availability layer; it does not link
-  the managed project to this self-hosted instance.
+  the managed project to this self-hosted instance. Do not deploy it until a
+  specific application is changed to call the proxy API and a cache/recovery
+  policy is approved.
 - The existing Oracle `infisical-agent` only materializes `/hosts/oracle-vps`
   files for explicitly compatible consumers. It is unrelated to Agent Vault UI
   login and should not be used as a vault-to-vault replication mechanism.
+
+## Enable Cloud Dynamic Secrets Through Oracle Gateway
+
+**Architecture:** managed Infisical Cloud remains the source of truth. The
+Oracle Gateway is an outbound private-resource connector for dynamic-secret
+providers such as the Oracle PostgreSQL/Redis services; it is not a public HTTP
+service and must not be routed through `infisical.projectnyra.com`.
+
+**Already configured:** `infisical.projectnyra.com` is now a Cloudflare Access
+protected alias for the self-hosted Agent Vault UI. The live Oracle Tunnel routes
+it to `agent-vault:8080`.
+
+**Owner actions required:**
+
+1. Confirm the managed Infisical Cloud organization is entitled to Dynamic
+   Secrets. This capability is Enterprise-tier in Infisical Cloud.
+2. In Infisical Cloud, open **Networking -> Gateways**, create
+   `oracle-vps-dynamic-secrets`, and copy the one-time deployment token. It
+   expires after one hour.
+3. On Oracle, run the installer from this repository with the token in the
+   environment. The installer persists the gateway through systemd and makes
+   only outbound connections:
+
+```bash
+export INFISICAL_GATEWAY_ENROLL_TOKEN='<one-time-token>'
+sudo -E /path/to/project-nyra/ops/scripts/install-infisical-gateway.sh
+```
+
+4. Confirm the Gateway reports **Healthy** in Infisical Cloud. Then create the
+   dynamic-secret provider/resource, bind it to this Gateway, and use a scoped
+   machine identity for each consuming workload. Start with PostgreSQL and
+   short TTLs; verify issuance and revocation before adding Redis or cloud IAM.
+5. Create a one-way **Infisical Sync** in managed Cloud: source only the
+   approved `/security/infisical/agent-vault` folder and destination the
+   self-hosted Agent Vault project. Disable destination import, enable a key
+   schema/prefix, and disable deletion until the first reconciliation is
+   reviewed. Never sync the entire `/hosts/oracle-vps` boundary.
 
 ---
 

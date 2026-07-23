@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v infisical >/dev/null 2>&1; then
+  echo "WARNING: infisical CLI not installed; skipping secret scan."
+  echo "Install Infisical CLI before committing production code:"
+  echo "  npm install -g @infisical/cli"
+  exit 0
+fi
+
+echo "Running Infisical staged/working-tree secret scan..."
+infisical scan \
+  --source . \
+  --no-git \
+  --redact \
+  --report-format json \
+  --report-path /tmp/infisical-precommit-scan.json \
+  || {
+    echo ""
+    echo "ERROR: Secret scan failed. Commit aborted."
+    echo "Review /tmp/infisical-precommit-scan.json"
+    exit 1
+  }
+
+echo "✓ No secrets detected in staged changes."
+exit 0

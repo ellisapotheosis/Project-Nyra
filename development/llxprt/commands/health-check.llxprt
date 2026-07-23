@@ -1,0 +1,61 @@
+# health-check.llxprt
+# Run full stack health check. Usage: /script run health-check.llxprt
+
+/exec bash -c '
+set -e
+echo "=== LiteLLM gateway ==="
+curl -fsS http://127.0.0.1:4000/health/liveness | head -c 200; echo
+
+echo "=== Letta ==="
+curl -fsS http://127.0.0.1:8283/v1/health/ | head -c 200; echo
+
+echo "=== Nexus Router ==="
+curl -fsS http://127.0.0.1:7000/health | head -c 200; echo
+
+echo "=== Local workers ==="
+for endpoint in \
+  "worker-rtx5090:8000/v1/models" \
+  "worker-rtx3090ti:8000/v1/models" \
+  "worker-rtx3060:11434/api/tags" ; do
+  echo "-- $endpoint"
+  curl -fsS --max-time 5 "http://$endpoint" | head -c 200 || echo "DOWN"
+  echo
+done
+
+echo "=== Memory stack (Oracle VPS) ==="
+for endpoint in \
+  "qdrant:6333/healthz" \
+  "falkordb:6379" \
+  "mem0:8888/health" \
+  "openmemory:8765/health" \
+  "mempalace:8766/health" ; do
+  echo "-- $endpoint"
+  curl -fsS --max-time 5 "http://oracle-vps.${TAILNET_SUFFIX}:${endpoint}" 2>/dev/null | head -c 200 || echo "(redis or unreachable)"
+  echo
+done
+
+echo "=== TwentyCRM ==="
+curl -fsS --max-time 5 http://orchestrator:3000/health | head -c 200; echo
+
+echo "=== Grafana / Prometheus / Loki ==="
+curl -fsS http://orchestrator:9090/-/healthy | head -c 200; echo
+curl -fsS http://orchestrator:3003/api/health | head -c 200; echo
+curl -fsS http://orchestrator:3100/ready | head -c 200; echo
+
+echo "=== Subscription bridges (LLxprt → LiteLLM) ==="
+for m in subscription/claude subscription/codex subscription/gemini subscription/kimi ; do
+  echo "-- $m"
+  curl -fsS -X POST http://127.0.0.1:4000/chat/completions \
+    -H "Authorization: Bearer ${LITELLM_MASTER_KEY}" \
+    -H "Content-Type: application/json" \
+    -d "{\"model\":\"$m\",\"messages\":[{\"role\":\"user\",\"content\":\"ping\"}],\"max_tokens\":1}" \
+    --max-time 10 | head -c 200 || echo "DOWN"
+  echo
+done
+
+echo "=== Done ==="
+'
+
+/subagent spawn pico-utility
+  goal: "Summarize the health-check output as JSON: { gateway: ok/down, letta: ok/down, workers: {...}, memory: {...}, observability: {...}, subscriptions: {...} }."
+  output_target: letta_handoff:health_check:$(date +%s)
