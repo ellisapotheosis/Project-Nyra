@@ -1,0 +1,43 @@
+services:
+  # Infisical Agent Gateway — Dynamic secrets, API connectors, DB credential rotation
+  # Token-based auth (machine identity) to Agent Vault
+  # Provides local caching + advanced integrations (Twilio, SendGrid, LLM, DB)
+  infisical-gateway:
+    image: infisical/infisical:latest  # Use gateway image tag when available
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-gateway
+    restart: unless-stopped
+    depends_on:
+      agent-vault:
+        condition: service_healthy
+    env_file:
+      - ../../security/infisical/agent-gateway/${ENVIRONMENT:-dev}.env
+    environment:
+      # Override env file values if needed
+      NODE_ENV: ${ENVIRONMENT:-dev}
+    volumes:
+      - ../../configs/infisical/infisical-agent-gateway-config.yaml:/etc/infisical/config.yaml:ro
+      - infisical_gateway_cache:/var/lib/infisical/cache
+      - infisical_gateway_logs:/var/log/infisical
+    ports:
+      - "8200:8200"  # Gateway HTTP API
+    networks:
+      - nyra_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8200/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  infisical_gateway_cache:
+  infisical_gateway_logs:
+
+networks:
+  nyra_net:
+    external: true

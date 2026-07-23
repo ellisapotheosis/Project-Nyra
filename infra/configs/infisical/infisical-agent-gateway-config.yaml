@@ -1,0 +1,119 @@
+# Infisical Agent Gateway Configuration
+# Token-based machine identity authentication to Agent Vault
+# Handles dynamic secrets, caching, API connectors, DB credential rotation
+
+gateway:
+  # Server configuration
+  host: 0.0.0.0
+  port: 8200
+  protocol: http  # Use TLS in production via reverse proxy
+  logLevel: "${INFISICAL_GATEWAY_LOG_LEVEL:-info}"
+
+# === Backend: Agent Vault ===
+backend:
+  type: infisical-agent
+  url: "${INFISICAL_BACKEND_URL:-http://agent-vault:8080}"
+
+  # Machine Identity Token Authentication (not deprecated universal auth)
+  auth:
+    type: machine-identity
+    identity_id: "${INFISICAL_BACKEND_MACHINE_IDENTITY_ID}"
+    identity_key: "${INFISICAL_BACKEND_MACHINE_IDENTITY_KEY}"
+
+# === Secret Management ===
+secrets:
+  # Cache configuration
+  cache:
+    enabled: true
+    ttl_seconds: "${INFISICAL_CACHE_TTL_SECONDS:-300}"
+    backend: memory  # In-memory cache (cleared on restart)
+
+  # Paths to cache from Agent Vault
+  paths:
+    - "${INFISICAL_SECRET_PATH_PREFIX:-/domains/project-nyra/dev}"
+    - "/shared/credentials"
+    - "/shared/api-keys"
+
+  # Auto-refresh secrets before expiry
+  auto_refresh:
+    enabled: true
+    refresh_before_expiry_seconds: 60
+
+# === Dynamic Secrets ===
+dynamic_secrets:
+  # PostgreSQL dynamic credential generation
+  postgres:
+    enabled: "${INFISICAL_DYNAMIC_DB_ENABLED:-false}"
+    connection:
+      host: "${INFISICAL_POSTGRES_HOST:-postgres}"
+      port: "${INFISICAL_POSTGRES_PORT:-5432}"
+      username: "${INFISICAL_POSTGRES_ADMIN_USER:-postgres}"
+      password: "${INFISICAL_POSTGRES_ADMIN_PASSWORD}"
+      sslmode: disable  # Set to require in production
+
+    # Dynamically create temp roles with TTL
+    role_config:
+      prefix: "${INFISICAL_POSTGRES_ROLE_PREFIX:-app}"
+      default_ttl_hours: 1
+      max_ttl_hours: 24
+      privileges:
+        - SELECT
+        - INSERT
+        - UPDATE
+        - DELETE
+
+# === API Connectors ===
+api_connectors:
+  # Twilio - SMS/Voice
+  twilio:
+    enabled: true
+    account_sid: "${INFISICAL_TWILIO_ACCOUNT_SID}"
+    auth_token: "${INFISICAL_TWILIO_AUTH_TOKEN}"
+    endpoint: "/api/v1/twilio"
+
+  # SendGrid - Email
+  sendgrid:
+    enabled: true
+    api_key: "${INFISICAL_SENDGRID_API_KEY}"
+    endpoint: "/api/v1/sendgrid"
+
+  # Anthropic - LLM
+  anthropic:
+    enabled: true
+    api_key: "${INFISICAL_ANTHROPIC_API_KEY}"
+    endpoint: "/api/v1/anthropic"
+
+  # Add more connectors as needed
+  # openai, gemini, huggingface, etc.
+
+# === Networking ===
+networking:
+  bind_address: "${GATEWAY_BIND_ADDRESS:-0.0.0.0}"
+  bind_port: "${GATEWAY_BIND_PORT:-8200}"
+
+  # CORS for internal services
+  cors:
+    allowed_origins:
+      - "http://localhost:*"
+      - "http://127.0.0.1:*"
+      - "http://*.nyra_net:*"
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+    allowed_headers:
+      - Content-Type
+      - Authorization
+
+# === Audit & Logging ===
+audit:
+  enabled: true
+  log_file: "/var/log/infisical/audit.log"
+  log_level: info
+
+# === Health Check ===
+health:
+  enabled: true
+  endpoint: "/health"
+  interval_seconds: 10
