@@ -1,0 +1,57 @@
+# spawn-swarm.llxprt
+# Spawn a multi-agent swarm for a task. Usage from a parent agent:
+#   /script run spawn-swarm.llxprt --task "implement quote display refresh on dashboard"
+# This is a template; arguments get substituted by the orchestrator dispatcher.
+#
+# Topology: mesh — agents share state via Letta memory blocks and emit handoffs.
+
+# --- Phase 0: triage (cheap scout) ---
+/subagent spawn kimi-scout
+  goal: "Triage repo surface area for ${TASK}. Output: files, hotspots, suggested specialist routing."
+  output_target: letta_handoff:swarm:${SWARM_ID}:triage
+
+# --- Phase 1: parallel research + plan ---
+/subagent spawn gemini-researcher
+  goal: "Research current state and constraints for ${TASK}. Cite sources."
+  output_target: letta_handoff:swarm:${SWARM_ID}:research
+
+/subagent spawn codex-task-planner
+  goal: "Plan ${TASK} as atomic TDD-ordered slices with gating subagents."
+  output_target: letta_handoff:swarm:${SWARM_ID}:plan
+  depends_on: [triage, research]
+
+# --- Phase 2: implementation (gated by plan) ---
+/subagent spawn codex-tdd-engineer
+  goal: "Execute slice from ${SWARM_ID}:plan in TDD order."
+  output_target: letta_handoff:swarm:${SWARM_ID}:impl
+  depends_on: [plan]
+
+# --- Phase 3: compliance + security gate (mandatory if borrower-facing) ---
+/subagent spawn compliance-guardian
+  goal: "Validate ${SWARM_ID}:impl against TILA/RESPA/TRID/ECOA/FCRA/GLBA/TCPA + state law. Verdict required."
+  output_target: letta_handoff:swarm:${SWARM_ID}:compliance
+  depends_on: [impl]
+  blocking_if_borrower_facing: true
+
+/subagent spawn claude-security-auditor
+  goal: "Audit ${SWARM_ID}:impl against OWASP Top 10 + Nyra PII rules. Severity-rated findings."
+  output_target: letta_handoff:swarm:${SWARM_ID}:security
+  depends_on: [impl]
+  blocking_if_auth_or_pii: true
+
+# --- Phase 4: review + merge gate ---
+/subagent spawn claude-code-reviewer
+  goal: "Review ${SWARM_ID}:impl across correctness, maintainability, security, performance, tests. Verdict required."
+  output_target: letta_handoff:swarm:${SWARM_ID}:review
+  depends_on: [impl, compliance, security]
+
+# --- Phase 5: docs (parallel, non-blocking) ---
+/subagent spawn gemini-doc-writer
+  goal: "Document ${SWARM_ID}:impl. Update README/runbook/ADR as needed."
+  output_target: letta_handoff:swarm:${SWARM_ID}:docs
+  depends_on: [review]
+
+# --- Aggregation ---
+/swarm aggregate ${SWARM_ID}
+  emit_to: letta_memory_block:swarm_results
+  archive_handoffs_to: mempalace:swarms:${SWARM_ID}

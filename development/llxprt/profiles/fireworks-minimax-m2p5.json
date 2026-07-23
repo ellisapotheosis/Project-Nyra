@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "provider": "openai",
+  "model": "fireworks/minimax-m2p5",
+  "modelParams": {
+    "max_tokens": 8192,
+    "temperature": 0.7
+  },
+  "ephemeralSettings": {
+    "context-limit": 200000,
+    "base-url": "https://api.fireworks.ai/inference/v1",
+    "auth-key-name": "fireworks",
+    "streaming": "enabled",
+    "reasoning.enabled": true,
+    "reasoning.includeInResponse": true,
+    "reasoning.stripFromContext": "none"
+  }
+}

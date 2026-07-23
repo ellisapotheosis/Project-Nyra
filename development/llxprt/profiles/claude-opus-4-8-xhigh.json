@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "provider": "anthropic",
+  "model": "claude-opus-4-8",
+  "modelParams": {
+    "max_tokens": 32768
+  },
+  "ephemeralSettings": {
+    "context-limit": 950000,
+    "streaming": "enabled",
+    "reasoning.effort": "xhigh"
+  }
+}

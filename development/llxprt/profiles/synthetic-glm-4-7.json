@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "provider": "openai",
+  "model": "hf:zai-org/GLM-4.7",
+  "modelParams": {
+    "max_tokens": 8192,
+    "temperature": 1
+  },
+  "ephemeralSettings": {
+    "context-limit": 190000,
+    "base-url": "https://api.synthetic.new/openai/v1",
+    "auth-key-name": "synthetic",
+    "streaming": "enabled",
+    "reasoning.enabled": true,
+    "reasoning.includeInResponse": true,
+    "reasoning.stripFromContext": "all"
+  }
+}

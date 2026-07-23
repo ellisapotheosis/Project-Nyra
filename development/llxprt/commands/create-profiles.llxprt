@@ -1,0 +1,81 @@
+# LLxprt profile bootstrap command
+# Paste into LLxprt REPL after logging into providers, or run via apply-llxprt-profiles.sh.
+# Every profile name corresponds to a JSON in llxprt/profiles/.
+
+# --- Subscription profiles ---
+
+# Claude (subscription/claude)
+/provider openai
+/baseurl http://127.0.0.1:4000/v1
+/key load litellm
+/model subscription/claude
+/profile save model nyra-claude-architect
+/profile save model nyra-claude-implementer
+/profile save model nyra-claude-security
+/profile save model nyra-claude-compliance
+/profile save model nyra-claude-reviewer
+/profile save model nyra-claude-devops
+/profile save model nyra-letta-orchestrator
+
+# Codex (subscription/codex)
+/provider openai
+/baseurl http://127.0.0.1:4000/v1
+/key load litellm
+/model subscription/codex
+/profile save model nyra-codex-orchestrator
+/profile save model nyra-codex-implementer
+/profile save model nyra-codex-refactor
+/profile save model nyra-codex-tester
+/profile save model nyra-codex-database
+/profile save model nyra-codex-api
+
+# Gemini (subscription/gemini)
+/provider openai
+/baseurl http://127.0.0.1:4000/v1
+/key load litellm
+/model subscription/gemini
+/profile save model nyra-gemini-researcher
+/profile save model nyra-gemini-docs
+/profile save model nyra-gemini-mortgage-domain
+
+# Kimi (subscription/kimi)
+/provider openai
+/baseurl http://127.0.0.1:4000/v1
+/key load litellm
+/model subscription/kimi
+/profile save model nyra-kimi-scout
+/profile save model nyra-kimi-utility
+
+# --- Local profiles ---
+
+# Qwen3 27B on worker-rtx3090ti (stable always-on)
+/provider openai
+/baseurl http://127.0.0.1:4000/v1
+/key load litellm
+/model local/qwen3-27b
+/profile save model nyra-local-3090ti-coder
+
+# Qwen3 27B on worker-rtx5090 (mobile burst, 65k ctx)
+/provider openai
+/baseurl http://127.0.0.1:4000/v1
+/key load litellm
+/model local/qwen3-27b-5090
+/profile save model nyra-local-5090-coder
+
+# PicoClaw qwen2.5:1.5b on worker-rtx3060 (utility only)
+/provider openai
+/baseurl http://127.0.0.1:4000/v1
+/key load litellm
+/model local/picoclaw
+/profile save model nyra-local-3060-utility
+
+# Background memory llama3.2:3b on worker-rtx3060
+/provider openai
+/baseurl http://127.0.0.1:4000/v1
+/key load litellm
+/model memory-bg
+/profile save model nyra-memory-manager
+
+# --- HA loadbalancer wrappers ---
+/profile save loadbalancer nyra-ha-codex-claude-gemini failover nyra-codex-orchestrator nyra-claude-implementer nyra-gemini-researcher nyra-kimi-scout nyra-local-3090ti-coder
+/profile save loadbalancer nyra-ha-local-subscription failover nyra-local-3090ti-coder nyra-local-5090-coder nyra-claude-implementer nyra-codex-implementer

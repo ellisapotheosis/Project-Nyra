@@ -1,44 +1,59 @@
-# Infisical self-hosted community edition (agent-vault)
+# Infisical Agent Vault (Cloud-backed credential broker)
 # Overlay onto the canonical oracle-vps compose.
 # Usage: docker --context oracle compose -f docker-compose.yml -f docker-compose.agent-vault.yml up -d agent-vault
 #
-# Requires vars in .env.agent-vault (loaded by make targets):
-#   INFISICAL_ENCRYPTION_KEY  – 64-char hex (sha256 of master password)
-#   INFISICAL_AUTH_SECRET     – JWT signing secret (base64)
-#   POSTGRES_USER / POSTGRES_PASSWORD – from .env.oracle
-#   AGENT_VAULT_ADDR          – public/tailscale SITE_URL
+# Requires vars in .env.agent-vault:
+#   AGENT_VAULT_ADDR                          – local/private access URL (http://127.0.0.1:14321)
+#   AGENT_VAULT_MASTER_PASSWORD               – strong random master password
+#   INFISICAL_URL                             – https://app.infisical.com (Cloud only)
+#   INFISICAL_UNIVERSAL_AUTH_CLIENT_ID        – read-only Machine Identity client ID
+#   INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET    – read-only Machine Identity client secret
 
 services:
   agent-vault:
-    image: infisical/infisical:latest-postgres
+    image: infisical/agent-vault:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-agent-vault
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis-cache:
-        condition: service_healthy
     environment:
-      ENCRYPTION_KEY: ${INFISICAL_ENCRYPTION_KEY}
-      AUTH_SECRET: ${INFISICAL_AUTH_SECRET}
-      DB_CONNECTION_URI: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD}@postgres:5432/agent_vault
-      REDIS_URL: redis://redis-cache:6379
-      SITE_URL: ${AGENT_VAULT_ADDR:-https://agent-vault.projectnyra.com}
-      TELEMETRY_ENABLED: "false"
-      HTTPS_ENABLED: "false"
-      LOG_LEVEL: ${LOG_LEVEL:-info}
+      AGENT_VAULT_ADDR: ${AGENT_VAULT_ADDR:-http://127.0.0.1:14321}
+      AGENT_VAULT_MASTER_PASSWORD: ${AGENT_VAULT_MASTER_PASSWORD}
+      AGENT_VAULT_LOG_LEVEL: ${AGENT_VAULT_LOG_LEVEL:-info}
+      AGENT_VAULT_LOGS_MAX_AGE_HOURS: ${AGENT_VAULT_LOGS_MAX_AGE_HOURS:-168}
+      AGENT_VAULT_LOGS_MAX_ROWS_PER_VAULT: ${AGENT_VAULT_LOGS_MAX_ROWS_PER_VAULT:-10000}
+      INFISICAL_URL: ${INFISICAL_URL:-https://app.infisical.com}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
+      AGENT_VAULT_SMTP_HOST: ${AGENT_VAULT_SMTP_HOST:-}
+      AGENT_VAULT_SMTP_PORT: ${AGENT_VAULT_SMTP_PORT:-587}
+      AGENT_VAULT_SMTP_USERNAME: ${AGENT_VAULT_SMTP_USERNAME:-}
+      AGENT_VAULT_SMTP_PASSWORD: ${AGENT_VAULT_SMTP_PASSWORD:-}
+      AGENT_VAULT_SMTP_FROM: ${AGENT_VAULT_SMTP_FROM:-}
+      AGENT_VAULT_SMTP_FROM_NAME: ${AGENT_VAULT_SMTP_FROM_NAME:-Project Nyra Agent Vault}
+      AGENT_VAULT_SMTP_TLS_MODE: ${AGENT_VAULT_SMTP_TLS_MODE:-required}
+      AGENT_VAULT_SMTP_TLS_SKIP_VERIFY: ${AGENT_VAULT_SMTP_TLS_SKIP_VERIFY:-false}
     expose:
-      - "8080"
+      - "14321"
+      - "14322"
+    # Port 14321: Agent Vault management/admin UI (private only)
+    # Port 14322: Agent Vault credential proxy (private only, for vaulted agents)
+    ports:
+      - "127.0.0.1:14321:14321"
+      - "127.0.0.1:14322:14322"
+    volumes:
+      - agent_vault_data:/data
     networks:
       nyra_net: {}
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/status | grep -q '\"date\"' || exit 1"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:14321/health"]
       interval: 30s
-      timeout: 10s
-      retries: 5
+      timeout: 5s
+      retries: 3
       start_period: 60s
 
 networks:
   nyra_net:
     external: true
     name: nyra_net
+
+volumes:
+  agent_vault_data:

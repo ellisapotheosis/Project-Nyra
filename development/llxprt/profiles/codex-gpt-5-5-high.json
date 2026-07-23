@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "provider": "codex",
+  "model": "gpt-5.5",
+  "modelParams": {
+    "max_tokens": 8192
+  },
+  "ephemeralSettings": {
+    "context-limit": 500000,
+    "reasoning.effort": "high",
+    "streaming": "enabled"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1784512116596,
+  "lastScanned": 1784773068124,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
   "techStack": {
     "languages": [
@@ -32,17 +32,17 @@
     "frameworks": [
       {
         "name": "@playwright/test",
-        "version": "1.58.2",
+        "version": "1.61.1",
         "category": "testing"
       },
       {
         "name": "vite",
-        "version": "7.3.2",
+        "version": "8.1.0",
         "category": "build"
       },
       {
         "name": "vitest",
-        "version": "4.0.18",
+        "version": "4.1.10",
         "category": "testing"
       }
     ],
@@ -56,19 +56,23 @@
     "devCommand": "pnpm dev",
     "scripts": {
       "prepare": "husky",
-      "dev": "turbo run dev --concurrency=30",
+      "dev": "turbo run dev --filter=projectnyra --filter=projectnyra-landing --filter=ratehunter-landing --filter=lead-capture-api --concurrency=8",
       "build": "turbo run build",
       "lint": "pnpm -r --if-present lint",
       "test": "pnpm exec vitest --config vitest.smoke.config.mjs run",
-      "test:unit": "pnpm exec vitest --config vitest.smoke.config.mjs run",
+      "test:unit": "bash scripts/testing/run-unit-tests.sh",
       "test:all": "pnpm exec vitest --config vitest.config.mjs run",
-      "docker:up": "docker compose -f infra/docker-compose.yml up -d",
-      "docker:down": "docker compose -f infra/docker-compose.yml down",
-      "twenty:setup": "docker compose -f infra/docker-compose.twenty.yml up -d",
-      "twenty:down": "docker compose -f infra/docker-compose.twenty.yml down",
+      "docker:up": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d",
+      "docker:down": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml down",
+      "twenty:setup": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml up -d twenty twenty-worker twenty-db",
+      "twenty:down": "docker compose -f infra/hosts/oracle-vps/docker-compose.yml stop twenty twenty-worker twenty-db",
       "twenty:dev": "turbo run dev --filter=twenty-crm",
       "admin:dev": "turbo run dev --filter=nyra-admin",
-      "all:dev": "turbo run dev --parallel"
+      "nexus:dev": "turbo run dev --filter=@nyra/nexus-ui",
+      "all:dev": "turbo run dev --parallel",
+      "typecheck": "turbo run typecheck",
+      "test:contracts": "pnpm -C packages/domain-models test && pnpm -C packages/integration-adapters test",
+      "docs:check": "ls docs/*.md && ls docs/ops/*.md"
     }
   },
   "conventions": {
@@ -100,7 +104,7 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1784512116577,
+      "lastAccessed": 1784773068101,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
@@ -112,21 +116,21 @@
       "path": "archive",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784512116577,
+      "lastAccessed": 1784773068102,
       "keyFiles": []
     },
     "bootstrap": {
       "path": "bootstrap",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784512116583,
+      "lastAccessed": 1784773068113,
       "keyFiles": []
     },
     "conductor": {
       "path": "conductor",
       "purpose": null,
       "fileCount": 6,
-      "lastAccessed": 1784512116584,
+      "lastAccessed": 1784773068114,
       "keyFiles": [
         "index.md",
         "product-guidelines.md",
@@ -139,25 +143,35 @@
       "path": "configs",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784512116585,
+      "lastAccessed": 1784773068114,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 2,
-      "lastAccessed": 1784512116585,
+      "lastAccessed": 1784773068115,
       "keyFiles": [
         "campaign-templates.json",
         "seed-leads.json"
       ]
     },
+    "development": {
+      "path": "development",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1784773068115,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 2,
-      "lastAccessed": 1784512116586,
+      "fileCount": 3,
+      "lastAccessed": 1784773068115,
       "keyFiles": [
+        "CLOUDFLARE-PAGES-DEPLOYMENT.md",
         "OWNER_MANUAL_ACTIONS.md",
         "README.md"
       ]
@@ -166,14 +180,14 @@
       "path": "external",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784512116586,
+      "lastAccessed": 1784773068115,
       "keyFiles": []
     },
     "infra": {
       "path": "infra",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1784512116587,
+      "lastAccessed": 1784773068116,
       "keyFiles": [
         "0-100-AUTONOMOUS-PROMPT-GOD.md",
         "CLAUDE.md",
@@ -186,14 +200,14 @@
       "path": "ops",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784512116587,
+      "lastAccessed": 1784773068116,
       "keyFiles": []
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1784512116587,
+      "lastAccessed": 1784773068116,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -201,8 +215,8 @@
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
-      "fileCount": 65,
-      "lastAccessed": 1784512116588,
+      "fileCount": 67,
+      "lastAccessed": 1784773068117,
       "keyFiles": [
         "Initialize-CodexEnvironment.sh",
         "agent-vault-infisical-sync.sh",
@@ -215,7 +229,7 @@
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 1,
-      "lastAccessed": 1784512116589,
+      "lastAccessed": 1784773068117,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -224,14 +238,14 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784512116589,
+      "lastAccessed": 1784773068117,
       "keyFiles": []
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1784512116589,
+      "lastAccessed": 1784773068119,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -240,7 +254,7 @@
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 4,
-      "lastAccessed": 1784512116590,
+      "lastAccessed": 1784773068119,
       "keyFiles": [
         "README.md",
         "README_VITEST.md",
@@ -252,31 +266,41 @@
       "path": "archive/docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1784512116591,
+      "lastAccessed": 1784773068120,
       "keyFiles": []
+    },
+    "development/docs": {
+      "path": "development/docs",
+      "purpose": "Documentation",
+      "fileCount": 1,
+      "lastAccessed": 1784773068121,
+      "keyFiles": [
+        "memory-integration.md"
+      ]
     },
     "ops/scripts": {
       "path": "ops/scripts",
       "purpose": "Build/utility scripts",
-      "fileCount": 2,
-      "lastAccessed": 1784512116593,
+      "fileCount": 4,
+      "lastAccessed": 1784773068122,
       "keyFiles": [
         "infisical-oracle-compose.sh",
-        "validate-docs-consolidation.sh"
+        "install-infisical-gateway.sh",
+        "repair-oracle-env-from-infisical.sh"
       ]
     },
     "packages/assets": {
       "path": "packages/assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1784512116594,
+      "lastAccessed": 1784773068123,
       "keyFiles": []
     },
     "packages/config": {
       "path": "packages/config",
       "purpose": "Configuration files",
       "fileCount": 2,
-      "lastAccessed": 1784512116594,
+      "lastAccessed": 1784773068123,
       "keyFiles": [
         "README.md",
         "package.json"
@@ -286,7 +310,7 @@
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
-      "lastAccessed": 1784512116596,
+      "lastAccessed": 1784773068124,
       "keyFiles": [
         "agents.json",
         "leads.json",
@@ -303,8 +327,8 @@
     },
     {
       "path": "infra/hosts/oracle-vps/docker-compose.yml",
-      "accessCount": 21,
-      "lastAccessed": 1784309184366,
+      "accessCount": 22,
+      "lastAccessed": 1784663988022,
       "type": "file"
     },
     {

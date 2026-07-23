@@ -1,0 +1,34 @@
+{
+  "db19a618-23e7-462d-ae95-b8ad40762aeb": {
+    "conversationId": "conv-1603b6e1-f0c6-40f3-a646-4703dfb87b80",
+    "agentId": "agent-0008d8ab-4ace-40dc-a2c8-feecd37b8c8c"
+  },
+  "57c137be-6df2-4129-bf61-16c647b9395f": {
+    "conversationId": "conv-365d42b1-1ff3-4fa8-ab6d-1d45274b0e66",
+    "agentId": "agent-0008d8ab-4ace-40dc-a2c8-feecd37b8c8c"
+  },
+  "e07088d8-d6af-48f8-8b0c-8e9b18683c7c": {
+    "conversationId": "conv-3230d701-f568-4e42-a5b0-19caee3d9034",
+    "agentId": "agent-0008d8ab-4ace-40dc-a2c8-feecd37b8c8c"
+  },
+  "b13e965a-4cf1-4753-95d0-a59eb2accdd0": {
+    "conversationId": "conv-e2783f22-a210-42b0-ad58-c00b7a20d433",
+    "agentId": "agent-8ae0ffbc-eb51-462f-beea-14a6daf2ae4d"
+  },
+  "3804186a-4bfd-4fba-bba5-ee56f9a02e6d": {
+    "conversationId": "conv-adcacd2b-9be8-4d1f-882d-cd8fa209ca43",
+    "agentId": "agent-8ae0ffbc-eb51-462f-beea-14a6daf2ae4d"
+  },
+  "353b46a0-4ea5-44ac-9c7e-83ea3a109a7a": {
+    "conversationId": "conv-75c95fea-a038-4e51-8f44-f57cb52c25f2",
+    "agentId": "agent-8ae0ffbc-eb51-462f-beea-14a6daf2ae4d"
+  },
+  "6c37fbe3-5bab-4115-b10d-87056a1edf13": {
+    "conversationId": "conv-44f65c05-24c8-487b-a271-85c79d752384",
+    "agentId": "agent-8ae0ffbc-eb51-462f-beea-14a6daf2ae4d"
+  },
+  "fc051c79-f5f4-4d47-a5aa-474cfbfa4f28": {
+    "conversationId": "conv-e916833e-adec-478e-bb0a-e294f1c672e6",
+    "agentId": "agent-8ae0ffbc-eb51-462f-beea-14a6daf2ae4d"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "name": "nyra-ha-codex-claude-gemini",
+  "description": "High-availability load-balancer wrapper: codex primary, claude secondary, gemini tertiary, kimi safety net, local last-resort.",
+  "type": "loadbalancer",
+  "policy": "failover",
+  "backends": [
+    "nyra-codex-orchestrator",
+    "nyra-claude-implementer",
+    "nyra-gemini-researcher",
+    "nyra-kimi-scout",
+    "nyra-local-3090ti-coder"
+  ],
+  "ephemeralSettings": {
+    "failover_retry_count": 1,
+    "failover_retry_delay_ms": 1000,
+    "failover_status_codes": [402, 408, 429, 500, 502, 503, 504],
+    "failover_on_network_errors": true,
+    "lb_circuit_breaker_threshold": 3,
+    "lb_circuit_breaker_timeout_ms": 60000
+  },
+  "tags": ["ha", "failover", "loadbalancer", "production"],
+  "metadata": {
+    "cost_tier": "subscription",
+    "latency_class": "medium",
+    "best_for": ["production-critical tasks where any single provider being down is unacceptable"],
+    "avoid_for": ["experimental work", "tasks needing model-specific capabilities (pin a profile instead)"]
+  }
+}

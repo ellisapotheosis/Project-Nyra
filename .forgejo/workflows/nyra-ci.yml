@@ -1,0 +1,33 @@
+name: nyra-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  policy:
+    runs-on: [self-hosted, nyra, forgejo]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate workflow policy
+        run: bash scripts/ci/lint-workflows.sh
+      - name: Validate infrastructure manifests
+        run: bash scripts/ci/validate-infra.sh
+
+  tests:
+    runs-on: [self-hosted, nyra, forgejo]
+    needs: policy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Run targeted unit tests
+        run: pnpm exec vitest run --passWithNoTests

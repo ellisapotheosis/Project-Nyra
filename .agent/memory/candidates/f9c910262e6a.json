@@ -20,7 +20,7 @@
     "2026-07-20T15:49:30.588094+00:00"
   ],
   "cluster_size": 2,
-  "canonical_salience": 9.0,
+  "canonical_salience": 8.46,
   "staged_at": "2026-07-20T15:49:40.312690+00:00",
   "status": "staged",
   "decisions": [
@@ -41,6 +41,46 @@
     },
     {
       "ts": "2026-07-20T16:38:39.374631+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-20T16:55:49.127211+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-20T23:39:52.611249+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-20T23:40:08.240342+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-21T01:26:25.823678+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-21T17:16:56.926182+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-21T20:04:08.377110+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-22T17:18:02.089252+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-22T17:24:20.613239+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
     }

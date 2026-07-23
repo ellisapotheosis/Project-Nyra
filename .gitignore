@@ -49,12 +49,9 @@ coverage/
 secrets/
 .secrets/
 credentials/
-.letta/
-.mempalace/
 data/gitea/
 data/app-guidance/files/nyra-stack/
 infra/env/secrets/
-infra/cloudflare/apply-results/
 
 # Host/runtime env files must stay local or come from Infisical.
 **/.env
@@ -92,9 +89,7 @@ configs/env/.env.legacy
 *.swp
 *.swo
 *~
-.project
 .classpath
-.settings/
 *.sublime-project
 *.sublime-workspace
 
@@ -292,9 +287,6 @@ venv.bak/
 *.ipynb
 
 ################################################################################
-# Volta
-################################################################################
-.volta/
 
 ################################################################################
 # Package Managers
@@ -451,17 +443,6 @@ out/
 .nuxt/
 dist/
 
-################################################################################
-# Gatsby files
-################################################################################
-.cache/
-public/
-!apps/*/public/
-!apps/*/public/**
-!apps/landing/ratehunter-landing/public/
-!apps/landing/ratehunter-landing/public/**
-!apps/nexusUI/public/
-!apps/nexusUI/public/.gitkeep
 
 ################################################################################
 # Serverless directories
@@ -521,9 +502,7 @@ docs/archive/**/.env.*
 docs/archive/**/*.pem
 docs/archive/**/*.key
 docs/archive/**/*.db
-bootstrap/
-!infra/bootstrap/
-!infra/bootstrap/**
+
 
 # Codanna local index/cache
 .codanna/
@@ -566,25 +545,6 @@ data/pockettts/
 data/gitea/
 data/gitea-db/
 
-# llxprt local cache (npm prefix + jefe binary)
-.llxprt/
-
-################################################################################
-################################################################################
-# Archon runtime artifacts (never commit)
-.archon/mcp/          # May contain env var references
-
-# MemPalace per-project files (issue #185)
-mempalace.yaml
-entities.json
-.codex/*
-!.codex/agents/
-!.codex/agents/**
-!.codex/skills/
-!.codex/skills/**
-.codex/skills/.system/**
-!.codex/prompts/
-!.codex/prompts/**
 
 # Windows metadata copied through WSL/SMB
 *:Zone.Identifier

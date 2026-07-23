@@ -1,0 +1,58 @@
+# Agent Vault Services Configuration — LLM Providers
+# Location: Reference/template only — actual services configured via Agent Vault UI or CLI
+# Do NOT commit real credentials here.
+
+# Usage:
+# agent-vault vault service add \
+#   --vault nyra-llm \
+#   --name openai \
+#   --host api.openai.com \
+#   --auth-type bearer \
+#   --token-key OPENAI_API_KEY
+
+services:
+  openai:
+    host: api.openai.com
+    port: 443
+    auth_type: bearer
+    token_key: OPENAI_API_KEY
+    description: "OpenAI API (GPT-4, GPT-3.5, Embeddings)"
+
+  anthropic:
+    host: api.anthropic.com
+    port: 443
+    auth_type: api-key
+    api_key_header: x-api-key
+    api_key_key: ANTHROPIC_API_KEY
+    description: "Anthropic API (Claude models)"
+
+  openrouter:
+    host: openrouter.ai
+    port: 443
+    auth_type: bearer
+    token_key: OPENROUTER_API_KEY
+    description: "OpenRouter (multi-model LLM aggregator)"
+
+# CLI Commands to create these services:
+#
+# agent-vault vault service add \
+#   --vault nyra-llm \
+#   --name openai \
+#   --host api.openai.com \
+#   --auth-type bearer \
+#   --token-key OPENAI_API_KEY
+#
+# agent-vault vault service add \
+#   --vault nyra-llm \
+#   --name anthropic \
+#   --host api.anthropic.com \
+#   --auth-type api-key \
+#   --api-key-header x-api-key \
+#   --api-key-key ANTHROPIC_API_KEY
+#
+# agent-vault vault service add \
+#   --vault nyra-llm \
+#   --name openrouter \
+#   --host openrouter.ai \
+#   --auth-type bearer \
+#   --token-key OPENROUTER_API_KEY

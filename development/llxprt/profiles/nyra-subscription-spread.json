@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "type": "loadbalancer",
+  "policy": "roundrobin",
+  "backends": [
+    "nyra-codex-oauth",
+    "nyra-gemini-oauth",
+    "nyra-qwen-oauth",
+    "nyra-local-nexus"
+  ],
+  "ephemeralSettings": {
+    "failover_retry_count": 1,
+    "failover_retry_delay_ms": 500,
+    "failover_status_codes": [
+      402,
+      429,
+      500,
+      502,
+      503,
+      504
+    ],
+    "failover_on_network_errors": true,
+    "context-limit": 128000,
+    "compression-threshold": 0.72,
+    "task-max-timeout-seconds": 2400
+  }
+}

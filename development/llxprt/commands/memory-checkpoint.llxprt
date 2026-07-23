@@ -1,0 +1,21 @@
+# memory-checkpoint.llxprt
+# Save current context to MemPalace + mem0. Run at session end or at meaningful milestones.
+# Usage: /script run memory-checkpoint.llxprt --label "post-feature-X" --scope session
+
+/subagent spawn memory-bg-agent
+  goal: "Checkpoint current session into memory stores."
+  inputs:
+    - session_transcript: ${SESSION_TRANSCRIPT}
+    - active_files: ${ACTIVE_FILES}
+    - decisions: ${DECISIONS}
+    - label: ${LABEL}
+    - scope: ${SCOPE}
+  steps:
+    1: "Extract atomic facts (subject/predicate/object/confidence/source/timestamp)."
+    2: "Dedupe via mem0 similarity search (threshold 0.85)."
+    3: "Tag each fact with PII flag — drop or redact PII before write."
+    4: "Write episodic facts to mem0 (Qdrant)."
+    5: "Write relational facts to FalkorDB."
+    6: "Write organized summary to MemPalace under wing=nyra-sessions, room=${LABEL}."
+    7: "Update Letta orchestrator memory block 'recent_sessions' with one-line summary."
+  output_target: letta_handoff:memory_checkpoint:${LABEL}

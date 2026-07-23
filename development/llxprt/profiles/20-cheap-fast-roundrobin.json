@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "type": "loadbalancer",
+  "policy": "roundrobin",
+  "backends": [
+    "gemini-3-5-flash-agentic-fast",
+    "gemini-3-1-flash-lite-cheap",
+    "cerebras-glm-4-7-fast-no-reasoning",
+    "openrouter-qwen3-coder-free",
+    "qwen3-coder-plus-oauth-or-key"
+  ],
+  "ephemeralSettings": {
+    "lb_circuit_breaker_threshold": 3,
+    "lb_circuit_breaker_timeout_ms": 60000
+  }
+}

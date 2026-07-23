@@ -1,0 +1,99 @@
+name: nyra-forgejo
+
+services:
+  forgejo-db:
+    image: postgres:16.4-alpine
+    container_name: ${FORGEJO_CONTAINER_PREFIX:-nyra}-forgejo-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${FORGEJO_DB_NAME:-forgejo}
+      POSTGRES_USER: ${FORGEJO_DB_USER:-forgejo}
+      POSTGRES_PASSWORD: ${FORGEJO_DB_PASSWORD:?FORGEJO_DB_PASSWORD is required}
+    volumes:
+      - forgejo_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [forgejo_net]
+
+  forgejo:
+    image: ${FORGEJO_IMAGE:-codeberg.org/forgejo/forgejo:10.0.1-rootless}
+    container_name: ${FORGEJO_CONTAINER_PREFIX:-nyra}-forgejo
+    hostname: forgejo
+    restart: unless-stopped
+    depends_on:
+      forgejo-db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${FORGEJO_HTTP_PORT:-3101}:3000"
+      - "127.0.0.1:${FORGEJO_SSH_PORT:-2223}:2222"
+    volumes:
+      - forgejo_data:/var/lib/gitea
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      USER_UID: ${FORGEJO_UID:-1000}
+      USER_GID: ${FORGEJO_GID:-1000}
+      GITEA__database__DB_TYPE: postgres
+      GITEA__database__HOST: forgejo-db:5432
+      GITEA__database__NAME: ${FORGEJO_DB_NAME:-forgejo}
+      GITEA__database__USER: ${FORGEJO_DB_USER:-forgejo}
+      GITEA__database__PASSWD: ${FORGEJO_DB_PASSWORD:?FORGEJO_DB_PASSWORD is required}
+      GITEA__server__DOMAIN: ${FORGEJO_DOMAIN:-git.projectnyra.com}
+      GITEA__server__ROOT_URL: ${FORGEJO_ROOT_URL:-https://git.projectnyra.com/}
+      GITEA__server__SSH_DOMAIN: ${FORGEJO_SSH_DOMAIN:-git.projectnyra.com}
+      GITEA__server__SSH_PORT: ${FORGEJO_SSH_PORT:-2223}
+      GITEA__server__SSH_LISTEN_PORT: 2222
+      GITEA__server__START_SSH_SERVER: "true"
+      GITEA__security__INSTALL_LOCK: "true"
+      GITEA__security__SECRET_KEY: ${FORGEJO_SECRET_KEY:?FORGEJO_SECRET_KEY is required}
+      GITEA__security__INTERNAL_TOKEN: ${FORGEJO_INTERNAL_TOKEN:?FORGEJO_INTERNAL_TOKEN is required}
+      GITEA__oauth2__JWT_SECRET: ${FORGEJO_JWT_SECRET:?FORGEJO_JWT_SECRET is required}
+      GITEA__service__DISABLE_REGISTRATION: "true"
+      GITEA__actions__ENABLED: "true"
+      GITEA__packages__ENABLED: "true"
+      GITEA__mirror__ENABLED: "false"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "5"}
+    security_opt: [no-new-privileges:true]
+    networks: [forgejo_net]
+
+  forgejo-runner:
+    image: code.forgejo.org/forgejo/runner:12.8.0
+    container_name: ${FORGEJO_CONTAINER_PREFIX:-nyra}-forgejo-runner
+    profiles: [actions]
+    restart: unless-stopped
+    depends_on:
+      forgejo:
+        condition: service_healthy
+    environment:
+      FORGEJO_INSTANCE_URL: ${FORGEJO_INSTANCE_URL:-http://forgejo:3000}
+      FORGEJO_RUNNER_REGISTRATION_TOKEN: ${FORGEJO_RUNNER_REGISTRATION_TOKEN:?runner token required}
+      FORGEJO_RUNNER_NAME: ${FORGEJO_RUNNER_NAME:-oracle-actions-01}
+    volumes:
+      - forgejo_runner_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: ["forgejo-runner", "daemon", "--config", "/data/config.yml"]
+    security_opt: [no-new-privileges:true]
+    networks: [forgejo_net]
+
+networks:
+  forgejo_net:
+    name: nyra-forgejo
+
+volumes:
+  forgejo_db_data:
+    name: nyra-forgejo_db_data
+  forgejo_data:
+    name: nyra-forgejo_data
+  forgejo_runner_data:
+    name: nyra-forgejo_runner_data
