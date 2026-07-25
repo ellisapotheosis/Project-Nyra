@@ -1,0 +1,52 @@
+{
+  "id": "259736cac39f",
+  "key": "pattern_ignoredhook_post-commit_executable_259736",
+  "name": "pattern_ignoredhook_post-commit_executable_259736",
+  "claim": "High-stakes op completed (deploy): # Fix CRLF line endings in scripts",
+  "conditions": [
+    "advice",
+    "bash",
+    "because",
+    "cmd",
+    "config",
+    "disable",
+    "executable",
+    "false",
+    "git",
+    "hint",
+    "hook",
+    "husky",
+    "ignored",
+    "ignoredhook",
+    "out",
+    "post-commit",
+    "set",
+    "warning"
+  ],
+  "evidence_ids": [
+    "2026-07-20T16:55:31.099300+00:00",
+    "2026-07-25T17:14:22.809731+00:00"
+  ],
+  "cluster_size": 2,
+  "canonical_salience": 9.0,
+  "staged_at": "2026-07-25T17:14:31.750548+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-25T17:14:31.750548+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T17:28:46.205967+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T17:55:10.437342+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}
