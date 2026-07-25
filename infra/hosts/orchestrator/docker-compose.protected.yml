@@ -1,0 +1,73 @@
+# ============================================================================
+# Orchestrator — Protected Management Plane
+# ============================================================================
+# Compose project: orchestrator-protected
+#
+# Protected services on orchestrator:
+#   - portainer-agent : fleet management uplink to oracle-vps Portainer CE
+#   - syncthing       : project sync receiver from worker-rtx5090 (Send-Only source)
+#
+# Start:  make protected-up
+# Status: docker compose -p orchestrator-protected -f docker-compose.protected.yml ps
+# STOP:   make protected-down  (blocked by guarded-down.sh)
+# ============================================================================
+
+services:
+  # ── Portainer Agent ── DO NOT STOP without notifying Portainer CE ─────────
+  portainer-agent:
+    image: portainer/agent:2.27.9
+    container_name: orchestrator-portainer-agent
+    restart: always
+    environment:
+      EDGE: "1"
+      EDGE_ID: ${PORTAINER_EDGE_ID:?PORTAINER_EDGE_ID required}
+      EDGE_KEY: ${PORTAINER_EDGE_KEY:?PORTAINER_EDGE_KEY required}
+      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
+      AGENT_TAGS: orchestrator
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - orchestrator-protected-net
+    labels:
+      com.projectnyra.protected: "true"
+      com.projectnyra.lifecycle: "permanent"
+      com.projectnyra.do-not-stop: "true"
+      com.projectnyra.service: "portainer-agent"
+      com.projectnyra.host: "orchestrator"
+
+  # ── Syncthing (Receive-Only) ── DO NOT STOP during active development ─────
+  # Receives project files from worker-rtx5090 (canonical Send-Only source).
+  # Stopping interrupts file sync; safe to stop briefly for maintenance.
+  syncthing:
+    image: syncthing/syncthing:1.29.3
+    container_name: orchestrator-syncthing
+    restart: always
+    network_mode: host
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+    volumes:
+      - syncthing_config:/var/syncthing
+      - /home/ellisapotheosis:/var/syncthing/data/home
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8384"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    labels:
+      com.projectnyra.protected: "true"
+      com.projectnyra.lifecycle: "permanent"
+      com.projectnyra.do-not-stop: "true"
+      com.projectnyra.service: "syncthing"
+      com.projectnyra.host: "orchestrator"
+      com.projectnyra.syncthing-role: "receive-only"
+
+volumes:
+  syncthing_config:
+    driver: local
+
+networks:
+  orchestrator-protected-net:
+    driver: bridge
+    name: orchestrator-protected-net

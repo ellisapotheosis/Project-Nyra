@@ -27,8 +27,9 @@ services:
       ADAPTER_DRIVER: openai
       ADAPTER_TIMEOUT_MS: 900000
       ADAPTER_STATE_DIR: /data/state/hermes
-      # Connect to local LiteLLM on orchestrator
-      ADAPTER_OPENAI_BASE_URL: "http://127.0.0.1:4010/v1"
+      # Connect to canonical LiteLLM on orchestrator (docker-internal, same network)
+      # Deploy litellm first: make -C infra/hosts/orchestrator litellm-up
+      ADAPTER_OPENAI_BASE_URL: "${LITELLM_BASE_URL:-http://litellm:4000/v1}"
       ADAPTER_OPENAI_API_KEY: ${LITELLM_HERMES_KEY:-not-needed}
       ADAPTER_OPENAI_MODEL: "default"
       # MCP tool access via Nexus
@@ -46,7 +47,7 @@ services:
     networks:
       - nyra-network
     depends_on:
-      portainer:
+      portainer-edge-agent:
         condition: service_started
 
   # ── Hermes Metrics Exporter (Prometheus) ────────────────────────────────

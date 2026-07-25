@@ -1,0 +1,60 @@
+# ============================================================================
+# Worker RTX 3090Ti — Protected Management Plane
+# ============================================================================
+# Compose project: worker-rtx3090ti-protected
+
+services:
+  portainer-agent:
+    image: portainer/agent:2.27.9
+    container_name: worker-rtx3090ti-portainer-agent
+    restart: always
+    environment:
+      EDGE: "1"
+      EDGE_ID: ${PORTAINER_EDGE_ID:?PORTAINER_EDGE_ID required}
+      EDGE_KEY: ${PORTAINER_EDGE_KEY:?PORTAINER_EDGE_KEY required}
+      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
+      AGENT_TAGS: worker-rtx3090ti,gpu,vllm
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+    networks:
+      - worker-rtx3090ti-protected-net
+    labels:
+      com.projectnyra.protected: "true"
+      com.projectnyra.lifecycle: "permanent"
+      com.projectnyra.do-not-stop: "true"
+      com.projectnyra.service: "portainer-agent"
+      com.projectnyra.host: "worker-rtx3090ti"
+
+  syncthing:
+    image: syncthing/syncthing:1.29.3
+    container_name: worker-rtx3090ti-syncthing
+    restart: always
+    network_mode: host
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+    volumes:
+      - syncthing_config:/var/syncthing
+      - /home/ellisapotheosis:/var/syncthing/data/home
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8384"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    labels:
+      com.projectnyra.protected: "true"
+      com.projectnyra.lifecycle: "permanent"
+      com.projectnyra.do-not-stop: "true"
+      com.projectnyra.service: "syncthing"
+      com.projectnyra.host: "worker-rtx3090ti"
+      com.projectnyra.syncthing-role: "receive-only"
+
+volumes:
+  syncthing_config:
+    driver: local
+
+networks:
+  worker-rtx3090ti-protected-net:
+    driver: bridge
+    name: worker-rtx3090ti-protected-net
