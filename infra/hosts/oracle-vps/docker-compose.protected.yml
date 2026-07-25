@@ -1,0 +1,96 @@
+# ============================================================================
+# Oracle VPS — Protected Management Plane
+# ============================================================================
+# Compose project: oracle-vps-protected
+#
+# These services MUST NOT be stopped without a maintenance plan:
+#   - cloudflared  : public ingress — stopping kills all *.projectnyra.com access
+#   - portainer-ce : fleet management UI — stopping loses cluster oversight
+#
+# Lifecycle controls:
+#   - restart: always  (restarts even after docker daemon restart, unlike unless-stopped)
+#   - Labels warn automation tooling not to touch these
+#   - Use guarded-down.sh to attempt a stop — it will block unless --force is passed
+#
+# Start:  make protected-up
+# Status: docker compose -p oracle-vps-protected -f docker-compose.protected.yml ps
+# STOP:   make protected-down  (requires explicit confirmation in script)
+# ============================================================================
+
+services:
+  # ── Cloudflare Tunnel ── DO NOT STOP without a maintenance window ──────────
+  # Stopping this kills ALL public traffic to projectnyra.com.
+  # Migration plan required before changes: docs/infra-reconciliation/rollback/cloudflare.md
+  cloudflared:
+    image: cloudflare/cloudflared:2025.5.0
+    container_name: oracle-vps-cloudflared
+    restart: always
+    command: ["tunnel", "--no-autoupdate", "--protocol", "http2", "run"]
+    environment:
+      TUNNEL_TOKEN: ${ORACLE_TUNNEL_TOKEN:?ORACLE_TUNNEL_TOKEN required}
+    networks:
+      - nyra_net
+    healthcheck:
+      test: ["CMD", "cloudflared", "--version"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+    labels:
+      com.projectnyra.protected: "true"
+      com.projectnyra.lifecycle: "permanent"
+      com.projectnyra.do-not-stop: "true"
+      com.projectnyra.service: "cloudflared"
+      com.projectnyra.host: "oracle-vps"
+      com.projectnyra.impact: "stops all public ingress if removed"
+
+  # ── Portainer CE Server ── DO NOT STOP without alerting workers ───────────
+  # Portainer CE is the central fleet management UI.
+  # Agents on all workers connect back to this server.
+  portainer-ce:
+    image: portainer/portainer-ce:2.27.9
+    container_name: oracle-vps-portainer-ce
+    restart: always
+    ports:
+      # Bind portainer to Tailscale IP only (avoid port 8000 collision with supabase-kong)
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:9443:9443"
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:9000:9000"
+    volumes:
+      - portainer_protected_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - nyra_net
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "https://localhost:9443",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      com.projectnyra.protected: "true"
+      com.projectnyra.lifecycle: "permanent"
+      com.projectnyra.do-not-stop: "true"
+      com.projectnyra.service: "portainer-ce"
+      com.projectnyra.host: "oracle-vps"
+      com.projectnyra.impact: "loses fleet visibility if removed"
+
+volumes:
+  portainer_protected_data:
+    driver: local
+
+networks:
+  # Join the main oracle-vps compose network so cloudflared and portainer
+  # can reach services in the main project.
+  # Actual name = {COMPOSE_PROJECT_NAME}_nyra_net where COMPOSE_PROJECT_NAME
+  # is whatever value the main oracle-vps project uses (default: nyra → "nyra_nyra_net").
+  # Set ORACLE_MAIN_NETWORK in .env if your main project uses a different name.
+  nyra_net:
+    external: true
+    name: ${ORACLE_MAIN_NETWORK:-nyra_nyra_net}
