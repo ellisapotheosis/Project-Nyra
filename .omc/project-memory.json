@@ -330,8 +330,8 @@
   "hotPaths": [
     {
       "path": "Makefile",
-      "accessCount": 25,
-      "lastAccessed": 1784999445012,
+      "accessCount": 33,
+      "lastAccessed": 1785002031111,
       "type": "file"
     },
     {
@@ -365,6 +365,12 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/orchestrator/docker-compose.yml",
+      "accessCount": 14,
+      "lastAccessed": 1785018264735,
+      "type": "file"
+    },
+    {
       "path": "infra/hosts/orchestrator/docker-compose.cloudflared.yml",
       "accessCount": 12,
       "lastAccessed": 1778326670131,
@@ -380,12 +386,6 @@
       "path": "infra/hosts/oracle-vps/docker-compose.apps.yml",
       "accessCount": 11,
       "lastAccessed": 1784309184246,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.yml",
-      "accessCount": 11,
-      "lastAccessed": 1784999506882,
       "type": "file"
     },
     {

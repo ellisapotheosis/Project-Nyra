@@ -34,6 +34,7 @@ ORACLE_LETTA_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.letta-mcp.yml
 ORACLE_MEMORY_EXTRA_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory-extra.yml
 ORACLE_PAPERCLIP_COMPOSE := infra/hosts/oracle-vps/docker-compose.paperclip.yml
 ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
+ORACLE_AGENT_VAULT_COMPOSE := infra/hosts/oracle-vps/docker-compose.agent-vault.yml
 ORACLE_UI_FACTORY_SERVICES := nyra-ui-engine magicui-mcp shadcn-mcp
 ORACLE_MCP_TOOL_SERVICES := llxprt-bridge-proxy activepieces-mcp litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
 ORACLE_PORTAINER_SERVICES := portainer portainer-edge-agent
@@ -329,7 +330,7 @@ oracle-campaign-engine-up:
 
 # --- AGENT INFRA TARGETS ---
 
-.PHONY: agent-infra-validate agent-secrets-generate agent-secrets-audit oracle-agent-utils-up oracle-agent-utils-down oracle-memory-up oracle-memory-down kyutai-base-3060-up kyutai-mesh-up kyutai-mesh-down kyutai-mesh-check
+.PHONY: agent-infra-validate agent-secrets-generate agent-secrets-audit oracle-agent-utils-up oracle-agent-utils-down oracle-memory-up oracle-memory-down kyutai-base-3060-up kyutai-mesh-up kyutai-mesh-down kyutai-mesh-check oracle-agent-vault-up oracle-agent-vault-down oracle-agent-vault-logs oracle-agent-vault-status oracle-agent-vault-init
 
 agent-infra-validate:
 	bash scripts/validate-agent-infra.sh
@@ -345,6 +346,27 @@ oracle-agent-utils-up:
 
 oracle-agent-utils-down:
 	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_UTILS_COMPOSE) down
+
+oracle-agent-vault-up:
+	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_AGENT_VAULT_COMPOSE) up -d agent-vault
+
+oracle-agent-vault-down:
+	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_AGENT_VAULT_COMPOSE) down agent-vault
+
+oracle-agent-vault-logs:
+	docker --context $(ORACLE_CONTEXT) logs -f oracle-vps-agent-vault
+
+oracle-agent-vault-status:
+	docker --context $(ORACLE_CONTEXT) inspect oracle-vps-agent-vault --format '{{.State.Status}} | health={{.State.Health.Status}} | image={{.Config.Image}}'
+
+oracle-agent-vault-init:
+	@echo "Initializing Agent Vault owner account..."
+	@echo "$(AGENT_VAULT_ADMIN_PASSWORD)" | docker --context $(ORACLE_CONTEXT) exec -i oracle-vps-agent-vault \
+		agent-vault auth register \
+		--email "$(AGENT_VAULT_ADMIN_EMAIL)" \
+		--password-stdin \
+		--address "http://127.0.0.1:14321" 2>/dev/null || \
+		echo "Already initialized or visit https://agent-vault.projectnyra.com"
 
 oracle-memory-up:
 	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_MEMORY_COMPOSE) up -d
