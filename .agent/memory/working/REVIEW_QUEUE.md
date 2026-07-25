@@ -1,6 +1,6 @@
 # Review Queue
 
-**Pending:** 7
+**Pending:** 20
 **Oldest staged:** 2026-07-19T01:32:35.511750+00:00
 
 Run `python .agent/tools/list_candidates.py` for detail, then:
@@ -10,10 +10,13 @@ Run `python .agent/tools/list_candidates.py` for detail, then:
 
 ## Priority order (top 10)
 
-- **9f83a785bd30** (priority=1166.26, size=89, rejections=0) — FAILURE in claude-code: Command failed: curl -s http://localhost:3001 2>&1 | hea
-- **e2a87704241d** (priority=542.41, size=33, rejections=0) — FAILURE in claude-code: Command failed: curl -s http://localhost:3001 2>&1 | hea
-- **829d1928d3e6** (priority=349.82, size=11, rejections=0) — FAILURE in claude-code: High-stakes op FAILED (secret): export CF_ACCESS_CLIENT_
-- **56113ee28934** (priority=336.73, size=12, rejections=0) — FAILURE in claude-code: High-stakes op FAILED (prod): infisical secrets \ | THIS
-- **8bbc4e00c311** (priority=84.18, size=6, rejections=0) — High-stakes op completed (prod): TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ
-- **f9c910262e6a** (priority=19.34, size=2, rejections=0) — High-stakes op completed (secret): source ~/.zsh/99-secrets.zsh 2>/dev/null
-- **3cb55e4bb4d9** (priority=18.00, size=2, rejections=0) — High-stakes op completed (secret): test -x .git/hooks/pre-commit && echo "Git ho
+- **e413eeb06cf5** (priority=4775.76, size=201, rejections=0) — FAILURE in claude-code: High-stakes op FAILED (prod): infisical secrets \ | THIS
+- **e01377698efe** (priority=2484.00, size=161, rejections=0) — High-stakes op completed (secret): chmod +x /home/ellisapotheosis/repos/project-
+- **e2a87704241d** (priority=638.13, size=33, rejections=0) — FAILURE in claude-code: Command failed: curl -s http://localhost:3001 2>&1 | hea
+- **4f3952e03843** (priority=513.00, size=38, rejections=0) — Wrote /home/ellisapotheosis/repos/project-nyra/infra/hosts/HERMES_GATEWAY_CONNEC
+- **c5b2969b3a99** (priority=499.50, size=37, rejections=0) — Wrote /home/ellisapotheosis/repos/project-nyra/infra/hosts/HERMES_GATEWAY_CONNEC
+- **829d1928d3e6** (priority=411.56, size=11, rejections=0) — FAILURE in claude-code: High-stakes op FAILED (secret): export CF_ACCESS_CLIENT_
+- **bb31cd8c3f49** (priority=406.08, size=14, rejections=0) — FAILURE in claude-code: High-stakes op FAILED (prod): infisical secrets \ | THIS
+- **831089d17679** (priority=370.29, size=24, rejections=0) — High-stakes op completed (secret): docker --context worker-rtx3060 inspect worke
+- **56113ee28934** (priority=348.07, size=12, rejections=0) — FAILURE in claude-code: High-stakes op FAILED (prod): infisical secrets \ | THIS
+- **c54fd301118c** (priority=277.71, size=18, rejections=0) — Wrote /home/ellisapotheosis/repos/project-nyra/docs/security/INFISICAL-CLOUD-AGE

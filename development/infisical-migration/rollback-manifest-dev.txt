@@ -1,0 +1,6 @@
+COPY providers/litellm -> /router/litellm/server | src=25 created=0 verify=24
+COPY providers/anthropic -> /llm-providers/anthropic | src=7 created=0 verify=6
+COPY providers/openai -> /llm-providers/openai | src=9 created=0 verify=8
+COPY providers/google -> /llm-providers/google | src=11 created=0 verify=10
+COPY providers/openrouter -> /llm-providers/openrouter | src=6 created=0 verify=5
+COPY providers/omniroute -> /llm-providers/omniroute | src=5 created=0 verify=4

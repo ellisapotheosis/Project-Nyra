@@ -1,11 +1,10 @@
 {
   "sessions": {
-    "41d4feab-4414-471e-bdac-bc67ebb7903a": {
+    "dfd8279c-f435-4a44-a71a-0578001b5936": {
       "injectedPaths": [
-        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md",
-        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/data-layer/SKILL.md"
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md"
       ],
-      "timestamp": 1784773101810
+      "timestamp": 1784996376004
     }
   }
 }

@@ -1,0 +1,57 @@
+{
+  "id": "8e9e98f0e5aa",
+  "key": "pattern_high-stakes_pre-commit_completed_8e9e98",
+  "name": "pattern_high-stakes_pre-commit_completed_8e9e98",
+  "claim": "High-stakes op completed (secret): cat > test-leak-detection.js <<'EOF'",
+  "conditions": [
+    "bash",
+    "cat",
+    "cmd",
+    "completed",
+    "config",
+    "copy",
+    "crlf",
+    "eof",
+    "file",
+    "git",
+    "high-stakes",
+    "infisical",
+    "nconst",
+    "next",
+    "out",
+    "pre-commit",
+    "replaced",
+    "running",
+    "scan",
+    "time",
+    "touches",
+    "warning",
+    "working"
+  ],
+  "evidence_ids": [
+    "2026-07-25T15:24:16.595567+00:00",
+    "2026-07-25T15:24:22.786503+00:00"
+  ],
+  "cluster_size": 2,
+  "canonical_salience": 9.0,
+  "staged_at": "2026-07-25T15:24:31.990369+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-25T15:24:31.990369+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T16:12:30.549428+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T16:19:46.575732+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

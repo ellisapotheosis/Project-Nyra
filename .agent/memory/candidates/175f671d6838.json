@@ -1,0 +1,71 @@
+{
+  "id": "175f671d6838",
+  "key": "pattern_implement_infisical_scanning_175f67",
+  "name": "pattern_implement_infisical_scanning_175f67",
+  "claim": "High-stakes op completed (secret): git commit --no-verify -m \"$(cat <<'EOF'",
+  "conditions": [
+    "agent",
+    "bash",
+    "cloud",
+    "cmd",
+    "fa7e7ba",
+    "feat",
+    "git",
+    "implement",
+    "infisical",
+    "out",
+    "scanning",
+    "secret",
+    "security",
+    "vault",
+    "workflow"
+  ],
+  "evidence_ids": [
+    "2026-07-23T02:25:57.544197+00:00",
+    "2026-07-23T22:11:58.508523+00:00",
+    "2026-07-23T22:12:07.014851+00:00",
+    "2026-07-23T22:12:26.135110+00:00"
+  ],
+  "cluster_size": 4,
+  "canonical_salience": 12.690000000000001,
+  "staged_at": "2026-07-23T22:13:04.506409+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-23T22:13:04.506409+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T01:52:44.152630+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:18:18.874601+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:22:38.167782+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:24:31.990227+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T16:12:30.548754+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T16:19:46.575114+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

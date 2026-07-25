@@ -1,0 +1,58 @@
+{
+  "id": "2b32f246715f",
+  "key": "pattern_ellisapotheosis_project-nyra_file_path_2b32f2",
+  "name": "pattern_ellisapotheosis_project-nyra_file_path_2b32f2",
+  "claim": "Wrote /home/ellisapotheosis/repos/project-nyra/infra/agent-vault/scripts/create-infisical-vaults.sh (46 lines)",
+  "conditions": [
+    "content",
+    "ellisapotheosis",
+    "file_path",
+    "home",
+    "lines",
+    "project-nyra",
+    "repos",
+    "write",
+    "wrote"
+  ],
+  "evidence_ids": [
+    "2026-07-23T02:19:39.873790+00:00",
+    "2026-07-23T02:19:51.262991+00:00",
+    "2026-07-23T02:19:52.791128+00:00",
+    "2026-07-23T02:19:58.903912+00:00",
+    "2026-07-23T02:20:01.192932+00:00",
+    "2026-07-23T02:20:03.124891+00:00",
+    "2026-07-23T02:20:05.666509+00:00",
+    "2026-07-23T02:20:10.183788+00:00",
+    "2026-07-23T02:20:12.148389+00:00",
+    "2026-07-23T02:20:15.093769+00:00",
+    "2026-07-23T02:20:17.240951+00:00",
+    "2026-07-23T02:21:51.677679+00:00"
+  ],
+  "cluster_size": 12,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-07-23T02:26:11.126458+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-23T02:26:11.126458+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-23T15:32:33.131264+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-23T15:35:50.955198+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-23T22:13:04.505864+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

@@ -1,0 +1,153 @@
+# ============================================================================
+# Hermes MCP Servers Configuration
+# ============================================================================
+# Defines which MCP servers Hermes can access for tool execution.
+# Routes through Nexus aggregator on local machine.
+# ============================================================================
+
+mcp_servers:
+  # ── Core Infrastructure ─────────────────────────────────────────────────
+  nexus:
+    type: http
+    url: "http://127.0.0.1:6000"
+    description: "Nexus MCP aggregator — central tool router"
+    timeout_ms: 30000
+    auth:
+      type: bearer
+      token: ${NEXUS_API_KEY}
+
+  # ── Memory Systems ──────────────────────────────────────────────────────
+  mempalace:
+    type: http
+    url: "http://100.64.0.3:8002"
+    description: "Mempalace persistent memory via MCP"
+    timeout_ms: 15000
+
+  openmemory:
+    type: http
+    url: "http://100.64.0.3:8765"
+    description: "OpenMemory (mem0 + Qdrant) MCP server"
+    timeout_ms: 15000
+
+  # ── VCS & Code ──────────────────────────────────────────────────────────
+  git:
+    type: http
+    url: "http://100.64.0.3:8773"
+    description: "Git repository operations MCP"
+    timeout_ms: 30000
+
+  gitea:
+    type: http
+    url: "http://100.64.0.3:8780"
+    description: "Gitea API integration MCP"
+    timeout_ms: 30000
+    auth:
+      type: bearer
+      token: ${GITEA_API_TOKEN}
+
+  # ── Web & Search ────────────────────────────────────────────────────────
+  firecrawl:
+    type: http
+    url: "http://100.64.0.3:8772"
+    description: "Firecrawl web scraping MCP"
+    timeout_ms: 60000
+    auth:
+      type: bearer
+      token: ${FIRECRAWL_API_KEY}
+
+  tavily:
+    type: http
+    url: "http://100.64.0.3:8775"
+    description: "Tavily web search MCP"
+    timeout_ms: 30000
+    auth:
+      type: bearer
+      token: ${TAVILY_API_KEY}
+
+  # ── Workspace & Execution ───────────────────────────────────────────────
+  wcgw:
+    type: http
+    url: "http://100.64.0.3:8776"
+    description: "WCGW workspace operations (shell, code execution)"
+    timeout_ms: 60000
+    requires_approval: true
+
+  # ── UI & Component Design ───────────────────────────────────────────────
+  shadcn:
+    type: http
+    url: "http://100.64.0.3:8769"
+    description: "shadcn/ui component registry MCP"
+    timeout_ms: 30000
+
+  magicui:
+    type: http
+    url: "http://100.64.0.3:8768"
+    description: "Magic UI component design MCP"
+    timeout_ms: 30000
+
+  # ── Document Processing ────────────────────────────────────────────────
+  codebase_index:
+    type: http
+    url: "http://100.64.0.3:8778"
+    description: "Codebase indexing and search MCP"
+    timeout_ms: 30000
+
+  gitingest:
+    type: http
+    url: "http://100.64.0.3:8777"
+    description: "Repository ingestion and analysis MCP"
+    timeout_ms: 60000
+
+  # ── AI/Reasoning ────────────────────────────────────────────────────────
+  sequential_thinking:
+    type: http
+    url: "http://100.64.0.3:8770"
+    description: "Sequential thinking for complex reasoning"
+    timeout_ms: 120000
+
+  # ── Browser Automation ──────────────────────────────────────────────────
+  playwright:
+    type: http
+    url: "http://100.64.0.3:8771"
+    description: "Browser automation (Playwright) MCP"
+    timeout_ms: 60000
+    requires_approval: true
+
+  # ── Secrets Management ──────────────────────────────────────────────────
+  infisical:
+    type: http
+    url: "http://100.64.0.3:8766"
+    description: "Infisical secrets vault MCP"
+    timeout_ms: 15000
+    auth:
+      type: bearer
+      token: ${INFISICAL_MCP_TOKEN}
+
+  # ── Process Automation ──────────────────────────────────────────────────
+  paperclip:
+    type: http
+    url: "http://100.64.0.3:8767"
+    description: "Paperclip multi-agent orchestration MCP"
+    timeout_ms: 60000
+    auth:
+      type: bearer
+      token: ${PAPERCLIP_API_KEY}
+
+  # ── Next.js Development ────────────────────────────────────────────────
+  next_devtools:
+    type: http
+    url: "http://100.64.0.3:8774"
+    description: "Next.js development tools MCP"
+    timeout_ms: 30000
+
+tool_security:
+  # Tools requiring explicit approval before execution
+  dangerous_tools:
+    - wcgw  # Shell execution
+    - playwright  # Browser automation
+    - gitea.create_repository  # Repository creation
+
+rate_limiting:
+  max_requests_per_minute: 120
+  max_concurrent_calls: 5
+  timeout_burst_requests: 60

@@ -1,0 +1,67 @@
+{
+  "id": "63580f9d98d9",
+  "key": "pattern_microsoft-standard-wsl2_ellisapotheosis_preempt_dynamic_63580f",
+  "name": "pattern_microsoft-standard-wsl2_ellisapotheosis_preempt_dynamic_63580f",
+  "claim": "High-stakes op completed (release): pwd && uname -a && lsb_release -a 2>/dev/null || cat /etc/os-release | head -3",
+  "conditions": [
+    "alienapoth51",
+    "bash",
+    "cmd",
+    "ellisapotheosis",
+    "gnu",
+    "home",
+    "jun",
+    "linux",
+    "microsoft-standard-wsl2",
+    "out",
+    "preempt_dynamic",
+    "pwd",
+    "repos",
+    "smp",
+    "thu",
+    "uname",
+    "utc",
+    "x86_64"
+  ],
+  "evidence_ids": [
+    "2026-07-21T19:58:27.592321+00:00",
+    "2026-07-25T01:44:40.590080+00:00"
+  ],
+  "cluster_size": 2,
+  "canonical_salience": 8.19,
+  "staged_at": "2026-07-25T01:52:44.150347+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-25T01:52:44.150347+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:18:18.871498+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:22:38.167064+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:24:31.989422+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T16:12:30.545810+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T16:19:46.572067+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

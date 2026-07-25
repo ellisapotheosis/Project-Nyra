@@ -1,0 +1,77 @@
+# ============================================================================
+# Hermes Gateway — Always-On Product & Operations Agent
+# ============================================================================
+# Orchestrator-hosted Hermes endpoints for all workers and clients.
+# Connects to LiteLLM proxy (local) for model access.
+# ============================================================================
+
+version: "3.9"
+
+services:
+  # ── Hermes Core (Product/Operations Agent) ──────────────────────────────
+  hermes-gateway:
+    image: docker.io/a2a-labs/hermes-gateway:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-hermes-gateway
+    restart: unless-stopped
+    ports:
+      # Internal API port (for local LiteLLM integration)
+      - "127.0.0.1:8642:8642"
+      # Public gateway port (exposed to Tailscale + workers)
+      - "0.0.0.0:8763:8763"
+    environment:
+      PORT: 8763
+      HOST: 0.0.0.0
+      AGENT_NAME: hermes-orchestrator
+      AGENT_DESCRIPTION: "Project Nyra orchestrator — always-on product & operations assistant"
+      AGENT_PUBLIC_URL: "http://orchestrator.trex-fiordland.ts.net:8763"
+      ADAPTER_DRIVER: openai
+      ADAPTER_TIMEOUT_MS: 900000
+      ADAPTER_STATE_DIR: /data/state/hermes
+      # Connect to local LiteLLM on orchestrator
+      ADAPTER_OPENAI_BASE_URL: "http://127.0.0.1:4010/v1"
+      ADAPTER_OPENAI_API_KEY: ${LITELLM_HERMES_KEY:-not-needed}
+      ADAPTER_OPENAI_MODEL: "default"
+      # MCP tool access via Nexus
+      MCP_SERVERS_CONFIG: /etc/hermes/mcp-servers.yaml
+      LOG_LEVEL: info
+    volumes:
+      - hermes_state:/data/state/hermes
+      - ./hermes/mcp-servers.yaml:/etc/hermes/mcp-servers.yaml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8763/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - nyra-network
+    depends_on:
+      portainer:
+        condition: service_started
+
+  # ── Hermes Metrics Exporter (Prometheus) ────────────────────────────────
+  hermes-metrics:
+    image: curlimages/curl:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-hermes-metrics
+    restart: unless-stopped
+    depends_on:
+      hermes-gateway:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          curl -sf http://hermes-gateway:8763/metrics > /dev/null || echo "Hermes metrics endpoint down"
+          sleep 60
+        done
+    networks:
+      - nyra-network
+
+volumes:
+  hermes_state:
+    driver: local
+
+networks:
+  nyra-network:
+    external: true
+    name: nyra-network
