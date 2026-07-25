@@ -43,7 +43,6 @@
     "skipDefaultLibCheck": true,
 
     /* Path Mapping */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@app/*": ["./apps/*"],

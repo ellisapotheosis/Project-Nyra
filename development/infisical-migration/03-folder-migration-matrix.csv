@@ -1,0 +1,43 @@
+source_folder,target_folder,action,rationale
+/databases/floccus,/external/floccus,MOVE,"Application, not a DB"
+/databases/google-s3,/external/google-cloud-storage,MOVE,"Object-storage vendor, not DB"
+/databases/linkwarden,/external/linkwarden,MOVE,"Application, not a DB"
+/databases/notion,/external/notion,MOVE,"SaaS app, not a DB"
+/databases/nyra-ingestion,/services/nyra-ingestion,MOVE,First-party service (verify vs lead-ingestion)
+/databases/qdrant-cloud,/databases/qdrant/cloud,MOVE,Normalize deployment variant
+/databases/qdrant-local,/databases/qdrant/local,MOVE,Normalize deployment variant
+/llm-providers/litellm,/router/litellm,MOVE,"Gateway runtime, not provider"
+/llm-providers/nexus,/router/nexus,MOVE,"Router/aggregator, not provider"
+/llm-providers/hermes,/external/hermes + /infra/ai-profiles/hermes,MOVE,Agent software creds + profile
+/llm-providers/letta,/external/letta + /infra/ai-profiles/letta,MOVE,Memory agent creds + profile
+/llm-providers/picoclaw,/external/picoclaw + /infra/ai-profiles/picoclaw,MOVE,Agent creds + profile
+/llm-providers/openclaw,/external/openclaw + /infra/ai-profiles/openclaw,MOVE,Orchestrator creds + profile
+/llm-providers/claude-code,/infra/ai-profiles/claude-code,MOVE,"CLI profile, not provider"
+/llm-providers/grafana,/observability/grafana,MOVE,Telemetry
+/llm-providers/langfuse,/observability/langfuse,MOVE,LLM telemetry
+/llm-providers/logfire,/observability/logfire,MOVE,Telemetry
+/llm-providers/cloudflare,/security/cloudflare,MOVE,Auth/network creds
+/llm-providers/tailscale,/security/tailscale,MOVE,Network auth creds
+/llm-providers/virustotal,/security/virustotal,MOVE,Security scanner
+/llm-providers/minio,/databases/minio,MOVE,Object store
+/llm-providers/metamcp,/router/metamcp,MOVE,MCP router
+/llm-providers/n8n-mcp,/router/mcp/n8n,MOVE,Normalize mcp routing
+/llm-providers/n8n-mcp_com,/external/n8n-mcp-com,MOVE,Drop underscore; verify vs n8n-mcp
+/llm-providers/open-webui,/external/open-webui,MOVE,UI client (verify vs owui)
+/llm-providers/owui,/external/open-webui,MERGE,Duplicate of open-webui (verify)
+/llm-providers/twenty,/domains/twenty-crm,MOVE,Self-hosted product runtime
+/llm-providers/twentyfirst,/external/twentyfirst,MOVE,Verify distinct from twenty
+/llm-providers/memos,/external/memos,MOVE,Verify distinct from memOS
+/external/minio,/databases/minio,MOVE,Object store
+/external/metamcp,/router/metamcp,MOVE,MCP router
+/external/nexus,/router/nexus,MOVE,Router/aggregator
+/external/logfire,/observability/logfire,MOVE,Telemetry if active
+/external/sentry,/observability/sentry,MOVE,Telemetry if active
+/external/virustotal,/security/virustotal,MOVE,Security scanner
+/external/n8n-mcp_com,/external/n8n-mcp-com,MOVE,Drop underscore
+/external/open-webui + /external/owui,/external/open-webui,MERGE,Standardize (verify)
+/external/twenty,/domains/twenty-crm,MOVE,If self-hosted runtime
+/observability/axiom,/observability/axiom,RETAIN,Telemetry if active
+/observability/braintrust,/observability/braintrust,RETAIN,Eval if active
+/observability/galileo,/observability/galileo,RETAIN,LLM eval if active
+/shared/*,(decommission),RETIRE,Legacy compat; migrate consumers to canonical

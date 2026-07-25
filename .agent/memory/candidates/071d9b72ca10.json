@@ -1,0 +1,50 @@
+{
+  "id": "071d9b72ca10",
+  "key": "pattern_ellisapotheosis_project-nyra_agent-vault_071d9b",
+  "name": "pattern_ellisapotheosis_project-nyra_agent-vault_071d9b",
+  "claim": "Edited /home/ellisapotheosis/repos/project-nyra/infra/hosts/oracle-vps/.env.example: replaced '# optional cloudflared tunnel\\n' with '# Agent Vault (infisical/agent'",
+  "conditions": [
+    "agent",
+    "agent-vault",
+    "edit",
+    "edited",
+    "ellisapotheosis",
+    "file_path",
+    "home",
+    "hosts",
+    "infisical",
+    "infra",
+    "old_string",
+    "oracle-vps",
+    "project-nyra",
+    "replaced",
+    "repos",
+    "vault"
+  ],
+  "evidence_ids": [
+    "2026-07-23T02:19:13.782912+00:00",
+    "2026-07-23T15:31:21.940407+00:00"
+  ],
+  "cluster_size": 2,
+  "canonical_salience": 8.73,
+  "staged_at": "2026-07-25T15:18:18.872644+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-25T15:18:18.872644+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:22:38.167520+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:24:31.989736+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

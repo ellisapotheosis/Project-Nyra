@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1784773068124,
+  "lastScanned": 1784942103275,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
   "techStack": {
     "languages": [
@@ -104,7 +104,7 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1784773068101,
+      "lastAccessed": 1784942103259,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
@@ -116,21 +116,21 @@
       "path": "archive",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784773068102,
+      "lastAccessed": 1784942103260,
       "keyFiles": []
     },
     "bootstrap": {
       "path": "bootstrap",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784773068113,
+      "lastAccessed": 1784942103265,
       "keyFiles": []
     },
     "conductor": {
       "path": "conductor",
       "purpose": null,
       "fileCount": 6,
-      "lastAccessed": 1784773068114,
+      "lastAccessed": 1784942103265,
       "keyFiles": [
         "index.md",
         "product-guidelines.md",
@@ -143,14 +143,14 @@
       "path": "configs",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784773068114,
+      "lastAccessed": 1784942103266,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 2,
-      "lastAccessed": 1784773068115,
+      "lastAccessed": 1784942103267,
       "keyFiles": [
         "campaign-templates.json",
         "seed-leads.json"
@@ -160,7 +160,7 @@
       "path": "development",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1784773068115,
+      "lastAccessed": 1784942103267,
       "keyFiles": [
         "README.md"
       ]
@@ -168,10 +168,12 @@
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 3,
-      "lastAccessed": 1784773068115,
+      "fileCount": 5,
+      "lastAccessed": 1784942103267,
       "keyFiles": [
         "CLOUDFLARE-PAGES-DEPLOYMENT.md",
+        "INFISICAL_GATEWAY_SETUP.md",
+        "MANUAL_ACTIONS_INFISICAL_GATEWAY.md",
         "OWNER_MANUAL_ACTIONS.md",
         "README.md"
       ]
@@ -180,14 +182,14 @@
       "path": "external",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784773068115,
+      "lastAccessed": 1784942103268,
       "keyFiles": []
     },
     "infra": {
       "path": "infra",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1784773068116,
+      "lastAccessed": 1784942103268,
       "keyFiles": [
         "0-100-AUTONOMOUS-PROMPT-GOD.md",
         "CLAUDE.md",
@@ -200,14 +202,14 @@
       "path": "ops",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784773068116,
+      "lastAccessed": 1784942103268,
       "keyFiles": []
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1784773068116,
+      "lastAccessed": 1784942103268,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -216,7 +218,7 @@
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 67,
-      "lastAccessed": 1784773068117,
+      "lastAccessed": 1784942103269,
       "keyFiles": [
         "Initialize-CodexEnvironment.sh",
         "agent-vault-infisical-sync.sh",
@@ -225,11 +227,18 @@
         "bootstrap-cloudflared-orchestrator.sh"
       ]
     },
+    "security": {
+      "path": "security",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1784942103269,
+      "keyFiles": []
+    },
     "services": {
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 1,
-      "lastAccessed": 1784773068117,
+      "lastAccessed": 1784942103269,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -238,14 +247,14 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1784773068117,
+      "lastAccessed": 1784942103269,
       "keyFiles": []
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1784773068119,
+      "lastAccessed": 1784942103270,
       "keyFiles": [
         "CLAUDE.md"
       ]
@@ -254,7 +263,7 @@
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 4,
-      "lastAccessed": 1784773068119,
+      "lastAccessed": 1784942103271,
       "keyFiles": [
         "README.md",
         "README_VITEST.md",
@@ -266,14 +275,14 @@
       "path": "archive/docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1784773068120,
+      "lastAccessed": 1784942103272,
       "keyFiles": []
     },
     "development/docs": {
       "path": "development/docs",
       "purpose": "Documentation",
       "fileCount": 1,
-      "lastAccessed": 1784773068121,
+      "lastAccessed": 1784942103273,
       "keyFiles": [
         "memory-integration.md"
       ]
@@ -282,7 +291,7 @@
       "path": "ops/scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 4,
-      "lastAccessed": 1784773068122,
+      "lastAccessed": 1784942103273,
       "keyFiles": [
         "infisical-oracle-compose.sh",
         "install-infisical-gateway.sh",
@@ -293,14 +302,14 @@
       "path": "packages/assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1784773068123,
+      "lastAccessed": 1784942103274,
       "keyFiles": []
     },
     "packages/config": {
       "path": "packages/config",
       "purpose": "Configuration files",
       "fileCount": 2,
-      "lastAccessed": 1784773068123,
+      "lastAccessed": 1784942103274,
       "keyFiles": [
         "README.md",
         "package.json"
@@ -310,7 +319,7 @@
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
-      "lastAccessed": 1784773068124,
+      "lastAccessed": 1784942103275,
       "keyFiles": [
         "agents.json",
         "leads.json",
@@ -321,14 +330,14 @@
   "hotPaths": [
     {
       "path": "Makefile",
-      "accessCount": 24,
-      "lastAccessed": 1778313113149,
+      "accessCount": 25,
+      "lastAccessed": 1784999445012,
       "type": "file"
     },
     {
       "path": "infra/hosts/oracle-vps/docker-compose.yml",
-      "accessCount": 22,
-      "lastAccessed": 1784663988022,
+      "accessCount": 25,
+      "lastAccessed": 1784999454220,
       "type": "file"
     },
     {
@@ -374,6 +383,12 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/orchestrator/docker-compose.yml",
+      "accessCount": 11,
+      "lastAccessed": 1784999506882,
+      "type": "file"
+    },
+    {
       "path": "infra/hosts/oracle-vps/docker-compose.memory-extra.yml",
       "accessCount": 10,
       "lastAccessed": 1778326680841,
@@ -410,6 +425,18 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/worker-rtx5090/docker-compose.yml",
+      "accessCount": 7,
+      "lastAccessed": 1784943476766,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.yml",
+      "accessCount": 7,
+      "lastAccessed": 1784943477236,
+      "type": "file"
+    },
+    {
       "path": "infra/hosts/worker-rtx3060/docker-compose.gpu.yml",
       "accessCount": 6,
       "lastAccessed": 1778312829834,
@@ -422,27 +449,9 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/worker-rtx5090/docker-compose.yml",
-      "accessCount": 6,
-      "lastAccessed": 1778312884713,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/worker-rtx3090ti/docker-compose.yml",
-      "accessCount": 6,
-      "lastAccessed": 1778312894558,
-      "type": "file"
-    },
-    {
       "path": "infra/hosts/orchestrator/docker-compose.voice.yml",
       "accessCount": 6,
       "lastAccessed": 1778312923622,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.yml",
-      "accessCount": 6,
-      "lastAccessed": 1778313041284,
       "type": "file"
     },
     {
@@ -488,6 +497,12 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/worker-rtx3060/docker-compose.yml",
+      "accessCount": 3,
+      "lastAccessed": 1784943477632,
+      "type": "file"
+    },
+    {
       "path": ".lintstagedrc",
       "accessCount": 2,
       "lastAccessed": 1777975199341,
@@ -527,12 +542,6 @@
       "path": "infra/hosts/worker-rtx3060/docker-compose.worker.yml",
       "accessCount": 2,
       "lastAccessed": 1778281892347,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281893806,
       "type": "file"
     },
     {

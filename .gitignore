@@ -550,3 +550,19 @@ data/gitea-db/
 *:Zone.Identifier
 Thumbs.db*
 Desktop.ini
+
+################################################################################
+# Security and Secrets — NEVER COMMIT
+################################################################################
+# Infisical secret management (dev/staging/prod env files contain API keys)
+security/infisical/**/*.env
+security/infisical/**/.env.*
+# But keep templates/examples
+!security/infisical/**/*.env.example
+!security/infisical/**/*.env.template
+
+# Local .env files for any service secrets
+**/*-agent.env
+**/*-gateway.env
+**/*-proxy.env
+**/*-relay.env

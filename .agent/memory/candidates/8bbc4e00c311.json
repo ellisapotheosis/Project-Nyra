@@ -1,0 +1,80 @@
+{
+  "id": "8bbc4e00c311",
+  "key": "pattern_eyjhbgcioijiuzi1niisinr5cci6ikpxvcj9_high-stakes_completed_8bbc4e",
+  "name": "pattern_eyjhbgcioijiuzi1niisinr5cci6ikpxvcj9_high-stakes_completed_8bbc4e",
+  "claim": "High-stakes op completed (prod): TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZGVudGl0eUlkIjoiZDE5MDE1YTUtOTMzMS00MmNkLTljNTItODkz",
+  "conditions": [
+    "bash",
+    "cmd",
+    "completed",
+    "eyjhbgcioijiuzi1niisinr5cci6ikpxvcj9",
+    "high-stakes",
+    "out",
+    "prod"
+  ],
+  "evidence_ids": [
+    "2026-07-21T01:24:28.218864+00:00",
+    "2026-07-21T01:25:09.954338+00:00",
+    "2026-07-21T01:25:32.504989+00:00",
+    "2026-07-21T01:24:54.037487+00:00",
+    "2026-07-21T01:25:48.905146+00:00",
+    "2026-07-21T01:26:14.613068+00:00"
+  ],
+  "cluster_size": 6,
+  "canonical_salience": 11.88,
+  "staged_at": "2026-07-23T02:26:11.126288+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-23T02:26:11.126288+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-23T15:32:33.130622+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-23T15:35:50.954761+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-23T22:13:04.505150+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T01:52:44.149788+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:18:18.871007+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:22:38.166885+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T15:24:31.989181+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T16:12:30.544741+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T16:19:46.571027+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

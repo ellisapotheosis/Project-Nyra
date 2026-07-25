@@ -1,4 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# Run Infisical scan if available (cloud integration)
+if command -v infisical >/dev/null 2>&1; then
+  if infisical scan --help >/dev/null 2>&1; then
+    echo "[pre-commit] Running Infisical scan..."
+    if ! infisical scan git-changes --staged --redact --no-color >/dev/null 2>&1; then
+      echo "[LEAK-DETECTED] Infisical scan found suspected secrets"
+      exit 1
+    fi
+  fi
+fi
+
+# Run local secret scanner (fallback + comprehensive)
 exec "$ROOT/scripts/security/nyra-secret-scan.sh" --staged
