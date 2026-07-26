@@ -4,7 +4,7 @@
 
 ```
 Canonical paths          /llm-providers/litellm
-(values live here)       /security/tailscale
+(values live here)       /external/tailscale
                          /external/portainer  ...
                               ↓ folder imports
                          /hosts/shared        ← aggregator for 3+ host paths
@@ -35,7 +35,7 @@ Never store a duplicate canonical value in `/hosts/*`.
 | `/llm-providers/anthropic`        | ANTHROPIC_API_KEY — oracle, orchestrator, 3090ti, 5090        |
 | `/llm-providers/openrouter`       | OPENROUTER_API_KEY — oracle, orchestrator                     |
 | `/llm-providers/huggingface`      | HF_TOKEN — 3090ti, 5090 + agent use                           |
-| `/security/tailscale`             | TAILSCALE_AUTHKEY — all 3 worker nodes                        |
+| `/external/tailscale`             | TAILSCALE_AUTHKEY — all 3 worker nodes                        |
 | `/security/infisical/local`       | INFISICAL_PROJECT_ID + TOKEN — 4+ hosts                       |
 | `/security/infisical/agent-vault` | UA client creds — oracle + agents                             |
 | `/external/portainer`             | PORTAINER_EDGE_ID/KEY — orchestrator + 3 workers              |
@@ -75,8 +75,8 @@ INFISICAL_PATH=/agent-vault
 | --------------------------- | --------------------------------------------------------------------------------------- |
 | `/llm-providers/*`          | LLM API keys (anthropic, openai, openrouter, litellm, huggingface, google/gemini, etc.) |
 | `/external/*`               | Third-party services (letta, nexus, portainer, gitea, n8n, tavily, mem0, …)             |
-| `/security/cloudflare`      | Cloudflare API + tunnel tokens                                                          |
-| `/security/tailscale`       | Tailscale auth keys (per-device keys stored here)                                       |
+| `/external/cloudflare`      | Cloudflare API + tunnel tokens (moved from /security/cloudflare 2026-07-26)             |
+| `/external/tailscale`       | Tailscale auth keys (moved from /security/tailscale 2026-07-26)                         |
 | `/security/infisical/*`     | Infisical bootstrap creds + agent-vault UA identity                                     |
 | `/observability/grafana`    | Grafana admin credentials                                                               |
 | `/observability/logfire`    | Logfire tokens                                                                          |
@@ -106,9 +106,9 @@ INFISICAL_PATH=/agent-vault
 | AP_ENCRYPTION_KEY                      | `/external/activepieces`             |
 | AP_JWT_SECRET                          | `/external/activepieces`             |
 | BROWSERLESS_TOKEN                      | `/external/browserless`              |
-| CF_TUNNEL_TOKEN                        | `/security/cloudflare`               |
-| CLOUDFLARED_TUNNEL_TOKEN               | `/security/cloudflare`               |
-| CLOUDFLARE_API_TOKEN                   | `/security/cloudflare`               |
+| CF_TUNNEL_TOKEN                        | `/external/cloudflare`               |
+| CLOUDFLARED_TUNNEL_TOKEN               | `/external/cloudflare`               |
+| CLOUDFLARE_API_TOKEN                   | `/external/cloudflare`               |
 | COMPOSIO_API_KEY                       | `/external/composio`                 |
 | FIRECRAWL_API_KEY                      | `/external/firecrawl`                |
 | FORGEJO_DB_PASSWORD                    | `/hosts/oracle-vps` (canonical here) |
@@ -144,7 +144,7 @@ INFISICAL_PATH=/agent-vault
 | OMNIROUTE_JWT_SECRET                   | `/llm-providers/omniroute`           |
 | OPENAI_API_KEY                         | `/llm-providers/litellm`             |
 | OPENROUTER_API_KEY                     | `/llm-providers/openrouter`          |
-| ORACLE_TUNNEL_TOKEN                    | `/security/cloudflare`               |
+| ORACLE_TUNNEL_TOKEN                    | `/external/cloudflare`               |
 | PAPERCLIP_API_KEY                      | `/external/paperclip`                |
 | POSTGRES_DB                            | `/databases/postgres`                |
 | POSTGRES_PASSWORD                      | `/databases/postgres`                |
@@ -244,7 +244,7 @@ These are oracle-vps-local values with no external canonical source yet:
 | MEM0_API_URL           | `/external/mem0`            |
 | PORTAINER_EDGE_ID      | `/external/portainer`       |
 | PORTAINER_EDGE_KEY     | `/external/portainer`       |
-| TAILSCALE_AUTHKEY      | `/security/tailscale`       |
+| TAILSCALE_AUTHKEY      | `/external/tailscale`       |
 
 ### Host-specific (canonical here)
 
@@ -272,7 +272,7 @@ These are oracle-vps-local values with no external canonical source yet:
 | MEM0_API_URL         | `/external/mem0`             |
 | PORTAINER_EDGE_ID    | `/external/portainer`        |
 | PORTAINER_EDGE_KEY   | `/external/portainer`        |
-| TAILSCALE_AUTHKEY    | `/security/tailscale`        |
+| TAILSCALE_AUTHKEY    | `/external/tailscale`        |
 | TWENTY_CRM_API_KEY   | `/hosts/shared`              |
 | TWENTY_CRM_URL       | `/hosts/shared`              |
 
@@ -294,7 +294,7 @@ These are oracle-vps-local values with no external canonical source yet:
 | Variable               | Canonical Path               |
 | ---------------------- | ---------------------------- |
 | ANTHROPIC_API_KEY      | `/llm-providers/anthropic`   |
-| CLOUDFLARED_TOKEN      | `/security/cloudflare`       |
+| CLOUDFLARED_TOKEN      | `/external/cloudflare`       |
 | HF_TOKEN               | `/llm-providers/huggingface` |
 | INFISICAL_ENV          | `/hosts/shared`              |
 | INFISICAL_PROJECT_ID   | `/security/infisical/local`  |
@@ -309,8 +309,8 @@ These are oracle-vps-local values with no external canonical source yet:
 | OPENCLAW_GATEWAY_TOKEN | `/external/openclaw`         |
 | PORTAINER_EDGE_ID      | `/external/portainer`        |
 | PORTAINER_EDGE_KEY     | `/external/portainer`        |
-| TAILSCALE_AUTHKEY      | `/security/tailscale`        |
-| TAILSCALE_KEY          | `/security/tailscale`        |
+| TAILSCALE_AUTHKEY      | `/external/tailscale`        |
+| TAILSCALE_KEY          | `/external/tailscale`        |
 | TWENTY_CRM_API_KEY     | `/hosts/shared`              |
 | TWENTY_CRM_URL         | `/hosts/shared`              |
 
