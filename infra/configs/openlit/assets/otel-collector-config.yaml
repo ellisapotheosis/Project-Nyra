@@ -1,0 +1,45 @@
+# OpenTelemetry Collector — receives traces/metrics/logs from instrumented apps
+# and forwards them to the OpenLIT OTLP ingestion endpoint.
+# Mounted read-only at /etc/otel/otel-collector-config.yaml in the openlit container.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+exporters:
+  # Forward to OpenLIT's own HTTP ingestion endpoint (same container, loopback)
+  otlphttp/openlit:
+    endpoint: http://localhost:4318
+    tls:
+      insecure: true
+  # Prometheus metrics exposure on :8888 (mapped in compose ports)
+  prometheus:
+    endpoint: 0.0.0.0:8888
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/openlit]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/openlit, prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/openlit]
