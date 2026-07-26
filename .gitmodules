@@ -5,3 +5,6 @@
 [submodule "external/llxprt-jefe"]
 	path = external/llxprt-jefe
 	url = https://github.com/vybestack/llxprt-jefe.git
+[submodule ".claude/skills/agent-skills"]
+	path = .claude/skills/agent-skills
+	url = https://github.com/liuchiawei/agent-skills.git
