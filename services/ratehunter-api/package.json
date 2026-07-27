@@ -27,7 +27,7 @@
   "author": "RateHunter Team",
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^6.4.0",
+    "@prisma/client": "^7.9.0",
     "express": "^5.2.1",
     "express-validator": "^7.0.1",
     "cors": "^2.8.5",
