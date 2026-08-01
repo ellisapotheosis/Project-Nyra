@@ -1,5 +1,5 @@
 # LiteLLM Core
-litellm[proxy,extra_proxy_features]==1.83.7
+litellm[proxy,extra_proxy_features]==1.93.0
 
 # Database
 psycopg2-binary==2.9.9
@@ -18,7 +18,7 @@ httpx==0.28.1
 
 # Authentication & Security
 python-jose[cryptography]==3.5.0
-pyasn1==0.6.3
+pyasn1==0.6.4
 passlib[bcrypt]==1.7.4
 python-dotenv==1.2.2
 
