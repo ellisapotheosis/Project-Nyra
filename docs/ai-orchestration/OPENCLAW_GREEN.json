@@ -1,0 +1,177 @@
+{
+  "status": "yellow",
+  "timestamp": "2026-08-24T15:02:00Z",
+  "gateway": {
+    "status": "online",
+    "host": "orchestrator",
+    "bind": "loopback",
+    "port": 18789,
+    "auth": "token",
+    "health": {
+      "status": "ok",
+      "check_timestamp": "2026-08-24T15:02:15Z"
+    },
+    "process_count": 3,
+    "note": "Running in foreground; not yet systemd service"
+  },
+  "litellm_provider": {
+    "status": "green",
+    "base_url": "https://litellm.projectnyra.com/v1",
+    "models": {
+      "litellm/nyra/local-interactive": {
+        "status": "configured",
+        "hardware": "RTX5090",
+        "context_window": 32768
+      },
+      "litellm/nyra/local-stable": {
+        "status": "configured",
+        "hardware": "RTX3090Ti",
+        "context_window": 24576
+      },
+      "litellm/nyra/local-utility": {
+        "status": "configured",
+        "hardware": "RTX3060 Ollama",
+        "context_window": 8192
+      },
+      "litellm/nyra/free": {
+        "status": "configured",
+        "provider": "OmniRoute",
+        "context_window": 32768
+      }
+    }
+  },
+  "agents": {
+    "status": "yellow",
+    "count": 4,
+    "list": [
+      {
+        "id": "main",
+        "status": "configured",
+        "model": "litellm/nyra/local-interactive",
+        "note": "Primary orchestrator; not yet tested"
+      },
+      {
+        "id": "researcher",
+        "status": "configured",
+        "model": "litellm/nyra/local-interactive"
+      },
+      {
+        "id": "reviewer",
+        "status": "configured",
+        "model": "litellm/nyra/local-stable"
+      },
+      {
+        "id": "memory-worker",
+        "status": "configured",
+        "model": "litellm/nyra/local-utility"
+      }
+    ]
+  },
+  "memory": {
+    "status": "yellow",
+    "plugin": {
+      "name": "@mem0/openclaw-mem0",
+      "status": "stale_config_entry",
+      "installed": false,
+      "note": "npm install -g @mem0/openclaw-mem0 not yet run"
+    },
+    "backends": {
+      "qdrant": {
+        "status": "configured",
+        "url": "https://qdrant.projectnyra.com",
+        "collection": "nyra_mem0",
+        "dimension": 768,
+        "credentials": "via QDRANT_API_KEY"
+      },
+      "falkordb": {
+        "status": "configured",
+        "url": "redis://100.64.0.3:6379",
+        "graph": "mem0",
+        "host": "oracle-vps",
+        "note": "Private redis protocol"
+      }
+    },
+    "embeddings": {
+      "model": "litellm/nyra/local-embeddings",
+      "dimension": 768,
+      "provider": "litellm"
+    }
+  },
+  "plugins": {
+    "status": "yellow",
+    "installed": [],
+    "configured_but_not_installed": ["@mem0/openclaw-mem0"],
+    "warnings": [
+      "exa-plugin requires API >=2026.7.2-beta.7",
+      "firecrawl-plugin requires API >=2026.7.2-beta.7",
+      "tavily-plugin requires API >=2026.7.2-beta.7",
+      "camofox-browser duplicate plugin id detected"
+    ]
+  },
+  "secrets": {
+    "status": "green",
+    "method": "infisical_run_injection",
+    "paths": {
+      "/hosts/shared": "primary",
+      "/hosts/orchestrator": "fallback (504 error during session)"
+    },
+    "required_vars": [
+      "OPENCLAW_GATEWAY_TOKEN",
+      "LITELLM_API_KEY",
+      "QDRANT_API_KEY"
+    ],
+    "all_present": true
+  },
+  "configuration": {
+    "status": "green",
+    "file": "~/.openclaw/openclaw.json",
+    "validation": "passed",
+    "backup": "~/.openclaw/openclaw.json.pre-convergence-20260824-145944"
+  },
+  "tests_executed": [
+    {
+      "name": "Config validation",
+      "result": "pass",
+      "timestamp": "2026-08-24T15:01:48Z"
+    },
+    {
+      "name": "Gateway health check",
+      "result": "pass",
+      "timestamp": "2026-08-24T15:02:15Z",
+      "response": "{\"ok\":true,\"status\":\"live\"}"
+    },
+    {
+      "name": "Infisical secret injection",
+      "result": "pass",
+      "timestamp": "2026-08-24T15:02:00Z"
+    }
+  ],
+  "tests_pending": [
+    "Agent invocation (main orchestrator)",
+    "Model routing verification",
+    "Memory storage/recall roundtrip",
+    "Codex subscription auth",
+    "Claude CLI subscription auth",
+    "Nexus MCP integration",
+    "Mem0 plugin installation",
+    "Worker-rtx5090 remote client",
+    "Systemd service with Infisical sidecar"
+  ],
+  "blockers": [],
+  "owner_actions": [],
+  "git": {
+    "branch": "nyra/phase2-mcp-memory",
+    "commit": "feat(openclaw): deploy canonical OpenClaw Gateway on orchestrator",
+    "files_changed": 76,
+    "insertions": 6858,
+    "deletions": 620
+  },
+  "architecture": {
+    "gateway_host": "orchestrator (WSL2 Ubuntu)",
+    "gateway_port": 18789,
+    "gateway_bind": "loopback",
+    "canonical": true,
+    "replicas": 0,
+    "note": "worker-rtx5090 is remote client only, not second gateway"
+  }
+}
