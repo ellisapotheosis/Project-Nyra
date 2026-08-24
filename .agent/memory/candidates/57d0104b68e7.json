@@ -1,0 +1,50 @@
+{
+  "id": "57d0104b68e7",
+  "key": "pattern_deployment_bash_cmd_57d010",
+  "name": "pattern_deployment_bash_cmd_57d010",
+  "claim": "High-stakes op completed (deployment): git add PHASE3_CORE_STACK_DEPLOYED.md && git commit -m \"docs(phase3): comprehensive core stack deplo",
+  "conditions": ["bash", "cmd", "deployment", "git", "out"],
+  "evidence_ids": [
+    "2026-08-24T15:33:12.424453+00:00",
+    "2026-08-24T16:12:17.710846+00:00",
+    "2026-08-24T16:12:17.909968+00:00",
+    "2026-08-24T16:14:31.709452+00:00"
+  ],
+  "cluster_size": 4,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-08-24T16:14:45.070634+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-08-24T16:14:45.070634+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T16:34:37.830942+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T18:37:37.831768+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T18:45:36.286348+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T21:48:16.608875+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T21:51:34.617403+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

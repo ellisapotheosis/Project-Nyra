@@ -324,20 +324,20 @@
     },
     {
       "path": "infra/hosts/orchestrator/docker-compose.yml",
-      "accessCount": 24,
-      "lastAccessed": 1785020153354,
+      "accessCount": 25,
+      "lastAccessed": 1787608369767,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
+      "accessCount": 22,
+      "lastAccessed": 1787608753770,
       "type": "file"
     },
     {
       "path": "infra/hosts/oracle-vps/docker-compose.oracle.yml",
       "accessCount": 20,
       "lastAccessed": 1778326662997,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
-      "accessCount": 19,
-      "lastAccessed": 1785020125429,
       "type": "file"
     },
     {
@@ -354,8 +354,8 @@
     },
     {
       "path": "infra/hosts/oracle-vps/docker-compose.clawteam.yml",
-      "accessCount": 13,
-      "lastAccessed": 1785197961885,
+      "accessCount": 14,
+      "lastAccessed": 1787582796517,
       "type": "file"
     },
     {
@@ -401,6 +401,12 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/oracle-vps/docker-compose.letta-mcp.yml",
+      "accessCount": 9,
+      "lastAccessed": 1787582797049,
+      "type": "file"
+    },
+    {
       "path": "package.json",
       "accessCount": 8,
       "lastAccessed": 1777975348519,
@@ -410,12 +416,6 @@
       "path": "infra/hosts/orchestrator/docker-compose.clawteam.yml",
       "accessCount": 8,
       "lastAccessed": 1778313027030,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/docker-compose.letta-mcp.yml",
-      "accessCount": 8,
-      "lastAccessed": 1778326637716,
       "type": "file"
     },
     {

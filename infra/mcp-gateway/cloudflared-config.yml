@@ -1,3 +1,5 @@
+# LEGACY / NON-DEPLOYABLE: Cloudflare MCP Portal owns mcp-gateway.projectnyra.com.
+# Do not apply this file; it describes the retired custom gateway path.
 # Cloudflare Tunnel Configuration with MCP Gateway
 # This exposes the Nexus Router MCP server via Cloudflare Tunnel
 

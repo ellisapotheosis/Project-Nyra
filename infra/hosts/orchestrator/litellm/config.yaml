@@ -8,6 +8,7 @@
 #   LITELLM_MASTER_KEY    — required; format: sk-<48+ random chars>
 #   OMNIROUTE_API_KEY     — required for omniroute/* models (subscriptions)
 #   OPENROUTER_API_KEY    — required for openrouter/* models (free tier)
+#   LLXPRT_BRIDGE_API_KEY — required for llxprt/* subscription models (claude-code, codex, gemini)
 #   OPENAI_API_KEY        — optional; for openai/* models
 #   ANTHROPIC_API_KEY     — optional; for anthropic/* models
 
@@ -52,6 +53,13 @@ model_list:
       api_base: http://worker-rtx3060.projectnyra.com:11434
 
   # ── OpenClaw Gateway ────────────────────────────────────────────────────────
+  - model_name: claw/openclaw-5090
+    litellm_params:
+      model: openai/openclaw
+      api_base: http://worker-rtx5090.projectnyra.com:8001/v1
+      api_key: "not-needed"
+      timeout: 300
+
   - model_name: claw/openclaw-3090ti
     litellm_params:
       model: openai/openclaw
@@ -65,6 +73,28 @@ model_list:
       api_base: http://worker-rtx3060.projectnyra.com:8003/v1
       api_key: "not-needed"
       timeout: 120
+
+  # ── llxprt-bridge — Subscription Models (worker-rtx5090 via Tailscale) ─────
+  - model_name: llxprt/claude
+    litellm_params:
+      model: openai/llxprt-claude
+      api_base: http://worker-rtx5090.projectnyra.com:8090/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 180
+
+  - model_name: llxprt/codex
+    litellm_params:
+      model: openai/llxprt-codex
+      api_base: http://worker-rtx5090.projectnyra.com:8090/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 180
+
+  - model_name: llxprt/gemini
+    litellm_params:
+      model: openai/llxprt-gemini
+      api_base: http://worker-rtx5090.projectnyra.com:8090/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 180
 
   # ── OmniRoute (on oracle-vps via Tailscale) ─────────────────────────────────
   - model_name: omniroute/auto
@@ -117,12 +147,24 @@ model_list:
 router_settings:
   routing_strategy: usage-based-routing-v2
   fallbacks:
+    - { "local/qwen3.8-27b": ["omniroute/auto", "openrouter/qwen3"] }
     - { "local/gemma-4": ["omniroute/auto", "openrouter/qwen3"] }
     - { "local/qwen-coder-32b": ["omniroute/coding", "openrouter/deepseek"] }
-    - { "local/llama3.2-3b": ["openrouter/mistral"] }
-    - { "omniroute/auto": ["local/gemma-4", "openrouter/qwen3"] }
-    - { "omniroute/coding": ["local/qwen-coder-32b", "openrouter/deepseek"] }
-    - { "claw/openclaw-3090ti": ["claw/openclaw-3060", "local/qwen-coder-32b"] }
+    - { "local/llama3.2-3b": ["openrouter/llama4", "openrouter/qwen3"] }
+    - {
+        "omniroute/auto":
+          ["local/qwen3.8-27b", "local/gemma-4", "openrouter/qwen3"],
+      }
+    - {
+        "omniroute/coding":
+          ["local/qwen-coder-32b", "llxprt/codex", "openrouter/deepseek"],
+      }
+    - { "llxprt/claude": ["omniroute/auto", "openrouter/gemini-flash"] }
+    - { "claw/openclaw-5090": ["claw/openclaw-3090ti", "claw/openclaw-3060"] }
+    - {
+        "claw/openclaw-3090ti":
+          ["claw/openclaw-5090", "claw/openclaw-3060", "local/qwen-coder-32b"],
+      }
 
 litellm_settings:
   set_verbose: false

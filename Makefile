@@ -234,11 +234,8 @@ forgejo-ps:
 twenty-crm-up:
 	$(ORACLE_COMPOSE_RUN) up -d twenty
 
-mempalace-init:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace init
-
-mempalace-mine:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) exec mempalace-mcp mempalace mine
+# Mempalace is intentionally retired for Phase 2. Keep no operational target
+# that could reintroduce or invoke the excluded memory service.
 
 health:
 	bash scripts/verify-stack.sh

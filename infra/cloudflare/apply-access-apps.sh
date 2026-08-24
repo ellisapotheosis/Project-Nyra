@@ -123,7 +123,6 @@ Nyra OpenClaw Gateway	openclaw-gateway.projectnyra.com	team
 Nyra Agent Vault	infisical.projectnyra.com	team
 Nyra Agent Vault	agent-vault.projectnyra.com	team
 Nyra Letta Memory	letta.projectnyra.com	team
-Nyra Nexus Router MCP	nexus-router.projectnyra.com	team
 Nyra Composio	composio.projectnyra.com	team
 EOF
 
@@ -133,6 +132,12 @@ printf '%s' "$current" > "$RESULTS_DIR/access-apps-before-upsert.json"
 : > "$RESULTS_DIR/access-upsert.ndjson"
 while IFS=$'\t' read -r name domain profile; do
   [[ -z "${name:-}" ]] && continue
+  case "$domain" in
+    mcp-gateway.projectnyra.com|nexus-router.projectnyra.com)
+      echo "refusing to manage MCP Portal/Nexus with generic self-hosted app automation: $domain" >&2
+      exit 1
+      ;;
+  esac
   id="$(jq -r --arg domain "$domain" '.result[]? | select(.domain == $domain and .type == "self_hosted") | .id' <<<"$current" | head -n 1)"
   payload="$(mktemp)"
   make_payload "$name" "$domain" "Nyra ${profile} access" "$profile" > "$payload"

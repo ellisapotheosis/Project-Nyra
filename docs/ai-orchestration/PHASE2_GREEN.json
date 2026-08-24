@@ -1,0 +1,37 @@
+{
+  "phase": "phase2-mcp-memory",
+  "status": "blocked",
+  "green": false,
+  "as_of": "2026-08-24",
+  "branch": "nyra/phase2-mcp-memory",
+  "verified": {
+    "oracle_memory_containers_running": true,
+    "memory_datastores_publicly_bound": false,
+    "forbidden_mempalace_registration_removed": true,
+    "cloudflare_public_hostname_access_protected": true,
+    "direct_nexus_service_token_search": true,
+    "portal_service_token_initialize": true,
+    "portal_nexus_bearer_server_ready": true,
+    "portal_nexus_bearer_mapping_on_behalf_false": true,
+    "oracle_memory_containers_healthy": true,
+    "oracle_grafbase_nexus_healthy": true,
+    "nexus_origin_loopback_bound": true,
+    "canonical_oracle_compose_contains_nexus": true
+  },
+  "unverified": {
+    "human_managed_oauth_mcp_call": "requires interactive browser login",
+    "agent_service_token_mcp_call": "Portal session initializes but exposes no connected upstream server; investigate linked-server session authorization",
+    "portal_managed_nexus_upstream_credential": "Cloudflare API shows nyra-bearer connected and ready; end-to-end Portal tool call remains unproven",
+    "nexus_not_directly_public": "Access-protected public hostname and live loopback-only origin verified; direct public-origin bypass remains unproven",
+    "context_benchmark_numbers": "transport probes captured; 20-call latency/context benchmark blocked by empty Portal connected-server set",
+    "memory_add_vector_graph_letta_openmemory_roundtrip": "Mem0 now has a canonical 3060 Ollama route using the installed llama3.2:3b fallback and a 768-dimensional nomic-embed-text schema; synthetic add must be rerun after the Oracle deployment is refreshed",
+    "backup_snapshot_and_auth_validation": "requires host-side operational checks"
+  },
+  "stop_reason": "Cloudflare Portal/Nexus bearer configuration is repaired and synchronized, but a service-token Portal session still reports no connected upstream server and a human Managed OAuth call requires interactive login. Grafbase Nexus is healthy on the canonical Oracle deployment and loopback-bound; memory roundtrip evidence remains incomplete.",
+  "required_next_actions": [
+    "Trace why the service-token Portal session does not connect the ready nyra-bearer mapping even though the Portal and linked Nexus Access apps both contain Nyra Agents Service Auth.",
+    "Complete one interactive Managed OAuth human session and capture Access/Portal audit evidence.",
+    "Power on worker-rtx3060, load qwen2.5:4b and nomic-embed-text, then rerun the Mem0 vector/graph/Letta/OpenMemory roundtrip.",
+    "Run context, synthetic memory, backup, and cleanup tests; capture evidence and remove test data."
+  ]
+}

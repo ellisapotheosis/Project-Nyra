@@ -17,12 +17,6 @@ mcp_servers:
       token: ${NEXUS_API_KEY}
 
   # ── Memory Systems ──────────────────────────────────────────────────────
-  mempalace:
-    type: http
-    url: "http://100.64.0.3:8002"
-    description: "Mempalace persistent memory via MCP"
-    timeout_ms: 15000
-
   openmemory:
     type: http
     url: "http://100.64.0.3:8765"

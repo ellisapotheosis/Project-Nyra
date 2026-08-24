@@ -28,12 +28,16 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-ollama
     restart: unless-stopped
     ports:
-      - "11434:11434"
+      # WSL Ollama owns 11434; Docker provides the embedding model on 11435.
+      - "11435:11434"
     environment:
       - OLLAMA_HOST=0.0.0.0:11434
       - OLLAMA_ORIGINS=*
       - OLLAMA_NUM_PARALLEL=1
       - OLLAMA_MAX_LOADED_MODELS=1
+      # Mem0 extraction prompts exceed Ollama's small default context. The
+      # 6 GB card can run the 3B utility model plus nomic-embed-text at 8K.
+      - OLLAMA_CONTEXT_LENGTH=8192
       - OLLAMA_GPU_OVERHEAD=256
     volumes:
       - ollama_models:/root/.ollama/models

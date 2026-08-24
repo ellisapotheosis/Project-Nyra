@@ -1,0 +1,39 @@
+{
+  "id": "cc24e1293107",
+  "key": "pattern_litellm_openharness_key_litellm_omnigent_key_creating_cc24e1",
+  "name": "pattern_litellm_openharness_key_litellm_omnigent_key_creating_cc24e1",
+  "claim": "High-stakes op completed (secret): cat > /tmp/infisical_keys.sh << 'EOF'",
+  "conditions": [
+    "bash",
+    "bin",
+    "cat",
+    "cmd",
+    "creating",
+    "eof",
+    "keys",
+    "litellm",
+    "litellm_omnigent_key",
+    "litellm_openharness_key",
+    "nset",
+    "out",
+    "scoped",
+    "tmp"
+  ],
+  "evidence_ids": [
+    "2026-08-24T21:54:08.412587+00:00",
+    "2026-08-24T21:56:01.364118+00:00",
+    "2026-08-24T21:56:26.194078+00:00"
+  ],
+  "cluster_size": 3,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-08-24T22:02:15.390953+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-08-24T22:02:15.390953+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

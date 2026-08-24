@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"curl -s http://localhost:4010/v1/models 2>&1 | jq -r '.data[0:3] | .[] | .id' 2>/dev/null\",\"description\":\"List first 3 models from LiteLLM\"}",
+  "error": "Exit code 5",
+  "timestamp": "2026-08-24T14:44:55.497Z",
+  "retry_count": 1
+}

@@ -25,14 +25,14 @@
             "embedder": {
               "provider": "openai",
               "config": {
-                "model": "text-embedding-3-small",
-                "api_key": "${OPENAI_API_KEY}",
-                "base_url": "${OPENAI_BASE_URL}"
+                "model": "${MEM0_EMBEDDER_MODEL:-nomic-embed-text}",
+                "api_key": "${MEM0_EMBEDDER_API_KEY:-not-needed}",
+                "base_url": "${MEM0_EMBEDDER_BASE_URL:-http://100.64.0.12:11435/v1}"
               }
             },
             "vectorStore": {
               "provider": "memory",
-              "config": { "dimension": 1536 }
+              "config": { "dimension": 768 }
             },
             "graphStore": {
               "provider": "falkordb",
@@ -45,13 +45,44 @@
             "llm": {
               "provider": "openai",
               "config": {
-                "model": "gpt-4o-mini",
-                "api_key": "${OPENAI_API_KEY}",
-                "base_url": "${OPENAI_BASE_URL}"
+                "model": "${MEM0_LLM_MODEL:-qwen3.5:4b}",
+                "api_key": "${MEM0_LLM_API_KEY:-not-needed}",
+                "base_url": "${MEM0_LLM_BASE_URL:-http://100.64.0.12:11434/v1}"
               }
             }
           }
         }
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "${OPENCLAW_AGENT_MODEL}"
+      },
+      "models": {
+        "${OPENCLAW_AGENT_MODEL}": {}
+      }
+    }
+  },
+  "models": {
+    "providers": {
+      "litellm": {
+        "api": "openai-completions",
+        "baseUrl": "${OPENAI_BASE_URL}",
+        "apiKey": "${OPENAI_API_KEY}",
+        "models": [
+          {
+            "id": "local/qwen-coder-32b",
+            "name": "local/qwen-coder-32b",
+            "contextTokens": 131072
+          },
+          {
+            "id": "local/gemma-4",
+            "name": "local/gemma-4",
+            "contextTokens": 131072
+          }
+        ]
       }
     }
   }

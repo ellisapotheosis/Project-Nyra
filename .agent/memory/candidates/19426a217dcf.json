@@ -1,0 +1,36 @@
+{
+  "id": "19426a217dcf",
+  "key": "pattern_comprehensive_deployment_operations_19426a",
+  "name": "pattern_comprehensive_deployment_operations_19426a",
+  "claim": "High-stakes op completed (deployment): git add PHASE3_CORE_STACK_DEPLOYED.md && git commit -m \"docs(phase3): comprehensive core stack deplo",
+  "conditions": [
+    "bash",
+    "cmd",
+    "comprehensive",
+    "deployment",
+    "docs",
+    "git",
+    "guide",
+    "manual",
+    "operations",
+    "out",
+    "phase3"
+  ],
+  "evidence_ids": [
+    "2026-08-24T15:33:12.424453+00:00",
+    "2026-08-24T16:12:17.710846+00:00",
+    "2026-08-24T16:12:17.909968+00:00"
+  ],
+  "cluster_size": 3,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-08-24T16:12:37.193724+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-08-24T16:12:37.193724+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

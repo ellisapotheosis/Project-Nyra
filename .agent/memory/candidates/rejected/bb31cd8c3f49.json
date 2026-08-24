@@ -3,9 +3,7 @@
   "key": "pattern_bash_bb31cd",
   "name": "pattern_bash_bb31cd",
   "claim": "FAILURE in claude-code: High-stakes op FAILED (prod): infisical secrets \\ | THIS SKILL HAS FAILED 4 TIMES IN 14d. Flag for rewrite.",
-  "conditions": [
-    "bash"
-  ],
+  "conditions": ["bash"],
   "evidence_ids": [
     "2026-07-19T02:03:33.138324+00:00",
     "2026-07-19T02:04:06.537360+00:00",
@@ -25,7 +23,7 @@
   "cluster_size": 14,
   "canonical_salience": 25.380000000000003,
   "staged_at": "2026-07-23T15:32:33.129940+00:00",
-  "status": "staged",
+  "status": "rejected",
   "decisions": [
     {
       "ts": "2026-07-23T15:32:33.129940+00:00",
@@ -41,7 +39,33 @@
       "ts": "2026-07-23T22:13:04.504914+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T13:12:05.526456+00:00",
+      "action": "rejected",
+      "reviewer": "heuristic_prefilter",
+      "notes": "exact_duplicate_of_1_lessons",
+      "duplicate_claims": [
+        "FAILURE in claude-code: High-stakes op FAILED (prod): infisical secrets \\ | THIS SKILL HAS FAILED 4 TIMES IN 14d. Flag for rewrite."
+      ],
+      "evidence_snapshot": [
+        "2026-07-19T02:03:33.138324+00:00",
+        "2026-07-19T02:04:06.537360+00:00",
+        "2026-07-19T02:03:37.229864+00:00",
+        "2026-07-19T02:03:57.958085+00:00",
+        "2026-07-19T02:03:51.141217+00:00",
+        "2026-07-19T02:04:13.810251+00:00",
+        "2026-07-19T14:18:17.951433+00:00",
+        "2026-07-19T14:18:24.587695+00:00",
+        "2026-07-19T14:18:48.022006+00:00",
+        "2026-07-19T14:18:56.601201+00:00",
+        "2026-07-19T14:19:08.592124+00:00",
+        "2026-07-21T01:23:59.492685+00:00",
+        "2026-07-23T15:20:52.523937+00:00",
+        "2026-07-23T15:24:34.281774+00:00"
+      ],
+      "lessons_sha": "0663c96970e4"
     }
   ],
-  "rejection_count": 0
+  "rejection_count": 1
 }

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"infisical secrets get OMNIROUTE_API_KEY OPENROUTER_API_KEY --env=prod --path=/hosts/worker-rtx5090 --plain 2>&1\"}",
+  "error": "Exit code 1\nRequest: GET https://app.infisical.com/api/v4/secrets?environment=prod&expandSecretReferences=true&includeImports=true&includePersonalOverrides=true&projectId=8374cea9-e5e8-4050-bda4-b91f25ab30ef&recursive=false&secretPath=%2Fhosts%2Fworker-rtx5090\nInstance: https://app.infisical.com\nResponse Code: 504 Gateway Timeout\n  • To fetch all secrets\n                                        \nIf this issue continues, get support at https://infisical.com/slack",
+  "timestamp": "2026-08-24T18:35:38.139Z",
+  "retry_count": 1
+}

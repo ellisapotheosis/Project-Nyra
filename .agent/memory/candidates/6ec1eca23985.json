@@ -1,0 +1,38 @@
+{
+  "id": "6ec1eca23985",
+  "key": "pattern_home-ellisapotheosis-repos-project-nyra_ellisapotheosis_ndescription_6ec1ec",
+  "name": "pattern_home-ellisapotheosis-repos-project-nyra_ellisapotheosis_ndescription_6ec1ec",
+  "claim": "Wrote /home/ellisapotheosis/.claude/projects/-home-ellisapotheosis-repos-project-nyra/memory/PHASE3_DELTA_COMPLETION.md (143 lines)",
+  "conditions": [
+    "claude",
+    "content",
+    "ellisapotheosis",
+    "file_path",
+    "home",
+    "home-ellisapotheosis-repos-project-nyra",
+    "lines",
+    "memory",
+    "ndescription",
+    "nname",
+    "projects",
+    "write",
+    "wrote"
+  ],
+  "evidence_ids": [
+    "2026-07-26T08:38:48.880398+00:00",
+    "2026-07-26T09:14:55.811331+00:00",
+    "2026-08-24T22:01:58.254092+00:00"
+  ],
+  "cluster_size": 3,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-08-24T22:02:15.390768+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-08-24T22:02:15.390768+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

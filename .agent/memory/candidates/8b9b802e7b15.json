@@ -1,0 +1,83 @@
+{
+  "id": "8b9b802e7b15",
+  "key": "pattern_high-stakes_completed_original_8b9b80",
+  "name": "pattern_high-stakes_completed_original_8b9b80",
+  "claim": "High-stakes op completed (deployment): git add docs/ai-orchestration/ infra/scripts/phase1-*.sh && git commit -m \"feat(phase1): complete In",
+  "conditions": [
+    "backed",
+    "backing",
+    "bash",
+    "cmd",
+    "commit",
+    "completed",
+    "files",
+    "git",
+    "high-stakes",
+    "original",
+    "out",
+    "staged",
+    "started",
+    "stash",
+    "state"
+  ],
+  "evidence_ids": [
+    "2026-07-25T23:12:11.027530+00:00",
+    "2026-07-26T09:16:14.548665+00:00",
+    "2026-07-26T13:03:18.683476+00:00",
+    "2026-08-24T13:11:25.949022+00:00",
+    "2026-08-24T14:36:19.412245+00:00",
+    "2026-08-24T14:45:30.184788+00:00"
+  ],
+  "cluster_size": 6,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-08-24T14:50:45.638860+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-08-24T14:50:45.638860+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T15:33:25.352019+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T16:12:37.193533+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T16:14:45.070422+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T16:34:37.830717+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T18:37:37.831392+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T18:45:36.286173+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T21:48:16.608484+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-24T21:51:34.617225+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

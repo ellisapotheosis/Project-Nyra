@@ -1,0 +1,289 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1787589020531,
+  "projectRoot": "/home/ellisapotheosis/repos/project-nyra/infra",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": ">=20",
+        "confidence": "high",
+        "markers": ["package.json"]
+      },
+      {
+        "name": "C/C++",
+        "version": null,
+        "confidence": "high",
+        "markers": ["Makefile"]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "express",
+        "version": "4.18.0",
+        "category": "backend"
+      },
+      {
+        "name": "vitest",
+        "version": "4.1.9",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": "Node.js 20"
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": "npm test",
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "build": "npm run build --workspaces",
+      "dev": "npm run dev --workspaces",
+      "start": "npm run start --workspaces",
+      "test": "npm run test --workspaces",
+      "lint": "eslint . --ext .ts,.tsx",
+      "format": "prettier --write .",
+      "clean": "npm run clean --workspaces && rm -rf dist node_modules",
+      "orchestrator-up": "docker-compose up -d nexus-router postgres redis qdrant prometheus grafana",
+      "orchestrator-down": "docker-compose down",
+      "workers-up": "docker-compose --profile workers up -d",
+      "workers-down": "docker-compose --profile workers down",
+      "oracle-up": "docker-compose --profile oracle up -d",
+      "oracle-down": "docker-compose --profile oracle down",
+      "health-check": "bash infra/scripts/health-check.sh",
+      "port-discovery": "bash infra/scripts/port-discovery.sh",
+      "tunnel-setup": "bash infra/scripts/tunnel-setup.sh",
+      "tunnel-start": "cloudflared tunnel --config infra/cloudflared/config.yml run",
+      "verify-connectivity": "bash infra/scripts/verify-connectivity.sh",
+      "bootstrap": "make bootstrap",
+      "db-init": "make db-init",
+      "db-backup": "make db-backup"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": true,
+    "workspaces": ["packages/*", "services/*", "src/*", "apps/*"],
+    "mainDirectories": ["docs", "scripts"],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "agent-vault": {
+      "path": "agent-vault",
+      "purpose": null,
+      "fileCount": 3,
+      "lastAccessed": 1787589020514,
+      "keyFiles": [
+        "README.md",
+        "agent-runner.env.example",
+        "agent-vault.env.example"
+      ]
+    },
+    "apps": {
+      "path": "apps",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1787589020515,
+      "keyFiles": []
+    },
+    "cleanup_archive": {
+      "path": "cleanup_archive",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1787589020523,
+      "keyFiles": []
+    },
+    "cloudflare": {
+      "path": "cloudflare",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1787589020524,
+      "keyFiles": ["apply-access-apps.sh", "apply-cloudflare-desired-state.sh"]
+    },
+    "configs": {
+      "path": "configs",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1787589020525,
+      "keyFiles": []
+    },
+    "docker": {
+      "path": "docker",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1787589020525,
+      "keyFiles": []
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 9,
+      "lastAccessed": 1787589020525,
+      "keyFiles": [
+        "INFRA-CONSOLIDATION-PLAN.md",
+        "OPENCLAW_CHAT_UI_PLAN.md",
+        "OPENCLAW_FUTURE_ROUTING.md",
+        "OPENCLAW_INTEGRATION_PLAN.md",
+        "OPENCLAW_OPERATIONS.md"
+      ]
+    },
+    "env": {
+      "path": "env",
+      "purpose": null,
+      "fileCount": 10,
+      "lastAccessed": 1787589020525,
+      "keyFiles": [
+        "composio.env.example",
+        "nyra.env.example",
+        "openclaw.env.example",
+        "openclaw.ui.env.example",
+        "openclaw.voice.env.example"
+      ]
+    },
+    "hosts": {
+      "path": "hosts",
+      "purpose": null,
+      "fileCount": 10,
+      "lastAccessed": 1787589020526,
+      "keyFiles": [
+        "DEPLOYMENT_SUMMARY.md",
+        "HERMES_DEPLOYMENT_CHECKLIST.md",
+        "HERMES_GATEWAY_CONNECTION_GUIDE.md",
+        "HOSTNAME_CONFIG.md",
+        "INFRASTRUCTURE_REVIEW.md"
+      ]
+    },
+    "images": {
+      "path": "images",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1787589020526,
+      "keyFiles": ["Dockerfile.nextjs"]
+    },
+    "komodo": {
+      "path": "komodo",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1787589020526,
+      "keyFiles": ["README.md"]
+    },
+    "mcp-gateway": {
+      "path": "mcp-gateway",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1787589020526,
+      "keyFiles": ["cloudflared-config.yml", "nexus-router-mcp-config.yml"]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 32,
+      "lastAccessed": 1787589020527,
+      "keyFiles": [
+        "README.md",
+        "ai-grid.sh",
+        "bootstrap-import.sh",
+        "bootstrap.ps1",
+        "bootstrap.sh"
+      ]
+    },
+    "security": {
+      "path": "security",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1787589020527,
+      "keyFiles": []
+    },
+    "shared": {
+      "path": "shared",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1787589020527,
+      "keyFiles": []
+    },
+    "systemd": {
+      "path": "systemd",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1787589020527,
+      "keyFiles": []
+    },
+    "agent-vault/scripts": {
+      "path": "agent-vault/scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 2,
+      "lastAccessed": 1787589020528,
+      "keyFiles": ["check-agent-vault.sh", "create-infisical-vaults.sh"]
+    },
+    "agent-vault/services": {
+      "path": "agent-vault/services",
+      "purpose": "Business logic services",
+      "fileCount": 3,
+      "lastAccessed": 1787589020528,
+      "keyFiles": [
+        "nyra-comms.services.example.yaml",
+        "nyra-github.services.example.yaml",
+        "nyra-llm.services.example.yaml"
+      ]
+    },
+    "docker/build": {
+      "path": "docker/build",
+      "purpose": "Build output",
+      "fileCount": 0,
+      "lastAccessed": 1787589020530,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "hosts/worker-rtx5090/docker-compose.yml",
+      "accessCount": 4,
+      "lastAccessed": 1787589332200,
+      "type": "file"
+    },
+    {
+      "path": "hosts/orchestrator/litellm/config.yaml",
+      "accessCount": 4,
+      "lastAccessed": 1787589412007,
+      "type": "file"
+    },
+    {
+      "path": "hosts/worker-rtx5090/litellm/config.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1787589377191,
+      "type": "file"
+    },
+    {
+      "path": "hosts/orchestrator/docker-compose.litellm.yml",
+      "accessCount": 2,
+      "lastAccessed": 1787589420120,
+      "type": "file"
+    },
+    {
+      "path": "hosts/orchestrator/docker-compose.openharness.yml",
+      "accessCount": 2,
+      "lastAccessed": 1787608648643,
+      "type": "file"
+    },
+    {
+      "path": "hosts/worker-rtx5090/docker-compose.nerve.yml",
+      "accessCount": 1,
+      "lastAccessed": 1787589355203,
+      "type": "file"
+    },
+    {
+      "path": "hosts/orchestrator/docker-compose.omnigent.yml",
+      "accessCount": 1,
+      "lastAccessed": 1787608643263,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

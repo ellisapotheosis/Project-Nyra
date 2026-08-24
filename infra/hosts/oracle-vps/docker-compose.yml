@@ -450,25 +450,32 @@ services:
   # Built from source: github.com/mem0ai/mem0/tree/main/openmemory/api.
   openmemory-mcp:
     build:
-      context: ../../../services/openmemory-mcp
-      dockerfile: ../../infra/docker/build/services/openmemory-mcp/Dockerfile
+      # The Dockerfile clones the pinned upstream OpenMemory API subtree. Keep
+      # the repository root as context so a clean host rebuild is reproducible;
+      # services/openmemory-mcp is intentionally only a local service marker.
+      context: ../../..
+      dockerfile: infra/docker/build/services/openmemory-mcp/Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openmemory-mcp
     restart: unless-stopped
-    # NOTE: qdrant lives in docker-compose.memory.yml; reach it via Tailscale.
+    # Qdrant and Mem0 are supplied by docker-compose.memory.yml on the private
+    # memory networks below; neither datastore is host-published.
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      QDRANT_HOST: ${OPENMEMORY_QDRANT_HOST:-memory-qdrant}
+      QDRANT_HOST: ${OPENMEMORY_QDRANT_HOST:-qdrant}
       QDRANT_PORT: "6333"
       QDRANT_API_KEY: ${QDRANT_API_KEY:-}
-      MEM0_API_URL: ${OPENMEMORY_MEM0_API_URL:-http://memory-mem0:5000}
+      MEM0_API_URL: ${OPENMEMORY_MEM0_API_URL:-http://mem0:5000}
       USER: nyra
       LLM_PROVIDER: openai
       LLM_MODEL: gpt-4o-mini
       EMBEDDER_PROVIDER: openai
       EMBEDDER_MODEL: text-embedding-3-small
     ports:
-      - "8765:8765"
-    networks: [nyra_net]
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:8765:8765"
+    networks:
+      - nyra_net
+      - memory_edge
+      - memory_private
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8765/docs"]
       interval: 30s
@@ -500,34 +507,6 @@ services:
       - "8766"
     ports:
       - "8766:8766"
-    networks: [nyra_net]
-
-  mempalace-mcp:
-    build:
-      context: ../../../services/mempalace-mcp
-      dockerfile: ../../infra/docker/build/services/mempalace-mcp/Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mempalace-mcp
-    restart: unless-stopped
-    command:
-      - /bin/sh
-      - -lc
-      - |
-        python -m mempalace.mcp_server
-        echo "mempalace stdio server exited; keeping container idle until an MCP client attaches"
-        tail -f /dev/null
-    environment:
-      PORT: 8000
-      MEMPAL_DIR: /data/vault
-    ports:
-      - "8002:8000"
-    volumes:
-      - mempalace_data:/root/.mempalace
-      - mempalace_vault:/data/vault
-    healthcheck:
-      test: ["CMD-SHELL", "python -c 'import mempalace'"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     networks: [nyra_net]
 
   # ── Generic Git MCP (stdio→SSE bridge via supergateway) ──────────────────
@@ -1101,7 +1080,6 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-      MEMPALACE_URL: ${MEMPALACE_URL:-}
       LLXPRT_JEFE_BASE_URL: ${LLXPRT_JEFE_BASE_URL:-}
       LLXPRT_JEFE_API_KEY: ${LLXPRT_JEFE_API_KEY:-}
     volumes:
@@ -1158,6 +1136,12 @@ services:
 
 networks:
   nyra_net:
+  # Shared with the canonical memory overlay. The overlay adds the internal
+  # flag to memory_private and the memory service aliases.
+  memory_edge:
+    name: nyra_memory_edge
+  memory_private:
+    name: nyra_memory_private
   # Shared with the legacy Oracle service stack that owns postgres and redis.
   oracle_shared:
     external: true
@@ -1180,8 +1164,6 @@ volumes:
   openlit_clickhouse_data:
   openlit_data:
   nyra_secrets:
-  mempalace_data:
-  mempalace_vault:
   paperclip_data:
   syncthing_config:
   portainer_data:
