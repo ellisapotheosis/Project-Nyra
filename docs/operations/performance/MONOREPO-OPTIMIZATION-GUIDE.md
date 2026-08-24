@@ -18,14 +18,14 @@ This guide documents comprehensive performance optimizations applied to the Proj
 
 ### Expected Performance Improvements
 
-| Metric | Baseline | Target | Improvement |
-|--------|----------|--------|-------------|
-| Cold Build Time | ~8-12 min | ~3-5 min | **60-70%** |
-| Warm Build Time | ~4-6 min | ~30-60 sec | **85-90%** |
-| CI/CD Pipeline | ~15-20 min | ~5-8 min | **60-70%** |
-| Dev Server Startup | ~45-60 sec | ~10-20 sec | **65-80%** |
-| Docker Build Time | ~10-15 min | ~3-5 min | **65-75%** |
-| Memory Usage | 4-6 GB | 2-3 GB | **40-50%** |
+| Metric             | Baseline   | Target     | Improvement |
+| ------------------ | ---------- | ---------- | ----------- |
+| Cold Build Time    | ~8-12 min  | ~3-5 min   | **60-70%**  |
+| Warm Build Time    | ~4-6 min   | ~30-60 sec | **85-90%**  |
+| CI/CD Pipeline     | ~15-20 min | ~5-8 min   | **60-70%**  |
+| Dev Server Startup | ~45-60 sec | ~10-20 sec | **65-80%**  |
+| Docker Build Time  | ~10-15 min | ~3-5 min   | **65-75%**  |
+| Memory Usage       | 4-6 GB     | 2-3 GB     | **40-50%**  |
 
 ---
 
@@ -129,6 +129,7 @@ $ docker build -f apps/ratehunter/Dockerfile .
 **File**: `turbo.json`
 
 **Key Improvements**:
+
 1. Enabled remote caching with Experimental Spaces
 2. Configured intelligent task dependencies
 3. Optimized input/output patterns
@@ -146,31 +147,13 @@ $ docker build -f apps/ratehunter/Dockerfile .
   "remoteCache": {
     "enabled": true
   },
-  "globalDependencies": [
-    "**/.env",
-    ".env",
-    "tsconfig.json",
-    "package.json"
-  ],
-  "globalEnv": [
-    "NODE_ENV",
-    "DATABASE_URL",
-    "REDIS_URL",
-    "CI"
-  ],
+  "globalDependencies": ["**/.env", ".env", "tsconfig.json", "package.json"],
+  "globalEnv": ["NODE_ENV", "DATABASE_URL", "REDIS_URL", "CI"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env.production"
-      ],
-      "outputs": [
-        "dist/**",
-        ".next/**",
-        "build/**",
-        ".turbo/cache/**"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env.production"],
+      "outputs": ["dist/**", ".next/**", "build/**", ".turbo/cache/**"],
       "cache": true,
       "outputLogs": "new-only"
     },
@@ -191,33 +174,37 @@ $ docker build -f apps/ratehunter/Dockerfile .
 ### Key Features
 
 **1. Remote Caching**
+
 - Share build cache across team members
 - Persist cache in CI/CD
 - Reduce duplicate work
 
 **2. Smart Task Dependencies**
+
 - `lint` has no dependencies (can run immediately)
 - `build` depends on upstream builds (`^build`)
 - `test` depends on builds completing
 
 **3. Input/Output Tracking**
+
 - Only rebuild when relevant files change
 - Cache outputs for reuse
 - Track environment variables
 
 **4. Output Modes**
+
 - `new-only` - Only show new logs
 - `errors-only` - Only show errors
 - `full` - Show everything (dev mode)
 
 ### Expected Impact
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Full build (cold) | 6m 15s | 3m 10s | **49%** |
-| Full build (warm) | 4m 20s | 45s | **83%** |
-| Lint only | 1m 30s | 8s | **91%** |
-| Test only | 2m 15s | 35s | **74%** |
+| Metric            | Before | After  | Improvement |
+| ----------------- | ------ | ------ | ----------- |
+| Full build (cold) | 6m 15s | 3m 10s | **49%**     |
+| Full build (warm) | 4m 20s | 45s    | **83%**     |
+| Lint only         | 1m 30s | 8s     | **91%**     |
+| Test only         | 2m 15s | 35s    | **74%**     |
 
 ### How to Use
 
@@ -241,8 +228,9 @@ pnpm turbo run build --dry-run
 ### Remote Caching Setup
 
 **For Team Members:**
+
 ```bash
-# Login to Vercel (one-time)
+# Enable the configured remote cache (one-time)
 npx turbo login
 
 # Link to your workspace
@@ -253,6 +241,7 @@ pnpm build
 ```
 
 **For CI/CD:**
+
 ```yaml
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -271,6 +260,7 @@ steps:
 **File**: `.npmrc`
 
 **Key Improvements**:
+
 1. Configured aggressive caching strategies
 2. Optimized hoisting for compatibility
 3. Enabled parallel processing
@@ -312,37 +302,42 @@ only-built-dependencies[]='sharp'
 ### Key Features
 
 **1. Parallel Processing**
+
 - `child-concurrency=8` - Install 8 packages simultaneously
 - `network-concurrency=16` - 16 concurrent downloads
 - Significant speedup on multi-core systems
 
 **2. Smart Hoisting**
+
 - Public hoist for tooling (ESLint, Prettier, TypeScript)
 - Isolated node_modules for packages
 - Prevents dependency conflicts
 
 **3. Side Effects Cache**
+
 - Cache postinstall/preinstall scripts
 - Avoid re-running build scripts
 - Major speedup for native modules
 
 **4. Build Optimization**
+
 - Only build necessary native modules
 - Skip rebuilds when possible
 - Faster install times
 
 ### Expected Impact
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Fresh install | 2m 30s | 45s | **70%** |
-| Cached install | 1m 15s | 12s | **84%** |
-| Workspace update | 1m 45s | 20s | **81%** |
-| CI install | 3m 10s | 55s | **71%** |
+| Metric           | Before | After | Improvement |
+| ---------------- | ------ | ----- | ----------- |
+| Fresh install    | 2m 30s | 45s   | **70%**     |
+| Cached install   | 1m 15s | 12s   | **84%**     |
+| Workspace update | 1m 45s | 20s   | **81%**     |
+| CI install       | 3m 10s | 55s   | **71%**     |
 
 ### Best Practices
 
 **For Local Development:**
+
 ```bash
 # Use prefer-offline for faster installs
 pnpm install --prefer-offline
@@ -358,6 +353,7 @@ pnpm update -r --latest
 ```
 
 **For CI/CD:**
+
 ```bash
 # Use frozen lockfile
 pnpm install --frozen-lockfile --prefer-offline
@@ -375,6 +371,7 @@ CI=true pnpm install
 **Files**: `tsconfig.base.json`, `tsconfig.json`
 
 **Key Improvements**:
+
 1. Created shared base configuration
 2. Enabled composite builds
 3. Configured incremental compilation
@@ -384,6 +381,7 @@ CI=true pnpm install
 ### Configuration Details
 
 **tsconfig.base.json** (Shared Configuration):
+
 ```json
 {
   "compilerOptions": {
@@ -415,6 +413,7 @@ CI=true pnpm install
 ```
 
 **tsconfig.json** (Root Configuration):
+
 ```json
 {
   "extends": "./tsconfig.base.json",
@@ -429,6 +428,7 @@ CI=true pnpm install
 ```
 
 **Package-Level Configuration** (apps/ratehunter/tsconfig.json):
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -440,46 +440,49 @@ CI=true pnpm install
     "outDir": "./dist"
   },
   "include": ["src/**/*"],
-  "references": [
-    { "path": "../../packages/database" }
-  ]
+  "references": [{ "path": "../../packages/database" }]
 }
 ```
 
 ### Key Features
 
 **1. Incremental Compilation**
+
 - Only recompile changed files
 - Cache build information in `.tsbuildinfo`
 - Massive speedup for warm builds
 
 **2. Composite Projects**
+
 - Enable project references
 - Build dependencies first
 - Parallel compilation when possible
 
 **3. Performance Optimizations**
+
 - `skipLibCheck` - Don't type-check node_modules
 - `tsBuildInfoFile` - Cache compilation state
 - Optimized module resolution
 
 **4. Path Mapping**
+
 - Clean imports: `@/components` instead of `../../components`
 - Better IDE support
 - Easier refactoring
 
 ### Expected Impact
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Full type check | 1m 45s | 25s | **76%** |
-| Incremental check | 1m 15s | 3s | **96%** |
-| IDE responsiveness | Slow | Fast | **90%** |
-| Build with types | 6m 15s | 2m 45s | **56%** |
+| Metric             | Before | After  | Improvement |
+| ------------------ | ------ | ------ | ----------- |
+| Full type check    | 1m 45s | 25s    | **76%**     |
+| Incremental check  | 1m 15s | 3s     | **96%**     |
+| IDE responsiveness | Slow   | Fast   | **90%**     |
+| Build with types   | 6m 15s | 2m 45s | **56%**     |
 
 ### How to Use
 
 **Build All Projects**:
+
 ```bash
 # Build with TypeScript project references
 tsc --build
@@ -495,6 +498,7 @@ tsc --build --watch
 ```
 
 **Integration with Turbo**:
+
 ```bash
 # Type check all packages
 pnpm turbo run type-check
@@ -506,12 +510,14 @@ pnpm turbo run type-check --filter='./apps/*'
 ### Troubleshooting
 
 **Issue**: Build info out of sync
+
 ```bash
 # Solution: Clean and rebuild
 tsc --build --clean && tsc --build
 ```
 
 **Issue**: Circular dependencies
+
 ```bash
 # Solution: Review project references
 # Ensure no circular references in tsconfig.json files
@@ -526,6 +532,7 @@ tsc --build --clean && tsc --build
 **Files**: `Dockerfile.optimized`, `.dockerignore`, `scripts/docker-build-optimized.sh`
 
 **Key Improvements**:
+
 1. Multi-stage builds for size reduction
 2. Optimized layer ordering
 3. BuildKit cache mounts
@@ -607,37 +614,42 @@ docker buildx build \
 ### Key Features
 
 **1. Multi-Stage Builds**
+
 - Separate stages for deps, build, and runtime
 - Final image only contains runtime artifacts
 - Reduced image size (400MB → 150MB)
 
 **2. BuildKit Cache Mounts**
+
 - Cache pnpm store: `--mount=type=cache,target=/root/.pnpm-store`
 - Cache Turbo builds: `--mount=type=cache,target=/app/.turbo`
 - Persist across builds
 
 **3. Layer Ordering**
+
 - Dependencies layer changes rarely (cached)
 - Source code layer changes often (rebuilt)
 - Optimal cache hit rate
 
 **4. .dockerignore**
+
 - Exclude unnecessary files
 - Faster context transfer
 - Smaller build context
 
 ### Expected Impact
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Full Docker build | 12m 30s | 3m 45s | **70%** |
-| Cached build | 8m 15s | 45s | **91%** |
-| Image size | 420 MB | 165 MB | **61%** |
-| Layer reuse | 20% | 85% | **325%** |
+| Metric            | Before  | After  | Improvement |
+| ----------------- | ------- | ------ | ----------- |
+| Full Docker build | 12m 30s | 3m 45s | **70%**     |
+| Cached build      | 8m 15s  | 45s    | **91%**     |
+| Image size        | 420 MB  | 165 MB | **61%**     |
+| Layer reuse       | 20%     | 85%    | **325%**    |
 
 ### How to Use
 
 **Local Development**:
+
 ```bash
 # Build with caching
 ./scripts/docker-build-optimized.sh ratehunter
@@ -650,6 +662,7 @@ docker buildx build \
 ```
 
 **CI/CD Integration**:
+
 ```yaml
 - name: Build Docker image
   uses: docker/build-push-action@v5
@@ -662,6 +675,7 @@ docker buildx build \
 ### Best Practices
 
 **1. Optimize Layer Order**
+
 ```dockerfile
 # ✅ Good: Dependencies first (rarely change)
 COPY package.json pnpm-lock.yaml ./
@@ -674,6 +688,7 @@ RUN pnpm install
 ```
 
 **2. Use BuildKit Features**
+
 ```bash
 # Enable BuildKit
 export DOCKER_BUILDKIT=1
@@ -684,6 +699,7 @@ RUN --mount=type=cache,target=/root/.cache \
 ```
 
 **3. Keep Images Minimal**
+
 ```dockerfile
 # Use Alpine base
 FROM node:20-alpine
@@ -704,6 +720,7 @@ COPY --from=builder /app/dist ./dist
 **File**: `.github/workflows/ci-optimized.yml`
 
 **Key Improvements**:
+
 1. Job-level parallelization
 2. Matrix builds for multiple targets
 3. Shared dependency caching
@@ -726,6 +743,7 @@ Setup (install deps, cache)
 ### Key Job Configurations
 
 **1. Setup Job** (Dependency Caching):
+
 ```yaml
 setup:
   runs-on: ubuntu-latest
@@ -734,7 +752,7 @@ setup:
     - uses: pnpm/action-setup@v4
     - uses: actions/setup-node@v4
       with:
-        cache: 'pnpm'
+        cache: "pnpm"
     - run: pnpm install --frozen-lockfile
     - uses: actions/cache@v4
       with:
@@ -743,6 +761,7 @@ setup:
 ```
 
 **2. Parallel Lint & Type Check**:
+
 ```yaml
 lint:
   needs: setup
@@ -762,6 +781,7 @@ type-check:
 ```
 
 **3. Matrix Build**:
+
 ```yaml
 build:
   needs: [lint, type-check]
@@ -773,6 +793,7 @@ build:
 ```
 
 **4. Parallel Docker Builds**:
+
 ```yaml
 docker:
   needs: build
@@ -788,17 +809,18 @@ docker:
 
 ### Expected Impact
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Total CI time | 18m 45s | 6m 20s | **66%** |
-| Lint + Type Check | Sequential (5m) | Parallel (2m) | **60%** |
-| Build jobs | Sequential (8m) | Matrix (3m) | **63%** |
-| Docker builds | Sequential (12m) | Parallel (4m) | **67%** |
-| Test execution | Sequential (6m) | Parallel (2m) | **67%** |
+| Metric            | Before           | After         | Improvement |
+| ----------------- | ---------------- | ------------- | ----------- |
+| Total CI time     | 18m 45s          | 6m 20s        | **66%**     |
+| Lint + Type Check | Sequential (5m)  | Parallel (2m) | **60%**     |
+| Build jobs        | Sequential (8m)  | Matrix (3m)   | **63%**     |
+| Docker builds     | Sequential (12m) | Parallel (4m) | **67%**     |
+| Test execution    | Sequential (6m)  | Parallel (2m) | **67%**     |
 
 ### Best Practices
 
 **1. Job Dependencies**
+
 ```yaml
 # ✅ Good: Parallel independent jobs
 lint:
@@ -812,10 +834,11 @@ test:
 lint:
   needs: setup
 type-check:
-  needs: lint  # Unnecessary dependency!
+  needs: lint # Unnecessary dependency!
 ```
 
 **2. Matrix Builds**
+
 ```yaml
 # Build multiple targets in parallel
 strategy:
@@ -826,6 +849,7 @@ strategy:
 ```
 
 **3. Artifact Sharing**
+
 ```yaml
 # Upload in one job
 - uses: actions/upload-artifact@v4
@@ -840,6 +864,7 @@ strategy:
 ```
 
 **4. Cache Strategy**
+
 ```yaml
 # Layer caches
 - uses: actions/cache@v4
@@ -930,6 +955,7 @@ Dev Server Startup:
 ## 🚀 Implementation Checklist
 
 ### Phase 1: Configuration Files ✅
+
 - [x] Create `.npmrc` with performance optimizations
 - [x] Update `turbo.json` with caching and dependencies
 - [x] Create `tsconfig.base.json` for shared TypeScript config
@@ -937,12 +963,14 @@ Dev Server Startup:
 - [x] Create `.dockerignore` for build optimization
 
 ### Phase 2: Docker Optimization ✅
+
 - [x] Create `Dockerfile.optimized` with multi-stage builds
 - [x] Create `scripts/docker-build-optimized.sh`
 - [x] Configure BuildKit cache mounts
 - [x] Set up layer caching strategy
 
 ### Phase 3: CI/CD Configuration ✅
+
 - [x] Create `.github/workflows/ci-optimized.yml`
 - [x] Configure job parallelization
 - [x] Set up matrix builds
@@ -950,6 +978,7 @@ Dev Server Startup:
 - [x] Add artifact sharing
 
 ### Phase 4: Testing & Validation (Next Steps)
+
 - [ ] Run baseline benchmarks
 - [ ] Apply optimizations
 - [ ] Run optimized benchmarks
@@ -957,9 +986,10 @@ Dev Server Startup:
 - [ ] Document actual improvements
 
 ### Phase 5: Team Rollout (Next Steps)
+
 - [ ] Update team documentation
 - [ ] Train team on new workflows
-- [ ] Set up remote caching (Vercel Turborepo)
+- [ ] Set up remote caching for the CI provider
 - [ ] Monitor performance in production
 
 ---
@@ -969,6 +999,7 @@ Dev Server Startup:
 ### General Performance Tips
 
 **1. Keep Dependencies Minimal**
+
 ```bash
 # Audit dependencies regularly
 pnpm audit
@@ -981,6 +1012,7 @@ pnpm prune --prod
 ```
 
 **2. Optimize Build Scope**
+
 ```bash
 # Build only what's needed
 pnpm turbo run build --filter='./apps/ratehunter'
@@ -993,6 +1025,7 @@ pnpm turbo run build --filter='[HEAD^1]'
 ```
 
 **3. Use Turbo Dry Run**
+
 ```bash
 # See what would run
 pnpm turbo run build --dry-run
@@ -1004,6 +1037,7 @@ pnpm turbo run build --graph
 ### Docker Best Practices
 
 **1. Layer Optimization**
+
 ```dockerfile
 # Group commands to reduce layers
 RUN apt-get update && \
@@ -1020,6 +1054,7 @@ RUN apt-get update && \
 ```
 
 **2. Use .dockerignore Aggressively**
+
 ```
 # Exclude everything
 **
@@ -1032,6 +1067,7 @@ RUN apt-get update && \
 ```
 
 **3. Health Checks**
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s \
   CMD curl -f http://localhost:3000/health || exit 1
@@ -1040,6 +1076,7 @@ HEALTHCHECK --interval=30s --timeout=10s \
 ### CI/CD Best Practices
 
 **1. Fail Fast**
+
 ```yaml
 strategy:
   fail-fast: true
@@ -1048,6 +1085,7 @@ strategy:
 ```
 
 **2. Use Concurrency Groups**
+
 ```yaml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -1055,6 +1093,7 @@ concurrency:
 ```
 
 **3. Cache Everything**
+
 ```yaml
 - uses: actions/cache@v4
   with:
@@ -1074,6 +1113,7 @@ concurrency:
 **Symptoms**: Builds always run, no cache hits
 
 **Solutions**:
+
 ```bash
 # 1. Check Turbo config
 cat turbo.json
@@ -1094,6 +1134,7 @@ pnpm turbo run build --summarize
 **Symptoms**: Dependency installation takes too long
 
 **Solutions**:
+
 ```bash
 # 1. Clear store and reinstall
 pnpm store prune
@@ -1114,6 +1155,7 @@ pnpm store path
 **Symptoms**: Project reference errors
 
 **Solutions**:
+
 ```bash
 # 1. Clean all build info
 find . -name "*.tsbuildinfo" -delete
@@ -1131,6 +1173,7 @@ tsc --build --force
 **Symptoms**: Cache not working, slow builds
 
 **Solutions**:
+
 ```bash
 # 1. Enable BuildKit
 export DOCKER_BUILDKIT=1
@@ -1150,6 +1193,7 @@ cat .dockerignore
 ## 📚 Additional Resources
 
 ### Official Documentation
+
 - [Turborepo Documentation](https://turbo.build/repo/docs)
 - [pnpm Documentation](https://pnpm.io/motivation)
 - [TypeScript Project References](https://www.typescriptlang.org/docs/handbook/project-references.html)
@@ -1157,11 +1201,13 @@ cat .dockerignore
 - [GitHub Actions](https://docs.github.com/en/actions)
 
 ### Performance Guides
+
 - [Turborepo Handbook](https://turbo.build/repo/docs/handbook)
 - [pnpm Benchmarks](https://pnpm.io/benchmarks)
 - [Next.js Performance](https://nextjs.org/docs/advanced-features/measuring-performance)
 
 ### Project Nyra Specific
+
 - [CLAUDE.md](../../CLAUDE.md) - AI assistant integration
 - [README.md](../../README.md) - Project overview
 - [SETUP-GUIDE.md](../guides/SETUP-GUIDE.md) - Setup instructions
@@ -1173,17 +1219,20 @@ cat .dockerignore
 ### Regular Maintenance Tasks
 
 **Weekly**:
+
 - [ ] Review Turborepo cache hit rates
 - [ ] Check pnpm audit for security issues
 - [ ] Monitor CI/CD build times
 
 **Monthly**:
+
 - [ ] Update dependencies: `pnpm update -r --latest`
 - [ ] Review and optimize Turbo task dependencies
 - [ ] Audit Docker image sizes
 - [ ] Review CI/CD costs
 
 **Quarterly**:
+
 - [ ] Re-benchmark performance metrics
 - [ ] Review and update this guide
 - [ ] Train new team members on optimizations
@@ -1192,6 +1241,7 @@ cat .dockerignore
 ### Performance Monitoring
 
 **Key Metrics to Track**:
+
 1. Build times (cold, warm, incremental)
 2. CI/CD pipeline duration
 3. Docker image sizes
@@ -1199,6 +1249,7 @@ cat .dockerignore
 5. Developer feedback
 
 **Tools**:
+
 - Turborepo Dashboard: `pnpm turbo run build --summarize`
 - GitHub Actions Insights
 - Docker Hub Analytics

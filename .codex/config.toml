@@ -157,9 +157,6 @@ enabled = true
 [plugins."github@openai-curated"]
 enabled = true
 
-[plugins."vercel@openai-curated"]
-enabled = true
-
 [projects."/"]
 trust_level = "trusted"
 

@@ -28,7 +28,7 @@ Repository and guidance:
 - [x] Completed Runs 08-09 CRM/tools/contracts report.
 - [x] Completed Run 10 infra/ops/CI report.
 - [x] Completed team progress summary report.
-- [x] Added owner-manual-action coverage for GitHub, Vercel, Cloudflare, Infisical, Twenty, n8n, Activepieces, Twilio, SendGrid, Google Workspace, and code scanning subscription checks.
+- [x] Added owner-manual-action coverage for GitHub, Cloudflare, Infisical, Twenty, n8n, Activepieces, Twilio, SendGrid, Google Workspace, and code scanning subscription checks.
 - [x] Added a narrow `.gitignore` preservation rule for nested `apps/projectnyra/lib/**` source files.
 
 Landing:
@@ -77,7 +77,7 @@ Known blockers already observed:
 - [x] Existing conflict markers in `infra/hosts/worker-rtx5090/docker-compose.yml` were resolved by Run 10.
 - [x] Existing conflict markers in `docs/reports/INFRA_RECOVERY_AUDIT.md` were resolved by Run 10.
 - [ ] `pnpm install` previously rewrote `pnpm-lock.yaml`; decide whether to keep the lockfile repair or restore with explicit approval.
-- [ ] Vercel CLI metadata is absent in this worktree; no `.vercel/project.json` or `vercel.json` was found during prior inspection.
+- [x] Vercel deployment metadata is absent and is blocked by the repository ignore policy; Cloudflare Pages is the frontend deployment target.
 - [ ] Worktree is heavily dirty with many unrelated archive deletions; do not blind-merge branches until this is triaged.
 - [x] 2026-05-11 Run 04 validation blocker was resolved by the Run 05-07 route lane; `pnpm --filter mortgage-assistant typecheck`, `lint`, and `build` passed after stale `.next` output was cleared.
 - [ ] 2026-05-11 Run 10 GitHub CI: recent auto-merge runs failed with bad credentials; owner must renew or replace `INFISICAL_GH_TOKEN`.
@@ -92,7 +92,7 @@ Repo hygiene:
 - [ ] Decide whether to keep or revert the regenerated `pnpm-lock.yaml` after a package-owning lane confirms the manifest/lockfile relationship.
 - [ ] Resolve assigned conflict markers only after confirming ownership.
 - [ ] Restore or intentionally archive unrelated deleted docs only if assigned.
-- [x] Add `docs/OWNER_MANUAL_ACTIONS.md` entries for dashboard, MFA, provider verification, Vercel, GitHub, Cloudflare, Infisical, and Twenty owner actions.
+- [x] Add `docs/OWNER_MANUAL_ACTIONS.md` entries for dashboard, MFA, provider verification, GitHub, Cloudflare, Infisical, and Twenty owner actions.
 
 Theme:
 

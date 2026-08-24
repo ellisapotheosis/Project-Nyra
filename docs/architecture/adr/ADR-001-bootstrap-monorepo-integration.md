@@ -57,11 +57,13 @@ The Project Nyra bootstrap installer (`bootstrap/installer`) is currently isolat
 ### Alternative 1: Keep Installer Isolated
 
 **Pros**:
+
 - No migration effort required
 - Installer remains independently deployable
 - No risk of breaking changes
 
 **Cons**:
+
 - Continued code duplication
 - Type drift and inconsistency
 - Slower builds (no Turbo caching)
@@ -74,11 +76,13 @@ The Project Nyra bootstrap installer (`bootstrap/installer`) is currently isolat
 Move installer to `apps/installer` but keep all code internal.
 
 **Pros**:
+
 - Simpler migration (just move directory)
 - Gets Turbo benefits immediately
 - Less planning required
 
 **Cons**:
+
 - Doesn't solve code duplication
 - Can't reuse components in other apps
 - Types still scattered across codebase
@@ -91,11 +95,13 @@ Move installer to `apps/installer` but keep all code internal.
 Create a new monorepo just for bootstrap packages.
 
 **Pros**:
+
 - Bootstrap system remains independent
 - Can version packages separately
 - Clear separation of concerns
 
 **Cons**:
+
 - Two monorepos to maintain
 - Cross-repo dependencies are complex
 - Harder to share types with main apps
@@ -108,11 +114,13 @@ Create a new monorepo just for bootstrap packages.
 Keep installer in separate repo, use Git submodules.
 
 **Pros**:
+
 - Installer has its own Git history
 - Can be versioned independently
 - Team can work in parallel
 
 **Cons**:
+
 - Submodules are notoriously difficult
 - Doesn't solve dependency deduplication
 - No monorepo tooling benefits
@@ -157,15 +165,16 @@ Keep installer in separate repo, use Git submodules.
 
 ### Why Extract Packages?
 
-| Package | Why Extract? |
-|---------|--------------|
-| `@nyra/bootstrap-types` | **Shared Contracts**: Types define the interface between installer, admin dashboard, and backend APIs. Centralizing prevents drift. |
-| `@nyra/bootstrap-ui` | **Component Reuse**: Health dashboards, PC selectors, and progress indicators are valuable in multiple apps. |
+| Package                  | Why Extract?                                                                                                                              |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `@nyra/bootstrap-types`  | **Shared Contracts**: Types define the interface between installer, admin dashboard, and backend APIs. Centralizing prevents drift.       |
+| `@nyra/bootstrap-ui`     | **Component Reuse**: Health dashboards, PC selectors, and progress indicators are valuable in multiple apps.                              |
 | `@nyra/bootstrap-config` | **Validation Logic**: Zod schemas for manifests, Docker configs, and MCP servers should be reusable for CLI tools and backend validation. |
 
 ### Why Not Extract?
 
 We considered but rejected extracting:
+
 - **Services** (`fileDeployer`, `installOrchestrator`) - Too specific to installer workflow
 - **Electron code** - Only used by installer, no reuse potential
 - **Assets** - Icons and images are installer-specific
@@ -177,6 +186,7 @@ We considered but rejected extracting:
 ### Phased Rollout
 
 **Phase 1: Non-Breaking Changes (Week 1)**
+
 - Move `bootstrap/installer` → `apps/installer`
 - Update package name to `@nyra/installer`
 - Add to `pnpm-workspace.yaml` (no-op since `apps/*` already covers it)
@@ -184,12 +194,14 @@ We considered but rejected extracting:
 - Verify installer still works unchanged
 
 **Phase 2: Extract Types (Week 2)**
+
 - Create `packages/bootstrap-types`
 - Copy and organize types
 - Update imports in `apps/installer`
 - Verify TypeScript compilation
 
 **Phase 3: Extract UI Components (Week 3)**
+
 - Create `packages/bootstrap-ui`
 - Move React components and hooks
 - Configure Vite for library mode
@@ -197,6 +209,7 @@ We considered but rejected extracting:
 - Test hot-reload
 
 **Phase 4: Extract Config/Validators (Week 4)**
+
 - Create `packages/bootstrap-config`
 - Extract validation logic
 - Create Zod schemas
@@ -204,12 +217,14 @@ We considered but rejected extracting:
 - Add unit tests
 
 **Phase 5: Turbo Integration (Week 5)**
+
 - Update `turbo.json` with new tasks
 - Configure dependency graph
 - Test build caching
 - Measure performance improvements
 
 **Phase 6: Documentation & Training (Week 6)**
+
 - Update all README files
 - Create developer guide
 - Record demo video
@@ -259,26 +274,26 @@ If integration causes critical issues:
 
 ### Build Performance
 
-| Metric | Baseline | Target | Measurement |
-|--------|----------|--------|-------------|
-| Cold build | 60s | 20s | `time pnpm run build` |
-| Incremental build | 30s | 5s | Build after changing one file |
-| CI/CD pipeline | 5min | 2min | GitHub Actions duration |
+| Metric            | Baseline | Target | Measurement                   |
+| ----------------- | -------- | ------ | ----------------------------- |
+| Cold build        | 60s      | 20s    | `time pnpm run build`         |
+| Incremental build | 30s      | 5s     | Build after changing one file |
+| CI/CD pipeline    | 5min     | 2min   | GitHub Actions duration       |
 
 ### Code Quality
 
-| Metric | Baseline | Target |
-|--------|----------|--------|
-| Type duplication | 50 duplicated types | 0 duplicated types |
-| Component reuse | 0 apps | 2+ apps (installer + admin) |
-| Duplicate deps | 30 | <5 |
+| Metric           | Baseline            | Target                      |
+| ---------------- | ------------------- | --------------------------- |
+| Type duplication | 50 duplicated types | 0 duplicated types          |
+| Component reuse  | 0 apps              | 2+ apps (installer + admin) |
+| Duplicate deps   | 30                  | <5                          |
 
 ### Developer Experience
 
-| Metric | Target |
-|--------|--------|
-| Hot-reload time | <200ms |
-| Type error feedback | <5s after save |
+| Metric              | Target                       |
+| ------------------- | ---------------------------- |
+| Hot-reload time     | <200ms                       |
+| Type error feedback | <5s after save               |
 | Command consistency | All apps use `pnpm --filter` |
 
 ### Adoption
@@ -292,21 +307,25 @@ If integration causes critical issues:
 ## Stakeholder Impact
 
 ### Development Team (5 developers)
+
 - **Impact**: MEDIUM - Must learn workspace protocol and new import paths
 - **Mitigation**: Training session, comprehensive docs, pair programming for first week
 - **Timeline**: 1 week to full proficiency
 
 ### DevOps Team (2 engineers)
+
 - **Impact**: LOW - CI/CD changes are minimal (Turbo already in use)
 - **Mitigation**: Review new Turbo tasks, update deployment scripts
 - **Timeline**: 2 hours
 
 ### QA Team (2 testers)
+
 - **Impact**: LOW - Installer functionality remains identical
 - **Mitigation**: Regression test plan for all installer features
 - **Timeline**: 4 hours testing
 
 ### Product Team (3 PMs)
+
 - **Impact**: NONE - No user-facing changes
 - **Benefit**: Faster feature delivery due to improved build times
 
@@ -324,12 +343,14 @@ If integration causes critical issues:
 ### Dependencies
 
 This ADR depends on:
+
 - ✅ Turbo already configured in monorepo
 - ✅ pnpm workspaces already in use
 - ✅ TypeScript project references established
 - ✅ ESLint config sharing pattern established
 
 This ADR enables:
+
 - 🔄 Future extraction of other shared packages
 - 🔄 Storybook component documentation
 - 🔄 Shared ESLint/Prettier configs
@@ -340,17 +361,20 @@ This ADR enables:
 ## Review & Approval
 
 ### Technical Review
+
 - [ ] **Architecture Lead**: Approved design
 - [ ] **Frontend Lead**: Approved React component extraction
 - [ ] **DevOps Lead**: Approved Turbo configuration
 - [ ] **Security Lead**: No security concerns
 
 ### Stakeholder Sign-off
+
 - [ ] **Engineering Manager**: Approved effort allocation
 - [ ] **Product Manager**: Acknowledged no feature delays
 - [ ] **CTO**: Approved architectural direction
 
 ### Implementation Approval
+
 - [ ] **Development Team**: Consensus on implementation plan
 - [ ] **QA Team**: Test plan approved
 - [ ] **DevOps Team**: CI/CD changes approved
@@ -360,30 +384,32 @@ This ADR enables:
 ## References
 
 ### Internal Documents
+
 - [BOOTSTRAP-INTEGRATION-PLAN.md](../BOOTSTRAP-INTEGRATION-PLAN.md) - Full 50-page implementation plan
 - [INTEGRATION-QUICKSTART.md](../../bootstrap/INTEGRATION-QUICKSTART.md) - 90-minute quick start
 - [bootstrap/README.md](../../bootstrap/README.md) - Bootstrap system overview
 
 ### External Resources
+
 - [Turborepo Handbook](https://turbo.build/repo/docs/handbook) - Monorepo best practices
 - [pnpm Workspaces](https://pnpm.io/workspaces) - Workspace protocol documentation
 - [Vite Library Mode](https://vitejs.dev/guide/build.html#library-mode) - Building React libraries
 - [TypeScript Project References](https://www.typescriptlang.org/docs/handbook/project-references.html) - Composite projects
 
 ### Similar Decisions
-- [Vercel's Turborepo Case Study](https://vercel.com/blog/turborepo-with-nx) - Monorepo migration
+
 - [Nx Workspaces Migration](https://nx.dev/recipes/adopting-nx/migration-walkthrough) - Large-scale refactoring
 
 ---
 
 ## Changelog
 
-| Date | Change | Author |
-|------|--------|--------|
+| Date       | Change        | Author                   |
+| ---------- | ------------- | ------------------------ |
 | 2026-01-18 | Initial draft | System Architecture Team |
-| TBD | Approved | Architecture Lead |
-| TBD | Implemented | Development Team |
-| TBD | Verified | QA Team |
+| TBD        | Approved      | Architecture Lead        |
+| TBD        | Implemented   | Development Team         |
+| TBD        | Verified      | QA Team                  |
 
 ---
 

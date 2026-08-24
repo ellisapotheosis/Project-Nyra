@@ -3,6 +3,7 @@
 ## Overview
 
 Deploy your Next.js RateHunter landing page to **Cloudflare Pages** for:
+
 - ✅ **FREE hosting** (unlimited bandwidth)
 - ✅ Global CDN (300+ edge locations)
 - ✅ Automatic HTTPS
@@ -31,16 +32,16 @@ Edit `apps/ratehunter/next.config.js`:
 ```javascript
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',  // Enable static export
+  output: "export", // Enable static export
   images: {
-    unoptimized: true,  // Required for static export
+    unoptimized: true, // Required for static export
   },
-  trailingSlash: true,  // Better for static hosting
+  trailingSlash: true, // Better for static hosting
   // Optional: Add base path if hosting on subdirectory
   // basePath: '',
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
 ```
 
 ### Update package.json Build Script
@@ -97,23 +98,23 @@ git push origin main
 
 ### Configure Build Settings
 
-| Setting | Value |
-|---------|-------|
-| **Project name** | `ratehunter` |
-| **Production branch** | `main` |
-| **Framework preset** | Next.js |
-| **Build command** | `cd apps/ratehunter && npm install && npm run build` |
-| **Build output directory** | `apps/ratehunter/out` |
-| **Root directory** | `/` (leave blank - monorepo) |
+| Setting                    | Value                                                |
+| -------------------------- | ---------------------------------------------------- |
+| **Project name**           | `ratehunter`                                         |
+| **Production branch**      | `main`                                               |
+| **Framework preset**       | Next.js                                              |
+| **Build command**          | `cd apps/ratehunter && npm install && npm run build` |
+| **Build output directory** | `apps/ratehunter/out`                                |
+| **Root directory**         | `/` (leave blank - monorepo)                         |
 
 ### Environment Variables
 
 Click **Add variable** for each:
 
-| Variable | Value |
-|----------|-------|
-| `NODE_VERSION` | `20` |
-| `NPM_VERSION` | `10` |
+| Variable               | Value                    |
+| ---------------------- | ------------------------ |
+| `NODE_VERSION`         | `20`                     |
+| `NPM_VERSION`          | `10`                     |
 | `NEXT_PUBLIC_SITE_URL` | `https://ratehunter.net` |
 
 ### Advanced Settings
@@ -142,12 +143,14 @@ Click **Add variable** for each:
 ### DNS Configuration (Automatic)
 
 Cloudflare will automatically add DNS records:
+
 - **Type**: CNAME
 - **Name**: @ (root)
 - **Target**: `ratehunter.pages.dev`
 - **Proxy status**: Proxied (orange cloud) ✅
 
 Or manually in DNS:
+
 ```
 CNAME @ ratehunter.pages.dev (Proxied)
 ```
@@ -189,6 +192,7 @@ CNAME @ ratehunter.pages.dev (Proxied)
 3. **Preview deployments**: `All branches` (recommended)
 
 Every branch push creates a preview URL:
+
 ```
 feature-branch.ratehunter.pages.dev
 ```
@@ -235,6 +239,7 @@ Go to **Caching** → **Configuration**:
 Go to **Rules** → **Page Rules** → **Create Page Rule**:
 
 **Rule 1: Cache static assets**
+
 - **URL**: `ratehunter.net/*.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf)`
 - **Settings**:
   - Cache Level: Cache Everything
@@ -242,6 +247,7 @@ Go to **Rules** → **Page Rules** → **Create Page Rule**:
   - Browser Cache TTL: 1 week
 
 **Rule 2: Always Online for HTML**
+
 - **URL**: `ratehunter.net/*`
 - **Settings**:
   - Always Online: ON
@@ -280,6 +286,7 @@ export default function RootLayout({ children }) {
 ### Monitor Performance
 
 Dashboard shows:
+
 - 📊 Page views
 - 📊 Unique visitors
 - 📊 Core Web Vitals (LCP, FID, CLS)
@@ -294,6 +301,7 @@ Dashboard shows:
 ### Automatic Deployments
 
 Every `git push` to `main` triggers:
+
 1. ✅ Build on Cloudflare Pages
 2. ✅ Run tests (if configured)
 3. ✅ Deploy to production
@@ -303,6 +311,7 @@ Every `git push` to `main` triggers:
 ### Manual Deployments
 
 If you need to redeploy without code changes:
+
 1. Go to **Deployments** tab
 2. Click **⋮** on latest deployment
 3. Click **Retry deployment**
@@ -310,6 +319,7 @@ If you need to redeploy without code changes:
 ### Rollback
 
 If deployment breaks:
+
 1. Go to **Deployments** tab
 2. Find last working deployment
 3. Click **⋮** → **Rollback to this deployment**
@@ -321,6 +331,7 @@ If deployment breaks:
 ### Build Fails: "Module not found"
 
 **Fix**: Update build command to install dependencies first:
+
 ```bash
 cd apps/ratehunter && npm ci && npm run build
 ```
@@ -334,6 +345,7 @@ cd apps/ratehunter && npm ci && npm run build
 **Problem**: Next.js `output: 'export'` doesn't support dynamic routes (`[id].tsx`)
 
 **Solutions**:
+
 1. Use static generation: Add `generateStaticParams()`
 2. Move dynamic routes to API (not supported in static export)
 3. Use Cloudflare Workers for dynamic content (advanced)
@@ -345,6 +357,7 @@ cd apps/ratehunter && npm ci && npm run build
 ### Slow First Load
 
 **Fix**:
+
 1. Enable **HTTP/3** in SSL/TLS settings
 2. Enable **Early Hints** in Speed → Optimization
 3. Use `next/image` with `priority` for above-fold images
@@ -352,6 +365,7 @@ cd apps/ratehunter && npm ci && npm run build
 ### Custom Domain Not Working
 
 **Checklist**:
+
 1. ✅ DNS CNAME record exists and is proxied (orange cloud)
 2. ✅ SSL certificate is active (check SSL/TLS → Edge Certificates)
 3. ✅ Wait 10-15 minutes for DNS propagation
@@ -364,6 +378,7 @@ cd apps/ratehunter && npm ci && npm run build
 ### Test Before Production
 
 Every PR/branch gets a preview URL:
+
 ```
 pr-123.ratehunter.pages.dev
 feature-contact-form.ratehunter.pages.dev
@@ -379,19 +394,20 @@ feature-contact-form.ratehunter.pages.dev
 
 ## Cost Breakdown
 
-| Feature | Free Plan | Paid Plan |
-|---------|-----------|-----------|
-| **Builds per month** | 500 | Unlimited |
-| **Bandwidth** | Unlimited | Unlimited |
-| **Sites** | Unlimited | Unlimited |
-| **Concurrent builds** | 1 | 5 |
-| **Build time** | 20 min/build | 30 min/build |
-| **Preview deployments** | ✅ | ✅ |
-| **Custom domains** | ✅ | ✅ |
-| **CDN** | ✅ | ✅ |
-| **Cost** | **$0/month** | $20/month |
+| Feature                 | Free Plan    | Paid Plan    |
+| ----------------------- | ------------ | ------------ |
+| **Builds per month**    | 500          | Unlimited    |
+| **Bandwidth**           | Unlimited    | Unlimited    |
+| **Sites**               | Unlimited    | Unlimited    |
+| **Concurrent builds**   | 1            | 5            |
+| **Build time**          | 20 min/build | 30 min/build |
+| **Preview deployments** | ✅           | ✅           |
+| **Custom domains**      | ✅           | ✅           |
+| **CDN**                 | ✅           | ✅           |
+| **Cost**                | **$0/month** | $20/month    |
 
 **Recommendation**: Start with FREE plan. Upgrade to paid only if you need:
+
 - More than 500 builds/month
 - Concurrent builds (multiple PRs deploying simultaneously)
 
@@ -399,12 +415,11 @@ feature-contact-form.ratehunter.pages.dev
 
 ## Comparison: Cloudflare Pages vs Alternatives
 
-| Service | Cost | Bandwidth | Build Time | CDN |
-|---------|------|-----------|------------|-----|
-| **Cloudflare Pages** | FREE | Unlimited | 500/month | 300+ locations |
-| Vercel (Free) | FREE | 100GB/month | 6,000 min/month | Global |
-| Netlify (Free) | FREE | 100GB/month | 300 min/month | Global |
-| AWS Amplify | ~$15/month | 15GB free | Pay per build | CloudFront |
+| Service              | Cost       | Bandwidth   | Build Time    | CDN            |
+| -------------------- | ---------- | ----------- | ------------- | -------------- |
+| **Cloudflare Pages** | FREE       | Unlimited   | 500/month     | 300+ locations |
+| Netlify (Free)       | FREE       | 100GB/month | 300 min/month | Global         |
+| AWS Amplify          | ~$15/month | 15GB free   | Pay per build | CloudFront     |
 
 **Winner**: Cloudflare Pages (unlimited bandwidth, domain already on Cloudflare)
 
@@ -415,6 +430,7 @@ feature-contact-form.ratehunter.pages.dev
 ### 1. Enable Bot Protection
 
 Go to **Security** → **Bots**:
+
 - ✅ Enable **Bot Fight Mode** (Free)
 - Blocks known bad bots
 - Protects forms from spam
@@ -424,11 +440,13 @@ Go to **Security** → **Bots**:
 Go to **Security** → **WAF** → **Create firewall rule**:
 
 **Rule 1: Block suspicious traffic**
+
 ```
 (cf.threat_score > 30) then Block
 ```
 
 **Rule 2: Rate limiting (form submissions)**
+
 ```
 (http.request.uri.path eq "/api/contact" and rate > 5 req/min) then Challenge
 ```
@@ -436,6 +454,7 @@ Go to **Security** → **WAF** → **Create firewall rule**:
 ### 3. Enable DDoS Protection
 
 Go to **Security** → **DDoS**:
+
 - ✅ Automatic (always on for Free plan)
 
 ---

@@ -107,7 +107,6 @@ Project Nyra operates a 4-PC distributed mortgage automation platform with Windo
 
 - [Cloudflare Workers Pricing](https://developers.cloudflare.com/workers/platform/pricing/)
 - [Workers Pricing – Never Pay to Wait on I/O Again](https://blog.cloudflare.com/workers-pricing-scale-to-zero/)
-- [Cloudflare vs Vercel vs Netlify Performance 2026](https://dev.to/dataformathub/cloudflare-vs-vercel-vs-netlify-the-truth-about-edge-performance-2026-50h0)
 
 ---
 
@@ -865,7 +864,7 @@ Based on typical mortgage platform usage:
 
 - ✅ R2 is S3-compatible (easy migration back to S3/MinIO/etc.)
 - ✅ Workers use standard JavaScript (portable to other edge platforms)
-- ✅ Pages uses git deployment (portable to Vercel/Netlify/etc.)
+- ✅ Pages uses git deployment with the repository's canonical Cloudflare target
 - ✅ Email Routing is just DNS forwarding (easy to switch)
 - ⚠️ Cloudflare-specific features (KV, Durable Objects) are proprietary
 
@@ -996,7 +995,6 @@ Before proceeding with implementation, clarify:
 
 - [Cloudflare Workers Pricing Documentation](https://developers.cloudflare.com/workers/platform/pricing/)
 - [Workers Pricing – Never Pay to Wait on I/O Again](https://blog.cloudflare.com/workers-pricing-scale-to-zero/)
-- [Cloudflare vs Vercel vs Netlify Performance 2026](https://dev.to/dataformathub/cloudflare-vs-vercel-vs-netlify-the-truth-about-edge-performance-2026-50h0)
 
 ### R2 Storage
 
