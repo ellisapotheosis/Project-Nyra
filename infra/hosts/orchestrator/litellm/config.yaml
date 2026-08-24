@@ -1,18 +1,13 @@
 # LiteLLM — Canonical Gateway Config (Orchestrator)
 #
-# This is the PRIMARY LiteLLM instance.  All agents on orchestrator
-# (Hermes, OpenClaw, ClawTeam, etc.) route through this service.
+# PRIMARY LiteLLM instance. All agents (OpenClaw, ClawTeam, etc.) route here.
+# Worker backends use Tailscale private DNS (*.projectnyra.com).
+# Oracle services (omniroute, letta) reach via Tailscale IP (100.64.0.3).
 #
-# Worker backends use Tailscale private DNS — they resolve to the correct
-# Tailscale IP regardless of which machine is calling.
-# Oracle services (omniroute, llxprt-bridge) are reached via oracle's
-# Tailscale IP (100.64.0.3).
-#
-# Env vars injected at runtime (via Infisical or ~/.zsh/secrets):
+# Env vars injected at runtime:
 #   LITELLM_MASTER_KEY    — required; format: sk-<48+ random chars>
-#   OMNIROUTE_API_KEY     — required for omniroute/* models
-#   LLXPRT_BRIDGE_API_KEY — required for subscription/* and free/* models
-#   OPENROUTER_API_KEY    — required for openrouter/* models
+#   OMNIROUTE_API_KEY     — required for omniroute/* models (subscriptions)
+#   OPENROUTER_API_KEY    — required for openrouter/* models (free tier)
 #   OPENAI_API_KEY        — optional; for openai/* models
 #   ANTHROPIC_API_KEY     — optional; for anthropic/* models
 
@@ -32,22 +27,8 @@ model_list:
       api_key: "not-needed"
       timeout: 120
 
-  - model_name: local/vybestack-jefe
-    litellm_params:
-      model: openai/google/gemma-4-26B-A4B-it
-      api_base: http://worker-rtx5090.projectnyra.com:8000/v1
-      api_key: "not-needed"
-      timeout: 120
-
   # ── Local GPU — RTX 3090Ti (24 GB vLLM) ────────────────────────────────────
   - model_name: local/qwen-coder-32b
-    litellm_params:
-      model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
-      api_base: http://worker-rtx3090ti.projectnyra.com:8000/v1
-      api_key: "not-needed"
-      timeout: 120
-
-  - model_name: local/vybestack-coder
     litellm_params:
       model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
       api_base: http://worker-rtx3090ti.projectnyra.com:8000/v1
@@ -107,50 +88,6 @@ model_list:
       api_key: os.environ/OMNIROUTE_API_KEY
       timeout: 90
 
-  # ── llxprt bridge (subscription providers on oracle-vps via Tailscale) ──────
-  # oracle-vps runs llxprt on host port 8091; reach via Tailscale IP
-  - model_name: subscription/codex
-    litellm_params:
-      model: openai/llxprt-codex
-      api_base: http://100.64.0.3:8091/v1
-      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
-      timeout: 900
-
-  - model_name: subscription/gemini
-    litellm_params:
-      model: openai/llxprt-gemini
-      api_base: http://100.64.0.3:8091/v1
-      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
-      timeout: 900
-
-  - model_name: subscription/claude
-    litellm_params:
-      model: openai/llxprt-claude
-      api_base: http://100.64.0.3:8091/v1
-      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
-      timeout: 900
-
-  - model_name: free/kimi
-    litellm_params:
-      model: openai/llxprt-kimi
-      api_base: http://100.64.0.3:8091/v1
-      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
-      timeout: 120
-
-  - model_name: free/qwen-cli
-    litellm_params:
-      model: openai/llxprt-qwen-cli
-      api_base: http://100.64.0.3:8091/v1
-      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
-      timeout: 120
-
-  - model_name: free/cerebras
-    litellm_params:
-      model: openai/llxprt-cerebras
-      api_base: http://100.64.0.3:8091/v1
-      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
-      timeout: 60
-
   # ── OpenRouter Free Tier ────────────────────────────────────────────────────
   - model_name: openrouter/gemini-flash
     litellm_params:
@@ -180,17 +117,11 @@ model_list:
 router_settings:
   routing_strategy: usage-based-routing-v2
   fallbacks:
-    - {
-        "local/gemma-4":
-          ["free/kimi", "openrouter/qwen3", "subscription/claude"],
-      }
-    - {
-        "local/qwen-coder-32b":
-          ["free/qwen-cli", "openrouter/deepseek", "subscription/codex"],
-      }
-    - { "local/llama3.2-3b": ["free/cerebras", "openrouter/mistral"] }
-    - { "subscription/claude": ["local/gemma-4", "openrouter/qwen3"] }
-    - { "subscription/codex": ["local/qwen-coder-32b", "openrouter/deepseek"] }
+    - { "local/gemma-4": ["omniroute/auto", "openrouter/qwen3"] }
+    - { "local/qwen-coder-32b": ["omniroute/coding", "openrouter/deepseek"] }
+    - { "local/llama3.2-3b": ["openrouter/mistral"] }
+    - { "omniroute/auto": ["local/gemma-4", "openrouter/qwen3"] }
+    - { "omniroute/coding": ["local/qwen-coder-32b", "openrouter/deepseek"] }
     - { "claw/openclaw-3090ti": ["claw/openclaw-3060", "local/qwen-coder-32b"] }
 
 litellm_settings:
