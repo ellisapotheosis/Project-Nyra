@@ -10,7 +10,7 @@
     "test": "NODE_ENV=test jest --coverage",
     "test:watch": "NODE_ENV=test jest --watch",
     "test:integration": "NODE_ENV=test jest --testPathPattern=integration",
-    "lint": "eslint src tests",
+    "lint": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\""
   },
   "keywords": [

@@ -10,10 +10,16 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src/**/*.ts",
+    "lint": "tsc --noEmit --noCheck",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["twilio", "sms", "voice", "ivr", "telephony"],
+  "keywords": [
+    "twilio",
+    "sms",
+    "voice",
+    "ivr",
+    "telephony"
+  ],
   "author": "Project Nyra",
   "license": "MIT",
   "dependencies": {

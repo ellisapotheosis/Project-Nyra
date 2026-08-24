@@ -3,7 +3,6 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 ENV_OPENCLAW="${ENV_OPENCLAW:-$ROOT_DIR/infra/env/openclaw.env}"
-ENV_VOICE="${ENV_VOICE:-$ROOT_DIR/infra/env/openclaw.voice.env}"
 ENV_UI="${ENV_UI:-$ROOT_DIR/infra/env/openclaw.ui.env}"
 OPENCLAW_IMAGE_DEFAULT="nyra/openclaw-mvp:local"
 HEALTH_TIMEOUT_S="${OPENCLAW_HEALTH_TIMEOUT_S:-90}"
@@ -20,13 +19,13 @@ resolve_infra_path() {
 
 usage() {
   cat <<USAGE
-Usage: $0 [--core-only] [--with-voice] [--with-ui] [--skip-build] [--force-build]
+Usage: $0 [--core-only] [--with-ui] [--skip-build] [--force-build]
 
 Behavior:
   - Ensures env files exist and required keys are set.
   - Creates persistence paths for OpenClaw state + sessions.
   - Auto-builds OpenClaw image if missing (unless --skip-build).
-  - Starts openclaw core overlay and optionally voice/UI overlays.
+  - Starts the OpenClaw core overlay and optionally the UI overlay.
 USAGE
 }
 
@@ -110,7 +109,6 @@ wait_for_container_running() {
   done
 }
 
-WITH_VOICE="${BOOT_OPENCLAW_VOICE:-false}"
 WITH_UI="${BOOT_OPENCLAW_UI_PROXY:-false}"
 SKIP_BUILD=false
 FORCE_BUILD=false
@@ -118,12 +116,7 @@ FORCE_BUILD=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --core-only)
-      WITH_VOICE=false
       WITH_UI=false
-      shift
-      ;;
-    --with-voice)
-      WITH_VOICE=true
       shift
       ;;
     --with-ui)
@@ -153,7 +146,6 @@ done
 require_cmd docker
 
 ensure_env_file "$ENV_OPENCLAW" "$ROOT_DIR/infra/env/openclaw.env.example"
-[[ -f "$ENV_VOICE" ]] || cp "$ROOT_DIR/infra/env/openclaw.voice.env.example" "$ENV_VOICE"
 [[ -f "$ENV_UI" ]] || cp "$ROOT_DIR/infra/env/openclaw.ui.env.example" "$ENV_UI"
 
 source_envs
@@ -166,19 +158,11 @@ build_if_needed
 
 BASE=(-f "$ROOT_DIR/infra/docker-compose.yml")
 CORE_OVERLAY=(-f "$ROOT_DIR/infra/compose/openclaw.compose.yml")
-VOICE_OVERLAY=(-f "$ROOT_DIR/infra/compose/openclaw.voice.compose.yml")
 UI_OVERLAY=(-f "$ROOT_DIR/infra/compose/openclaw.ui.compose.yml")
 
 validate_compose "${BASE[@]}" "${CORE_OVERLAY[@]}"
 docker compose "${BASE[@]}" "${CORE_OVERLAY[@]}" --profile openclaw up -d openclaw-mvp
 wait_for_container_running nyra-openclaw-mvp "$HEALTH_TIMEOUT_S"
-
-if [[ "$WITH_VOICE" == "true" ]]; then
-  : "${UNMUTE_OPENAI_API_KEY:?set UNMUTE_OPENAI_API_KEY in $ENV_VOICE}"
-  validate_compose "${BASE[@]}" "${VOICE_OVERLAY[@]}"
-  docker compose "${BASE[@]}" "${VOICE_OVERLAY[@]}" --profile voice up -d kyutai-unmute-cloud
-  wait_for_container_running nyra-kyutai-unmute-cloud "$HEALTH_TIMEOUT_S"
-fi
 
 if [[ "$WITH_UI" == "true" ]]; then
   validate_compose "${BASE[@]}" "${CORE_OVERLAY[@]}" "${UI_OVERLAY[@]}"

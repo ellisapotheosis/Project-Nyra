@@ -62,11 +62,12 @@ services:
       - LMCACHE_REDIS_HOST=worker-5090-redis
       - LMCACHE_REDIS_PORT=6379
     command: >
-      --model ${VLLM_MODEL:-Qwen/Qwen2.5-Coder-3B-Instruct}
+      --model ${VLLM_MODEL:-Qwen/Qwen3.8-27B}
+      --quantization bitsandbytes
       --host 0.0.0.0
       --port 8000
-      --gpu-memory-utilization ${VLLM_GPU_MEMORY_UTILIZATION:-0.70}
-      --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
+      --gpu-memory-utilization ${VLLM_GPU_MEMORY_UTILIZATION:-0.90}
+      --max-model-len ${VLLM_MAX_MODEL_LEN:-4096}
       --enable-prefix-caching
       --enable-chunked-prefill
       --trust-remote-code
@@ -150,15 +151,18 @@ services:
     networks:
       - worker-network
 
-  # ── Syncthing ───────────────────────────────────────────────────────────
+  # ── Syncthing (Canonical Source — Send-Only) ──────────────────────────
+  # worker-rtx5090 is the canonical Syncthing source per OMNIBUS Section 8.3.
+  # SEND_ONLY=true marks folders as send-only in this instance.
   syncthing:
     profiles: ["sync"]
     image: syncthing/syncthing:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-syncthing
     network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
+      - SEND_ONLY=true
     volumes:
       - syncthing_config:/var/syncthing
       - ${HOST_HOME_PATH:-/home/ellisapotheosis}:/var/syncthing/data/home
@@ -181,6 +185,35 @@ services:
           curl -sf http://worker-5090-vllm:8000/health || echo "vLLM Down"
           sleep 60
         done
+    networks:
+      - worker-network
+
+  qwen38-llama:
+    image: ${LLAMA_CPP_IMAGE:-ghcr.io/ggml-org/llama.cpp:server-cuda}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-qwen38-llama
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+      - "${VLLM_PORT:-8000}:8000"
+    volumes:
+      - /home/ellisapotheosis/models:/models:ro
+    command:
+      - "-m"
+      - "/models/qwen3.8-27b-q4km.gguf"
+      - "--port"
+      - "8000"
+      - "--host"
+      - "0.0.0.0"
+      - "-ngl"
+      - "99"
+      - "--ctx-size"
+      - "4096"
     networks:
       - worker-network
 

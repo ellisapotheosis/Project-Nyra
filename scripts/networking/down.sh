@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Project Nyra - bring down networking + Gitea + core services
+# Project Nyra - bring down networking + core services
 # Usage:
 #   cd ~/project-nyra
 #   ./scripts/networking/down.sh
@@ -10,7 +10,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
 
 CORE_COMPOSE="infra/stacks/nyra-mortgage/docker-compose.yml"
-GITEA_COMPOSE=".gitea/docker-compose.gitea.yml"
 NET_COMPOSE="infra/networking/docker-compose.network.yml"
 
 if [ -f "$NET_COMPOSE" ]; then
@@ -20,11 +19,6 @@ if [ -f "$NET_COMPOSE" ]; then
   else
     docker compose -f "$NET_COMPOSE" --env-file .env down
   fi
-fi
-
-if [ -f "$GITEA_COMPOSE" ]; then
-  echo "[nyra] Stopping Gitea stack..."
-  docker compose -f "$GITEA_COMPOSE" down
 fi
 
 if [ -f "$CORE_COMPOSE" ]; then

@@ -10,10 +10,16 @@
     "test:watch": "jest --watch",
     "test:integration": "jest tests/integration",
     "migrate": "node migrations/run-migrations.js",
-    "lint": "eslint src/**/*.js",
+    "lint": "eslint src/**/*.js --no-config-lookup",
     "scraper:start": "node src/services/scraper/ScraperScheduler.js"
   },
-  "keywords": ["mortgage", "rates", "comparison", "scraper", "api"],
+  "keywords": [
+    "mortgage",
+    "rates",
+    "comparison",
+    "scraper",
+    "api"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {

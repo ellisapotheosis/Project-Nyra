@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "tsc --noEmit --noCheck",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

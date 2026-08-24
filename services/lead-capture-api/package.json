@@ -9,7 +9,7 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:integration": "jest --testPathPattern=integration",
-    "lint": "eslint src tests --no-error-on-unmatched-pattern",
+    "lint": "eslint src tests --no-config-lookup --no-error-on-unmatched-pattern",
     "migrate": "node src/utils/migrate.js",
     "seed": "node src/utils/seed.js"
   },

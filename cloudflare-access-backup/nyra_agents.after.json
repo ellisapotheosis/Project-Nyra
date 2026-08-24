@@ -1,0 +1,35 @@
+{
+  "created_at": "2026-07-12T19:33:37Z",
+  "decision": "non_identity",
+  "exclude": [],
+  "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+  "include": [
+    {
+      "service_token": {
+        "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+      }
+    },
+    {
+      "service_token": {
+        "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+      }
+    },
+    {
+      "service_token": {
+        "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+      }
+    }
+  ],
+  "name": "Nyra Agents",
+  "require": [],
+  "connection_rules": {
+    "rdp": {
+      "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+      "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+    }
+  },
+  "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+  "updated_at": "2026-08-16T12:47:40Z",
+  "reusable": true,
+  "app_count": 34
+}

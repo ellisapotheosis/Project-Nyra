@@ -107,8 +107,8 @@ views:
             url: https://activepieces.projectnyra.com
             icon: mdi:puzzle
           - type: url
-            name: Gitea
-            url: https://gitea.projectnyra.com
+            name: Forgejo
+            url: https://git.projectnyra.com
             icon: mdi:git
           - type: url
             name: Paperclip
@@ -148,10 +148,6 @@ views:
             name: OpenClaw Gateway
             url: https://openclaw-gateway.projectnyra.com
             icon: mdi:gate
-          - type: url
-            name: GasTown
-            url: https://gastown.projectnyra.com
-            icon: mdi:city
 
       - type: markdown
         title: Worker RTX 5090 (Mobile — may be offline)
@@ -174,7 +170,7 @@ views:
         title: Worker RTX 3090 Ti
         content: |
           **Tailscale**: `worker-rtx3090ti.trex-fiordland.ts.net`
-          **VRAM**: 24 GB | **Role**: vLLM inference + TTS (distributed voice)
+          **VRAM**: 24 GB | **Role**: vLLM inference
       - type: horizontal-stack
         cards:
           - type: url
@@ -198,10 +194,6 @@ views:
             name: Nerve-3060
             url: https://nerve-3060.projectnyra.com
             icon: mdi:lightning-bolt
-          - type: url
-            name: PicoClaw-3060
-            url: https://picoclaw-3060.projectnyra.com
-            icon: mdi:paw-outline
 
   # ── Observability ─────────────────────────────────────────────────────────
   - title: Observability
@@ -262,12 +254,12 @@ views:
 
           **Orchestrator tunnel** serves:
           - Control plane: admin, chat, campaigns, quotes, status, ha
-          - Worker UIs: nerve-*/claw-*/picoclaw-* (via Tailscale)
+          - Worker UIs: nerve-* and claw-* (via Tailscale)
           - Oracle proxies: litellm, nexus, letta, crm-ui (via Tailscale)
 
           **Oracle tunnel** serves:
           - App: app, api, hooks, crm, n8n, grafana, openwebui, openlit
-          - Storage: gitea, activepieces, paperclip, clawteam
+          - Storage: Forgejo, activepieces, paperclip, clawteam
           - Status: uptime, public-status, oracle
 
           **ratehunter.net** → Cloudflare Pages (not a tunnel)

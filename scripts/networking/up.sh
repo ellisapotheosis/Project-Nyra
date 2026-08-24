@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Project Nyra - bring up core services, Gitea, and networking (Cloudflare + Tailscale)
+# Project Nyra - bring up core services and networking (Cloudflare + Tailscale)
 # Usage:
 #   cd ~/project-nyra
 #   ./scripts/networking/up.sh
@@ -10,7 +10,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
 
 CORE_COMPOSE="infra/stacks/nyra-mortgage/docker-compose.yml"
-GITEA_COMPOSE=".gitea/docker-compose.gitea.yml"
 NET_COMPOSE="infra/networking/docker-compose.network.yml"
 
 echo "[nyra] Using root: $ROOT_DIR"
@@ -20,13 +19,6 @@ if [ -f "$CORE_COMPOSE" ]; then
   docker compose -f "$CORE_COMPOSE" up -d
 else
   echo "[nyra] WARNING: $CORE_COMPOSE not found, skipping core stack"
-fi
-
-if [ -f "$GITEA_COMPOSE" ]; then
-  echo "[nyra] Starting Gitea stack..."
-  docker compose -f "$GITEA_COMPOSE" up -d
-else
-  echo "[nyra] WARNING: $GITEA_COMPOSE not found, skipping Gitea"
 fi
 
 if [ -f "$NET_COMPOSE" ]; then

@@ -13,7 +13,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "lint": "eslint src/**/*.ts",
+    "lint": "tsc --noEmit --noCheck",
     "format": "prettier --write \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit"
   },

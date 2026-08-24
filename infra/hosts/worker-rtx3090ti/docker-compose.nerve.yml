@@ -2,7 +2,7 @@ services:
   openclaw:
     build:
       context: ../../../services/openclaw
-      dockerfile: Dockerfile
+      dockerfile: ../../infra/docker/build/services/openclaw/Dockerfile
     container_name: worker-3090-openclaw
     restart: unless-stopped
     ports:

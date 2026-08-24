@@ -1,0 +1,87 @@
+{
+  "result": [
+    {
+      "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968",
+      "type": "cloudflare",
+      "uid": "94fc5a38-04c6-43ed-b5ba-45581ef18968",
+      "name": "",
+      "version": "130f2114b09c0b5998a29c9906df505b",
+      "config": {
+        "redirect_url": "https://projectnyra.cloudflareaccess.com/cdn-cgi/access/callback",
+        "restrict_to_account_members": true
+      },
+      "scim_config": {
+        "enabled": false,
+        "user_deprovision": false,
+        "seat_deprovision": false,
+        "group_member_deprovision": false
+      }
+    },
+    {
+      "id": "d2ed2689-d3d2-4cef-b26b-ce9ef99a7443",
+      "type": "google-apps",
+      "uid": "d2ed2689-d3d2-4cef-b26b-ce9ef99a7443",
+      "name": "Google Workspace",
+      "version": "e09750cce5af210ed025ad0ab6a282b5",
+      "config": {
+        "apps_domain": "ratehunter.net",
+        "client_id": "451503187155-qj69dd3sba33ehj978bolv0051qi74la.apps.googleusercontent.com",
+        "pkce_enabled": true,
+        "redirect_url": "https://projectnyra.cloudflareaccess.com/cdn-cgi/access/callback"
+      },
+      "scim_config": {
+        "scim_base_url": "https://projectnyra.cloudflareaccess.com/scim/d2ed2689-d3d2-4cef-b26b-ce9ef99a7443",
+        "enabled": true,
+        "user_deprovision": false,
+        "seat_deprovision": false,
+        "group_member_deprovision": false,
+        "identity_update_behavior": "no_action"
+      }
+    },
+    {
+      "id": "88eb194f-75dc-49e4-b41b-795953834fd4",
+      "type": "onetimepin",
+      "uid": "88eb194f-75dc-49e4-b41b-795953834fd4",
+      "name": "",
+      "version": "2476f3c657f1c34355ddb32bf9475a59",
+      "config": {
+        "redirect_url": "https://projectnyra.cloudflareaccess.com/cdn-cgi/access/callback"
+      },
+      "scim_config": {
+        "enabled": false,
+        "user_deprovision": false,
+        "seat_deprovision": false,
+        "group_member_deprovision": false
+      }
+    },
+    {
+      "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146",
+      "type": "github",
+      "uid": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146",
+      "name": "GitHub",
+      "version": "aa69f6b863388dfc2804e2d9ee2df7c8",
+      "config": {
+        "client_id": "Ov23liEGPAuLK3AE4XTL",
+        "redirect_url": "https://projectnyra.cloudflareaccess.com/cdn-cgi/access/callback"
+      },
+      "scim_config": {
+        "scim_base_url": "https://projectnyra.cloudflareaccess.com/scim/cc05bec4-97e4-4ea6-81cf-5dd02bd89146",
+        "enabled": false,
+        "user_deprovision": false,
+        "seat_deprovision": false,
+        "group_member_deprovision": false,
+        "identity_update_behavior": "no_action"
+      }
+    }
+  ],
+  "success": true,
+  "errors": [],
+  "messages": [],
+  "result_info": {
+    "page": 1,
+    "per_page": 50,
+    "count": 4,
+    "total_count": 4,
+    "total_pages": 1
+  }
+}

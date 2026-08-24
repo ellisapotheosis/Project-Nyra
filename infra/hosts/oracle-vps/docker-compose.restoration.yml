@@ -3,6 +3,7 @@ services:
   llxprt-bridge:
     build:
       context: ../../../services/llxprt-bridge
+      dockerfile: ../../infra/docker/build/services/llxprt-bridge/Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-restoration-llxprt-bridge
     restart: unless-stopped
     environment:
@@ -17,6 +18,7 @@ services:
   activepieces-mcp:
     build:
       context: ../../../services/nyra-mcp
+      dockerfile: ../../infra/docker/build/services/nyra-mcp/Dockerfile
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-restoration-activepieces-mcp
     restart: unless-stopped
     environment:

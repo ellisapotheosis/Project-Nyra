@@ -38,28 +38,6 @@ jobs:
           done
           echo "missing=$missing" >> "$GITHUB_OUTPUT"
 
-      - name: Validate optional mirror secrets
-        id: mirror
-        shell: bash
-        env:
-          GITEA_MIRROR_URL: ${{ secrets.GITEA_MIRROR_URL }}
-          GITEA_MIRROR_SSH_KEY: ${{ secrets.GITEA_MIRROR_SSH_KEY }}
-        run: |
-          set -euo pipefail
-          missing=""
-          if [ -z "${GITEA_MIRROR_URL}" ]; then
-            missing="${missing} GITEA_MIRROR_URL"
-          fi
-          if [ -z "${GITEA_MIRROR_SSH_KEY}" ]; then
-            missing="${missing} GITEA_MIRROR_SSH_KEY"
-          fi
-          if [ -n "$missing" ]; then
-            echo "::warning::mirror-to-gitea will be skipped because secrets are missing:${missing}"
-            echo "ok=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "ok=true" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Validate Pages configuration
         id: pages
         uses: actions/github-script@v9

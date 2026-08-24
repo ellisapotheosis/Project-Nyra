@@ -9,7 +9,7 @@
 | **WebApp**               | Protected | `app.projectnyra.com`                                 | Primary broker/customer interface.                       |
 | **Activepieces**         | Protected | `activepieces.projectnyra.com`                        | Internal automation dashboard.                           |
 | **n8n**                  | Protected | `n8n.projectnyra.com`                                 | Internal automation.                                     |
-| **Gitea**                | Protected | `gitea.projectnyra.com`                               | Repository hosting.                                      |
+| **Forgejo**              | Protected | `git.projectnyra.com`                                 | Repository hosting.                                      |
 | **Grafana**              | Protected | `grafana.projectnyra.com`                             | Monitoring.                                              |
 | **OpenLIT**              | Protected | `openlit.projectnyra.com`                             | Owner-only observability dashboard.                      |
 | **Linkwarden**           | Protected | `links.projectnyra.com`, `linkwarden.projectnyra.com` | Home Assistant Green origin through orchestrator tunnel. |

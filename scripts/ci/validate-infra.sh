@@ -15,14 +15,13 @@ for file in \
   infra/COMPOSE_SOURCE_OF_TRUTH.md \
   "$oracle_env_example" \
   infra/hosts/oracle-vps/docker-compose.yml \
-  infra/hosts/oracle-vps/docker-compose.gitea.yml \
+  infra/hosts/oracle-vps/docker-compose.forgejo.yml \
   infra/hosts/orchestrator/docker-compose.yml \
   infra/hosts/worker-rtx3060/docker-compose.yml \
   infra/hosts/worker-rtx3090ti/docker-compose.yml \
   infra/hosts/worker-rtx5090/docker-compose.yml \
   scripts/infra/assert-compose-source-of-truth.sh \
-  scripts/gitea/bootstrap-act-runner.sh \
-  scripts/setup/bootstrap-gitea.ps1
+  scripts/forgejo/migrate-gitea-to-forgejo.sh
 do
   if [ ! -f "$file" ]; then
     echo "Missing required file: $file" >&2
@@ -63,8 +62,13 @@ ensure_env "$tmp_env" OMNIROUTE_JWT_SECRET ci-omniroute-jwt-secret
 ensure_env "$tmp_env" CLOUDFLARE_API_TOKEN ci-cloudflare-api-token
 ensure_env "$tmp_env" INFISICAL_TOKEN ci-infisical-token
 ensure_env "$tmp_env" INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET ci-infisical-client-secret
+ensure_env "$tmp_env" FORGEJO_DB_PASSWORD ci-forgejo-db-password
+ensure_env "$tmp_env" FORGEJO_SECRET_KEY ci-forgejo-secret-key
+ensure_env "$tmp_env" FORGEJO_INTERNAL_TOKEN ci-forgejo-internal-token
+ensure_env "$tmp_env" FORGEJO_JWT_SECRET ci-forgejo-jwt-secret
+ensure_env "$tmp_env" FORGEJO_RUNNER_REGISTRATION_TOKEN ci-forgejo-runner-token
 
-bash -n scripts/gitea/bootstrap-act-runner.sh
+bash -n scripts/forgejo/migrate-gitea-to-forgejo.sh
 bash -n scripts/infra/assert-compose-source-of-truth.sh
 bash -n scripts/ci/check-dependency-change-scope.sh
 bash -n scripts/ci/validate-dependabot-labels.sh
@@ -77,7 +81,7 @@ bash -n scripts/ci/preview-deploy-preflight.sh
 
 for compose_file in \
   infra/hosts/oracle-vps/docker-compose.yml \
-  infra/hosts/oracle-vps/docker-compose.gitea.yml \
+  infra/hosts/oracle-vps/docker-compose.forgejo.yml \
   infra/hosts/orchestrator/docker-compose.yml \
   infra/hosts/worker-rtx3060/docker-compose.yml \
   infra/hosts/worker-rtx3090ti/docker-compose.yml \

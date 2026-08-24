@@ -52,29 +52,13 @@ WORKER_5090_CONTEXT ?= worker-rtx5090
 WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
 WORKER_3060_CONTEXT ?= worker-rtx3060
 
-# Voice Setup Compose Files
-VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
-VOICE_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.voice.yml
-VOICE_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.voice.yml
-VOICE_ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.voice.yml
-
-# Distributed Voice Compose Files
-DIST_VOICE_3060 := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
-DIST_VOICE_5090 := infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
-DIST_VOICE_3090TI := infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
-KYUTAI_BASE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
-KYUTAI_MESH_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
-KYUTAI_MESH_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
-KYUTAI_MESH_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
-
 DEFAULT_PROFILES ?= apps,sync,debug
 
 .PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status oracle-config \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
-  gitea-up gitea-down gitea-ps twenty-crm-up twenty-crm-down \
-  voice-3060 voice-5090 voice-3090ti voice-orch voice-distributed \
+  forgejo-up forgejo-down forgejo-ps twenty-crm-up twenty-crm-down \
   cf-orch-up cf-orch-down cf-orch-logs \
   oracle-apps-up oracle-apps-down oracle-quote-engine-up oracle-campaign-engine-up \
   oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
@@ -118,16 +102,9 @@ help:
 	@echo "make up-oracle          Start the full Oracle VPS stack including apps"
 	@echo
 	@echo "--- COMPONENT STACKS ---"
-	@echo "make gitea-up           Start Gitea + Actions"
+	@echo "make forgejo-up         Start Forgejo + Actions"
 	@echo "make twenty-crm-up      Start Twenty CRM"
 	@echo "make verify-paths       Verify Makefile path references exist"
-	@echo
-	@echo "--- VOICE SETUPS ---"
-	@echo "make voice-3060         Start standalone Unmute on RTX 3060"
-	@echo "make voice-5090         Start standalone Unmute on RTX 5090"
-	@echo "make voice-3090ti       Start standalone Unmute on RTX 3090 Ti"
-	@echo "make voice-orch         Start Kyutai Pocket TTS on Orchestrator"
-	@echo "make voice-distributed  Start distributed 3-node voice setup"
 	@echo
 	@echo "--- CLOUDFLARED TUNNELS ---"
 	@echo "make cf-orch-up         Start orchestrator CF tunnel (separate from main stack)"
@@ -145,8 +122,6 @@ help:
 	@echo "make agent-secrets-audit  Audit required Infisical secrets"
 	@echo "make oracle-agent-utils-up Start Paperclip, SearXNG, Browserless"
 	@echo "make oracle-memory-up     Start Letta, mem0, FalkorDB, Qdrant"
-	@echo "make kyutai-base-3060-up  Start base Unmute on RTX 3060"
-	@echo "make kyutai-mesh-up       Start 3-node Kyutai voice mesh"
 	@echo
 	@echo "--- WAVE AI + ZELLIJ GRID ---"
 	@echo "make wave-stack-up        Start orchestrator + 5090/3090 AI grid and attach Wave/Zellij"
@@ -197,13 +172,6 @@ verify-paths:
 	@test -f $(WORKER_AI_COMMON_COMPOSE) || (echo "Missing $(WORKER_AI_COMMON_COMPOSE)" && exit 1)
 	@test -f $(WORKER_3090TI_NERVE_COMPOSE) || (echo "Missing $(WORKER_3090TI_NERVE_COMPOSE)" && exit 1)
 	@test -f $(WORKER_5090_NERVE_COMPOSE) || (echo "Missing $(WORKER_5090_NERVE_COMPOSE)" && exit 1)
-	@test -f $(VOICE_3060_COMPOSE) || (echo "Missing $(VOICE_3060_COMPOSE)" && exit 1)
-	@test -f $(VOICE_5090_COMPOSE) || (echo "Missing $(VOICE_5090_COMPOSE)" && exit 1)
-	@test -f $(VOICE_3090TI_COMPOSE) || (echo "Missing $(VOICE_3090TI_COMPOSE)" && exit 1)
-	@test -f $(VOICE_ORCHESTRATOR_COMPOSE) || (echo "Missing $(VOICE_ORCHESTRATOR_COMPOSE)" && exit 1)
-	@test -f $(DIST_VOICE_3060) || (echo "Missing $(DIST_VOICE_3060)" && exit 1)
-	@test -f $(DIST_VOICE_5090) || (echo "Missing $(DIST_VOICE_5090)" && exit 1)
-	@test -f $(DIST_VOICE_3090TI) || (echo "Missing $(DIST_VOICE_3090TI)" && exit 1)
 	@echo "All Makefile compose paths are valid."
 
 dev-orchestrate:
@@ -252,16 +220,16 @@ oracle-config:
 
 # --- COMPONENT TARGETS ---
 
-ORACLE_GITEA_COMPOSE := infra/hosts/oracle-vps/docker-compose.gitea.yml
+ORACLE_FORGEJO_COMPOSE := infra/hosts/oracle-vps/docker-compose.forgejo.yml
 
-gitea-up:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_GITEA_COMPOSE) up -d
+forgejo-up:
+	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_FORGEJO_COMPOSE) up -d
 
-gitea-down:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_GITEA_COMPOSE) stop
+forgejo-down:
+	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_FORGEJO_COMPOSE) stop
 
-gitea-ps:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_GITEA_COMPOSE) ps
+forgejo-ps:
+	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_FORGEJO_COMPOSE) ps
 
 twenty-crm-up:
 	$(ORACLE_COMPOSE_RUN) up -d twenty
@@ -279,25 +247,6 @@ health:
 
 check-host:
 	@if [ -z "$(HOST)" ]; then echo "🚨 Error: HOST is required."; exit 1; fi
-
-# --- VOICE TARGETS ---
-
-voice-3060:
-	docker --context worker-rtx3060 compose -f $(VOICE_3060_COMPOSE) up -d
-
-voice-5090:
-	docker --context worker-rtx5090 compose -f $(VOICE_5090_COMPOSE) up -d
-
-voice-3090ti:
-	docker --context worker-rtx3090ti compose -f $(VOICE_3090TI_COMPOSE) up -d
-
-voice-orch:
-	docker compose -f $(VOICE_ORCHESTRATOR_COMPOSE) up -d
-
-voice-distributed:
-	docker --context worker-rtx3060 compose -f $(DIST_VOICE_3060) up -d
-	docker --context worker-rtx5090 compose -f $(DIST_VOICE_5090) up -d
-	docker --context worker-rtx3090ti compose -f $(DIST_VOICE_3090TI) up -d
 
 # --- CLOUDFLARED TUNNEL TARGETS ---
 
@@ -330,7 +279,7 @@ oracle-campaign-engine-up:
 
 # --- AGENT INFRA TARGETS ---
 
-.PHONY: agent-infra-validate agent-secrets-generate agent-secrets-audit oracle-agent-utils-up oracle-agent-utils-down oracle-memory-up oracle-memory-down kyutai-base-3060-up kyutai-mesh-up kyutai-mesh-down kyutai-mesh-check oracle-agent-vault-up oracle-agent-vault-down oracle-agent-vault-logs oracle-agent-vault-status oracle-agent-vault-init
+.PHONY: agent-infra-validate agent-secrets-generate agent-secrets-audit oracle-agent-utils-up oracle-agent-utils-down oracle-memory-up oracle-memory-down oracle-agent-vault-up oracle-agent-vault-down oracle-agent-vault-logs oracle-agent-vault-status oracle-agent-vault-init
 
 agent-infra-validate:
 	bash scripts/validate-agent-infra.sh
@@ -373,22 +322,6 @@ oracle-memory-up:
 
 oracle-memory-down:
 	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_MEMORY_COMPOSE) down
-
-kyutai-base-3060-up:
-	docker --context worker-rtx3060 compose -f $(KYUTAI_BASE_3060_COMPOSE) up -d
-
-kyutai-mesh-up:
-	docker --context worker-rtx3060 compose -f $(KYUTAI_MESH_3060_COMPOSE) up -d
-	docker --context worker-rtx3090ti compose -f $(KYUTAI_MESH_3090TI_COMPOSE) up -d
-	docker --context worker-rtx5090 compose -f $(KYUTAI_MESH_5090_COMPOSE) up -d
-
-kyutai-mesh-down:
-	docker --context worker-rtx3060 compose -f $(KYUTAI_MESH_3060_COMPOSE) down
-	docker --context worker-rtx3090ti compose -f $(KYUTAI_MESH_3090TI_COMPOSE) down
-	docker --context worker-rtx5090 compose -f $(KYUTAI_MESH_5090_COMPOSE) down
-
-kyutai-mesh-check:
-	bash scripts/check-voice-mesh.sh
 
 secrets-init: check-host
 	@if [ -z "$(TOKEN)" ]; then echo "🚨 Error: TOKEN is required."; exit 1; fi
@@ -452,7 +385,7 @@ swarm-oracle:
 swarm-utility:
 	@echo "🛠️  Deploying Utility Node to RTX 3060..."
 	@docker --context worker-rtx3060 compose -f infra/hosts/worker-rtx3060/docker-compose.utility.yml up -d
-	@echo "✅ Utility Stack (Embeddings, TTS Voice) is LIVE."
+	@echo "✅ Utility Stack (Embeddings) is LIVE."
 
 swarm-down:
 	@echo "🛑 Terminating local Zellij Swarm..."
@@ -509,8 +442,8 @@ dev-status:
 	@docker --context worker-rtx3090ti ps 2>/dev/null | grep -E "vllm|openclaw" || echo "     ℹ Not running (use 'make up-workers')"
 	@echo "  [4] RTX5090 (claude-code + qwen3.6):"
 	@docker --context worker-rtx5090 ps 2>/dev/null | grep vllm || echo "     ℹ Not running (use 'make up-workers')"
-	@echo "  [5] RTX3060 (embeddings + lightweight LLM + voice):"
-	@docker --context worker-rtx3060 ps 2>/dev/null | grep -E "embed|voice|inference" || echo "     ℹ Not running (use 'make up-workers')"
+	@echo "  [5] RTX3060 (embeddings + lightweight LLM):"
+	@docker --context worker-rtx3060 ps 2>/dev/null | grep -E "embed|inference" || echo "     ℹ Not running (use 'make up-workers')"
 	@echo ""
 	@echo "🗄️ PAPERCLIP (Oracle VPS):"
 	@docker compose -f $(ORACLE_COMPOSE) ps 2>/dev/null | grep paperclip || echo "     ℹ Not running (use 'make oracle-apps-up')"
@@ -556,7 +489,7 @@ up-worker-5090:
 	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
 
 up-worker-3060:
-	@echo "Starting RTX3060 (embeddings + LLM + voice)..."
+	@echo "Starting RTX3060 (embeddings + LLM)..."
 	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
 
 up-all-workers: up-worker-3090ti up-worker-5090 up-worker-3060

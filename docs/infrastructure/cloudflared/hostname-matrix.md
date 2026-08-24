@@ -28,7 +28,7 @@ LiteLLM, and service surfaces.
 | `twenty.projectnyra.com`           | Twenty CRM                         | `http://twenty:3000`        | Required                                             |
 | `crm.projectnyra.com`              | Twenty CRM alias                   | `http://twenty:3000`        | Required                                             |
 | `n8n.projectnyra.com`              | n8n UI                             | `http://n8n:5678`           | Required plus n8n auth                               |
-| `gitea.projectnyra.com`            | Gitea UI                           | `http://gitea:3000`         | Required plus Gitea auth                             |
+| `git.projectnyra.com`              | Forgejo UI                         | `http://forgejo:3000`       | Required plus Forgejo auth                           |
 | `activepieces.projectnyra.com`     | Activepieces UI                    | `http://activepieces:80`    | Required                                             |
 | `grafana.projectnyra.com`          | Grafana                            | `http://grafana:3000`       | Required                                             |
 | `openlit.projectnyra.com`          | OpenLIT observability              | `http://openlit:3000`       | Owner-only                                           |
@@ -41,7 +41,7 @@ LiteLLM, and service surfaces.
 | `paperclip.projectnyra.com`        | Paperclip UI                       | `http://paperclip:3100`     | Required; confirm service health first               |
 | `clawteam.projectnyra.com`         | ClawTeam UI                        | `http://clawteam:8080`      | Required; optional overlay must be running           |
 | `portainer-oracle.projectnyra.com` | Oracle Portainer                   | `https://portainer:9443`    | Owner-only, no TLS verify                            |
-| `git-ssh.projectnyra.com`          | Gitea SSH                          | `ssh://gitea:2222`          | Optional Access SSH only                             |
+| `git-ssh.projectnyra.com`          | Forgejo SSH                        | `ssh://forgejo:2222`        | Optional Access SSH only                             |
 
 ## Orchestrator Tunnel
 
@@ -78,11 +78,11 @@ tailnet via MagicDNS (`*.trex-fiordland.ts.net`) and via Tailscale Split DNS
 
 Each service runs as its own Tailscale node (Docker sidecar) to get a unique ts.net hostname.
 
-| MagicDNS Hostname                          | Split DNS Hostname                  | Service                    | Port | Notes                                 |
-| ------------------------------------------ | ----------------------------------- | -------------------------- | ---- | ------------------------------------- |
-| `spline-mcp.trex-fiordland.ts.net`         | `spline-mcp.projectnyra.com`        | Spline 3D design MCP       | 8779 | Tailscale sidecar; not Cloudflare     |
-| `meshy-mcp.trex-fiordland.ts.net`          | `meshy-mcp.projectnyra.com`         | Meshy AI 3D generation MCP | 8780 | Tailscale sidecar; not Cloudflare     |
-| `loki-website-mcp.trex-fiordland.ts.net`   | `loki-website-mcp.projectnyra.com`  | Loki website builder MCP   | 8781 | Not Grafana Loki; not Cloudflare      |
+| MagicDNS Hostname                        | Split DNS Hostname                 | Service                    | Port | Notes                             |
+| ---------------------------------------- | ---------------------------------- | -------------------------- | ---- | --------------------------------- |
+| `spline-mcp.trex-fiordland.ts.net`       | `spline-mcp.projectnyra.com`       | Spline 3D design MCP       | 8779 | Tailscale sidecar; not Cloudflare |
+| `meshy-mcp.trex-fiordland.ts.net`        | `meshy-mcp.projectnyra.com`        | Meshy AI 3D generation MCP | 8780 | Tailscale sidecar; not Cloudflare |
+| `loki-website-mcp.trex-fiordland.ts.net` | `loki-website-mcp.projectnyra.com` | Loki website builder MCP   | 8781 | Not Grafana Loki; not Cloudflare  |
 
 Setup instructions: `docs/network/TAILSCALE-SERVICES.md`
 

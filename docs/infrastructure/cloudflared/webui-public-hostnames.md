@@ -33,7 +33,7 @@ Add these first to get the core app stack online:
 | Subdomain    | Domain            | Type | URL                         |
 | ------------ | ----------------- | ---- | --------------------------- |
 | `openwebui`  | `projectnyra.com` | HTTP | `openwebui:8080`            |
-| `gitea`      | `projectnyra.com` | HTTP | `gitea:3000`                |
+| `forgejo`    | `projectnyra.com` | HTTP | `forgejo:3000`              |
 | `prometheus` | `projectnyra.com` | HTTP | `prometheus:9090`           |
 | `loki`       | `projectnyra.com` | HTTP | `loki:3100`                 |
 | `cadvisor`   | `projectnyra.com` | HTTP | `cadvisor:8080`             |
@@ -54,7 +54,6 @@ These should use a stricter owner-only Access policy:
 | `crm-mcp`       | `projectnyra.com` | HTTP | `twenty-mcp:8400`         |
 | `infisical-mcp` | `projectnyra.com` | HTTP | `nyra-infisical-mcp:8766` |
 | `mempalace-mcp` | `projectnyra.com` | HTTP | `nyra-mempalace-mcp:8000` |
-| `gitea-mcp`     | `projectnyra.com` | HTTP | `nyra-gitea-mcp:3101`     |
 | `paperclip-mcp` | `projectnyra.com` | HTTP | `paperclip-mcp:8767`      |
 
 ## Worker UI Routes

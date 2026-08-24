@@ -1,0 +1,66 @@
+{
+  "id": "18a2d650af5b",
+  "key": "pattern_lintstagedrc_high-stakes_completed_18a2d6",
+  "name": "pattern_lintstagedrc_high-stakes_completed_18a2d6",
+  "claim": "High-stakes op completed (secret): git commit -m \"$(cat <<'EOF'",
+  "conditions": [
+    "backed",
+    "backing",
+    "bash",
+    "cat",
+    "cmd",
+    "commit",
+    "completed",
+    "eof",
+    "fil",
+    "files",
+    "git",
+    "high-stakes",
+    "lintstagedrc",
+    "nfeat",
+    "original",
+    "out",
+    "running",
+    "staged",
+    "started",
+    "stash",
+    "state",
+    "tasks"
+  ],
+  "evidence_ids": [
+    "2026-07-25T23:12:11.027530+00:00",
+    "2026-07-26T09:16:14.548665+00:00"
+  ],
+  "cluster_size": 2,
+  "canonical_salience": 9.0,
+  "staged_at": "2026-07-26T09:18:36.154823+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-26T09:18:36.154823+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:19:00.228407+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:33:19.246106+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:39:32.567430+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T12:36:18.461403+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

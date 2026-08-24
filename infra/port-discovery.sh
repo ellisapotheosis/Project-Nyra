@@ -44,7 +44,7 @@ EOF
 # Known services with expected ports
 declare -A KNOWN_SERVICES=(
     [3000]="Grafana"
-    [3001]="Landing Page / Gitea"
+    [3001]="Landing Page / Forgejo"
     [3002]="Nyra Admin UI"
     [3003]="Nyra Admin UI"
     [3005]="Grafana Dashboard"

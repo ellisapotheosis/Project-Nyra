@@ -3,7 +3,7 @@ FROM --platform=$TARGETPLATFORM alpine:3.18
 
 LABEL org.opencontainers.image.title="Backup Agent"
 LABEL org.opencontainers.image.description="Project Nyra Backup and Sync Agent"
-LABEL org.opencontainers.image.source="https://gitea.local:3100/admin/project-nyra"
+LABEL org.opencontainers.image.source="https://git.projectnyra.com/admin/project-nyra"
 
 # Install required packages
 RUN apk add --no-cache \

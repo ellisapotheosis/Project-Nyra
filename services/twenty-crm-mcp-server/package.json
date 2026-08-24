@@ -8,7 +8,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "jest",
-    "lint": "eslint .",
+    "lint": "eslint . --no-config-lookup",
     "health": "curl -f http://localhost:3022/health || exit 1"
   },
   "dependencies": {

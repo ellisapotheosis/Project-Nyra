@@ -1,0 +1,37 @@
+{
+  "id": "2577604cc527",
+  "key": "pattern_nimport_python3_request_257760",
+  "name": "pattern_nimport_python3_request_257760",
+  "claim": "High-stakes op completed (prod): python3 - << 'EOF'",
+  "conditions": [
+    "bash",
+    "cmd",
+    "eof",
+    "json",
+    "nimport",
+    "ntok",
+    "open",
+    "out",
+    "python3",
+    "request",
+    "secrets",
+    "tmp",
+    "urllib"
+  ],
+  "evidence_ids": [
+    "2026-07-26T04:53:04.826358+00:00",
+    "2026-07-26T08:29:49.082969+00:00"
+  ],
+  "cluster_size": 2,
+  "canonical_salience": 9.0,
+  "staged_at": "2026-07-26T08:30:13.777535+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-26T08:30:13.777535+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

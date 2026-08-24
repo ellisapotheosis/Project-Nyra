@@ -1,0 +1,25 @@
+{
+  "id": "5809f2ac0624",
+  "key": "pattern_bash_cmd_out_5809f2",
+  "name": "pattern_bash_cmd_out_5809f2",
+  "claim": "High-stakes op completed (deployment): cat > /tmp/deployment_summary.txt << 'EOF'",
+  "conditions": ["bash", "cmd", "out", "tmp"],
+  "evidence_ids": [
+    "2026-07-25T01:52:22.581576+00:00",
+    "2026-07-25T17:14:04.453379+00:00",
+    "2026-07-25T22:35:14.941300+00:00",
+    "2026-07-25T22:36:30.240517+00:00"
+  ],
+  "cluster_size": 4,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-07-25T22:55:17.793647+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-25T22:55:17.793647+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

@@ -1,0 +1,65 @@
+{
+  "id": "c96816f64a66",
+  "key": "pattern_infisical_secret_agent_c96816",
+  "name": "pattern_infisical_secret_agent_c96816",
+  "claim": "High-stakes op completed (secret): git commit --no-verify -m \"$(cat <<'EOF'",
+  "conditions": [
+    "agent",
+    "bash",
+    "cmd",
+    "feat",
+    "git",
+    "infisical",
+    "out",
+    "secret"
+  ],
+  "evidence_ids": [
+    "2026-07-23T02:25:57.544197+00:00",
+    "2026-07-23T22:11:58.508523+00:00",
+    "2026-07-23T22:12:07.014851+00:00",
+    "2026-07-23T22:12:26.135110+00:00",
+    "2026-07-26T09:16:02.781081+00:00"
+  ],
+  "cluster_size": 5,
+  "canonical_salience": 12.285,
+  "staged_at": "2026-07-26T09:18:36.154718+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-26T09:18:36.154718+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:19:00.228289+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:33:19.246013+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:39:32.567319+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T12:36:18.461188+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T13:03:28.763486+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T13:20:03.997599+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

@@ -1,0 +1,32 @@
+{
+  "id": "690bde83644a",
+  "key": "pattern_python3_bash_cmd_690bde",
+  "name": "pattern_python3_bash_cmd_690bde",
+  "claim": "High-stakes op completed (secret): python3 - << 'EOF'",
+  "conditions": ["bash", "cmd", "python3", "tmp"],
+  "evidence_ids": [
+    "2026-07-26T04:55:07.841505+00:00",
+    "2026-07-26T04:57:53.970008+00:00",
+    "2026-07-26T04:57:58.800057+00:00",
+    "2026-07-26T04:59:38.519158+00:00",
+    "2026-07-26T04:59:50.127915+00:00",
+    "2026-07-26T08:25:38.240731+00:00"
+  ],
+  "cluster_size": 6,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-07-26T08:26:54.578894+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-26T08:26:54.578894+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T08:30:13.777702+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

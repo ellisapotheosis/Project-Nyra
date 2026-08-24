@@ -1,0 +1,50 @@
+{
+  "id": "4880c9cb2da8",
+  "key": "pattern_infisical_security_infra_migration_cloudflare_security_4880c9",
+  "name": "pattern_infisical_security_infra_migration_cloudflare_security_4880c9",
+  "claim": "High-stakes op completed (migrate): cat > /tmp/infisical_security_infra_migration.py << 'PYEOF'",
+  "conditions": [
+    "bash",
+    "bin",
+    "cloudflare",
+    "cmd",
+    "env",
+    "infisical_security_infra_migration",
+    "migrate",
+    "python3",
+    "security",
+    "tmp",
+    "usr"
+  ],
+  "evidence_ids": [
+    "2026-07-26T09:31:55.238210+00:00",
+    "2026-07-26T09:33:12.097109+00:00"
+  ],
+  "cluster_size": 2,
+  "canonical_salience": 9.0,
+  "staged_at": "2026-07-26T09:33:19.246366+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-26T09:33:19.246366+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:39:32.567827+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T12:36:18.461921+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T13:03:28.764050+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

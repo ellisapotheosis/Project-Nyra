@@ -6,6 +6,14 @@ model_list:
       api_key: "none"
       drop_params: true
 
+  - model_name: local/qwen3.8-27b
+    litellm_params:
+      model: openai/worker-5090-vllm
+      api_base: http://worker-5090-vllm:8000/v1
+      api_key: "none"
+      drop_params: true
+      timeout: 300
+
 general_settings:
   master_key: ${LITELLM_MASTER_KEY}
   drop_params: true

@@ -5,7 +5,7 @@ on:
     branches: [main, develop]
     paths:
       - "apps/**/Dockerfile"
-      - "services/**/Dockerfile"
+      - "infra/docker/build/services/**/Dockerfile"
       - "infra/**"
       - ".github/workflows/docker-build-matrix.yml"
       - "!**/infra-archived/**"
@@ -14,7 +14,7 @@ on:
     paths:
       - ".github/workflows/docker-build-matrix.yml"
       - "apps/**/Dockerfile"
-      - "services/**/Dockerfile"
+      - "infra/docker/build/services/**/Dockerfile"
       - "infra/**"
       - "!**/infra-archived/**"
   workflow_dispatch:
@@ -56,7 +56,7 @@ jobs:
               - 'apps/**/Dockerfile'
               - '!**/infra-archived/**'
             services:
-              - 'services/**/Dockerfile'
+              - 'infra/docker/build/services/**/Dockerfile'
               - '!**/infra-archived/**'
 
       - name: Set build matrix
@@ -94,12 +94,12 @@ jobs:
 
           # Add services
           if [ "${{ steps.filter.outputs.services }}" == "true" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            for dir in services/*/Dockerfile; do
+            for dir in infra/docker/build/services/*/Dockerfile; do
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
-                service=$(dirname "$dir" | cut -d'/' -f2)
+                service=$(dirname "$dir" | cut -d'/' -f5)
                 context="services/${service}"
-                dockerfile="${context}/Dockerfile"
+                dockerfile="infra/docker/build/services/${service}/Dockerfile"
 
                 if [ -n "$REQUESTED_SERVICE" ] && [ "$REQUESTED_SERVICE" != "$service" ]; then
                   continue
@@ -108,7 +108,7 @@ jobs:
                 case "$service" in
                   crm-api)
                     context="."
-                    dockerfile="services/${service}/Dockerfile"
+                    dockerfile="infra/docker/build/services/${service}/Dockerfile"
                     ;;
                 esac
 

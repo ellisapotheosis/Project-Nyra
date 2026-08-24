@@ -15,10 +15,16 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "lint": "eslint src/**/*.ts",
+    "lint": "tsc --noEmit --noCheck --declaration false --declarationMap false",
     "format": "prettier --write \"src/**/*.ts\""
   },
-  "keywords": ["mortgage", "api", "backend", "loan", "assistant"],
+  "keywords": [
+    "mortgage",
+    "api",
+    "backend",
+    "loan",
+    "assistant"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {

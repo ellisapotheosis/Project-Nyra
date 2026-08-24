@@ -2,16 +2,44 @@
   "config": {
     "ingress": [
       {
-        "hostname": "links.projectnyra.com",
-        "service": "http://100.64.0.2:3007"
-      },
-      {
-        "hostname": "linkwarden.projectnyra.com",
-        "service": "http://100.64.0.2:3007"
-      },
-      {
         "hostname": "openclaw-gateway.projectnyra.com",
-        "service": "http://nyra-openclaw-gateway:8001"
+        "service": "http://openclaw-gateway:8001",
+        "originRequest": {
+          "noTLSVerify": false
+        }
+      },
+      {
+        "hostname": "hermes-gateway.projectnyra.com",
+        "service": "http://hermes-gateway:8763",
+        "originRequest": {
+          "noTLSVerify": false
+        }
+      },
+      {
+        "hostname": "litellm.projectnyra.com",
+        "service": "http://litellm:4000",
+        "originRequest": {
+          "noTLSVerify": false
+        }
+      },
+      {
+        "hostname": "portainer-orch.projectnyra.com",
+        "service": "http://portainer:9000",
+        "originRequest": {
+          "noTLSVerify": false
+        }
+      },
+      {
+        "hostname": "nexus-router.projectnyra.com",
+        "service": "http://nexus-router:8080",
+        "originRequest": {
+          "noTLSVerify": false
+        }
+      },
+      {
+        "hostname": "mcp-gateway.projectnyra.com",
+        "service": "http_status:404",
+        "originRequest": {}
       },
       {
         "service": "http_status:404"

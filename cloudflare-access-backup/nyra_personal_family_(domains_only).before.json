@@ -1,0 +1,78 @@
+{
+  "id": "c49a2cfd-b5f1-4acd-a6e2-d71e4688b31c",
+  "name": "Nyra Personal/Family (Domains Only)",
+  "uid": "c49a2cfd-b5f1-4acd-a6e2-d71e4688b31c",
+  "decision": "allow",
+  "include": [
+    {
+      "email_domain": {
+        "domain": "ratehunter.net"
+      }
+    },
+    {
+      "email_domain": {
+        "domain": "projectnyra.com"
+      }
+    },
+    {
+      "device_posture": {
+        "integration_uid": "f60ba2ec-0047-4511-b59e-8f5e63b02389"
+      }
+    },
+    {
+      "any_valid_service_token": {}
+    },
+    {
+      "cloudflare_account_member": {
+        "account_id": "2ff5950df9078417fde73fbb184da8a7"
+      }
+    },
+    {
+      "group": {
+        "id": "04f027b4-5377-4a95-821c-fc76ed97e177"
+      }
+    },
+    {
+      "group": {
+        "id": "0e6f3dd6-61ac-4bc1-aa94-044d21215128"
+      }
+    },
+    {
+      "group": {
+        "id": "6290c676-cb4b-4482-a87e-fe048d4cab8a"
+      }
+    },
+    {
+      "login_method": {
+        "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+      }
+    },
+    {
+      "login_method": {
+        "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+      }
+    },
+    {
+      "login_method": {
+        "id": "d2ed2689-d3d2-4cef-b26b-ce9ef99a7443"
+      }
+    },
+    {
+      "login_method": {
+        "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+      }
+    }
+  ],
+  "require": [],
+  "exclude": [],
+  "reusable": true,
+  "app_count": 1,
+  "created_at": "2026-07-15T08:53:47Z",
+  "updated_at": "2026-07-17T17:10:44Z",
+  "connection_rules": {
+    "rdp": {
+      "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+      "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+    }
+  }
+}

@@ -50,41 +50,13 @@ container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-ollama
 | `docker-compose.memory.yml`           | Letta + mem0 + FalkorDB + Qdrant (canonical memory plane) |
 | `docker-compose.oracle.yml`           | Paperclip, SearXNG, Browserless                           |
 | `docker-compose.apps.yml`             | Next.js webapp + Nexus UI                                 |
-| `docker-compose.gitea.yml`            | Gitea + Gitea DB                                          |
+| `docker-compose.forgejo.yml`          | Forgejo + Forgejo DB                                      |
 | `docker-compose.letta-mcp.yml`        | Letta MCP bridge                                          |
 | `docker-compose.memory-extra.yml`     | Optional memory companions (memos, claudemem)             |
 | `docker-compose.clawteam.yml`         | ClawTeam primary node (oracle)                            |
 | `docker-compose.paperclip.yml`        | Paperclip MCP gateway (build from images/paperclip/)      |
 | `docker-compose.activepieces-mcp.yml` | ActivePieces MCP                                          |
 | `docker-compose.restoration.yml`      | Restoration services (llxprt-bridge, activepieces-mcp)    |
-
-## Voice Setup Topology
-
-Two Kyutai Unmute configurations exist side-by-side per worker:
-
-### Setup 1 — Standalone (one complete instance per worker)
-
-Each worker runs a fully self-contained Unmute instance.
-
-```bash
-# On any worker:
-docker compose -f docker-compose.voice.yml up -d
-```
-
-### Setup 2 — Distributed (one session across all three workers, ~300-400ms latency)
-
-GPU work is pipelined by role across the three workers:
-
-- **worker-rtx3060** — STT (speech-to-text, lighter VRAM)
-- **worker-rtx3090ti** — TTS (text-to-speech, moderate VRAM)
-- **worker-rtx5090** — LLM (heaviest inference, RTX 5090)
-
-```bash
-# Start all three simultaneously (Tailscale mesh connects them):
-# On worker-rtx3060:   docker compose -f docker-compose.distributed-voice.yml up -d
-# On worker-rtx3090ti: docker compose -f docker-compose.distributed-voice.yml up -d
-# On worker-rtx5090:   docker compose -f docker-compose.distributed-voice.yml up -d
-```
 
 ## Memory Stack (Oracle VPS — CRITICAL)
 

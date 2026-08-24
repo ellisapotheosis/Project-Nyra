@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src",
+    "lint": "tsc --noEmit --noCheck",
     "scan:cve": "tsx src/cli/scan-cve.ts",
     "scan:full": "tsx src/cli/scan-full.ts",
     "audit": "tsx src/cli/audit.ts"

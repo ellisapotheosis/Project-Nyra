@@ -11,7 +11,7 @@ COPY services/nexus-router/ ./
 FROM node:20-alpine
 LABEL org.opencontainers.image.title="Nexus Router"
 LABEL org.opencontainers.image.description="Project Nyra API Gateway and Router"
-LABEL org.opencontainers.image.source="https://gitea.local:3100/admin/project-nyra"
+LABEL org.opencontainers.image.source="https://git.projectnyra.com/admin/project-nyra"
 
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nexus -u 1001 -G nodejs && \
