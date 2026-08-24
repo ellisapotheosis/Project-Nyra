@@ -566,3 +566,5 @@ security/infisical/**/.env.*
 **/*-gateway.env
 **/*-proxy.env
 **/*-relay.env
+
+.vercel

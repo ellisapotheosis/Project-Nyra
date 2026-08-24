@@ -70,8 +70,6 @@ export default function HomePage() {
         {/* High-Fidelity Internal Landing Hero */}
         <section className="relative px-6 py-20 rounded-[48px] border border-indigo-500/20 bg-card/20 overflow-hidden shadow-2xl">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.1),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(20,184,166,0.1),transparent_40%)]" />
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
-
           <div className="relative z-10 grid gap-12 lg:grid-cols-2 items-center">
             <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-1000">
               <div>

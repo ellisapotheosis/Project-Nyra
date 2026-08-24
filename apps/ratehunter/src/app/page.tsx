@@ -123,8 +123,7 @@ function EncryptedText({ text }: { text: string }) {
           if (i < index) {
             current += text[i];
           } else {
-            current +=
-              chars[Math.floor(Math.random() * chars.length)];
+            current += chars[Math.floor(Math.random() * chars.length)];
           }
         }
         setDisplayText(current);
@@ -139,9 +138,7 @@ function EncryptedText({ text }: { text: string }) {
   }, [text]);
 
   return (
-    <span className="font-mono font-bold tracking-wider">
-      {displayText}
-    </span>
+    <span className="font-mono font-bold tracking-wider">{displayText}</span>
   );
 }
 
@@ -168,7 +165,10 @@ function TracingBeam() {
   }, []);
 
   return (
-    <div ref={containerRef} className="fixed left-8 top-0 h-full w-1 pointer-events-none">
+    <div
+      ref={containerRef}
+      className="fixed left-8 top-0 h-full w-1 pointer-events-none"
+    >
       <svg
         className="absolute inset-0 w-full h-full"
         style={{ filter: "drop-shadow(0 0 8px rgba(201, 168, 76, 0.6))" }}
@@ -193,16 +193,18 @@ function FlickeringGrid() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const drawingCanvas = canvas;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = drawingCanvas.getContext("2d");
     if (!ctx) return;
+    const drawingContext = ctx;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    drawingCanvas.width = window.innerWidth;
+    drawingCanvas.height = window.innerHeight;
 
     const cellSize = 5;
-    const cols = Math.ceil(canvas.width / cellSize);
-    const rows = Math.ceil(canvas.height / cellSize);
+    const cols = Math.ceil(drawingCanvas.width / cellSize);
+    const rows = Math.ceil(drawingCanvas.height / cellSize);
     const grid: number[][] = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => Math.random() * 0.8)
     );
@@ -210,8 +212,8 @@ function FlickeringGrid() {
     let frameCount = 0;
 
     function draw() {
-      ctx.fillStyle = "rgba(15, 31, 61, 1)"; // Navy bg
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drawingContext.fillStyle = "rgba(15, 31, 61, 1)"; // Navy bg
+      drawingContext.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height);
 
       frameCount++;
 
@@ -225,8 +227,13 @@ function FlickeringGrid() {
 
           const alpha = grid[y][x];
           if (alpha > 0.05) {
-            ctx.fillStyle = `rgba(201, 168, 76, ${alpha * 0.6})`;
-            ctx.fillRect(x * cellSize, y * cellSize, cellSize - 1, cellSize - 1);
+            drawingContext.fillStyle = `rgba(201, 168, 76, ${alpha * 0.6})`;
+            drawingContext.fillRect(
+              x * cellSize,
+              y * cellSize,
+              cellSize - 1,
+              cellSize - 1
+            );
           }
         }
       }
@@ -237,8 +244,8 @@ function FlickeringGrid() {
     draw();
 
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      drawingCanvas.width = window.innerWidth;
+      drawingCanvas.height = window.innerHeight;
     };
 
     window.addEventListener("resize", handleResize);
@@ -336,7 +343,9 @@ function FloatingDock() {
           key={i}
           href={action.href}
           target={action.href.startsWith("http") ? "_blank" : undefined}
-          rel={action.href.startsWith("http") ? "noopener noreferrer" : undefined}
+          rel={
+            action.href.startsWith("http") ? "noopener noreferrer" : undefined
+          }
           className="group"
           title={action.description}
         >
@@ -395,17 +404,38 @@ const stats = [
 const HomeIcon = Building2;
 
 const loanTypes = [
-  { icon: HomeIcon, label: "Purchase", description: "Conventional, FHA, VA, Jumbo" },
-  { icon: TrendingUp, label: "Refinance", description: "Rate-term, cash-out, HELOC" },
-  { icon: Building2, label: "Residential", description: "Single family, multi-unit" },
-  { icon: Shield, label: "Commercial", description: "Investment & business lending" },
-  { icon: DollarSign, label: "Construction", description: "New builds & renovations" },
+  {
+    icon: HomeIcon,
+    label: "Purchase",
+    description: "Conventional, FHA, VA, Jumbo",
+  },
+  {
+    icon: TrendingUp,
+    label: "Refinance",
+    description: "Rate-term, cash-out, HELOC",
+  },
+  {
+    icon: Building2,
+    label: "Residential",
+    description: "Single family, multi-unit",
+  },
+  {
+    icon: Shield,
+    label: "Commercial",
+    description: "Investment & business lending",
+  },
+  {
+    icon: DollarSign,
+    label: "Construction",
+    description: "New builds & renovations",
+  },
   { icon: Clock, label: "Fast Close", description: "15-21 day standard" },
 ];
 
 const testimonials = [
   {
-    quote: "Ellis got us a rate 0.75% lower than we qualified for anywhere else.",
+    quote:
+      "Ellis got us a rate 0.75% lower than we qualified for anywhere else.",
     author: "Sarah M.",
     role: "First-time homebuyer",
     rating: 5,
@@ -460,19 +490,34 @@ export default function Home() {
               />
             </div>
             <div className="hidden items-center gap-8 text-xs font-semibold uppercase tracking-wider text-[#8899aa] md:flex">
-              <Link href="/programs" className="hover:text-[#c9a84c] transition-colors">
+              <Link
+                href="/programs"
+                className="hover:text-[#c9a84c] transition-colors"
+              >
                 Programs
               </Link>
-              <Link href="/blog" className="hover:text-[#c9a84c] transition-colors">
+              <Link
+                href="/blog"
+                className="hover:text-[#c9a84c] transition-colors"
+              >
                 Blog
               </Link>
-              <a href="#quote" className="hover:text-[#c9a84c] transition-colors">
+              <a
+                href="#quote"
+                className="hover:text-[#c9a84c] transition-colors"
+              >
                 Quote
               </a>
-              <a href="#services" className="hover:text-[#c9a84c] transition-colors">
+              <a
+                href="#services"
+                className="hover:text-[#c9a84c] transition-colors"
+              >
                 Services
               </a>
-              <a href="#contact" className="hover:text-[#c9a84c] transition-colors">
+              <a
+                href="#contact"
+                className="hover:text-[#c9a84c] transition-colors"
+              >
                 Contact
               </a>
             </div>
@@ -557,7 +602,10 @@ export default function Home() {
           </div>
 
           {/* Scroll indicator */}
-          <BlurFade delay={1.2} className="absolute bottom-24 left-1/2 -translate-x-1/2">
+          <BlurFade
+            delay={1.2}
+            className="absolute bottom-24 left-1/2 -translate-x-1/2"
+          >
             <div className="text-center text-xs text-[#8899aa]">
               <div>Scroll to explore</div>
               <div className="text-[#c9a84c] mt-2">↓</div>
@@ -618,7 +666,9 @@ export default function Home() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-[#8899aa]">{loan.description}</p>
+                      <p className="text-sm text-[#8899aa]">
+                        {loan.description}
+                      </p>
                     </CardContent>
                   </Card>
                 </BlurFade>
@@ -640,7 +690,11 @@ export default function Home() {
 
             <div className="grid md:grid-cols-5 gap-2 md:gap-4">
               {[
-                { step: 1, label: "Info", description: "Tell us your scenario" },
+                {
+                  step: 1,
+                  label: "Info",
+                  description: "Tell us your scenario",
+                },
                 { step: 2, label: "Hunt", description: "We shop 500+ lenders" },
                 { step: 3, label: "Compare", description: "Real rate quotes" },
                 { step: 4, label: "Lock", description: "Best rate & terms" },
@@ -661,9 +715,7 @@ export default function Home() {
                       )}
                     </div>
                     <h3 className="font-semibold mb-1">{item.label}</h3>
-                    <p className="text-xs text-[#8899aa]">
-                      {item.description}
-                    </p>
+                    <p className="text-xs text-[#8899aa]">{item.description}</p>
                   </div>
                 </BlurFade>
               ))}
@@ -718,7 +770,10 @@ export default function Home() {
         {/* ─────────────────────────────────────────────────────────── */}
         {/* LEAD FORM (id="quote") */}
         {/* ─────────────────────────────────────────────────────────── */}
-        <section id="quote" className="relative py-24 border-t border-[#c9a84c]/10">
+        <section
+          id="quote"
+          className="relative py-24 border-t border-[#c9a84c]/10"
+        >
           <div className="mx-auto max-w-2xl px-4 md:px-6 lg:px-8">
             <BlurFade delay={0.2}>
               <div className="text-center mb-12">
@@ -815,7 +870,8 @@ export default function Home() {
                     className="h-6 w-auto mb-4"
                   />
                   <p className="text-xs text-[#8899aa]">
-                    Connecting borrowers with the best mortgage rates since 2018.
+                    Connecting borrowers with the best mortgage rates since
+                    2018.
                   </p>
                 </div>
               </BlurFade>
@@ -834,12 +890,18 @@ export default function Home() {
                       </a>
                     </li>
                     <li>
-                      <a href="#quote" className="text-[#8899aa] hover:text-[#c9a84c]">
+                      <a
+                        href="#quote"
+                        className="text-[#8899aa] hover:text-[#c9a84c]"
+                      >
                         Get Quote
                       </a>
                     </li>
                     <li>
-                      <a href="#" className="text-[#8899aa] hover:text-[#c9a84c]">
+                      <a
+                        href="#"
+                        className="text-[#8899aa] hover:text-[#c9a84c]"
+                      >
                         Loan Programs
                       </a>
                     </li>

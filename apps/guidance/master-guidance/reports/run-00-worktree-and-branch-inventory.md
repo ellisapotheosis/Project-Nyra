@@ -25,17 +25,16 @@ Branch at inspection: `main`
   - `#395 Fix CI bootstrap and workflow false positives`
   - `#388 Implement Universal 2142 sci-fi OS interface suite`
 
-## Vercel Metadata
+## Frontend Deployment Metadata
 
-- `.vercel/project.json` is missing in this worktree.
-- No local Vercel project metadata was available through the filesystem inspection path.
-- This means any branch-level Vercel safety decision still needs either CLI/plugin confirmation or a later worktree that contains `.vercel/`.
+- No legacy frontend deployment metadata is present in this worktree.
+- Cloudflare Pages is the canonical frontend deployment target.
 
 ## Candidate Branch Diff Review
 
 Inspected with:
 
-- `git diff --name-status main...<branch> -- 'apps/**' '.github/workflows/**' 'vercel.json' 'wrangler.toml' 'package.json' 'pnpm-lock.yaml' 'apps/**/package.json' 'services/**/package.json'`
+- `git diff --name-status main...<branch> -- 'apps/**' '.github/workflows/**' 'wrangler.toml' 'package.json' 'pnpm-lock.yaml' 'apps/**/package.json' 'services/**/package.json'`
 
 ### Safe
 
@@ -80,4 +79,4 @@ Inspected with:
 
 - Treat the current `main` worktree as the clean baseline.
 - Before any future branch merge, first resolve stale PRs `#395` and `#396` as superseded-or-reconcile items.
-- If a later run needs deployment inventory, gather Vercel metadata through CLI or plugin because filesystem metadata is absent in this worktree.
+- If a later run needs deployment inventory, inspect the Cloudflare Pages workflow and Wrangler configuration because legacy Vercel metadata is intentionally unsupported.

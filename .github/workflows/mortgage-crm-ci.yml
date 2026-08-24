@@ -65,7 +65,7 @@ jobs:
       - name: Deploy to Staging
         run: |
           echo "Deploying @nyra/mortgage-crm to staging..."
-          # Add actual deployment steps here (e.g., Vercel, AWS, etc.)
+          # Deployment is handled by Cloudflare Pages or the Oracle VPS release lane.
 
   deploy-production:
     needs: [lint-and-typecheck, test]
