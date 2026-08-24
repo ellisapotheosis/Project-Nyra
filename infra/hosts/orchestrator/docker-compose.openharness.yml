@@ -20,8 +20,6 @@ services:
     command: python -m http.server 8000 --directory /app
     networks:
       - nyra-network
-    depends_on:
-      - openclaw-gateway
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
