@@ -1,0 +1,55 @@
+# OmniRoute — OAuth Subscription Provider Gateway
+# Handles subscription-based model access (Claude, Gemini, Codex via OAuth)
+# Bridges subscription credentials → LiteLLM model routes
+
+name: nyra-omniroute
+
+services:
+  omniroute:
+    image: node:20-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-omniroute
+    environment:
+      # Provider OAuth credentials (from Infisical)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      CODEX_API_KEY: ${CODEX_API_KEY:-}
+
+      # Gateway config
+      OMNIROUTE_PORT: 20128
+      LITELLM_GATEWAY: http://litellm:4010/v1
+      LITELLM_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
+
+      # Routing rules
+      ROUTE_AUTO: claude-opus-5
+      ROUTE_CODING: claude-opus-5-sonnet
+      ROUTE_FAST: claude-haiku-4.5
+
+      LOG_LEVEL: info
+    ports:
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:20128:20128"
+    volumes:
+      - ./omniroute/gateway.js:/app/gateway.js:ro
+    command: node /app/gateway.js
+    networks:
+      - nyra_net
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:20128/health",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: api-gateway
+      com.projectnyra.component: omniroute
+
+networks:
+  nyra_net:
+    external: true

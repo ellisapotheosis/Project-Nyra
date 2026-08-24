@@ -1,0 +1,57 @@
+# OpenHarness — Agent Execution Runtime
+# Thin wrapper around OpenClaw Gateway + ClawTeam coordination
+# Routes agent tasks through LiteLLM model gateway
+
+services:
+  openharness:
+    image: python:3.11-slim
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openharness
+    environment:
+      OPENCLAW_GATEWAY_URL: http://openclaw-gateway:18789
+      CLAWTEAM_URL: http://clawteam-primary:8080
+      LITELLM_BASE_URL: http://litellm:4000/v1
+      LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
+      LETTA_URL: http://100.64.0.3:8283
+      LOG_LEVEL: INFO
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./openharness/agent-runtime.py:/app/agent-runtime.py:ro
+    command: python -m http.server 8000 --directory /app
+    networks:
+      - nyra-network
+    depends_on:
+      - openclaw-gateway
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: control-plane
+      com.projectnyra.component: agent-harness
+
+  # Agent task queue (minimal Redis-backed queue)
+  openharness-queue:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openharness-queue
+    ports:
+      - "6380:6379"
+    volumes:
+      - openharness_queue_data:/data
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+networks:
+  nyra-network:
+    external: true
+
+volumes:
+  openharness_queue_data:
