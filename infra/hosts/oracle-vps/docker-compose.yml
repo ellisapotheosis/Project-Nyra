@@ -7,7 +7,7 @@ services:
   secrets-init:
     build:
       context: ../../images/infisical-secrets-init
-    container_name: nyra-network-nyra-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-secrets-init
     restart: "no"
     command: ["/usr/local/bin/secrets-init.sh"]
     environment:
@@ -23,7 +23,7 @@ services:
   infisical-agent:
     build:
       context: ../../images/infisical-secrets-init
-    container_name: nyra-network-nyra-infisical-agent
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-agent
     restart: unless-stopped
     entrypoint: ["/usr/local/bin/agent-sidecar.sh"]
     depends_on:
@@ -39,23 +39,25 @@ services:
       - nyra_secrets:/run/nyra-secrets
     networks: [nyra_net]
 
-  portainer-edge-agent:
-    image: portainer/agent:2.27.9
-    container_name: nyra-network-nyra-portainer-agent
+  # ── Portainer SE (Central Management) ────────────────────────────────────
+  # Oracle-vps hosts the central Portainer instance managing all edge agents
+  # on orchestrator + workers per OMNIBUS Section 8.3 core-mgmt-protected group.
+  portainer-se:
+    image: portainer/portainer-ce:2.27.9
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-portainer-se
     restart: unless-stopped
-    environment:
-      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
-      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,oracle,standard}
     ports:
-      - "${ORACLE_TAILSCALE_IP:-100.64.0.3}:9001:9001"
+      - "8000:8000"
+      - "9000:9000"
+      - "9443:9443"
     volumes:
+      - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks: [nyra_net]
 
   postgres:
     image: postgres:15
-    container_name: nyra-network-nyra-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-nyra}
@@ -77,7 +79,7 @@ services:
 
   redis-cache:
     image: redis:7-alpine
-    container_name: nyra-network-nyra-redis-cache
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-redis-cache
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
@@ -91,7 +93,7 @@ services:
 
   twenty-db:
     image: postgres:15
-    container_name: nyra-network-nyra-twenty-db
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-twenty-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${TWENTY_DB_USER:-twenty}
@@ -112,7 +114,7 @@ services:
 
   twenty:
     image: twentycrm/twenty:latest
-    container_name: nyra-network-nyra-twenty
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-twenty
     restart: unless-stopped
     depends_on:
       twenty-db:
@@ -141,7 +143,7 @@ services:
 
   twenty-worker:
     image: twentycrm/twenty:latest
-    container_name: nyra-network-nyra-twenty-worker
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-twenty-worker
     restart: unless-stopped
     command: ["yarn", "worker:prod"]
     depends_on:
@@ -163,7 +165,7 @@ services:
 
   twenty-mcp:
     image: ${TWENTY_MCP_IMAGE:-nyra-network-twenty-mcp:latest}
-    container_name: nyra-network-nyra-twenty-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-twenty-mcp
     restart: unless-stopped
     ports:
       - "8400:8400"
@@ -180,7 +182,7 @@ services:
 
   activepieces:
     image: activepieces/activepieces:latest
-    container_name: nyra-network-nyra-activepieces
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-activepieces
     restart: unless-stopped
     depends_on:
       postgres:
@@ -213,7 +215,7 @@ services:
       args:
         N8N_TWENTY_NODES_GIT: ${N8N_TWENTY_NODES_GIT:-}
         N8N_EXTRA_PACKAGES: ${N8N_EXTRA_PACKAGES:-}
-    container_name: nyra-network-nyra-n8n
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-n8n
     restart: unless-stopped
     depends_on:
       postgres:
@@ -255,7 +257,8 @@ services:
   quote-api:
     build:
       context: ../../../services/quote-api
-    container_name: nyra-network-nyra-quote-api
+      dockerfile: ../../infra/docker/build/services/quote-api/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-quote-api
     restart: unless-stopped
     environment:
       PORT: ${QUOTE_API_PORT:-7070}
@@ -271,7 +274,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:latest
-    container_name: nyra-network-nyra-cloudflared
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cloudflared
     restart: unless-stopped
     command: ["tunnel", "--no-autoupdate", "--protocol", "http2", "run"]
     environment:
@@ -290,7 +293,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: nyra-network-nyra-prometheus
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-prometheus
     restart: unless-stopped
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -309,7 +312,7 @@ services:
 
   loki:
     image: grafana/loki:3.4.3
-    container_name: nyra-network-nyra-loki
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-loki
     restart: unless-stopped
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
@@ -325,7 +328,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: nyra-network-nyra-grafana
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-grafana
     restart: unless-stopped
     depends_on:
       - prometheus
@@ -348,7 +351,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: nyra-network-nyra-cadvisor
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-cadvisor
     restart: unless-stopped
     privileged: true
     volumes:
@@ -365,7 +368,7 @@ services:
   # behind Cloudflare Access; OTLP ports are bound to Tailscale by default.
   openlit-clickhouse:
     image: clickhouse/clickhouse-server:24.4.1
-    container_name: nyra-network-nyra-openlit-clickhouse
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openlit-clickhouse
     restart: unless-stopped
     environment:
       CLICKHOUSE_USER: ${OPENLIT_DB_USER:-default}
@@ -393,7 +396,7 @@ services:
 
   openlit:
     image: ghcr.io/openlit/openlit:latest
-    container_name: nyra-network-nyra-openlit
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openlit
     restart: unless-stopped
     depends_on:
       openlit-clickhouse:
@@ -439,28 +442,6 @@ services:
       retries: 10
       start_period: 60s
 
-  # ── Chat UI ───────────────────────────────────────────────────────────────
-  # OpenWebUI proxies all LLM requests to local Oracle LiteLLM.
-
-  openwebui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: nyra-network-nyra-openwebui
-    restart: unless-stopped
-    environment:
-      OPENAI_API_BASE_URL: ${LITELLM_BASE_URL:-http://litellm:4000/v1}
-      OPENAI_API_KEY: ${LITELLM_MASTER_KEY}
-      WEBUI_SECRET_KEY: ${OPENWEBUI_SECRET_KEY}
-    volumes:
-      - openwebui_data:/app/backend/data
-    ports:
-      - "8088:8080"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # ── Memory System (Mem0 + FalkorDB) ───────────────────────────────────────
   # NOTE: mem0-rest, falkordb, and qdrant are CANONICAL in
   # docker-compose.memory.yml. Do not redefine them here.
@@ -470,7 +451,8 @@ services:
   openmemory-mcp:
     build:
       context: ../../../services/openmemory-mcp
-    container_name: nyra-network-nyra-openmemory-mcp
+      dockerfile: ../../infra/docker/build/services/openmemory-mcp/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openmemory-mcp
     restart: unless-stopped
     # NOTE: qdrant lives in docker-compose.memory.yml; reach it via Tailscale.
     environment:
@@ -498,7 +480,7 @@ services:
   # Exposed on port 8766; Nexus connects at http://100.64.0.3:8766/sse
   infisical-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-infisical-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-infisical-mcp
     restart: unless-stopped
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
@@ -523,8 +505,8 @@ services:
   mempalace-mcp:
     build:
       context: ../../../services/mempalace-mcp
-      dockerfile: Dockerfile
-    container_name: nyra-network-nyra-mempalace-mcp
+      dockerfile: ../../infra/docker/build/services/mempalace-mcp/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mempalace-mcp
     restart: unless-stopped
     command:
       - /bin/sh
@@ -548,16 +530,11 @@ services:
       retries: 3
     networks: [nyra_net]
 
-  # NOTE: gitea, gitea-runner, github-mirror-sync, gitea-mcp are managed via the
-  # docker-compose.gitea.yml overlay (use `make gitea-up`). They are NOT defined
-  # here so the overlay's hardened secrets and dedicated DB stay canonical.
-
   # ── Generic Git MCP (stdio→SSE bridge via supergateway) ──────────────────
-  # Local Git repository operations for Gitea-backed repos. API-level Gitea
-  # actions still go through gitea-mcp/Composio; raw git goes through this.
+  # Local Git repository operations for Forgejo-backed repos.
   git-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-git-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-git-mcp
     restart: unless-stopped
     working_dir: /workspace
     environment:
@@ -585,8 +562,8 @@ services:
     profiles: ["apps"]
     build:
       context: ../../../services/quote-engine
-      dockerfile: Dockerfile
-    container_name: nyra-network-nyra-quote-engine
+      dockerfile: ../../infra/docker/build/services/quote-engine/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-quote-engine
     restart: unless-stopped
     ports:
       - "8089:5000"
@@ -595,8 +572,8 @@ services:
   crm-api:
     build:
       context: ../../../
-      dockerfile: services/crm-api/Dockerfile
-    container_name: nyra-network-nyra-crm-api
+      dockerfile: infra/docker/build/services/crm-api/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-crm-api
     restart: unless-stopped
     depends_on:
       twenty:
@@ -624,8 +601,8 @@ services:
     profiles: ["apps"]
     build:
       context: ../../../services/campaign-engine
-      dockerfile: Dockerfile
-    container_name: nyra-network-nyra-campaign-engine
+      dockerfile: ../../infra/docker/build/services/campaign-engine/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-campaign-engine
     restart: unless-stopped
     ports:
       - "8020:8020"
@@ -641,7 +618,7 @@ services:
   # ── Paperclip AI (Multi-Agent Orchestration) ─────────────────────────────
   paperclip:
     image: ghcr.io/paperclipai/paperclip:latest
-    container_name: nyra-network-nyra-paperclip
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip
     restart: unless-stopped
     environment:
       - PAPERCLIP_AUTH_DISABLE_SIGN_UP=true
@@ -663,7 +640,7 @@ services:
   # Exposes Paperclip orchestration tools to the Nexus aggregator.
   paperclip-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-paperclip-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-mcp
     restart: unless-stopped
     environment:
       NPM_CONFIG_CACHE: /tmp/.npm
@@ -686,7 +663,7 @@ services:
   # Exposed on port 8768; Nexus connects at http://magicui-mcp:8768/sse.
   magicui-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-magicui-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-magicui-mcp
     restart: unless-stopped
     working_dir: /app
     environment:
@@ -711,7 +688,7 @@ services:
   # Long-lived execution container for registry installs into the Project Nyra app.
   nyra-ui-engine:
     image: node:20-alpine
-    container_name: nyra-network-nyra-ui-engine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-ui-engine
     restart: unless-stopped
     working_dir: /app
     environment:
@@ -736,7 +713,7 @@ services:
   # Installs are executed through nyra-ui-engine with shadxn.
   shadcn-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-shadcn-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-shadcn-mcp
     restart: unless-stopped
     working_dir: /app
     environment:
@@ -759,7 +736,7 @@ services:
   # ── Sequential Thinking MCP (stdio→SSE bridge via supergateway) ──────────
   sequential-thinking-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-sequential-thinking-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-sequential-thinking-mcp
     restart: unless-stopped
     environment:
       NPM_CONFIG_CACHE: /tmp/.npm
@@ -778,7 +755,7 @@ services:
   # ── Playwright MCP (stdio→SSE bridge via supergateway) ───────────────────
   playwright-mcp:
     image: mcr.microsoft.com/playwright:v1.56.1-noble
-    container_name: nyra-network-nyra-playwright-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-playwright-mcp
     restart: unless-stopped
     working_dir: /workspace
     environment:
@@ -798,7 +775,7 @@ services:
   # ── Firecrawl MCP (stdio→SSE bridge via supergateway) ───────────────────
   firecrawl-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-firecrawl-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-firecrawl-mcp
     restart: unless-stopped
     environment:
       FIRECRAWL_API_KEY: ${FIRECRAWL_API_KEY}
@@ -820,7 +797,7 @@ services:
   # Discovers running Next.js dev servers and proxies their /_next/mcp tools.
   next-devtools-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-next-devtools-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-next-devtools-mcp
     restart: unless-stopped
     working_dir: /workspace
     environment:
@@ -843,7 +820,7 @@ services:
   # ── Tavily MCP (stdio→SSE bridge via supergateway) ──────────────────────
   tavily-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-tavily-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-tavily-mcp
     restart: unless-stopped
     environment:
       TAVILY_API_KEY: ${TAVILY_API_KEY}
@@ -864,7 +841,7 @@ services:
   # Shell/code execution workspace tools. Keep private behind Nexus only.
   wcgw-mcp:
     image: node:20-bookworm-slim
-    container_name: nyra-network-nyra-wcgw-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-wcgw-mcp
     restart: unless-stopped
     working_dir: /workspace
     environment:
@@ -890,7 +867,7 @@ services:
   # ── Gitingest MCP (stdio→SSE bridge via supergateway) ───────────────────
   gitingest-mcp:
     image: node:20-alpine
-    container_name: nyra-network-nyra-gitingest-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-gitingest-mcp
     restart: unless-stopped
     working_dir: /workspace
     environment:
@@ -913,7 +890,7 @@ services:
   # ── Codebase Index MCP (stdio→SSE bridge via supergateway) ───────────────
   codebase-index-mcp:
     image: node:20-bookworm-slim
-    container_name: nyra-network-nyra-codebase-index-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-codebase-index-mcp
     restart: unless-stopped
     working_dir: /workspace
     environment:
@@ -938,7 +915,7 @@ services:
   # ── Supabase Stack ────────────────────────────────────────────────────────
   supabase-db:
     image: supabase/postgres:15.1.1.78
-    container_name: nyra-network-nyra-supabase-db
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-db
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:-${POSTGRES_PASSWORD}}
@@ -958,7 +935,7 @@ services:
 
   supabase-auth:
     image: supabase/gotrue:v2.132.3
-    container_name: nyra-network-nyra-supabase-auth
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-auth
     restart: unless-stopped
     depends_on:
       supabase-db:
@@ -977,7 +954,7 @@ services:
 
   supabase-rest:
     image: postgrest/postgrest:v10.1.1
-    container_name: nyra-network-nyra-supabase-rest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-rest
     restart: unless-stopped
     depends_on:
       supabase-db:
@@ -991,7 +968,7 @@ services:
 
   supabase-kong:
     image: kong:2.8.1
-    container_name: nyra-network-nyra-supabase-kong
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-kong
     restart: unless-stopped
     depends_on:
       supabase-auth:
@@ -1012,7 +989,7 @@ services:
   # Moved from orchestrator: co-located with Nexus to eliminate Tailscale hop.
   llxprt-bridge-proxy:
     image: alpine/socat:1.8.0.3
-    container_name: nyra-network-nyra-llxprt-bridge-proxy
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-llxprt-bridge-proxy
     restart: unless-stopped
     network_mode: host
     command:
@@ -1026,7 +1003,7 @@ services:
   # forwarding; do not add this service to Cloudflared or Nexus MCP.
   omniroute:
     image: diegosouzapw/omniroute@sha256:badb560971fdc23c2fb84b3e8695116239ff215b4cca4b07076201a8efae7f0d
-    container_name: nyra-network-nyra-omniroute
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-omniroute
     restart: unless-stopped
     environment:
       DATA_DIR: /app/data
@@ -1053,7 +1030,7 @@ services:
 
   litellm:
     image: ghcr.io/berriai/litellm:v1.92.0
-    container_name: nyra-network-nyra-litellm
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-litellm
     restart: unless-stopped
     command: ["--config", "/app/config/config.yaml", "--port", "4000"]
     ports:
@@ -1098,7 +1075,7 @@ services:
   # THE single entrypoint: MCP tool aggregation + LLM proxy
   ha-mcp:
     image: ${HA_MCP_IMAGE:-ghcr.io/homeassistant-ai/ha-mcp:7.4.0}
-    container_name: nyra-network-nyra-ha-mcp
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-ha-mcp
     restart: unless-stopped
     command: ["ha-mcp-web"]
     environment:
@@ -1112,7 +1089,7 @@ services:
 
   nexus:
     image: ghcr.io/grafbase/nexus:0.6.0
-    container_name: nyra-network-nyra-nexus
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nexus
     restart: unless-stopped
     ports:
       - "127.0.0.1:6000:3000"
@@ -1169,7 +1146,7 @@ services:
   syncthing:
     profiles: ["sync"]
     image: syncthing/syncthing:latest
-    container_name: nyra-network-nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-syncthing
     network_mode: host
     environment:
       - PUID=1000
@@ -1203,7 +1180,6 @@ volumes:
   openlit_clickhouse_data:
   openlit_data:
   nyra_secrets:
-  openwebui_data:
   mempalace_data:
   mempalace_vault:
   paperclip_data:

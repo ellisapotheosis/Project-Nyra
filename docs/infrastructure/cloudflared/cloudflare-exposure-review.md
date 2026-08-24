@@ -20,7 +20,7 @@ Highest-risk routes:
 
 Routes to create first:
 
-- Oracle: `nyra`, `api`, `twenty`, `crm`, `n8n`, `gitea`, `grafana`, `openwebui`, `nexus`, `nexus-router`, `litellm`.
+- Oracle: `nyra`, `api`, `twenty`, `crm`, `n8n`, `git`, `grafana`, `openwebui`, `nexus`, `nexus-router`, `litellm`.
 - Orchestrator: `links`, `linkwarden`, `openclaw-gateway`.
 
 Routes to delay until service health is confirmed:

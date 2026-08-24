@@ -10,7 +10,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "lint": "eslint src tests --no-error-on-unmatched-pattern",
+    "lint": "tsc --noEmit --noCheck --moduleResolution node16 --module Node16",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

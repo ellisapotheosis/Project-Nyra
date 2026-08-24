@@ -138,15 +138,16 @@ services:
     networks:
       - worker-network
 
-  # ── Syncthing ───────────────────────────────────────────────────────────
+  # ── Syncthing (Receive-Only from canonical worker-rtx5090) ─────────────
   syncthing:
     profiles: ["sync"]
     image: syncthing/syncthing:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-syncthing
     network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
+      - SEND_ONLY=false
     volumes:
       - syncthing_config:/var/syncthing
       - /home/ellisapotheosis:/var/syncthing/data/home

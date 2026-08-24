@@ -1,0 +1,24 @@
+{
+  "id": "59769fa2aa1d",
+  "key": "pattern_python3_bash_bin_59769f",
+  "name": "pattern_python3_bash_bin_59769f",
+  "claim": "High-stakes op completed (migrate): cat > /tmp/infisical_security_infra_migration.py << 'PYEOF'",
+  "conditions": ["bash", "bin", "cmd", "env", "python3", "tmp", "usr"],
+  "evidence_ids": [
+    "2026-07-26T09:31:55.238210+00:00",
+    "2026-07-26T09:33:12.097109+00:00",
+    "2026-07-26T13:13:13.051863+00:00"
+  ],
+  "cluster_size": 3,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-07-26T13:20:03.998102+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-26T13:20:03.998102+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

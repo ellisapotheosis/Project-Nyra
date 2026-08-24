@@ -1,0 +1,108 @@
+{
+  "id": "05fc96009e48",
+  "key": "pattern_executable_because_disable_05fc96",
+  "name": "pattern_executable_because_disable_05fc96",
+  "claim": "High-stakes op completed (deploy): # Fix CRLF line endings in scripts",
+  "conditions": [
+    "bash",
+    "because",
+    "cmd",
+    "disable",
+    "executable",
+    "git",
+    "hint",
+    "hook",
+    "husky",
+    "ignored",
+    "out",
+    "set",
+    "warning"
+  ],
+  "evidence_ids": [
+    "2026-07-20T16:55:31.099300+00:00",
+    "2026-07-25T17:14:22.809731+00:00",
+    "2026-07-25T22:54:49.009760+00:00"
+  ],
+  "cluster_size": 3,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-07-25T22:55:17.792691+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-07-25T22:55:17.792691+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T22:57:32.544199+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T22:58:36.578488+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-25T23:12:49.431433+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T01:51:27.392077+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T04:58:13.984856+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T08:26:54.577484+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T08:30:13.776682+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:18:36.154169+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:19:00.227830+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:33:19.245606+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T09:39:32.566816+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T12:36:18.460262+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T13:03:28.762849+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-07-26T13:20:03.997051+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

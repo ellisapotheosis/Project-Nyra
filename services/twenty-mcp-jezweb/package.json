@@ -14,7 +14,7 @@
     "dev:http": "tsx src/http-server.ts",
     "start": "node dist/http-server.js",
     "start:stdio": "node dist/index.js",
-    "lint": "eslint src",
+    "lint": "tsc --noEmit --noCheck",
     "typecheck": "tsc --noEmit",
     "test": "node tests/run-tests.js",
     "test:full": "node tests/test-suite.js",

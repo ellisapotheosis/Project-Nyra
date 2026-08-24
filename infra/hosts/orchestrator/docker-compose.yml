@@ -2,8 +2,8 @@ services:
   openclaw-gateway:
     build:
       context: ../../../services/openclaw
-      dockerfile: Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-openclaw-gateway
+      dockerfile: ../../infra/docker/build/services/openclaw/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openclaw-gateway
     profiles: ["apps"]
     ports:
       - "8001:18789"
@@ -19,7 +19,7 @@ services:
 
   # docker-mcp-toolkit:
   #   image: docker/mcp-toolkit:latest
-  #   container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-docker-toolkit
+  #   container_name: ${COMPOSE_PROJECT_NAME:-nyra}-docker-toolkit
   #   profiles: ["apps"]
   #   ports:
   #     - "8811:8811"
@@ -39,7 +39,7 @@ services:
 
   postgres-client:
     image: postgres:16-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-postgres-client
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-postgres-client
     profiles: ["debug"]
     environment:
       PGPASSWORD: ${POSTGRES_PASSWORD:-}
@@ -48,36 +48,37 @@ services:
     networks:
       - nyra-network
 
-  # NOTE: cloudflared is managed via the standalone overlay
-  # docker-compose.cloudflared.yml (use `make cf-orch-up`). It is intentionally
-  # NOT defined in this main compose so it can be stopped/started without
-  # affecting LiteLLM, Nexus, or Redis.
-
-  # ── Portainer CE Server (Central Management) ────────────────────────────
-  # The central UI/API for managing every Docker host through agents.
-  portainer:
-    image: portainer/portainer-ce:2.27.9
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-portainer
+  # ── Portainer Edge Agent ────────────────────────────────────────────────
+  # Orchestrator runs an edge agent connecting to central Portainer SE on
+  # oracle-vps per OMNIBUS Section 8.3 core-mgmt-protected group. Central UI
+  # (portainer-se) lives on oracle-vps; do NOT deploy portainer-ce here.
+  portainer-edge-agent:
+    image: portainer/agent:2.27.9
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-portainer-edge-agent
     restart: unless-stopped
-    ports:
-      - "8000:8000"
-      - "9000:9000"
-      - "9443:9443"
+    environment:
+      EDGE: "1"
+      EDGE_ID: ${PORTAINER_EDGE_ID}
+      EDGE_KEY: ${PORTAINER_EDGE_KEY}
+      EDGE_INSECURE_POLL: ${PORTAINER_EDGE_INSECURE_POLL:-1}
+      AGENT_CLUSTER_ADDR: tasks.portainer-edge-agent
+      AGENT_TAGS: ${PORTAINER_AGENT_TAGS:-nyra,orchestrator}
     volumes:
-      - portainer_data:/data
       - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks:
       - nyra-network
 
-  # ── Syncthing ───────────────────────────────────────────────────────────
+  # ── Syncthing (Receive-Only from canonical worker-rtx5090) ─────────────
   syncthing:
     profiles: ["sync"]
     image: syncthing/syncthing:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nyra-syncthing
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-syncthing
     network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
+      - SEND_ONLY=false
     volumes:
       - syncthing_config:/var/syncthing
       - /home/ellisapotheosis:/var/syncthing/data/home

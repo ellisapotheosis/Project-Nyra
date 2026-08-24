@@ -1,7 +1,0 @@
-{
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/home/ellisapotheosis/repos/project-nyra/security/infisical/agent-vault/prod.env\"}",
-  "error": "File does not exist. Note: your current working directory is /home/ellisapotheosis/repos/project-nyra.",
-  "timestamp": "2026-07-25T17:49:07.552Z",
-  "retry_count": 1
-}

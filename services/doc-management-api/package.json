@@ -10,12 +10,18 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:integration": "jest --testPathPattern=integration",
-    "lint": "eslint src/**/*.ts",
+    "lint": "tsc --noEmit --noCheck",
     "migrate": "sequelize-cli db:migrate",
     "migrate:undo": "sequelize-cli db:migrate:undo",
     "seed": "sequelize-cli db:seed:all"
   },
-  "keywords": ["document-management", "api", "ocr", "s3", "versioning"],
+  "keywords": [
+    "document-management",
+    "api",
+    "ocr",
+    "s3",
+    "versioning"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {

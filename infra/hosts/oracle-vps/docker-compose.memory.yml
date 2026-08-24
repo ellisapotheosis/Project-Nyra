@@ -56,7 +56,7 @@ services:
     <<: *common
     build:
       context: ../../..
-      dockerfile: services/mem0/Dockerfile
+      dockerfile: infra/docker/build/services/mem0/Dockerfile
     image: ${MEM0_IMAGE:-nyra/mem0-rest:local}
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mem0
     environment:

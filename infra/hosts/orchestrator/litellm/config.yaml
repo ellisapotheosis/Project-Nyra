@@ -17,6 +17,13 @@
 #   ANTHROPIC_API_KEY     — optional; for anthropic/* models
 
 model_list:
+  - model_name: local/qwen3.8-27b
+    litellm_params:
+      model: openai/Qwen/Qwen3.8-27B
+      api_base: http://worker-rtx5090.projectnyra.com:8000/v1
+      api_key: "not-needed"
+      timeout: 300
+
   # ── Local GPU — RTX 5090 (32 GB vLLM) ─────────────────────────────────────
   - model_name: local/gemma-4
     litellm_params:

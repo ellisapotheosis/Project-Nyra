@@ -3,7 +3,7 @@ name: Docker Build & Push
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 concurrency:
@@ -27,7 +27,7 @@ jobs:
       - name: Find all Dockerfiles
         id: set-matrix
         run: |
-          services=$(find . -name "Dockerfile" -not -path "*/node_modules/*" -not -path "*/.next/*" | \
+          services=$(find infra apps -name "Dockerfile" -not -path "*/node_modules/*" -not -path "*/.next/*" | \
             jq -R -s -c 'split("\n")[:-1] | map({
               dockerfile: .,
               name: (. | split("/") | .[1:-1] | join("-")),

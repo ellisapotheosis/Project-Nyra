@@ -69,9 +69,9 @@ routes:
     tunnel: oracle
     origin: http://n8n:5678
     exposure: public_auth
-  - hostname: gitea.projectnyra.com
+  - hostname: git.projectnyra.com
     tunnel: oracle
-    origin: http://gitea:3000
+    origin: http://forgejo:3000
     exposure: public_auth
   - hostname: activepieces.projectnyra.com
     tunnel: oracle
@@ -145,7 +145,7 @@ routes:
     origin_tls_verify: false
   - hostname: git-ssh.projectnyra.com
     tunnel: oracle
-    origin: ssh://gitea:2222
+    origin: ssh://forgejo:2222
     exposure: owner_only_cloudflared_access_ssh
     notes: Optional. Requires cloudflared access ssh client flow.
   - hostname: links.projectnyra.com
@@ -178,8 +178,6 @@ mcp_policy:
       origin: http://infisical-mcp:8766
     - hostname: mempalace-mcp.projectnyra.com
       origin: http://mempalace-mcp:8000
-    - hostname: gitea-mcp.projectnyra.com
-      origin: http://gitea-mcp:3101
     - hostname: git-mcp.projectnyra.com
       origin: http://git-mcp:8773
     - hostname: paperclip-mcp.projectnyra.com

@@ -356,8 +356,8 @@ agent-vault.trex-fiordland.ts.net {
 
 # --- Git & Source Control ---
 
-# Gitea Git Server
-gitea.trex-fiordland.ts.net {
+# Forgejo Git Server
+git.trex-fiordland.ts.net {
 	reverse_proxy localhost:3000 {
 		header_up X-Forwarded-For {http.request.remote.host}
 		header_up X-Forwarded-Proto https

@@ -36,15 +36,6 @@ mcp_servers:
     description: "Git repository operations MCP"
     timeout_ms: 30000
 
-  gitea:
-    type: http
-    url: "http://100.64.0.3:8780"
-    description: "Gitea API integration MCP"
-    timeout_ms: 30000
-    auth:
-      type: bearer
-      token: ${GITEA_API_TOKEN}
-
   # ── Web & Search ────────────────────────────────────────────────────────
   firecrawl:
     type: http
@@ -143,9 +134,8 @@ mcp_servers:
 tool_security:
   # Tools requiring explicit approval before execution
   dangerous_tools:
-    - wcgw  # Shell execution
-    - playwright  # Browser automation
-    - gitea.create_repository  # Repository creation
+    - wcgw # Shell execution
+    - playwright # Browser automation
 
 rate_limiting:
   max_requests_per_minute: 120

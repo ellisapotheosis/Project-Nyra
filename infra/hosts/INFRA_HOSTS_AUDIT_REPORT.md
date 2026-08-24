@@ -1,4 +1,5 @@
 # Infrastructure Hosts Audit & Remediation Report
+
 **Date**: 2026-04-25  
 **Scope**: `/infra/hosts/` directory structure and compose stack review
 
@@ -7,22 +8,26 @@
 ## ✅ FIXES APPLIED
 
 ### 1. **Removed Root-Level Compose File** ✅
+
 - **Issue**: `docker-compose.workers.yml` was a reference/template file at `/infra/hosts/` root
 - **Fix**: Moved to `infra/hosts/_templates/docker-compose.workers.reference.yml`
 - **Status**: ✓ Complete
 
 ### 2. **Standardized File Naming** ✅
+
 - **Issue**: `oracle-vps/compose.oracle.yml` didn't follow standard naming convention
 - **Fix**: Renamed to `docker-compose.oracle-core.yml` + removed deprecated `docker-compose.oracle.yml`
 - **Status**: ✓ Complete
 
 ### 3. **Added Missing Observability Stack to Orchestrator** ✅
+
 - **Issue**: Orchestrator had no observability/monitoring compose file
 - **Created**: `infra/hosts/orchestrator/docker-compose.observability.yml`
 - **Services**: Prometheus, Grafana, Loki, cAdvisor, Node-Exporter
 - **Status**: ✓ Complete
 
 ### 4. **Added Missing Observability Stack to worker-rtx3060** ✅
+
 - **Issue**: worker-rtx3060 was missing monitoring setup that other workers have
 - **Created**: `infra/hosts/worker-rtx3060/docker-compose.observability.yml`
 - **Services**: Prometheus, Grafana, Loki (local-only, port-bound to 127.0.0.1)
@@ -34,77 +39,77 @@
 
 ### Multi-Host Containers (Shared Infrastructure)
 
-| Service | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
-|---------|:----:|:----:|:----:|:----:|:----:|
-| **portainer** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **infisical-agent** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **secrets-init** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **portainer-edge-agent** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **prometheus** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **grafana** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **loki** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Service                  | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
+| ------------------------ | :----------: | :------------: | :--------------: | :------------: | :--------: |
+| **portainer**            |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
+| **infisical-agent**      |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
+| **secrets-init**         |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
+| **portainer-edge-agent** |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
+| **prometheus**           |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
+| **grafana**              |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
+| **loki**                 |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
 
 ### GPU Worker Stack
 
-| Service | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
-|---------|:----:|:----:|:----:|:----:|:----:|
-| **vllm** | - | ✅ | ✅ | - | - |
-| **vllm-server** | - | ✅ | ✅ | - | - |
-| **ollama** | - | - | - | ✅ | - |
-| **ollama-server** | - | - | - | ✅ | - |
-| **node-exporter** | ✅ | ✅ | ✅ | ✅ | - |
-| **gpu-exporter** | - | ✅ | ✅ | ✅ | - |
-| **cadvisor** | ✅ | ✅ | ✅ | - | ✅ |
+| Service           | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
+| ----------------- | :----------: | :------------: | :--------------: | :------------: | :--------: |
+| **vllm**          |      -       |       ✅       |        ✅        |       -        |     -      |
+| **vllm-server**   |      -       |       ✅       |        ✅        |       -        |     -      |
+| **ollama**        |      -       |       -        |        -         |       ✅       |     -      |
+| **ollama-server** |      -       |       -        |        -         |       ✅       |     -      |
+| **node-exporter** |      ✅      |       ✅       |        ✅        |       ✅       |     -      |
+| **gpu-exporter**  |      -       |       ✅       |        ✅        |       ✅       |     -      |
+| **cadvisor**      |      ✅      |       ✅       |        ✅        |       -        |     ✅     |
 
 ### Databases & State (Per-Host or Shared)
 
-| Service | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
-|---------|:----:|:----:|:----:|:----:|:----:|
-| **postgres** | - | ✅ | ✅ | - | ✅ |
-| **redis** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **mongo** | - | ✅ | ✅ | - | - |
-| **redis-cache** | - | ✅ | ✅ | - | ✅ |
+| Service         | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
+| --------------- | :----------: | :------------: | :--------------: | :------------: | :--------: |
+| **postgres**    |      -       |       ✅       |        ✅        |       -        |     ✅     |
+| **redis**       |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
+| **mongo**       |      -       |       ✅       |        ✅        |       -        |     -      |
+| **redis-cache** |      -       |       ✅       |        ✅        |       -        |     ✅     |
 
 ### Observability & Logging
 
-| Service | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
-|---------|:----:|:----:|:----:|:----:|:----:|
-| **promtail** | - | ✅ | ✅ | ✅ | - |
-| **health-monitor** | - | ✅ | ✅ | ✅ | - |
-| **model-switcher** | - | ✅ | ✅ | ✅ | - |
+| Service            | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
+| ------------------ | :----------: | :------------: | :--------------: | :------------: | :--------: |
+| **promtail**       |      -       |       ✅       |        ✅        |       ✅       |     -      |
+| **health-monitor** |      -       |       ✅       |        ✅        |       ✅       |     -      |
+| **model-switcher** |      -       |       ✅       |        ✅        |       ✅       |     -      |
 
 ### Orchestrator-Specific Services
 
-| Service | Purpose |
-|---------|---------|
-| **litellm** | LLM model router & gateway |
-| **nexus** | API gateway / router |
-| **nexus-onehop** | Alternative routing configuration |
-| **openclaw** | Assistant orchestration framework |
+| Service                | Purpose                               |
+| ---------------------- | ------------------------------------- |
+| **litellm**            | LLM model router & gateway            |
+| **nexus**              | API gateway / router                  |
+| **nexus-onehop**       | Alternative routing configuration     |
+| **openclaw**           | Assistant orchestration framework     |
 | **docker-mcp-toolkit** | Docker Model Context Protocol toolkit |
-| **pocket-tts** | Text-to-speech service |
-| **cloudflared** | Cloudflare tunnel (edge-agent) |
+| **pocket-tts**         | Text-to-speech service                |
+| **cloudflared**        | Cloudflare tunnel (edge-agent)        |
 
 ### Oracle-VPS Specific Services (CRM & Platform)
 
-| Service | Purpose |
-|---------|---------|
-| **twenty** | TwentyCRM - system of record |
-| **gitea** | Git repository & CI/CD |
-| **activepieces** | Workflow automation |
-| **qdrant** | Vector database |
-| **falkordb** | Knowledge graph database |
-| **openwebui** | Web UI for models (internal) |
-| **quote-api** | Quote generation API |
-| **campaign_engine** | Campaign orchestration |
+| Service             | Purpose                      |
+| ------------------- | ---------------------------- |
+| **twenty**          | TwentyCRM - system of record |
+| **gitea**           | Git repository & CI/CD       |
+| **activepieces**    | Workflow automation          |
+| **qdrant**          | Vector database              |
+| **falkordb**        | Knowledge graph database     |
+| **openwebui**       | Web UI for models (internal) |
+| **quote-api**       | Quote generation API         |
+| **campaign_engine** | Campaign orchestration       |
 
 ### Worker GPU Specialization
 
-| Worker | GPU | Specialization | Primary Services |
-|--------|-----|-----------------|------------------|
-| **worker-rtx5090** | RTX 5090 (48GB) | Large models, reasoning | vLLM, DeepSeek |
-| **worker-rtx3090ti** | RTX 3090 Ti (24GB) | General purpose, assistant | vLLM, OpenClaw, Nerve UI |
-| **worker-rtx3060** | RTX 3060 (12GB) | Smaller models, processing | Ollama, document processing |
+| Worker               | GPU                | Specialization             | Primary Services            |
+| -------------------- | ------------------ | -------------------------- | --------------------------- |
+| **worker-rtx5090**   | RTX 5090 (48GB)    | Large models, reasoning    | vLLM, DeepSeek              |
+| **worker-rtx3090ti** | RTX 3090 Ti (24GB) | General purpose, assistant | vLLM, OpenClaw, Nerve UI    |
+| **worker-rtx3060**   | RTX 3060 (12GB)    | Smaller models, processing | Ollama, document processing |
 
 ---
 
@@ -118,7 +123,6 @@ infra/hosts/orchestrator/
 ├── docker-compose.orchestrator.yml       (core: litellm, nexus, openclaw, redis)
 ├── docker-compose.cloudflared.yml        (cloudflare tunnel)
 ├── docker-compose.nexus-one-hop.yml      (alternative routing)
-├── docker-compose.voice.yml              (pocket-tts)
 ├── docker-compose.observability.yml      ✨ NEW (prometheus, grafana, loki, cadvisor)
 └── portainer-mesh/
     ├── docker-compose.portainer.orchestrator.yml
@@ -133,8 +137,6 @@ infra/hosts/worker-rtx5090/
 ├── docker-compose.worker-5090.yml        (GPU: vllm, litellm, exporter, health-monitor)
 ├── docker-compose.worker.yml             (port overrides: postgres, redis, grafana, etc)
 ├── docker-compose.gpu.yml                (vllm-server, lmcache, redis-cache)
-├── docker-compose.voice.yml              (unmute-standalone)
-├── docker-compose.distributed-voice.yml  (unmute-llm)
 └── cloudflared-config.yml                (cloudflare tunnel config)
 ```
 
@@ -146,8 +148,6 @@ infra/hosts/worker-rtx3090ti/
 ├── docker-compose.worker-3090.yml        (GPU: vllm, litellm, health-monitor)
 ├── docker-compose.worker.yml             (port overrides)
 ├── docker-compose.gpu.yml                (vllm-server, lmcache, redis-cache)
-├── docker-compose.voice.yml              (unmute-standalone)
-├── docker-compose.distributed-voice.yml  (unmute-tts)
 ├── docker-compose.assistant.yml          (openclaw, nerve-ui)
 ├── cloudflared-config.yml                (cloudflare tunnel config)
 └── promtail-config.yml                   (log shipping config)
@@ -161,8 +161,6 @@ infra/hosts/worker-rtx3060/
 ├── docker-compose.worker-3060.yml        (ollama, model-preloader, redis, health-monitor)
 ├── docker-compose.worker.yml             (port overrides)
 ├── docker-compose.gpu.yml                (ollama-server, ollama-model-loader)
-├── docker-compose.voice.yml              (unmute-standalone)
-├── docker-compose.distributed-voice.yml  (unmute-stt)
 ├── docker-compose.observability.yml      ✨ NEW (prometheus, grafana, loki - local)
 └── promtail-config.yml                   (log shipping config)
 ```
@@ -213,12 +211,12 @@ infra/hosts/oracle-vps/
 
 ## ✨ Summary
 
-| Item | Status |
-|------|--------|
-| Root-level compose files | ✅ Removed |
-| File naming consistency | ✅ Standardized |
-| Observability coverage | ✅ Complete (all 5 hosts) |
-| Port binding strategy | ✅ Consistent |
-| Documentation | ✅ This report |
+| Item                     | Status                    |
+| ------------------------ | ------------------------- |
+| Root-level compose files | ✅ Removed                |
+| File naming consistency  | ✅ Standardized           |
+| Observability coverage   | ✅ Complete (all 5 hosts) |
+| Port binding strategy    | ✅ Consistent             |
+| Documentation            | ✅ This report            |
 
 **All issues fixed. Infrastructure composition is now clean and consistent.**

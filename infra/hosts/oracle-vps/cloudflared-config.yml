@@ -44,8 +44,8 @@ ingress:
   - hostname: n8n.projectnyra.com
     service: http://n8n:5678
 
-  - hostname: gitea.projectnyra.com
-    service: http://gitea:3000
+  - hostname: git.projectnyra.com
+    service: http://forgejo:3000
 
   - hostname: activepieces.projectnyra.com
     service: http://activepieces:80
@@ -93,7 +93,7 @@ ingress:
 
   # Optional non-HTTP route. Use only with cloudflared access/SSH clients.
   - hostname: git-ssh.projectnyra.com
-    service: ssh://gitea:2222
+    service: ssh://forgejo:2222
 
   # Oracle catch-all. Required by cloudflared.
   - service: http_status:404

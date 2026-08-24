@@ -1,0 +1,22 @@
+{
+  "id": "9b75c1f4-ae8c-473f-b65d-ba63bdfb5839",
+  "name": "DOMAIN-OWNER-edaneandersen@gmail.com",
+  "uid": "9b75c1f4-ae8c-473f-b65d-ba63bdfb5839",
+  "decision": "allow",
+  "include": [
+    {
+      "cloudflare_account_member": {
+        "account_id": "2ff5950df9078417fde73fbb184da8a7"
+      }
+    }
+  ],
+  "require": [],
+  "exclude": [],
+  "reusable": true,
+  "app_count": 1,
+  "created_at": "2026-07-17T16:58:28Z",
+  "updated_at": "2026-07-17T16:58:28Z",
+  "connection_rules": {
+    "rdp": {}
+  }
+}

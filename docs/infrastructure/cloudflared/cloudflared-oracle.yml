@@ -67,14 +67,12 @@ ingress:
     service: http://infisical-mcp:8766
   - hostname: mempalace-mcp.projectnyra.com
     service: http://mempalace-mcp:8000
-  - hostname: gitea-mcp.projectnyra.com
-    service: http://gitea-mcp:3101
   - hostname: paperclip-mcp.projectnyra.com
     service: http://paperclip-mcp:8767
 
   # Git and observability
-  - hostname: gitea.projectnyra.com
-    service: http://gitea:3000
+  - hostname: git.projectnyra.com
+    service: http://forgejo:3000
   - hostname: grafana.projectnyra.com
     service: http://grafana:3000
   - hostname: prometheus.projectnyra.com

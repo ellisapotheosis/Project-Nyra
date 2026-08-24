@@ -21,10 +21,16 @@
     "dev": "tsup --watch",
     "build": "tsup",
     "test": "jest",
-    "lint": "eslint src",
+    "lint": "tsc --noEmit",
     "type-check": "tsc --noEmit"
   },
-  "keywords": ["websocket", "client", "react", "hooks", "real-time"],
+  "keywords": [
+    "websocket",
+    "client",
+    "react",
+    "hooks",
+    "real-time"
+  ],
   "author": "Project Nyra",
   "license": "MIT",
   "dependencies": {

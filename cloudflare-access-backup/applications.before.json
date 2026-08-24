@@ -1,0 +1,5350 @@
+{
+  "result": [
+    {
+      "id": "852ba30a-cf3d-4c42-a0af-57103dcd30ba",
+      "uid": "852ba30a-cf3d-4c42-a0af-57103dcd30ba",
+      "type": "self_hosted",
+      "name": "Nexus Router Gateway",
+      "aud": "d7e1916e05e58cdae35a1a4b106ae2806c1caa2e961805a027d5a26697a2dd7e",
+      "created_at": "2026-06-15T14:37:58Z",
+      "updated_at": "2026-07-26T03:02:36Z",
+      "domain": "nexus-router.projectnyra.com",
+      "self_hosted_domains": ["nexus-router.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "nexus-router.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": false,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-17T18:20:28Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "3e0ced6b-b201-459c-bd9f-12f531aafd5a",
+          "include": [
+            {
+              "linked_app_token": {
+                "app_uid": "3fe9281d-e040-4b9d-93dd-d532aefd1d58"
+              }
+            },
+            {
+              "linked_app_token": {
+                "app_uid": "852ba30a-cf3d-4c42-a0af-57103dcd30ba"
+              }
+            }
+          ],
+          "name": "MCP-Gateway-Tokens-Only",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "3e0ced6b-b201-459c-bd9f-12f531aafd5a",
+          "updated_at": "2026-07-26T02:38:30Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 2
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "allow_authenticate_via_warp": false,
+      "options_preflight_bypass": true,
+      "oauth_configuration": {
+        "enabled": false,
+        "dynamic_client_registration": {
+          "enabled": true,
+          "allowed_uris": [
+            "https://mcp-gateway.projectnyra.com/servers-callback",
+            "https://mcp-gateway.projectnyra.com/*",
+            "https://oauth-callbacks.cloudflareaccess.com/cdn-cgi/access/outbound-oauth-callback",
+            "https://oauth-callbacks.cloudflareaccess.com/*"
+          ],
+          "allow_any_on_localhost": true,
+          "allow_any_on_loopback": true
+        }
+      }
+    },
+    {
+      "id": "3fe9281d-e040-4b9d-93dd-d532aefd1d58",
+      "uid": "3fe9281d-e040-4b9d-93dd-d532aefd1d58",
+      "type": "mcp",
+      "name": "Project Nyra Nexus",
+      "aud": "9a80df2233f8d13147a7e85448eb2227e1581e4ddfbdfd4aec6bd67b7e64bf72",
+      "created_at": "2026-07-17T18:06:39Z",
+      "updated_at": "2026-07-26T02:50:29Z",
+      "destinations": [
+        {
+          "type": "via_mcp_server_portal",
+          "mcp_server_id": "nyra"
+        }
+      ],
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "cors_headers": {
+        "allow_all_headers": true,
+        "allow_all_methods": true,
+        "allow_all_origins": true
+      },
+      "policies": [
+        {
+          "created_at": "2026-07-17T18:20:28Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "3e0ced6b-b201-459c-bd9f-12f531aafd5a",
+          "include": [
+            {
+              "linked_app_token": {
+                "app_uid": "3fe9281d-e040-4b9d-93dd-d532aefd1d58"
+              }
+            },
+            {
+              "linked_app_token": {
+                "app_uid": "852ba30a-cf3d-4c42-a0af-57103dcd30ba"
+              }
+            }
+          ],
+          "name": "MCP-Gateway-Tokens-Only",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "3e0ced6b-b201-459c-bd9f-12f531aafd5a",
+          "updated_at": "2026-07-26T02:38:30Z",
+          "reusable": true,
+          "precedence": 1
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false,
+      "eager_redirect_cookie_setting": true
+    },
+    {
+      "id": "34176693-d14c-43b7-b94a-f690a3d5606b",
+      "uid": "34176693-d14c-43b7-b94a-f690a3d5606b",
+      "type": "self_hosted",
+      "name": "Infisical Agent Vault",
+      "aud": "47d4427e3dca7191b57d3cea1880ba0b1571895914a97216203640933b5d89e9",
+      "created_at": "2026-07-20T18:37:21Z",
+      "updated_at": "2026-07-26T02:48:05Z",
+      "domain": "infisical.projectnyra.com",
+      "self_hosted_domains": ["infisical.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "infisical.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false,
+      "eager_redirect_cookie_setting": true
+    },
+    {
+      "id": "986ee5d3-0dc4-4abf-b4ae-b8bf8b390558",
+      "uid": "986ee5d3-0dc4-4abf-b4ae-b8bf8b390558",
+      "type": "app_launcher",
+      "name": "App Launcher",
+      "aud": "089151a388b9dd4c3be365ddde4d8208706b822aabcab700e26d72098e91a36e",
+      "created_at": "2026-02-08T17:03:22Z",
+      "updated_at": "2026-07-26T02:10:29Z",
+      "domain": "projectnyra.cloudflareaccess.com",
+      "allowed_idps": [
+        "cc05bec4-97e4-4ea6-81cf-5dd02bd89146",
+        "88eb194f-75dc-49e4-b41b-795953834fd4",
+        "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+      ],
+      "session_duration": "24h",
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "landing_page_design": {},
+      "skip_app_launcher_login_page": false
+    },
+    {
+      "id": "25a4fa95-cf47-4bd4-9176-f66881eed0eb",
+      "uid": "25a4fa95-cf47-4bd4-9176-f66881eed0eb",
+      "type": "self_hosted",
+      "name": "Nyra Forgejo",
+      "aud": "d2c09a7fd095905b3efac3a607b9699067da6f8be1862252bad78cd79a36d8a8",
+      "created_at": "2026-06-02T11:08:00Z",
+      "updated_at": "2026-07-26T01:20:34Z",
+      "domain": "git.projectnyra.com",
+      "self_hosted_domains": ["git.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "git.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "6c802bac-60da-4059-bd64-ce31b72fb9f9",
+      "uid": "6c802bac-60da-4059-bd64-ce31b72fb9f9",
+      "type": "saas",
+      "name": "ChatGPT MCP-Gateway Client",
+      "aud": "59ce4b9a43234dbf625cc586af84cc23f1d2d0c217a673d300243784260573c0",
+      "created_at": "2026-07-20T19:40:32Z",
+      "updated_at": "2026-07-20T19:48:20Z",
+      "domain": "projectnyra.cloudflareaccess.com/cdn-cgi/access/sso/oidc/59ce4b9a43234dbf625cc586af84cc23f1d2d0c217a673d300243784260573c0",
+      "app_launcher_visible": true,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "allowed_idps": [],
+      "auto_redirect_to_identity": false,
+      "session_duration": "24h",
+      "tags": [],
+      "saas_app": {
+        "public_key": "-----BEGIN CERTIFICATE-----\nMIIDTDCCAjSgAwIBAgIQdEE8GTF5DcY62dDPJv8iVDANBgkqhkiG9w0BAQsFADBi\nMQswCQYDVQQGEwJVUzEOMAwGA1UECBMFVGV4YXMxDzANBgNVBAcTBkF1c3RpbjET\nMBEGA1UEChMKQ2xvdWRmbGFyZTEdMBsGA1UEAxMUY2xvdWRmbGFyZWFjY2Vzcy5j\nb20wHhcNMjYwNzIwMTk0MDMyWhcNMzYwNzIwMTk0MDMyWjBiMQswCQYDVQQGEwJV\nUzEOMAwGA1UECBMFVGV4YXMxDzANBgNVBAcTBkF1c3RpbjETMBEGA1UEChMKQ2xv\ndWRmbGFyZTEdMBsGA1UEAxMUY2xvdWRmbGFyZWFjY2Vzcy5jb20wggEiMA0GCSqG\nSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDDiyX30WHLJVBb9Eoms6qdjVSJ0QKFgcOg\noYYt4yA7HybdhWjtjfKjgKDrtALPLHHMHNxGKV9cUyP1EcIpjRA2Vnqmr1eHjQF4\nqdLYKgHVrzT1cArZO8XzV9TxJT7ZmFbKmCBWI/JlLZgUJfjwaexsGvMzc1t8UwBS\n1JASbI10jEieO2ZXXEmFWDSR0yI5l8vCr+z7AAJrrGquvMilbGCk+81QcC+AQa90\n193w5EfUcSgoIJ8IPCPJy5BtjcI1vgL6HJ2iRLkvNvbChRemc4PXZ4OG0pHkzAF3\nEhh5kCxn7UBVw3dL+yp5dL1KkmtDs+O09cQjV7lzqQsZCprvWdORAgMBAAEwDQYJ\nKoZIhvcNAQELBQADggEBACx/qqMOcc6+Agw2zh3TZMLoZKqSqo6DK2vBTJ25HXfT\nPW7HRy8F/VBd3jKIeOYq3M4XijbZuu+ckmGth2fAp5ppEaxM74DXK7Glh0BkxGV+\n/eJYQUWPJkkkLsCCvm8ar+wrVu7SPg6LPVar8bokfn/yerbHTQ0K9OHE/GjBBLq7\nfR67CLjYf9+201GPIhqoLvpphXVybiveoMZG0V6AQkwMxFkrFhUkaBxsCc7hmAXo\nnyXtnoFj/ADyr0XqQjAqW22NnmBPGZf0LaVO1Xxt8xtTUD54zymq1bXYxaiw/F7B\n+0zX1qTN4+bYAl0lovyMDS1AYiiIT1h11Xq+Hxg/Fd8=\n-----END CERTIFICATE-----\n",
+        "updated_at": "2026-07-20T20:37:54Z",
+        "created_at": "2026-07-20T19:40:32Z",
+        "setup_complete": true,
+        "auth_type": "oidc",
+        "client_id": "59ce4b9a43234dbf625cc586af84cc23f1d2d0c217a673d300243784260573c0",
+        "redirect_uris": ["https://chatgpt.com/connector/oauth/ScujoiRI23cB"],
+        "app_launcher_url": "https://chatgpt.com",
+        "grant_types": ["authorization_code"],
+        "scopes": ["openid", "email", "profile", "groups"],
+        "access_token_lifetime": "5m"
+      }
+    },
+    {
+      "id": "09703fab-f0ce-4a3d-ad34-ec892589fd58",
+      "uid": "09703fab-f0ce-4a3d-ad34-ec892589fd58",
+      "type": "mcp_portal",
+      "name": "MCP-Gateway",
+      "aud": "1b0269bd0949589956f0f3dd2e3165d547b525c64b8b5cf00ea01531816911df",
+      "created_at": "2026-07-17T10:00:19Z",
+      "updated_at": "2026-07-20T19:28:45Z",
+      "domain": "mcp-gateway.projectnyra.com",
+      "self_hosted_domains": ["mcp-gateway.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "mcp-gateway.projectnyra.com"
+        }
+      ],
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "cors_headers": {
+        "allow_all_headers": true,
+        "allow_all_methods": true,
+        "allow_all_origins": true
+      },
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": false,
+      "options_preflight_bypass": false,
+      "eager_redirect_cookie_setting": true,
+      "oauth_configuration": {
+        "enabled": true,
+        "dynamic_client_registration": {
+          "enabled": true,
+          "allowed_uris": ["https://chatgpt.com/connector/oauth/ScujoiRI23cB"],
+          "allow_any_on_localhost": true,
+          "allow_any_on_loopback": true
+        }
+      }
+    },
+    {
+      "id": "34dd69ae-6921-4f83-9416-b2af7246455a",
+      "uid": "34dd69ae-6921-4f83-9416-b2af7246455a",
+      "type": "dash_sso",
+      "name": "SSO App",
+      "aud": "825cdf125d44f9a97e6111f5fd1083e48f54777811950c7a8fa24602923e6fb0",
+      "created_at": "2026-07-12T12:13:41Z",
+      "updated_at": "2026-07-17T17:11:23Z",
+      "domain": "projectnyra.cloudflareaccess.com/cdn-cgi/access/sso/saml/825cdf125d44f9a97e6111f5fd1083e48f54777811950c7a8fa24602923e6fb0",
+      "app_launcher_visible": true,
+      "policies": [
+        {
+          "created_at": "2026-07-17T16:58:28Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "9b75c1f4-ae8c-473f-b65d-ba63bdfb5839",
+          "include": [
+            {
+              "cloudflare_account_member": {
+                "account_id": "2ff5950df9078417fde73fbb184da8a7"
+              }
+            }
+          ],
+          "name": "DOMAIN-OWNER-edaneandersen@gmail.com",
+          "require": [],
+          "connection_rules": {
+            "rdp": {}
+          },
+          "uid": "9b75c1f4-ae8c-473f-b65d-ba63bdfb5839",
+          "updated_at": "2026-07-17T16:58:28Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-15T08:53:47Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "c49a2cfd-b5f1-4acd-a6e2-d71e4688b31c",
+          "include": [
+            {
+              "email_domain": {
+                "domain": "ratehunter.net"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "projectnyra.com"
+              }
+            },
+            {
+              "device_posture": {
+                "integration_uid": "f60ba2ec-0047-4511-b59e-8f5e63b02389"
+              }
+            },
+            {
+              "any_valid_service_token": {}
+            },
+            {
+              "cloudflare_account_member": {
+                "account_id": "2ff5950df9078417fde73fbb184da8a7"
+              }
+            },
+            {
+              "group": {
+                "id": "04f027b4-5377-4a95-821c-fc76ed97e177"
+              }
+            },
+            {
+              "group": {
+                "id": "0e6f3dd6-61ac-4bc1-aa94-044d21215128"
+              }
+            },
+            {
+              "group": {
+                "id": "6290c676-cb4b-4482-a87e-fe048d4cab8a"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            },
+            {
+              "login_method": {
+                "id": "d2ed2689-d3d2-4cef-b26b-ce9ef99a7443"
+              }
+            },
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            }
+          ],
+          "name": "Nyra Personal/Family (Domains Only)",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "session_duration": "24h",
+          "uid": "c49a2cfd-b5f1-4acd-a6e2-d71e4688b31c",
+          "updated_at": "2026-07-17T17:10:44Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "allowed_idps": [],
+      "auto_redirect_to_identity": false,
+      "session_duration": "24h",
+      "tags": [],
+      "saas_app": {
+        "public_key": "-----BEGIN CERTIFICATE-----\nMIIDTTCCAjWgAwIBAgIRAJOUNrR9XsSwXlmAbSfLf08wDQYJKoZIhvcNAQELBQAw\nYjELMAkGA1UEBhMCVVMxDjAMBgNVBAgTBVRleGFzMQ8wDQYDVQQHEwZBdXN0aW4x\nEzARBgNVBAoTCkNsb3VkZmxhcmUxHTAbBgNVBAMTFGNsb3VkZmxhcmVhY2Nlc3Mu\nY29tMB4XDTI2MDcxMjEyMTM0MVoXDTM2MDcxMjEyMTM0MVowYjELMAkGA1UEBhMC\nVVMxDjAMBgNVBAgTBVRleGFzMQ8wDQYDVQQHEwZBdXN0aW4xEzARBgNVBAoTCkNs\nb3VkZmxhcmUxHTAbBgNVBAMTFGNsb3VkZmxhcmVhY2Nlc3MuY29tMIIBIjANBgkq\nhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApLg2hNYURxKnGwz6z6XCRvuyt1gtP9JS\nxdRbSEfUGBpVWS4B7p+d2LYuUJpuHqrjhCI9fgXzJfltSPK3hBSWSV8EUoT3zDGl\neGigny0sSkph2clxC4aG6VXV2V4fjngXNWSS1caU/UZg833IPK6KOyZGKhephkY2\npFeuuqrnRp45ffk79Lsj7AwUn1g9Ry4bXrxP+HsYJAUMk8majMRW05jg5I3QjV5e\nHg86fTCYOYOzLlfbMD7D8wYv6DAqiNgYKN5/DF8jxl2IJp24eHBmVypF4ugEL9uw\n+BIqx7GNLRNUwHLyADrtydavhKvs2NRAEjFULiStQe0m1Lmqztq5AwIDAQABMA0G\nCSqGSIb3DQEBCwUAA4IBAQB51bbDaZXGP5IHg780LkLNp/ZZhR/p9/L8VwaFRGE2\nqF7Tiw5mfxYE9ho3kBdbR07xBJH/GTmS9FJgMCqn+SGK9wG7fnHnsduBQsG2K6cG\nzEdBCNJ7AOcFGHZhxesE/GG/zyiSjFbLVY7oaoctsrGrQlmdyLcpUwRnh4YJqYS3\nI8MdlpEDP+fa+aPrIqYHKYSPKoq89fteRcQfVx3ZIR1rFmcs1RXKIzo7E8U6zSsV\nHTBuHZ60erHjBpdIcRX4NMFJnVDzWnIxpt2H3ncO8XSGY88JcZ+GQHG8Wk+LFR0t\ntr+j/lSQjkG5cPCH4yigMC2WFTnYlB/6bxS4DGMbwjAI\n-----END CERTIFICATE-----\n",
+        "updated_at": "2026-07-17T17:11:23Z",
+        "created_at": "2026-07-12T12:13:41Z",
+        "setup_complete": true,
+        "auth_type": "saml",
+        "sso_endpoint": "https://projectnyra.cloudflareaccess.com/cdn-cgi/access/sso/saml/825cdf125d44f9a97e6111f5fd1083e48f54777811950c7a8fa24602923e6fb0",
+        "consumer_service_url": "https://dash.cloudflare.com/api/v4/saml/acs",
+        "sp_entity_id": "dash.cloudflare.com",
+        "idp_entity_id": "https://projectnyra.cloudflareaccess.com/825cdf125d44f9a97e6111f5fd1083e48f54777811950c7a8fa24602923e6fb0",
+        "name_id_format": "id"
+      }
+    },
+    {
+      "id": "8a7a2662-33e9-4cf8-a36e-8c4f79f2c44c",
+      "uid": "8a7a2662-33e9-4cf8-a36e-8c4f79f2c44c",
+      "type": "self_hosted",
+      "name": "agent-vault",
+      "aud": "d446f0bbf0b4ed82063d159250ce6cd7aacfdc3c2b3aaf291fc1b55cb5fcd5fe",
+      "created_at": "2026-06-14T03:39:12Z",
+      "updated_at": "2026-07-17T13:34:20Z",
+      "domain": "agent-vault.projectnyra.com",
+      "self_hosted_domains": ["agent-vault.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "agent-vault.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "e1a40212-2308-45f1-aeeb-6fef336b215f",
+      "uid": "e1a40212-2308-45f1-aeeb-6fef336b215f",
+      "type": "self_hosted",
+      "name": "n8n Webhooks",
+      "aud": "b3af35902211897029aa4098bbf572f39e106c4188fc48bca94711bf64404618",
+      "created_at": "2026-06-16T18:18:26Z",
+      "updated_at": "2026-07-17T13:26:54Z",
+      "domain": "hooks.projectnyra.com",
+      "self_hosted_domains": ["hooks.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "hooks.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "04593ec9-aa54-4830-baf0-1bcb4bcd57d4",
+      "uid": "04593ec9-aa54-4830-baf0-1bcb4bcd57d4",
+      "type": "self_hosted",
+      "name": "Nyra Linkwarden",
+      "aud": "8f77c9422464fa2b472a9911531b8b68955aa3a973a4b1e5c7878efefafbdd39",
+      "created_at": "2026-05-28T22:49:25Z",
+      "updated_at": "2026-07-17T13:26:32Z",
+      "domain": "linkwarden.projectnyra.com",
+      "self_hosted_domains": ["linkwarden.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "linkwarden.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "0c8eec22-7630-4296-a293-2eb0dc412784",
+      "uid": "0c8eec22-7630-4296-a293-2eb0dc412784",
+      "type": "self_hosted",
+      "name": "Nyra Composio Gateway",
+      "aud": "8a6946af6b69da5122b2a0aea804409ce875ab7d8611b3e153de6d223e591e75",
+      "created_at": "2026-06-12T04:17:51Z",
+      "updated_at": "2026-07-17T13:26:20Z",
+      "domain": "composio.projectnyra.com",
+      "self_hosted_domains": ["composio.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "composio.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "dcd4e1c7-5774-49a5-91cc-28e928416a6a",
+      "uid": "dcd4e1c7-5774-49a5-91cc-28e928416a6a",
+      "type": "self_hosted",
+      "name": "Nyra OpenLit",
+      "aud": "e66e14b1355db294f98ad30b2cfa341423265086c1037f40141906c6ef409019",
+      "created_at": "2026-06-12T15:34:03Z",
+      "updated_at": "2026-07-17T13:25:56Z",
+      "domain": "openlit.projectnyra.com",
+      "self_hosted_domains": ["openlit.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "openlit.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "12e7a6a8-0c19-4a15-a25a-9d82b274f5ab",
+      "uid": "12e7a6a8-0c19-4a15-a25a-9d82b274f5ab",
+      "type": "self_hosted",
+      "name": "Nyra Activepieces",
+      "aud": "b36c96f76c32ecff48a6554e2d2b240c538547370add4ec0c3ec778c1702cad1",
+      "created_at": "2026-05-28T22:49:18Z",
+      "updated_at": "2026-07-17T13:25:39Z",
+      "domain": "activepieces.projectnyra.com",
+      "self_hosted_domains": ["activepieces.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "activepieces.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "41432ed1-c613-4f30-849b-8709b15b89f3",
+      "uid": "41432ed1-c613-4f30-849b-8709b15b89f3",
+      "type": "self_hosted",
+      "name": "Nyra CRM Gateway",
+      "aud": "f7def84f4901c484479e1e1f795979d4e8cd817d74db3eab561694ce0f4630b2",
+      "created_at": "2026-06-02T11:08:02Z",
+      "updated_at": "2026-07-17T13:25:19Z",
+      "domain": "crm.projectnyra.com",
+      "self_hosted_domains": ["crm.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "crm.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "00049717-3b83-4b46-bb9c-601dcb777524",
+      "uid": "00049717-3b83-4b46-bb9c-601dcb777524",
+      "type": "self_hosted",
+      "name": "Nyra Unified WebApp",
+      "aud": "edfb235c1619756a515fda2ba3f5def38d2ea9f2d128a9c652764c0e19946076",
+      "created_at": "2026-06-12T04:17:40Z",
+      "updated_at": "2026-07-17T13:24:48Z",
+      "domain": "app.projectnyra.com",
+      "self_hosted_domains": ["app.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "app.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "162b948c-dffd-429a-896c-6e1a20aeeb0e",
+      "uid": "162b948c-dffd-429a-896c-6e1a20aeeb0e",
+      "type": "self_hosted",
+      "name": "Nyra Open WebUI",
+      "aud": "7b90287f4646e22ce0b398cfaa96f86b24759facb21498e373d4d7157323284f",
+      "created_at": "2026-05-28T22:49:21Z",
+      "updated_at": "2026-07-17T13:24:31Z",
+      "domain": "openwebui.projectnyra.com",
+      "self_hosted_domains": ["openwebui.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "openwebui.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "aa1c6d38-62a2-44d3-97e2-ae259cc60c25",
+      "uid": "aa1c6d38-62a2-44d3-97e2-ae259cc60c25",
+      "type": "self_hosted",
+      "name": "openclaw.projectnyra.com",
+      "aud": "107344998fc3edc6070f6a9e7e2f8146ea1cec606c26e8ef86f9c00eec3c7414",
+      "created_at": "2026-06-03T12:48:35Z",
+      "updated_at": "2026-07-17T13:21:50Z",
+      "domain": "openclaw.projectnyra.com",
+      "self_hosted_domains": ["openclaw.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "openclaw.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "6ba13d44-466c-46c5-a720-c6828b4b7d4e",
+      "uid": "6ba13d44-466c-46c5-a720-c6828b4b7d4e",
+      "type": "self_hosted",
+      "name": "Nyra LiteLLM",
+      "aud": "405bab6f359f7b139a86991dc051ae427ef31a4ff8bcf46282dca103b88f6230",
+      "created_at": "2026-05-28T22:49:22Z",
+      "updated_at": "2026-07-17T13:21:34Z",
+      "domain": "litellm.projectnyra.com",
+      "self_hosted_domains": ["litellm.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "litellm.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "af87f4c1-9c02-4c0f-b347-f3b40d39d388",
+      "uid": "af87f4c1-9c02-4c0f-b347-f3b40d39d388",
+      "type": "self_hosted",
+      "name": "Nyra Nexus UI",
+      "aud": "ea2e565bf1819d11ff3b4af206d988a8dd85b64bb9af00ef10d3de297be7b805",
+      "created_at": "2026-05-28T22:49:22Z",
+      "updated_at": "2026-07-17T13:21:17Z",
+      "domain": "nexus.projectnyra.com",
+      "self_hosted_domains": ["nexus.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "nexus.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "65797b9a-80de-492b-9d53-05b6490176a9",
+      "uid": "65797b9a-80de-492b-9d53-05b6490176a9",
+      "type": "self_hosted",
+      "name": "Nyra Links",
+      "aud": "afae84b962db9ce2c4e4d43193784269e7467d2de222b7c636213384f479bb79",
+      "created_at": "2026-05-28T22:49:25Z",
+      "updated_at": "2026-07-17T13:21:02Z",
+      "domain": "links.projectnyra.com",
+      "self_hosted_domains": ["links.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "links.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "ba672f30-7a6e-41e8-903e-40b9a3128620",
+      "uid": "ba672f30-7a6e-41e8-903e-40b9a3128620",
+      "type": "self_hosted",
+      "name": "Nyra Oracle Portainer",
+      "aud": "1727b5baa68f933c37845cc4b161da7b53e020f8efabeed8b7c08b5ff7cac7cb",
+      "created_at": "2026-05-28T22:49:24Z",
+      "updated_at": "2026-07-17T13:20:48Z",
+      "domain": "portainer-oracle.projectnyra.com",
+      "self_hosted_domains": ["portainer-oracle.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "portainer-oracle.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "286e1474-b0e0-469a-b2a5-21cf76e64962",
+      "uid": "286e1474-b0e0-469a-b2a5-21cf76e64962",
+      "type": "self_hosted",
+      "name": "Nyra ClawTeam",
+      "aud": "332d3b289a09428ee7b0ebd0ca90607ea6285941f13ea755b15eec767c8308d8",
+      "created_at": "2026-05-28T22:49:23Z",
+      "updated_at": "2026-07-17T13:20:31Z",
+      "domain": "clawteam.projectnyra.com",
+      "self_hosted_domains": ["clawteam.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "clawteam.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "da50651e-fd3a-4596-a018-33e164fc606b",
+      "uid": "da50651e-fd3a-4596-a018-33e164fc606b",
+      "type": "self_hosted",
+      "name": "Nyra Prometheus",
+      "aud": "84d027fd06661a0df1e09ad4b51c98f1c41ec62ca26ecfd79838e81c5c10cb4b",
+      "created_at": "2026-05-28T22:49:20Z",
+      "updated_at": "2026-07-17T13:19:59Z",
+      "domain": "prometheus.projectnyra.com",
+      "self_hosted_domains": ["prometheus.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "prometheus.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "a89d188b-8d7b-45f6-8d5f-2a337cc1ebc7",
+      "uid": "a89d188b-8d7b-45f6-8d5f-2a337cc1ebc7",
+      "type": "self_hosted",
+      "name": "Nyra cAdvisor",
+      "aud": "bb5bd0eb6767e906fd343730e94c8cae8589c43aeca9455689b944ba027ac2c1",
+      "created_at": "2026-05-28T22:49:20Z",
+      "updated_at": "2026-07-17T13:19:35Z",
+      "domain": "cadvisor.projectnyra.com",
+      "self_hosted_domains": ["cadvisor.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "cadvisor.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "2b2bb390-adc6-4508-9f71-29e95f33609c",
+      "uid": "2b2bb390-adc6-4508-9f71-29e95f33609c",
+      "type": "self_hosted",
+      "name": "Nyra Grafana",
+      "aud": "f0221e96be22df1cf4e268205d39d6955acfbeecef7684aa59343e5e0b96c4e2",
+      "created_at": "2026-05-28T22:49:19Z",
+      "updated_at": "2026-07-17T13:19:09Z",
+      "domain": "grafana.projectnyra.com",
+      "self_hosted_domains": ["grafana.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "grafana.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "c8f7ae05-f254-43ef-be71-f644f95a388a",
+      "uid": "c8f7ae05-f254-43ef-be71-f644f95a388a",
+      "type": "self_hosted",
+      "name": "Nyra n8n",
+      "aud": "63be6cc201f6dd134f54be5a7bdf1ace9fbae3a46cf66519b120e708df188049",
+      "created_at": "2026-05-28T22:49:18Z",
+      "updated_at": "2026-07-17T13:18:51Z",
+      "domain": "n8n.projectnyra.com",
+      "self_hosted_domains": ["n8n.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "n8n.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "a79343ed-5ead-4b20-abbd-273a45044f0f",
+      "uid": "a79343ed-5ead-4b20-abbd-273a45044f0f",
+      "type": "self_hosted",
+      "name": "Nyra Twenty CRM",
+      "aud": "d63f3fe77b4cec1e2589fca81a5da753c45913ef5eb75136d520fbc7c831c9a8",
+      "created_at": "2026-05-28T22:49:17Z",
+      "updated_at": "2026-07-17T13:17:15Z",
+      "domain": "twenty.projectnyra.com",
+      "self_hosted_domains": ["twenty.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "twenty.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "561138e0-d26f-46bf-ab3c-46a64befe472",
+      "uid": "561138e0-d26f-46bf-ab3c-46a64befe472",
+      "type": "self_hosted",
+      "name": "nerve.projectnyra.com",
+      "aud": "3e81dda3b2442f7f6fa2d2c0c5e38584b392c5094317c690d43b39cb049585af",
+      "created_at": "2026-06-03T12:48:34Z",
+      "updated_at": "2026-07-17T13:16:30Z",
+      "domain": "nerve.projectnyra.com",
+      "self_hosted_domains": ["nerve.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "nerve.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": ["d2ed2689-d3d2-4cef-b26b-ce9ef99a7443"],
+      "tags": [],
+      "auto_redirect_to_identity": true,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "fa60ff91-35d6-44c1-991b-a55fe170d4b3",
+      "uid": "fa60ff91-35d6-44c1-991b-a55fe170d4b3",
+      "type": "self_hosted",
+      "name": "Automation Webapp",
+      "aud": "6903109410ea8dd9a8993e62a3586722a24b4e92d25bd9b5f2a151a92d7c98e0",
+      "created_at": "2026-06-02T11:08:01Z",
+      "updated_at": "2026-07-17T13:16:05Z",
+      "domain": "flow.projectnyra.com",
+      "self_hosted_domains": ["flow.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "flow.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": false,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "41e57043-efb1-4be9-ae71-4b097396b6d7",
+      "uid": "41e57043-efb1-4be9-ae71-4b097396b6d7",
+      "type": "self_hosted",
+      "name": "Nyra OpenClaw Gateway",
+      "aud": "3985e69b35c70a2034c6287424f3711dcdab9821436e4cfa3fd2ada51c550578",
+      "created_at": "2026-05-28T22:49:27Z",
+      "updated_at": "2026-07-17T13:15:42Z",
+      "domain": "openclaw-gateway.projectnyra.com",
+      "self_hosted_domains": ["openclaw-gateway.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "openclaw-gateway.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "48bafed2-1222-49c1-b93d-48a01905d73f",
+      "uid": "48bafed2-1222-49c1-b93d-48a01905d73f",
+      "type": "self_hosted",
+      "name": "Nyra Portainer",
+      "aud": "6ce3c2ce30cb6d5f44318182f0ce488ad0e4e163597a8ebab21983fd71206472",
+      "created_at": "2026-06-01T06:00:41Z",
+      "updated_at": "2026-07-17T13:15:03Z",
+      "domain": "portainer.projectnyra.com",
+      "self_hosted_domains": ["portainer.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "portainer.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "87025c5a-9d93-40fa-85a3-56ff66e9a2dd",
+      "uid": "87025c5a-9d93-40fa-85a3-56ff66e9a2dd",
+      "type": "self_hosted",
+      "name": "Letta",
+      "aud": "7c3b3e568543064acf754d8934f7c0b4f72e86adaa8eeca7ae646b3c09eed6ea",
+      "created_at": "2026-06-16T18:18:27Z",
+      "updated_at": "2026-07-17T13:14:44Z",
+      "domain": "letta.projectnyra.com",
+      "self_hosted_domains": ["letta.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "letta.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "7ebbe2fa-f17c-439d-96c9-a75ef50e25d9",
+      "uid": "7ebbe2fa-f17c-439d-96c9-a75ef50e25d9",
+      "type": "self_hosted",
+      "name": "Paperclip",
+      "aud": "f6ac470d949e7533288b963f6b883f421778c0c70a7590e31090e195d7e3f85a",
+      "created_at": "2026-06-16T18:18:26Z",
+      "updated_at": "2026-07-17T13:13:59Z",
+      "domain": "paperclip.projectnyra.com",
+      "self_hosted_domains": ["paperclip.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "paperclip.projectnyra.com"
+        }
+      ],
+      "app_launcher_visible": true,
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": true,
+      "options_preflight_bypass": false
+    },
+    {
+      "id": "96ae7064-0c12-4c53-aac5-b8829e2ef457",
+      "uid": "96ae7064-0c12-4c53-aac5-b8829e2ef457",
+      "type": "mcp_portal",
+      "name": "MCP Server Portal",
+      "aud": "425866543e3db5a24c181c3db6786283af645f6b3e7b526d46f2353e8c04b00e",
+      "created_at": "2026-07-15T12:35:09Z",
+      "updated_at": "2026-07-15T12:43:54Z",
+      "domain": "mcp-portal.projectnyra.com",
+      "self_hosted_domains": ["mcp-portal.projectnyra.com"],
+      "destinations": [
+        {
+          "type": "public",
+          "uri": "mcp-portal.projectnyra.com"
+        }
+      ],
+      "allowed_idps": [],
+      "tags": [],
+      "auto_redirect_to_identity": false,
+      "cors_headers": {
+        "allow_all_headers": true,
+        "allow_all_methods": true,
+        "allow_all_origins": true
+      },
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "session_duration": "24h",
+      "enable_binding_cookie": false,
+      "http_only_cookie_attribute": false,
+      "options_preflight_bypass": false,
+      "eager_redirect_cookie_setting": true,
+      "oauth_configuration": {
+        "enabled": true,
+        "dynamic_client_registration": {
+          "enabled": true,
+          "allowed_uris": [],
+          "allow_any_on_localhost": true,
+          "allow_any_on_loopback": true
+        }
+      }
+    },
+    {
+      "id": "40360905-46d5-4106-8fdc-4bb914d5f5e3",
+      "uid": "40360905-46d5-4106-8fdc-4bb914d5f5e3",
+      "type": "warp",
+      "name": "Warp Login App",
+      "aud": "a7f0b0e70a9d0f159657e18dc1d32db7ad1332353004a8d3d3adc9fd1bb540b0",
+      "created_at": "2025-11-18T06:02:32Z",
+      "updated_at": "2026-07-15T10:37:06Z",
+      "domain": "projectnyra.cloudflareaccess.com/warp",
+      "allowed_idps": [],
+      "session_duration": "24h",
+      "auto_redirect_to_identity": false,
+      "policies": [
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "include": [
+            {
+              "login_method": {
+                "id": "94fc5a38-04c6-43ed-b5ba-45581ef18968"
+              }
+            },
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "login_method": {
+                "id": "cc05bec4-97e4-4ea6-81cf-5dd02bd89146"
+              }
+            }
+          ],
+          "name": "Nyra Personal",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "868c3693-203c-4479-94d3-7f7e2a375a5d",
+          "updated_at": "2026-07-26T02:27:37Z",
+          "reusable": true,
+          "precedence": 1
+        },
+        {
+          "created_at": "2026-07-12T19:33:36Z",
+          "decision": "allow",
+          "exclude": [],
+          "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "include": [
+            {
+              "login_method": {
+                "id": "88eb194f-75dc-49e4-b41b-795953834fd4"
+              }
+            },
+            {
+              "email_domain": {
+                "domain": "monitapu.com"
+              }
+            },
+            {
+              "email": {
+                "email": "andersenj949@gmail.com"
+              }
+            }
+          ],
+          "name": "Nyra Family",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text"],
+              "allowed_clipboard_remote_to_local_formats": ["text"]
+            }
+          },
+          "purpose_justification_required": true,
+          "purpose_justification_prompt": "Tell me about Simba...?",
+          "approval_required": true,
+          "approval_groups": [
+            {
+              "email_addresses": [
+                "edaneandersen@gmail.com",
+                "ellisandersen@ratehunter.net",
+                "ellisandersen@projectnyra.com"
+              ],
+              "approvals_needed": 1
+            }
+          ],
+          "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+          "updated_at": "2026-07-26T02:31:18Z",
+          "reusable": true,
+          "precedence": 2
+        },
+        {
+          "created_at": "2026-07-12T19:33:37Z",
+          "decision": "non_identity",
+          "exclude": [],
+          "id": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "include": [
+            {
+              "service_token": {
+                "token_id": "6d125095-42e9-4e52-8865-42943bd62d2c"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "50c305de-685b-4c52-aad6-395aa9accd15"
+              }
+            },
+            {
+              "service_token": {
+                "token_id": "b932f34e-c41f-46e1-aff2-128d6a38f757"
+              }
+            }
+          ],
+          "name": "Nyra Agents",
+          "require": [],
+          "connection_rules": {
+            "rdp": {
+              "allowed_clipboard_local_to_remote_formats": ["text", "file"],
+              "allowed_clipboard_remote_to_local_formats": ["text", "file"]
+            }
+          },
+          "uid": "f71b5cd9-a959-41cb-8f29-34de766e4aa6",
+          "updated_at": "2026-07-26T02:32:12Z",
+          "reusable": true,
+          "precedence": 3
+        }
+      ],
+      "tags": []
+    }
+  ],
+  "success": true,
+  "errors": [],
+  "messages": [],
+  "result_info": {
+    "page": 1,
+    "per_page": 1000,
+    "count": 36,
+    "total_count": 36,
+    "total_pages": 1
+  }
+}

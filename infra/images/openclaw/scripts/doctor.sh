@@ -3,7 +3,6 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 ENV_OPENCLAW="${ENV_OPENCLAW:-$ROOT_DIR/infra/env/openclaw.env}"
-ENV_VOICE="${ENV_VOICE:-$ROOT_DIR/infra/env/openclaw.voice.env}"
 ENV_UI="${ENV_UI:-$ROOT_DIR/infra/env/openclaw.ui.env}"
 
 warn=0
@@ -29,7 +28,7 @@ fi
 command -v docker >/dev/null 2>&1 && ok "command 'docker' found" || ng "command 'docker' not found"
 [[ -n "$PYCMD" ]] && ok "python interpreter found: $PYCMD" || ng "python interpreter not found"
 
-for f in "$ENV_OPENCLAW" "$ENV_VOICE" "$ENV_UI" "$ROOT_DIR/infra/openclaw/ui/nginx.conf"; do
+for f in "$ENV_OPENCLAW" "$ENV_UI" "$ROOT_DIR/infra/openclaw/ui/nginx.conf"; do
   [[ -f "$f" ]] && ok "file exists: $f" || ng "missing file: $f"
 done
 
@@ -52,7 +51,6 @@ if [[ -n "$PYCMD" ]]; then
 import yaml
 for f in [
 "$ROOT_DIR/infra/compose/openclaw.compose.yml",
-"$ROOT_DIR/infra/compose/openclaw.voice.compose.yml",
 "$ROOT_DIR/infra/compose/openclaw.ui.compose.yml",
 "$ROOT_DIR/infra/compose/openclaw.ops.compose.yml",
 ]:

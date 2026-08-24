@@ -3,6 +3,104 @@
   "note": "Create proxied CNAME records to <tunnel-id>.cfargotunnel.com. RateHunter apex/www stay in the ratehunter.net Pages project and are not managed here.",
   "records": [
     {
+      "name": "ha",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Home Assistant (100.64.0.2:8123)"
+    },
+    {
+      "name": "portainer-vps",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Portainer on oracle-vps (100.64.0.3:9000)"
+    },
+    {
+      "name": "portainer-orch",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Portainer on orchestrator (100.64.0.10:9000)"
+    },
+    {
+      "name": "linkwarden",
+      "type": "CNAME",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Linkwarden (100.64.0.2:3000)"
+    },
+    {
+      "name": "nexus-router",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Nexus Router (100.64.0.10:3000)"
+    },
+    {
+      "name": "mcp-gateway",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: MCP Gateway (Cloudflare-hosted, routes via orchestrator)"
+    },
+    {
+      "name": "litellm",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: LiteLLM (100.64.0.10:4000)"
+    },
+    {
+      "name": "git",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Forgejo Git (100.64.0.10:3000)"
+    },
+    {
+      "name": "forgejo",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Forgejo (100.64.0.10:3000)"
+    },
+    {
+      "name": "nerve",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Nerve agent backend (100.64.0.10:PORT)"
+    },
+    {
+      "name": "openclaw",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: OpenClaw agent tools (100.64.0.10:PORT)"
+    },
+    {
+      "name": "openclaw-gateway",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: OpenClaw gateway (100.64.0.10:8001)"
+    },
+    {
+      "name": "hermes",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Hermes agent (100.64.0.10:PORT)"
+    },
+    {
+      "name": "hermes-gateway",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "OMNIBUS 5.1: Hermes gateway (100.64.0.10:8763)"
+    },
+    {
       "name": "app",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
@@ -34,12 +132,6 @@
     },
     {
       "name": "n8n",
-      "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "gitea",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
@@ -81,18 +173,6 @@
       "proxied": true
     },
     {
-      "name": "nexus-router",
-      "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "litellm",
-      "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
       "name": "paperclip",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
@@ -119,19 +199,7 @@
     {
       "name": "links",
       "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "linkwarden",
-      "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
-      "name": "openclaw-gateway",
-      "type": "CNAME",
-      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
       "proxied": true
     }
   ]

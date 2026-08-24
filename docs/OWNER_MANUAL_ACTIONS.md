@@ -17,8 +17,9 @@ Owner actions after the automated backup succeeds:
    maintenance window for a side-by-side Forgejo 10.0.1 staging migration.
 3. Create a Forgejo administrator and Actions runner registration token after
    staging passes repository, LFS, package, webhook, clone, and SSH checks.
-4. Store those values only in Infisical paths `/apps/forgejo` and
-   `/apps/forgejo-runner`, then run
+4. Store those values only in Infisical paths `/infra/staging/forgejo` and
+   `/infra/staging/forgejo-runner` in the applicable `dev`, `staging`, and
+   `prod` environments, then run
    `scripts/infisical/sync-forgejo-secrets.sh` on the deployment host.
 5. Approve the final Forgejo 16 upgrade and Cloudflare `git.projectnyra.com`
    DNS/Access cutover only after the staged API and rollback tests pass.

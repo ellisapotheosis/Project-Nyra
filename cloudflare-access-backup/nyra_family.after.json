@@ -1,0 +1,43 @@
+{
+  "created_at": "2026-07-12T19:33:36Z",
+  "decision": "allow",
+  "exclude": [],
+  "id": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+  "include": [
+    {
+      "email_domain": {
+        "domain": "monitapu.com"
+      }
+    },
+    {
+      "email": {
+        "email": "andersenj949@gmail.com"
+      }
+    }
+  ],
+  "name": "Nyra Family",
+  "require": [],
+  "connection_rules": {
+    "rdp": {
+      "allowed_clipboard_local_to_remote_formats": ["text"],
+      "allowed_clipboard_remote_to_local_formats": ["text"]
+    }
+  },
+  "purpose_justification_required": true,
+  "purpose_justification_prompt": "Tell me about Simba...?",
+  "approval_required": true,
+  "approval_groups": [
+    {
+      "email_addresses": [
+        "edaneandersen@gmail.com",
+        "ellisandersen@ratehunter.net",
+        "ellisandersen@projectnyra.com"
+      ],
+      "approvals_needed": 1
+    }
+  ],
+  "uid": "3fd257e7-5c03-4e83-9d82-b4ef09dc94e8",
+  "updated_at": "2026-08-16T12:47:40Z",
+  "reusable": true,
+  "app_count": 33
+}

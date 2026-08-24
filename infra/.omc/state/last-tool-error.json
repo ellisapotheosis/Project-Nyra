@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"TOK=$(cat /tmp/.inf_tok)\\nPID_VAL=\\\"8374cea9-e5e8-4050-bda4-b91f25ab30ef\\\"\\n\\nfor path in \\\"/security/tailscale\\\" \\\"/infra/prod/litellm\\\" \\\"/infra/prod/nexus\\\" \\\"/external/nexus\\\" \\\"/exter...",
+  "error": "Exit code 127\n(eval):5: command not found: curl\n/security/tailscale:  secrets (dev)\n(eval):13: command not found: sleep\n(eval):5: command not found: curl\n/infra/prod/litellm:  secrets (dev)\n(eval):13: command not found: sleep\n(eval):5: command not found: curl\n/infra/prod/nexus:  secrets (dev)\n(eval):13: command not found: sleep\n(eval):5: command not found: curl\n/external/nexus:  secrets (dev)\n(eval):13: command not found: sleep\n(eval):5: command not found: curl\n/external/letta:  secrets (dev)\n(e...",
+  "timestamp": "2026-07-26T08:50:31.691Z",
+  "retry_count": 1
+}

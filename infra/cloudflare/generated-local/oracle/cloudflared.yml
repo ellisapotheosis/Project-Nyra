@@ -22,8 +22,8 @@ ingress:
     service: http://twenty:3000
   - hostname: n8n.projectnyra.com
     service: http://n8n:5678
-  - hostname: gitea.projectnyra.com
-    service: http://gitea:3000
+  - hostname: git.projectnyra.com
+    service: http://forgejo:3000
   - hostname: activepieces.projectnyra.com
     service: http://activepieces:80
   - hostname: grafana.projectnyra.com
@@ -53,5 +53,5 @@ ingress:
     originRequest:
       noTLSVerify: true
   - hostname: git-ssh.projectnyra.com
-    service: ssh://gitea:2222
+    service: ssh://forgejo:2222
   - service: http_status:404

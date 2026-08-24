@@ -54,7 +54,7 @@ target = pathlib.Path(sys.argv[2])
 path = sys.argv[3]
 
 allowlists = {
-    "/apps/forgejo": {
+    "/infra/staging/forgejo": {
         "FORGEJO_DB_PASSWORD",
         "FORGEJO_SECRET_KEY",
         "FORGEJO_INTERNAL_TOKEN",
@@ -63,7 +63,7 @@ allowlists = {
         "FORGEJO_SMTP_PASSWORD",
         "FORGEJO_OAUTH_CLIENT_SECRET",
     },
-    "/apps/forgejo-runner": {
+    "/infra/staging/forgejo-runner": {
         "FORGEJO_RUNNER_REGISTRATION_TOKEN",
     },
     "/apps/renovate": {
@@ -83,6 +83,10 @@ allowlists = {
 
 payload = json.loads(source.read_text())
 allowed = allowlists[path]
+values = {str(item["key"]): item.get("value", "") for item in payload}
+missing = sorted(key for key in allowed if not values.get(key))
+if missing:
+    raise SystemExit(f"missing required secrets for {path}: {', '.join(missing)}")
 lines = []
 for item in payload:
     key = item["key"]
@@ -107,8 +111,8 @@ PY
   rm -f "$rendered"
 }
 
-export_path /apps/forgejo forgejo.env
-export_path /apps/forgejo-runner forgejo-runner.env
+export_path /infra/staging/forgejo forgejo.env
+export_path /infra/staging/forgejo-runner forgejo-runner.env
 export_path /apps/renovate renovate.env
 export_path /apps/komodo komodo.env
 printf '[infisical-forgejo] wrote four mode-0600 secret files under %s\n' "$OUT_DIR"

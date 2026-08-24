@@ -52,7 +52,7 @@ Protect every hostname in this table with Cloudflare Access. Recommended baselin
 | `admin.projectnyra.com`            | Oracle VPS   | `http://nyra-admin:3002`            | `3002`          | Access OIDC                      |
 | `twenty.projectnyra.com`           | Oracle VPS   | `http://nyra-twenty:3000`           | `3000`          | Access OIDC                      |
 | `n8n.projectnyra.com`              | Oracle VPS   | `http://nyra-n8n:5678`              | `5678`          | Access OIDC plus n8n auth        |
-| `gitea.projectnyra.com`            | Oracle VPS   | `http://nyra-gitea:3000`            | `3001 -> 3000`  | Access OIDC plus Gitea auth      |
+| `git.projectnyra.com`              | Oracle VPS   | `http://forgejo:3000`               | `3101 -> 3000`  | Access OIDC plus Forgejo auth    |
 | `grafana.projectnyra.com`          | Oracle VPS   | `http://nyra-grafana:3000`          | `3003 -> 3000`  | Access OIDC plus Grafana auth    |
 | `prometheus.projectnyra.com`       | Oracle VPS   | `http://nyra-prometheus:9090`       | `9090`          | Access OIDC                      |
 | `cadvisor.projectnyra.com`         | Oracle VPS   | `http://nyra-cadvisor:8080`         | `8081 -> 8080`  | Access OIDC                      |
@@ -68,23 +68,23 @@ Protect every hostname in this table with Cloudflare Access. Recommended baselin
 
 Optional SSH route:
 
-| Hostname                  | Tunnel     | Origin service          | Notes                                               |
-| ------------------------- | ---------- | ----------------------- | --------------------------------------------------- |
-| `git-ssh.projectnyra.com` | Oracle VPS | `ssh://nyra-gitea:2222` | Requires `cloudflared access ssh`; not a browser UI |
+| Hostname                  | Tunnel     | Origin service       | Notes                                               |
+| ------------------------- | ---------- | -------------------- | --------------------------------------------------- |
+| `git-ssh.projectnyra.com` | Oracle VPS | `ssh://forgejo:2222` | Requires `cloudflared access ssh`; not a browser UI |
 
 ## No Public DNS
 
 Do not create Cloudflare Public Hostnames for these:
 
-| Service                                                                                                                              | Reason                                                                                                         |
-| ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `postgres`, `twenty-db`, `gitea-db`                                                                                                  | Datastores stay private                                                                                        |
-| `redis`, `redis-cache`                                                                                                               | Datastores stay private                                                                                        |
-| `falkordb`, `qdrant`, `loki`                                                                                                         | Data/observability backends stay private                                                                       |
-| `mem0-rest`, `openmemory-mcp`, `infisical-mcp`, `gitea-mcp`, `paperclip-mcp`, `twentycrm-mcp`, `mempalace-mcp`, `docker-mcp-toolkit` | Raw API/MCP endpoints should not be browser-exposed                                                            |
-| `activepieces`                                                                                                                       | Internal automation surface; expose only behind Cloudflare Access if an owner intentionally enables a UI route |
-| `letta`                                                                                                                              | Memory-manager agent; add a protected route only when a focused host service is deployed                       |
-| worker vLLM/Ollama endpoints                                                                                                         | Worker inference stays private over Tailscale                                                                  |
+| Service                                                                                                                 | Reason                                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `postgres`, `twenty-db`, `forgejo-db`                                                                                   | Datastores stay private                                                                                        |
+| `redis`, `redis-cache`                                                                                                  | Datastores stay private                                                                                        |
+| `falkordb`, `qdrant`, `loki`                                                                                            | Data/observability backends stay private                                                                       |
+| `mem0-rest`, `openmemory-mcp`, `infisical-mcp`, `paperclip-mcp`, `twentycrm-mcp`, `mempalace-mcp`, `docker-mcp-toolkit` | Raw API/MCP endpoints should not be browser-exposed                                                            |
+| `activepieces`                                                                                                          | Internal automation surface; expose only behind Cloudflare Access if an owner intentionally enables a UI route |
+| `letta`                                                                                                                 | Memory-manager agent; add a protected route only when a focused host service is deployed                       |
+| worker vLLM/Ollama endpoints                                                                                            | Worker inference stays private over Tailscale                                                                  |
 
 For AgentMemory, the compose file already binds to the Tailscale IP by default:
 
@@ -111,7 +111,7 @@ Keep that as MagicDNS/Tailscale-only unless you add a formal Access application 
 9. Repeat the process for the `nyra-oracle-vps` tunnel and all Oracle VPS rows.
 10. For the public landing page hostnames, do not enable Access.
 11. For private UIs, enable Access and use one policy per sensitivity group:
-    - `Nyra Admin`: admin, Twenty, n8n, Portainer, Gitea
+    - `Nyra Admin`: admin, Twenty, n8n, Portainer, Forgejo
     - `Nyra Observability`: Grafana, Prometheus, cAdvisor
     - `Nyra Assistant Workbench`: Open WebUI, OpenClaw, Clawteam, LiteLLM, Nexus, Paperclip
 12. Verify DNS records were created by the tunnel UI. They should be proxied CNAME records pointing at the tunnel target.
@@ -143,7 +143,7 @@ If you run the generated Oracle `config.yml` stack, manually resolve these befor
 | Potential conflict                                                      | Why it matters                                                      |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `landing` and `grafana` both using host port `3003` in generated config | Both cannot bind the same host port at once                         |
-| `webapp` default `3001` and Gitea default host port `3001`              | Both cannot bind the same host port at once                         |
+| `webapp` default `3001` and other host-bound services                   | Host ports must remain unique                                       |
 | `mem0-rest`, `quote_engine`, and some quote APIs using `5000`           | Pick one host binding per host, or route by Docker service DNS only |
 
 Using Cloudflared on the same Docker network avoids many host-port conflicts because the tunnel can target container DNS names directly.

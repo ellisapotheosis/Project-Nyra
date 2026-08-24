@@ -1,52 +1,187 @@
 {
   "team_name": "${CF_ACCESS_TEAM_NAME}",
   "domain": "projectnyra.com",
-  "default_ui_policy": "allow Google Workspace/domain-approved users, require MFA where available",
-  "service_token_policy": "allow only named Cloudflare Access service tokens for API/MCP machine access",
+  "default_ui_policy": "3-tier access stack (Service Token → GitHub SSO → Email OTP)",
+  "service_token_policy": "allow only named Cloudflare Access service tokens for machine-to-machine calls",
   "applications": [
     {
-      "name": "Nyra Webapp",
-      "hostnames": ["app.projectnyra.com"],
+      "name": "Home Assistant (User OTP Auth)",
+      "hostnames": ["ha.projectnyra.com"],
       "type": "self_hosted",
-      "policy": "public_auth_until_supabase_auth_ready"
+      "policy": "tier3_email_otp",
+      "description": "User access with email OTP (15-min TTL) to edaneandersen@gmail.com"
     },
     {
-      "name": "Nyra Admin UIs",
+      "name": "Portainer VPS + Orchestrator (Admin Service Token)",
       "hostnames": [
-        "twenty.projectnyra.com",
-        "crm.projectnyra.com",
-        "n8n.projectnyra.com",
-        "gitea.projectnyra.com",
-        "activepieces.projectnyra.com",
-        "openwebui.projectnyra.com",
-        "nexus.projectnyra.com",
-        "paperclip.projectnyra.com",
-        "clawteam.projectnyra.com",
-        "links.projectnyra.com",
-        "linkwarden.projectnyra.com",
+        "portainer-vps.projectnyra.com",
+        "portainer-orch.projectnyra.com"
+      ],
+      "type": "self_hosted",
+      "policy": "tier1_service_token_only",
+      "description": "Admin infrastructure — Service Token only, no user auth"
+    },
+    {
+      "name": "Linkwarden (Public with OTP)",
+      "hostnames": ["linkwarden.projectnyra.com"],
+      "type": "self_hosted",
+      "policy": "tier3_email_otp_optional",
+      "description": "Public bookmark service; email OTP optional"
+    },
+    {
+      "name": "Nexus Router (Service Token Only)",
+      "hostnames": ["nexus-router.projectnyra.com"],
+      "type": "self_hosted",
+      "policy": "tier1_service_token_only",
+      "description": "Internal MCP router — Service Token from mcp-gateway ONLY; rejects direct user auth"
+    },
+    {
+      "name": "MCP Gateway (GitHub SSO + OTP)",
+      "hostnames": ["mcp-gateway.projectnyra.com"],
+      "type": "self_hosted",
+      "policy": "tier2_github_sso_with_tier3_fallback",
+      "description": "User authenticates via GitHub SSO (primary) or email OTP (fallback); issues Service Token to agents"
+    },
+    {
+      "name": "LiteLLM (Service Token / OTP)",
+      "hostnames": ["litellm.projectnyra.com"],
+      "type": "self_hosted",
+      "policy": "tier1_or_tier3",
+      "description": "Model access — Service Token (agent) or email OTP (user fallback)"
+    },
+    {
+      "name": "Git & Forgejo (GitHub SSO + OTP)",
+      "hostnames": ["git.projectnyra.com", "forgejo.projectnyra.com"],
+      "type": "self_hosted",
+      "policy": "tier2_github_sso_with_tier3_fallback",
+      "description": "Git repository access; GitHub SSO primary, email OTP fallback"
+    },
+    {
+      "name": "Nerve (Service Token / OTP)",
+      "hostnames": ["nerve.projectnyra.com"],
+      "type": "self_hosted",
+      "policy": "tier1_or_tier3",
+      "description": "Agent backend — Service Token (machine) or email OTP (user)"
+    },
+    {
+      "name": "OpenClaw Suite (Service Token / OTP)",
+      "hostnames": [
+        "openclaw.projectnyra.com",
         "openclaw-gateway.projectnyra.com"
       ],
       "type": "self_hosted",
-      "policy": "public_auth"
+      "policy": "tier1_or_tier3",
+      "description": "Agent tools and gateway — Service Token (machine) or email OTP (user)"
     },
     {
-      "name": "Nyra Owner Only Infra",
-      "hostnames": [
-        "grafana.projectnyra.com",
-        "prometheus.projectnyra.com",
-        "cadvisor.projectnyra.com",
-        "litellm.projectnyra.com",
-        "portainer-oracle.projectnyra.com"
-      ],
+      "name": "Hermes Suite (Service Token / OTP)",
+      "hostnames": ["hermes.projectnyra.com", "hermes-gateway.projectnyra.com"],
       "type": "self_hosted",
-      "policy": "owner_only_public_auth"
-    },
-    {
-      "name": "Nyra Service APIs",
-      "hostnames": ["nexus-router.projectnyra.com", "hooks.projectnyra.com"],
-      "type": "self_hosted",
-      "policy": "service_token_or_signed_request"
+      "policy": "tier1_or_tier3",
+      "description": "Product/operations agent — Service Token (machine) or email OTP (user)"
     }
   ],
-  "excluded_from_access": ["api.projectnyra.com"]
+  "access_policies": {
+    "tier1_service_token_only": {
+      "name": "Tier 1 — Service Token Only",
+      "rules": [
+        {
+          "action": "allow",
+          "require": [
+            {
+              "access_service_token": {
+                "token_id": "${SERVICE_TOKEN_ID_MCP_GATEWAY}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "tier2_github_sso_with_tier3_fallback": {
+      "name": "Tier 2 — GitHub SSO (Primary) + Tier 3 — Email OTP (Fallback)",
+      "rules": [
+        {
+          "action": "allow",
+          "require": [
+            {
+              "github": {
+                "identity_provider_id": "${GITHUB_IDENTITY_PROVIDER_ID}",
+                "login": "edaneandersen"
+              }
+            }
+          ]
+        },
+        {
+          "action": "allow",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "tier3_email_otp": {
+      "name": "Tier 3 — Email OTP",
+      "rules": [
+        {
+          "action": "allow",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "tier3_email_otp_optional": {
+      "name": "Tier 3 — Email OTP (Optional for Public Access)",
+      "rules": [
+        {
+          "action": "allow"
+        },
+        {
+          "action": "allow",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "tier1_or_tier3": {
+      "name": "Tier 1 (Service Token) OR Tier 3 (Email OTP)",
+      "rules": [
+        {
+          "action": "allow",
+          "require": [
+            {
+              "access_service_token": {
+                "token_id": "${SERVICE_TOKEN_ID_MCP_GATEWAY}"
+              }
+            }
+          ]
+        },
+        {
+          "action": "allow",
+          "require": [
+            {
+              "email": {
+                "email": "edaneandersen@gmail.com"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "excluded_from_access": ["api.projectnyra.com"],
+  "notes": "Generated from OMNIBUS Section 5 & 6. All public routes must implement 3-tier stack. Service tokens issued by mcp-gateway only. Email recipient always edaneandersen@gmail.com. OTP TTL 15 minutes."
 }
