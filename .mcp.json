@@ -2,10 +2,7 @@
   "mcpServers": {
     "cloudflare-mcp": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@cloudflare/mcp-server-cloudflare"
-      ],
+      "args": ["-y", "@cloudflare/mcp-server-cloudflare", "run"],
       "env": {
         "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}",
         "MCP_ENDPOINT": "https://mcp-gateway.projectnyra.com/mcp",
@@ -34,20 +31,14 @@
     },
     "ssh": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-ssh"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-ssh"],
       "env": {
         "SSH_ALLOWED_HOSTS": "*.trex-fiordland.ts.net,100.64.0.*,github.com,gitea.ratehunter.net"
       }
     },
     "shadcn": {
       "command": "npx",
-      "args": [
-        "shadcn@latest",
-        "mcp"
-      ]
+      "args": ["shadcn@latest", "mcp"]
     }
   },
   "disabledMcpServers": []
