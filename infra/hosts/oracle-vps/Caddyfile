@@ -112,13 +112,6 @@ magicui-mcp.trex-fiordland.ts.net {
 	}
 }
 
-# Paperclip Document Processing
-paperclip-mcp.trex-fiordland.ts.net {
-	reverse_proxy localhost:8767 {
-		header_up X-Forwarded-Proto https
-	}
-}
-
 # shadcn Component Library
 shadcn-mcp.trex-fiordland.ts.net {
 	reverse_proxy localhost:8769 {
@@ -233,13 +226,6 @@ mem0.trex-fiordland.ts.net {
 	}
 }
 
-# Redis Cache
-redis.trex-fiordland.ts.net {
-	reverse_proxy localhost:6379 {
-		header_up X-Forwarded-Proto https
-	}
-}
-
 # --- CRM & Data ---
 
 # Twenty CRM Interface
@@ -248,13 +234,6 @@ twenty-crm.trex-fiordland.ts.net {
 		header_up X-Forwarded-For {http.request.remote.host}
 		header_up X-Forwarded-Proto https
 		header_up X-Forwarded-Host {http.request.host}
-	}
-}
-
-# Twenty Database (via Supabase)
-twenty-db.trex-fiordland.ts.net {
-	reverse_proxy localhost:5433 {
-		header_up X-Forwarded-Proto https
 	}
 }
 

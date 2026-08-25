@@ -27,6 +27,11 @@ pages:
   - hostname: www.ratehunter.net
     target: cloudflare_pages
     access: public
+  - hostname: 3d.ratehunter.net
+    target: cloudflare_pages
+    pages_project: ratehunter-3d
+    access: public
+    notes: Static 3D RateHunter landing surface.
   - hostname: projectnyra.com
     target: cloudflare_pages
     access: public
@@ -102,10 +107,6 @@ routes:
     tunnel: oracle
     origin: http://litellm:4000
     exposure: owner_only_public_auth
-  - hostname: paperclip.projectnyra.com
-    tunnel: oracle
-    origin: http://paperclip:3100
-    exposure: public_auth
   - hostname: clawteam.projectnyra.com
     tunnel: oracle
     origin: http://clawteam:8080
@@ -166,8 +167,6 @@ mcp_policy:
       origin: http://infisical-mcp:8766
     - hostname: git-mcp.projectnyra.com
       origin: http://git-mcp:8773
-    - hostname: paperclip-mcp.projectnyra.com
-      origin: http://paperclip-mcp:8767
     - hostname: magicui-mcp.projectnyra.com
       origin: http://magicui-mcp:8768
     - hostname: shadcn-mcp.projectnyra.com

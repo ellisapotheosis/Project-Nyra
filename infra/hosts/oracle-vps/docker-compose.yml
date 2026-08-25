@@ -594,49 +594,6 @@ services:
       - LOG_LEVEL=info
     networks: [nyra_net]
 
-  # ── Paperclip AI (Multi-Agent Orchestration) ─────────────────────────────
-  paperclip:
-    image: ghcr.io/paperclipai/paperclip:latest
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip
-    restart: unless-stopped
-    environment:
-      - PAPERCLIP_AUTH_DISABLE_SIGN_UP=true
-      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
-      - PAPERCLIP_AGENT_JWT_SECRET=${PAPERCLIP_AGENT_JWT_SECRET}
-      - PORT=3100
-    volumes:
-      - paperclip_data:/paperclip
-    ports:
-      - "3111:3100"
-    networks: [nyra_net]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3100/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ── Paperclip MCP Server ─────────────────────────────────────────────────
-  # Exposes Paperclip orchestration tools to the Nexus aggregator.
-  paperclip-mcp:
-    image: node:20-alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-paperclip-mcp
-    restart: unless-stopped
-    environment:
-      NPM_CONFIG_CACHE: /tmp/.npm
-      PAPERCLIP_API_URL: http://paperclip:3100
-      PAPERCLIP_API_KEY: ${PAPERCLIP_API_KEY:-dummy}
-    command:
-      - npx
-      - -y
-      - supergateway
-      - --stdio
-      - "npx -y @paperclipai/mcp-server"
-      - --port
-      - "8767"
-    ports:
-      - "8767:8767"
-    networks: [nyra_net]
-
   # ── Magic UI MCP (stdio→SSE bridge via supergateway) ──────────────────────
   # Converts @magicuidesign/mcp stdio server to HTTP/SSE so Nexus can aggregate it.
   # Exposed on port 8768; Nexus connects at http://magicui-mcp:8768/sse.
@@ -1148,11 +1105,17 @@ networks:
     name: nyra_net
 
 volumes:
+  # Explicit names preserve the established Oracle volumes when Compose is
+  # invoked through Infisical with a host-specific COMPOSE_PROJECT_NAME.
   postgres_data:
+    name: nyra-network_postgres_data
   litellm_data:
+    name: nyra-network_litellm_data
   omniroute_data:
+    name: nyra-network_omniroute_data
   twenty_db_data:
   redis_cache_data:
+    name: nyra-network_redis_cache_data
   twenty_local_storage:
   twenty_docker_data:
   n8n_data:
@@ -1164,7 +1127,6 @@ volumes:
   openlit_clickhouse_data:
   openlit_data:
   nyra_secrets:
-  paperclip_data:
   syncthing_config:
   portainer_data:
   letta_db_data:

@@ -575,3 +575,5 @@ security/infisical/**/.env.*
 **/*-relay.env
 
 .vercel
+# Cloudflare OpenNext build output is generated in each Pages app.
+**/.open-next/

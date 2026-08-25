@@ -32,7 +32,6 @@ ORACLE_AGENT_UTILS_COMPOSE := infra/hosts/oracle-vps/docker-compose.oracle.yml
 ORACLE_MEMORY_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory.yml
 ORACLE_LETTA_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.letta-mcp.yml
 ORACLE_MEMORY_EXTRA_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory-extra.yml
-ORACLE_PAPERCLIP_COMPOSE := infra/hosts/oracle-vps/docker-compose.paperclip.yml
 ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
 ORACLE_AGENT_VAULT_COMPOSE := infra/hosts/oracle-vps/docker-compose.agent-vault.yml
 ORACLE_UI_FACTORY_SERVICES := nyra-ui-engine magicui-mcp shadcn-mcp
@@ -61,7 +60,7 @@ SHARED_EXAMPLE_ENV := infra/shared-example.env
 
 DEFAULT_PROFILES ?= apps,sync,debug
 
-.PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status oracle-config \
+.PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers oracle-config \
   up-core up-orchestrator up-apps up-dev up-workers up-oracle \
   cluster cluster-kill grid grid-kill \
   nexus-up nexus-down health stack-up stack-verify \
@@ -71,6 +70,7 @@ DEFAULT_PROFILES ?= apps,sync,debug
   oracle-ui-factory-up oracle-ui-factory-down oracle-ui-factory-ps oracle-ui-install \
   oracle-mcp-tools-up oracle-mcp-tools-down oracle-mcp-tools-ps \
   oracle-portainer-up oracle-portainer-down oracle-portainer-ps \
+  oracle-tailscale-up \
   sync-env sync-env-all \
   up-all down-all cluster-status host-env-examples compose-location-check \
   stack-config-check stack-up stack-status
@@ -131,7 +131,7 @@ help:
 	@echo "--- AGENT INFRA ---"
 	@echo "make agent-infra-validate Validate new agent infra compose files"
 	@echo "make agent-secrets-audit  Audit required Infisical secrets"
-	@echo "make oracle-agent-utils-up Start Paperclip, SearXNG, Browserless"
+	@echo "make oracle-agent-utils-up Start SearXNG and Browserless"
 	@echo "make oracle-memory-up     Start Letta, mem0, FalkorDB, Qdrant"
 	@echo
 	@echo "--- WAVE AI + ZELLIJ GRID ---"
@@ -139,11 +139,11 @@ help:
 	@echo "make wave-stack-up-3060   Start default grid plus 3060 OpenClaw/NerveUI tab"
 	@echo "make wave-stack-status    Show AI grid container status through Docker contexts"
 	@echo "make wave-only            Attach the persistent Wave/Zellij cockpit only"
-	@echo "make oracle-paperclip-up  Start Paperclip on Oracle VPS"
 	@echo "make oracle-clawteam-up   Start ClawTeam on Oracle VPS"
 	@echo "make oracle-ui-factory-up Start UI Factory MCP/tooling containers"
 	@echo "make oracle-mcp-tools-up  Start Oracle MCP containers and Nexus aggregator"
 	@echo "make oracle-portainer-up  Start Oracle Portainer CE + local agent"
+	@echo "make oracle-tailscale-up  Apply Oracle Tailscale tags/routes and reset state"
 
 cluster-status:
 	@echo "=== [ORCHESTRATOR] ==="
@@ -265,13 +265,13 @@ oracle-config:
 ORACLE_FORGEJO_COMPOSE := infra/hosts/oracle-vps/docker-compose.forgejo.yml
 
 forgejo-up:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_FORGEJO_COMPOSE) up -d
+	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_FORGEJO_COMPOSE) up -d
 
 forgejo-down:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_FORGEJO_COMPOSE) stop
+	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_FORGEJO_COMPOSE) stop
 
 forgejo-ps:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_FORGEJO_COMPOSE) ps
+	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_FORGEJO_COMPOSE) ps
 
 twenty-crm-up:
 	$(ORACLE_COMPOSE_RUN) up -d twenty
@@ -330,10 +330,10 @@ agent-secrets-audit:
 	INFISICAL_ENV=$(AGENT_INFRA_ENV) scripts/infisical/agent-infra-secrets.sh audit
 
 oracle-agent-utils-up:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_UTILS_COMPOSE) up -d
+	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_AGENT_UTILS_COMPOSE) up -d
 
 oracle-agent-utils-down:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_UTILS_COMPOSE) down
+	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_AGENT_UTILS_COMPOSE) down
 
 oracle-agent-vault-up:
 	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_AGENT_VAULT_COMPOSE) up -d agent-vault
@@ -357,10 +357,10 @@ oracle-agent-vault-init:
 		echo "Already initialized or visit https://agent-vault.projectnyra.com"
 
 oracle-memory-up:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_MEMORY_COMPOSE) up -d
+	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_MEMORY_COMPOSE) up -d
 
 oracle-memory-down:
-	docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_MEMORY_COMPOSE) down
+	$(ORACLE_COMPOSE_RUN) -f $(ORACLE_MEMORY_COMPOSE) down
 
 secrets-init: check-host
 	@if [ -z "$(TOKEN)" ]; then echo "🚨 Error: TOKEN is required."; exit 1; fi
@@ -419,7 +419,7 @@ swarm-up: .env.swarm
 swarm-oracle:
 	@echo "☁️  Deploying Asynchronous Heavy State to Oracle VPS..."
 	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_AGENT_UTILS_COMPOSE) up -d
-	@echo "✅ Oracle Stack (Paperclip, SearXNG, Browserless) is LIVE."
+	@echo "✅ Oracle Utility Stack (SearXNG, Browserless) is LIVE."
 
 swarm-utility:
 	@echo "🛠️  Deploying Utility Node to RTX 3060..."
@@ -484,9 +484,6 @@ dev-status:
 	@echo "  [5] RTX3060 (embeddings + lightweight LLM):"
 	@docker --context worker-rtx3060 ps 2>/dev/null | grep -E "embed|inference" || echo "     ℹ Not running (use 'make up-workers')"
 	@echo ""
-	@echo "🗄️ PAPERCLIP (Oracle VPS):"
-	@docker compose -f $(ORACLE_COMPOSE) ps 2>/dev/null | grep paperclip || echo "     ℹ Not running (use 'make oracle-apps-up')"
-
 dev-down:
 	@echo "Shutting down Development Orchestration..."
 	@pkill -f "ghostty.*zellij" || echo "No ghostty session found"
@@ -538,23 +535,6 @@ down-all-workers:
 	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) down
 	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) down
 	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) down
-
-# PAPERCLIP (Oracle VPS)
-.PHONY: paperclip-up paperclip-down paperclip-logs paperclip-status
-
-paperclip-up:
-	@echo "Starting PAPERCLIP..."
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
-	@echo "PAPERCLIP: http://paperclip.projectnyra.com"
-
-paperclip-down:
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) stop paperclip paperclip-mcp
-
-paperclip-logs:
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) logs -f paperclip
-
-paperclip-status:
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) ps paperclip paperclip-mcp
 
 # ════════════════════════════════════════════════════════════════════════════
 # 🌊 ULTIMATE ORCHESTRATOR: Letta-MCP + Composio + Full Multi-CLI Cockpit
@@ -675,14 +655,11 @@ orchestrator-status:
 	@echo ""
 
 # ════════════════════════════════════════════════════════════════════════════
-# 📎 PAPERCLIP + 🦞 CLAWTEAM — Oracle-VPS Primary + RTX3060 Fallback
+# 🦞 CLAWTEAM — Oracle-VPS Primary + RTX3060 Fallback
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: oracle-paperclip oracle-clawteam rtx3060-clawteam-fallback \
+.PHONY: oracle-clawteam rtx3060-clawteam-fallback \
   clawteam-all-deploy clawteam-monitor clawteam-failover-check
-
-oracle-paperclip:
-	@$(MAKE) oracle-paperclip-up
 
 oracle-clawteam:
 	@$(MAKE) oracle-clawteam-up
@@ -711,9 +688,6 @@ clawteam-failover-check:
 	if [ "$$ORACLE_HEALTH" != "healthy" ] && [ "$$RTX3060_HEALTH" = "healthy" ]; then \
 		echo "⚠️  PRIMARY DOWN — Fallback to RTX3060 active"; \
 	fi
-
-paperclip-oracle: oracle-paperclip
-	@echo "Paperclip MCP Gateway ready at oracle-vps:8888"
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -756,34 +730,23 @@ openclaw-status-dashboard:
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# 🐳 DOCKER IMAGE BUILDS — ClawTeam + Paperclip (from Dockerfiles)
+# 🐳 DOCKER IMAGE BUILDS — ClawTeam (from Dockerfiles)
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: docker-build-clawteam docker-build-paperclip docker-build-all \
-  docker-push-clawteam docker-push-paperclip
+.PHONY: docker-build-clawteam docker-build-all docker-push-clawteam
 
 docker-build-clawteam:
 	@echo "Building ClawTeam Docker image..."
 	docker build -f infra/docker/Dockerfile.clawteam -t nyra/clawteam:latest .
 	@echo "✅ ClawTeam image built: nyra/clawteam:latest"
 
-docker-build-paperclip:
-	@echo "Building Paperclip Docker image..."
-	docker build -f infra/docker/Dockerfile.paperclip -t nyra/paperclip:latest .
-	@echo "✅ Paperclip image built: nyra/paperclip:latest"
-
-docker-build-all: docker-build-clawteam docker-build-paperclip
+docker-build-all: docker-build-clawteam
 	@echo "✅ All images built successfully"
 
 docker-push-clawteam:
 	docker tag nyra/clawteam:latest localhost:5000/nyra/clawteam:latest
 	docker push localhost:5000/nyra/clawteam:latest
 	@echo "✅ ClawTeam image pushed to localhost:5000"
-
-docker-push-paperclip:
-	docker tag nyra/paperclip:latest localhost:5000/nyra/paperclip:latest
-	docker push localhost:5000/nyra/paperclip:latest
-	@echo "✅ Paperclip image pushed to localhost:5000"
 
 # ════════════════════════════════════════════════════════════════════════════
 # UPDATED DEPLOYMENT — Uses docker-compose build (instead of image:)
@@ -796,20 +759,6 @@ oracle-clawteam-deploy:
 	@echo "✅ ClawTeam deployed to Oracle-VPS (port 8080)"
 	@docker --context $(ORACLE_CONTEXT) logs nyra-clawteam-primary --tail 20
 
-oracle-paperclip-deploy:
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) build paperclip
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_PAPERCLIP_COMPOSE) up -d paperclip
-	@sleep 3
-	@echo "✅ Paperclip deployed to Oracle-VPS (port 3100)"
-	@docker --context $(ORACLE_CONTEXT) logs nyra-paperclip-mcp-gateway --tail 20
-
-oracle-clawteam-paperclip-all:
-	@echo "Building + deploying ClawTeam + Paperclip to Oracle-VPS..."
-	@$(MAKE) docker-build-all
-	@$(MAKE) oracle-clawteam-deploy
-	@$(MAKE) oracle-paperclip-deploy
-	@echo "✅ All services deployed to Oracle-VPS via Portainer"
-
 # ============================================================================
 # Wave AI + Zellij persistent grid
 # ============================================================================
@@ -820,7 +769,7 @@ oracle-clawteam-paperclip-all:
   worker-5090-ai-down worker-3090ti-ai-down worker-3060-ai-down \
   oracle-memory-manager-up oracle-memory-extra-up oracle-memory-full-up \
   oracle-memory-full-down oracle-webapp-twenty-up oracle-webapp-twenty-down \
-  oracle-paperclip-up oracle-paperclip-down oracle-clawteam-up \
+  oracle-clawteam-up \
   oracle-clawteam-down oracle-agent-tools-up oracle-agent-tools-down
 
 wave-stack-up: orchestrator-ai-up worker-5090-ai-up worker-3090ti-ai-up oracle-memory-full-up oracle-webapp-twenty-up oracle-portainer-up oracle-mcp-tools-up wave-only
@@ -911,63 +860,36 @@ worker-3060-ai-down:
 
 oracle-memory-manager-up:
 	@echo "Starting Oracle memory manager: Letta + mem0 + FalkorDB + Qdrant + Letta MCP..."
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/hosts/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_MEMORY_COMPOSE) \
-	  -f $(ORACLE_LETTA_MCP_COMPOSE) up -d --build
+	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) up -d --build
 
 oracle-memory-extra-up:
 	@echo "Starting optional memory companions: memOS/MemoryTensor and ClaudeMem..."
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/hosts/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_MEMORY_COMPOSE) \
-	  -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos claudemem
+	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) up -d memos claudemem
 
 oracle-memory-full-up: oracle-memory-manager-up oracle-memory-extra-up
 
 oracle-memory-full-down:
-	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/hosts/oracle-vps -- \
-	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_MEMORY_COMPOSE) \
-	  -f $(ORACLE_LETTA_MCP_COMPOSE) \
-	  -f $(ORACLE_MEMORY_EXTRA_COMPOSE) down
+	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_MEMORY_COMPOSE) -f $(ORACLE_LETTA_MCP_COMPOSE) -f $(ORACLE_MEMORY_EXTRA_COMPOSE) down
 
 oracle-webapp-twenty-up:
 	@echo "Starting Oracle webapp + Twenty CRM + Twenty MCP..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) \
-	  -f $(ORACLE_APPS_COMPOSE) \
+	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_APPS_COMPOSE) \
 	  --profile apps up -d \
 	  postgres redis-cache twenty-db twenty twenty-worker twenty-mcp crm-api webapp cloudflared portainer-edge-agent infisical-sidecar
 
 oracle-webapp-twenty-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) \
-	  -f $(ORACLE_APPS_COMPOSE) down
-
-oracle-paperclip-up:
-	@echo "Starting Paperclip on Oracle VPS..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) up -d paperclip paperclip-mcp
-
-oracle-paperclip-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) stop paperclip paperclip-mcp
+	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_APPS_COMPOSE) down
 
 oracle-clawteam-up:
 	@echo "Starting ClawTeam on Oracle VPS..."
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) \
-	  -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam
+	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam
 
 oracle-clawteam-down:
-	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
-	  -f $(ORACLE_COMPOSE) \
-	  -f $(ORACLE_CLAWTEAM_COMPOSE) stop clawteam
+	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_CLAWTEAM_COMPOSE) stop clawteam
 
-oracle-agent-tools-up: oracle-paperclip-up oracle-clawteam-up
+oracle-agent-tools-up: oracle-clawteam-up
 
-oracle-agent-tools-down: oracle-paperclip-down oracle-clawteam-down
+oracle-agent-tools-down: oracle-clawteam-down
 
 oracle-ui-factory-up:
 	@echo "Starting Oracle UI Factory containers..."
@@ -989,23 +911,17 @@ oracle-ui-install:
 oracle-mcp-tools-up:
 	@echo "Starting Oracle MCP tool containers and Nexus..."
 	@LLXPRT_BRIDGE_API_KEY="$$(infisical secrets get LLXPRT_BRIDGE_API_KEY --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/providers/llxprt --plain --silent 2>/dev/null)" \
-	  BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
 	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/hosts/oracle-vps -- \
 	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-down:
-	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/hosts/oracle-vps -- \
+	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/hosts/oracle-vps -- \
 	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) stop $(ORACLE_MCP_TOOL_SERVICES)
 
 oracle-mcp-tools-ps:
-	@BETTER_AUTH_SECRET="$$(infisical secrets get BETTER_AUTH_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  PAPERCLIP_AGENT_JWT_SECRET="$$(infisical secrets get PAPERCLIP_AGENT_JWT_SECRET --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/clients/paperclip --plain --silent 2>/dev/null)" \
-	  infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/hosts/oracle-vps -- \
+	@infisical run --projectId=$(INFISICAL_PROJECT_ID) --env=$(AGENT_INFRA_ENV) --path=/hosts/oracle-vps -- \
 	  docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) ps $(ORACLE_MCP_TOOL_SERVICES)
 
@@ -1021,6 +937,11 @@ oracle-portainer-down:
 oracle-portainer-ps:
 	@docker --context $(ORACLE_CONTEXT) compose --env-file /dev/null \
 	  -f $(ORACLE_COMPOSE) ps $(ORACLE_PORTAINER_SERVICES)
+
+oracle-tailscale-up:
+	@echo "Applying the authorized Oracle Tailscale configuration..."
+	@ssh -o ConnectTimeout=8 oracle 'sudo tailscale up --advertise-tags=tag:orchestrator,tag:prod --accept-routes --reset'
+	@ssh -o ConnectTimeout=8 oracle 'sudo tailscale status --json | jq -r "{BackendState,Self:(.Self|{HostName,TailscaleIPs,Tags,Online})}"'
 
 wave-stack-status:
 	@echo "=== ORCHESTRATOR ==="

@@ -111,10 +111,6 @@ views:
             url: https://git.projectnyra.com
             icon: mdi:git
           - type: url
-            name: Paperclip
-            url: https://paperclip.projectnyra.com
-            icon: mdi:paperclip
-          - type: url
             name: Linkwarden
             url: https://links.projectnyra.com
             icon: mdi:bookmark-multiple

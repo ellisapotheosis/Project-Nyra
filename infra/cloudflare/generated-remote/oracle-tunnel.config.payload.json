@@ -31,10 +31,6 @@
         "service": "http://openwebui:8080"
       },
       {
-        "hostname": "paperclip.projectnyra.com",
-        "service": "http://paperclip:3100"
-      },
-      {
         "hostname": "clawteam.projectnyra.com",
         "service": "http://clawteam:8080"
       },

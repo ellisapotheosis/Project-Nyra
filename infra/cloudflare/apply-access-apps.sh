@@ -114,7 +114,6 @@ Nyra cAdvisor	cadvisor.projectnyra.com	owner
 Nyra Open WebUI	openwebui.projectnyra.com	team
 Nyra Nexus UI	nexus.projectnyra.com	team
 Nyra LiteLLM	litellm.projectnyra.com	owner
-Nyra Paperclip	paperclip.projectnyra.com	team
 Nyra ClawTeam	clawteam.projectnyra.com	team
 Nyra Oracle Portainer	portainer-oracle.projectnyra.com	owner
 Nyra Links	links.projectnyra.com	team

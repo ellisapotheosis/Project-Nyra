@@ -173,12 +173,6 @@
       "proxied": true
     },
     {
-      "name": "paperclip",
-      "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
-    },
-    {
       "name": "clawteam",
       "type": "CNAME",
       "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",

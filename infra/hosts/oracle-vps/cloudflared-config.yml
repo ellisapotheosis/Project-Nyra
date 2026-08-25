@@ -80,9 +80,6 @@ ingress:
   - hostname: clawteam.projectnyra.com
     service: http://clawteam:8080
 
-  - hostname: paperclip.projectnyra.com
-    service: http://paperclip:3100
-
   - hostname: letta.projectnyra.com
     service: http://letta:8283
 

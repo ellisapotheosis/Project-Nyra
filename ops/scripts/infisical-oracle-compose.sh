@@ -5,6 +5,7 @@ set -euo pipefail
 # Container sidecars cannot provide variables during Compose interpolation.
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 COMPOSE_FILE="$ROOT_DIR/infra/hosts/oracle-vps/docker-compose.yml"
+REMOTE_ROOT="${ORACLE_REMOTE_ROOT:-/home/ubuntu/project-nyra}"
 PROJECT_ID="${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}"
 ENV_NAME="${INFISICAL_ENV:-prod}"
 SECRET_PATH="${INFISICAL_PATH:-/hosts/oracle-vps}"
@@ -59,9 +60,30 @@ infisical export \
 printf 'INFISICAL_TOKEN=%s\nINFISICAL_PROJECT_ID=%s\nINFISICAL_ENV=%s\nINFISICAL_PATH=%s\n' \
   "$TOKEN" "$PROJECT_ID" "$ENV_NAME" "$SECRET_PATH" >>"$RUNTIME_ENV"
 
+# The canonical Oracle Compose declares the project name `nyra-network`,
+# while its explicit container_name values use the historical
+# `nyra-network-nyra-*` prefix. Infisical may still contain `oracle-vps`;
+# allowing it to win creates a second set of containers and duplicate ports.
+printf 'COMPOSE_PROJECT_NAME=nyra-network-nyra\n' >>"$RUNTIME_ENV"
+
 docker_args=(compose --env-file "$RUNTIME_ENV" -f "$COMPOSE_FILE")
-if [[ -n "$DOCKER_CONTEXT" ]]; then
-  docker --context "$DOCKER_CONTEXT" "${docker_args[@]}" "$@"
+if [[ "$DOCKER_CONTEXT" == "oracle" ]]; then
+  # Compose resolves bind mounts on the client. Running it from WSL with an
+  # Oracle Docker context would therefore mount the local repo path and can
+  # silently turn a missing file into a directory. Execute from the canonical
+  # checkout on Oracle instead.
+  REMOTE_ENV="/tmp/nyra-oracle-infisical.$$.env"
+  scp -q "$RUNTIME_ENV" "oracle:$REMOTE_ENV"
+  cleanup_remote() { ssh -o ConnectTimeout=8 oracle "rm -f '$REMOTE_ENV'" >/dev/null 2>&1 || true; }
+  trap 'cleanup_remote; cleanup' EXIT
+
+  quote_args=()
+  for arg in "$@"; do
+    printf -v quoted '%q' "$arg"
+    quote_args+=("$quoted")
+  done
+  ssh -o ConnectTimeout=8 oracle \
+    "cd '$REMOTE_ROOT' && docker compose --env-file '$REMOTE_ENV' -f 'infra/hosts/oracle-vps/docker-compose.yml' ${quote_args[*]}"
 else
   docker "${docker_args[@]}" "$@"
 fi
