@@ -28,7 +28,7 @@
   "cluster_size": 5,
   "canonical_salience": 13.5,
   "staged_at": "2026-08-24T14:50:45.638728+00:00",
-  "status": "staged",
+  "status": "accepted",
   "decisions": [
     {
       "ts": "2026-08-24T14:50:45.638728+00:00",
@@ -159,7 +159,30 @@
       "ts": "2026-08-25T13:05:28.624695+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-25T13:08:37.254324+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-25T13:12:28.975745+00:00",
+      "action": "graduated",
+      "reviewer": "host-agent",
+      "notes": "Phase 3 architecture convergence completed, LiteLLM routes cleaned",
+      "provisional": false,
+      "evidence_snapshot": [
+        "2026-07-20T16:55:31.099300+00:00",
+        "2026-07-25T17:14:22.809731+00:00",
+        "2026-07-25T22:54:49.009760+00:00",
+        "2026-08-24T14:46:04.822933+00:00",
+        "2026-08-24T14:50:32.180612+00:00"
+      ],
+      "lessons_sha": "b92b6098907e"
     }
   ],
-  "rejection_count": 0
+  "rejection_count": 0,
+  "accepted_at": "2026-08-25T13:12:28.975739+00:00",
+  "reviewer": "host-agent",
+  "rationale": "Phase 3 architecture convergence completed, LiteLLM routes cleaned"
 }

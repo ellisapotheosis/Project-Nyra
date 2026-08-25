@@ -22,7 +22,7 @@
   "cluster_size": 2,
   "canonical_salience": 8.46,
   "staged_at": "2026-07-20T15:49:40.312690+00:00",
-  "status": "staged",
+  "status": "accepted",
   "decisions": [
     {
       "ts": "2026-07-20T15:49:40.312690+00:00",
@@ -98,7 +98,22 @@
       "ts": "2026-07-23T15:35:50.954382+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-25T13:12:31.467467+00:00",
+      "action": "graduated",
+      "reviewer": "host-agent",
+      "notes": "Orchestrator configuration deployment completed",
+      "provisional": false,
+      "evidence_snapshot": [
+        "2026-07-19T02:03:21.948113+00:00",
+        "2026-07-20T15:49:30.588094+00:00"
+      ],
+      "lessons_sha": "58e47eb19835"
     }
   ],
-  "rejection_count": 0
+  "rejection_count": 0,
+  "accepted_at": "2026-08-25T13:12:31.467462+00:00",
+  "reviewer": "host-agent",
+  "rationale": "Orchestrator configuration deployment completed"
 }

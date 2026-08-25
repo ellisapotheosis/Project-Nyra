@@ -35,7 +35,7 @@
   "cluster_size": 2,
   "canonical_salience": 9.0,
   "staged_at": "2026-07-25T15:24:31.990369+00:00",
-  "status": "staged",
+  "status": "accepted",
   "decisions": [
     {
       "ts": "2026-07-25T15:24:31.990369+00:00",
@@ -51,7 +51,22 @@
       "ts": "2026-07-25T16:19:46.575732+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-25T13:12:31.557659+00:00",
+      "action": "graduated",
+      "reviewer": "host-agent",
+      "notes": "Infrastructure consolidation operations completed",
+      "provisional": false,
+      "evidence_snapshot": [
+        "2026-07-25T15:24:16.595567+00:00",
+        "2026-07-25T15:24:22.786503+00:00"
+      ],
+      "lessons_sha": "9e16eb0b803d"
     }
   ],
-  "rejection_count": 0
+  "rejection_count": 0,
+  "accepted_at": "2026-08-25T13:12:31.557654+00:00",
+  "reviewer": "host-agent",
+  "rationale": "Infrastructure consolidation operations completed"
 }

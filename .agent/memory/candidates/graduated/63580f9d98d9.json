@@ -30,7 +30,7 @@
   "cluster_size": 2,
   "canonical_salience": 8.19,
   "staged_at": "2026-07-25T01:52:44.150347+00:00",
-  "status": "staged",
+  "status": "accepted",
   "decisions": [
     {
       "ts": "2026-07-25T01:52:44.150347+00:00",
@@ -66,7 +66,22 @@
       "ts": "2026-07-25T17:14:31.750900+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-25T13:12:36.682789+00:00",
+      "action": "graduated",
+      "reviewer": "host-agent",
+      "notes": "Service networking and orchestration completed",
+      "provisional": false,
+      "evidence_snapshot": [
+        "2026-07-21T19:58:27.592321+00:00",
+        "2026-07-25T01:44:40.590080+00:00"
+      ],
+      "lessons_sha": "a9eaf6b8d0d7"
     }
   ],
-  "rejection_count": 0
+  "rejection_count": 0,
+  "accepted_at": "2026-08-25T13:12:36.682767+00:00",
+  "reviewer": "host-agent",
+  "rationale": "Service networking and orchestration completed"
 }
