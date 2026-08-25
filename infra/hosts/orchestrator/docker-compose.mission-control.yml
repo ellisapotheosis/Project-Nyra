@@ -1,0 +1,40 @@
+# Mission Control Audit Service — Immutable, Append-Only
+# Read-only HTTP enforcement (403 for all mutations)
+# Forensic replay capability with hash-chain integrity verification
+
+services:
+  mission-control:
+    build:
+      context: ./mission-control
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mission-control
+    environment:
+      MISSION_CONTROL_PORT: 9090
+      AUDIT_DIR: /audit
+      LOG_LEVEL: INFO
+    ports:
+      - "9090:9090"
+    volumes:
+      - mission_control_audit:/audit
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: audit
+      com.projectnyra.component: mission-control
+    read_only: true
+    cap_drop:
+      - ALL
+
+volumes:
+  mission_control_audit:
+    driver: local
+
+networks:
+  nyra-network:
+    external: true

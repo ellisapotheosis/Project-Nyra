@@ -29,13 +29,33 @@
   "cluster_size": 8,
   "canonical_salience": 13.5,
   "staged_at": "2026-07-23T02:26:11.126378+00:00",
-  "status": "staged",
+  "status": "rejected",
   "decisions": [
     {
       "ts": "2026-07-23T02:26:11.126378+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-25T09:50:36.727224+00:00",
+      "action": "rejected",
+      "reviewer": "heuristic_prefilter",
+      "notes": "exact_duplicate_of_1_lessons",
+      "duplicate_claims": [
+        "Wrote /home/ellisapotheosis/repos/project-nyra/docs/security/INFISICAL-CLOUD-AGENT-VAULT-WORKFLOW.md (293 lines)"
+      ],
+      "evidence_snapshot": [
+        "2026-07-21T20:03:45.476488+00:00",
+        "2026-07-23T02:21:11.995810+00:00",
+        "2026-07-23T02:19:23.980831+00:00",
+        "2026-07-23T02:19:31.979634+00:00",
+        "2026-07-23T02:20:42.488868+00:00",
+        "2026-07-23T02:21:29.117951+00:00",
+        "2026-07-23T02:21:31.274984+00:00",
+        "2026-07-23T02:21:35.784575+00:00"
+      ],
+      "lessons_sha": "242faba5b2a7"
     }
   ],
-  "rejection_count": 0
+  "rejection_count": 1
 }
