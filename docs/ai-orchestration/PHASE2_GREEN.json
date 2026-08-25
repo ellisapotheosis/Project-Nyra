@@ -2,7 +2,7 @@
   "phase": "phase2-mcp-memory",
   "status": "blocked",
   "green": false,
-  "as_of": "2026-08-24",
+  "as_of": "2026-08-25",
   "branch": "nyra/phase2-mcp-memory",
   "verified": {
     "oracle_memory_containers_running": true,
@@ -16,22 +16,28 @@
     "oracle_memory_containers_healthy": true,
     "oracle_grafbase_nexus_healthy": true,
     "nexus_origin_loopback_bound": true,
-    "canonical_oracle_compose_contains_nexus": true
+    "canonical_oracle_compose_contains_nexus": true,
+    "worker_rtx3060_ollama_reachable": true,
+    "worker_rtx3060_embedding_dimensions_768": true,
+    "mem0_vector_add_search_cleanup": true,
+    "mem0_service_healthy_after_refresh": true,
+    "mem0_falkordb_compatibility_adapter_roundtrip": true
   },
   "unverified": {
-    "human_managed_oauth_mcp_call": "requires interactive browser login",
-    "agent_service_token_mcp_call": "Portal session initializes but exposes no connected upstream server; investigate linked-server session authorization",
+    "human_managed_oauth_mcp_call": "OAuth registration and authorization redirect now verified for both hostnames; interactive IdP login and callback completion require a real client session",
+    "agent_service_token_mcp_call": "Both Portal hostnames accept the Access service token and complete MCP initialize; full Portal tool invocation and unauthorized-token rejection remain to be verified",
     "portal_managed_nexus_upstream_credential": "Cloudflare API shows nyra-bearer connected and ready; end-to-end Portal tool call remains unproven",
     "nexus_not_directly_public": "Access-protected public hostname and live loopback-only origin verified; direct public-origin bypass remains unproven",
-    "context_benchmark_numbers": "transport probes captured; 20-call latency/context benchmark blocked by empty Portal connected-server set",
-    "memory_add_vector_graph_letta_openmemory_roundtrip": "Mem0 now has a canonical 3060 Ollama route using the installed llama3.2:3b fallback and a 768-dimensional nomic-embed-text schema; synthetic add must be rerun after the Oracle deployment is refreshed",
+    "context_benchmark_numbers": "transport probes captured; 20-call latency/context benchmark remains to be run through the selected Portal path",
+    "memory_add_vector_graph_letta_openmemory_roundtrip": "Mem0/Qdrant vector add/search/cleanup and the explicit private FalkorDB user-to-memory compatibility adapter are verified using worker-rtx3060; Letta new-session recall and OpenMemory browsing remain unverified",
+    "mem0_falkordb_graph_backend": "Verified through the explicit adapter; native unsupported Mem0 graph_store provider keys remain disabled",
     "backup_snapshot_and_auth_validation": "requires host-side operational checks"
   },
-  "stop_reason": "Cloudflare Portal/Nexus bearer configuration is repaired and synchronized, but a service-token Portal session still reports no connected upstream server and a human Managed OAuth call requires interactive login. Grafbase Nexus is healthy on the canonical Oracle deployment and loopback-bound; memory roundtrip evidence remains incomplete.",
+  "stop_reason": "Cloudflare hostname, Access, OAuth registration/redirect, and MCP initialize checks are passing. A real interactive OAuth callback and end-to-end Portal tool call remain unverified; memory roundtrip, backups, and context benchmark evidence also remain incomplete.",
   "required_next_actions": [
-    "Trace why the service-token Portal session does not connect the ready nyra-bearer mapping even though the Portal and linked Nexus Access apps both contain Nyra Agents Service Auth.",
     "Complete one interactive Managed OAuth human session and capture Access/Portal audit evidence.",
-    "Power on worker-rtx3060, load qwen2.5:4b and nomic-embed-text, then rerun the Mem0 vector/graph/Letta/OpenMemory roundtrip.",
+    "Complete an authorized and unauthorized service-token Portal tool-call test and capture Portal/Nexus audit evidence.",
+    "Complete Letta new-session recall and OpenMemory browsing against the normalized memory facade.",
     "Run context, synthetic memory, backup, and cleanup tests; capture evidence and remove test data."
   ]
 }

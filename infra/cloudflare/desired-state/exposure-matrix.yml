@@ -200,7 +200,22 @@ mcp_portals:
     linked_server_on_behalf: false
     origin_identity_authority: cloudflare_access
     upstream_credential: infisical:/hosts/shared/CF_PORTAL_NEXUS_UPSTREAM_BEARER
-    status: requires_portal_inventory
+    oauth_redirect_uris:
+      - https://chatgpt.com/connector/oauth/ScujoiRI23cB
+    status: verified_access_and_mcp_initialize
+  - name: MCP-Gateway (legacy alias)
+    hostname: mcp-portal.projectnyra.com
+    cloudflare_managed: true
+    linked_server: nyra-bearer
+    linked_server_url: https://nexus-router.projectnyra.com/mcp
+    managed_oauth: true
+    oauth_redirect_uris:
+      - https://chatgpt.com/connector/oauth/ScujoiRI23cB
+    machine_access: service_token
+    linked_server_on_behalf: false
+    origin_identity_authority: cloudflare_access
+    upstream_credential: infisical:/hosts/shared/CF_PORTAL_NEXUS_UPSTREAM_BEARER
+    status: verified_access_and_mcp_initialize
 
 not_tunneled:
   - postgres

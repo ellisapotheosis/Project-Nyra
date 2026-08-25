@@ -1,18 +1,10 @@
 {
   "sessions": {
-    "7dd44800-6c15-47ed-8d76-0df5fb94a77b": {
+    "ecaf294d-fd71-42b6-a098-e1d90e7f502c": {
       "injectedPaths": [
         "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md"
       ],
-      "timestamp": 1787608058810
-    },
-    "8c50ff89-91c8-4eac-932e-b28915d61bcb": {
-      "injectedPaths": [
-        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md",
-        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/deploy-checklist/SKILL.md",
-        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/data-layer/SKILL.md"
-      ],
-      "timestamp": 1787608352337
+      "timestamp": 1787650786188
     }
   }
 }

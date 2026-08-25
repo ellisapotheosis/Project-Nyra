@@ -1,26 +1,12 @@
 {
   "mcpServers": {
-    "cloudflare-mcp": {
-      "command": "npx",
-      "args": ["-y", "@cloudflare/mcp-server-cloudflare", "run"],
-      "env": {
-        "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}",
-        "MCP_ENDPOINT": "https://mcp-gateway.projectnyra.com/mcp",
-        "CF_ACCESS_CLIENT_ID": "6fb77c5bdd11e8b220720ddae1cd01da.access",
-        "CF_ACCESS_CLIENT_SECRET": "${CLOUDFLARE_CHATGPT_SERVICE_TOKEN_SECRET}"
-      }
-    },
-    "nexus-router": {
-      "type": "http",
-      "url": "https://nexus-router.projectnyra.com/mcp",
-      "headers": {
-        "CF-Access-Client-Id": "${CF_GATEWAY_ACCESS_CLIENT_ID}",
-        "CF-Access-Client-Secret": "${CF_GATEWAY_ACCESS_CLIENT_SECRET}"
-      }
-    },
     "mcp-gateway": {
       "type": "http",
       "url": "https://mcp-gateway.projectnyra.com/mcp",
+      "headers": {
+        "CF-Access-Client-Id": "${CF_GATEWAY_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "${CF_GATEWAY_ACCESS_CLIENT_SECRET}"
+      },
       "startup_timeout_sec": 90
     },
     "letta-mcp": {
