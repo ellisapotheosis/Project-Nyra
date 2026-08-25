@@ -25,13 +25,27 @@
   "cluster_size": 2,
   "canonical_salience": 9.0,
   "staged_at": "2026-07-26T08:30:13.777535+00:00",
-  "status": "staged",
+  "status": "rejected",
   "decisions": [
     {
       "ts": "2026-07-26T08:30:13.777535+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-25T13:14:34.604622+00:00",
+      "action": "rejected",
+      "reviewer": "heuristic_prefilter",
+      "notes": "exact_duplicate_of_1_lessons",
+      "duplicate_claims": [
+        "High-stakes op completed (prod): python3 - << 'EOF'"
+      ],
+      "evidence_snapshot": [
+        "2026-07-26T04:53:04.826358+00:00",
+        "2026-07-26T08:29:49.082969+00:00"
+      ],
+      "lessons_sha": "10055fdd065c"
     }
   ],
-  "rejection_count": 0
+  "rejection_count": 1
 }

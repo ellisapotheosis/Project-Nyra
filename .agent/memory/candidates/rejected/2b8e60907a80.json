@@ -31,13 +31,29 @@
   "cluster_size": 4,
   "canonical_salience": 13.5,
   "staged_at": "2026-08-24T13:12:05.522698+00:00",
-  "status": "staged",
+  "status": "rejected",
   "decisions": [
     {
       "ts": "2026-08-24T13:12:05.522698+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-25T13:14:34.606906+00:00",
+      "action": "rejected",
+      "reviewer": "heuristic_prefilter",
+      "notes": "exact_duplicate_of_1_lessons",
+      "duplicate_claims": [
+        "High-stakes op completed (deployment): git add docs/ai-orchestration/ infra/scripts/phase1-*.sh && git commit -m \"feat(phase1): complete In"
+      ],
+      "evidence_snapshot": [
+        "2026-07-25T23:12:11.027530+00:00",
+        "2026-07-26T09:16:14.548665+00:00",
+        "2026-07-26T13:03:18.683476+00:00",
+        "2026-08-24T13:11:25.949022+00:00"
+      ],
+      "lessons_sha": "10055fdd065c"
     }
   ],
-  "rejection_count": 0
+  "rejection_count": 1
 }

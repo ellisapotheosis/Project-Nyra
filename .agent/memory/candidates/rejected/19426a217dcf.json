@@ -24,13 +24,28 @@
   "cluster_size": 3,
   "canonical_salience": 13.5,
   "staged_at": "2026-08-24T16:12:37.193724+00:00",
-  "status": "staged",
+  "status": "rejected",
   "decisions": [
     {
       "ts": "2026-08-24T16:12:37.193724+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-25T13:14:34.603636+00:00",
+      "action": "rejected",
+      "reviewer": "heuristic_prefilter",
+      "notes": "exact_duplicate_of_1_lessons",
+      "duplicate_claims": [
+        "High-stakes op completed (deployment): git add PHASE3_CORE_STACK_DEPLOYED.md && git commit -m \"docs(phase3): comprehensive core stack deplo"
+      ],
+      "evidence_snapshot": [
+        "2026-08-24T15:33:12.424453+00:00",
+        "2026-08-24T16:12:17.710846+00:00",
+        "2026-08-24T16:12:17.909968+00:00"
+      ],
+      "lessons_sha": "10055fdd065c"
     }
   ],
-  "rejection_count": 0
+  "rejection_count": 1
 }
