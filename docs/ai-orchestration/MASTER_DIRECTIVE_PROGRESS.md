@@ -3,8 +3,8 @@
 ## Execution Status Report
 
 **Started:** 2026-08-25 02:45 UTC
-**Status:** IN PROGRESS (Phase 2 - OpenClaw Install)
-**Blockers:** npm install timeout (large dependency tree)
+**Status:** BLOCKED AT PHASE 3 (Infisical Authentication)
+**Blockers:** Infisical keyring auth required; env variable resolution needs Phase 3 secrets
 
 ---
 
@@ -30,33 +30,36 @@ mkdir -p ~/.openclaw/workspace && chmod 700 ~/.openclaw ~/.openclaw/workspace
 
 ---
 
-## Phase 2: Runtime & Core OpenClaw Installation 🔄 IN PROGRESS
+## Phase 2: Runtime & Core OpenClaw Installation ✅ COMPLETE
 
-### Current Action
+### Completed Actions
 
 ```bash
 npm install -g openclaw@latest
 ```
 
-**Status:** Running on orchestrator WSL (PID remote, started 02:45 UTC)
+**Result:** ✅ OpenClaw 2026.6.10 (aa69b12) installed successfully
 
-**Expected Duration:** npm installs typically 2-5 min for CLI tools; OpenClaw may be larger
+- Command: `openclaw --version` → `OpenClaw 2026.6.10 (aa69b12)`
+- Schema available: `openclaw config schema` validates
+- Workspace created: `~/.openclaw/workspace` (700 perms)
 
-**Next Steps (when install completes):**
-
-1. Verify: `openclaw --version`
-2. Validate schema: `openclaw config schema --json`
-3. Proceed to Phase 3
+**Next:** Proceed to Phase 3 (blocked on Infisical auth)
 
 ---
 
-## Phase 3: Secret Injection & Embedding Probing 🔲 QUEUED
+## Phase 3: Secret Injection & Embedding Probing 🔴 BLOCKED
 
 ### Infisical Status
 
 - ✅ Infisical CLI v0.43.125 available (`/usr/bin/infisical`)
-- ✅ `infisical run` command available for secret injection
-- ⏳ Awaiting OpenClaw install to proceed
+- ✅ `.infisical.json` project config found (workspaceId: 8374cea9-e5e8-4050-bda4-b91f25ab30ef)
+- ❌ **BLOCKER:** Infisical keyring authentication failed
+  - Error: `failed to unlock correct collection '/org/freedesktop/secrets/aliases/default'`
+  - Cause: WSL system keyring not available or misconfigured
+  - Solution: Requires either:
+    1. Infisical service token (no keyring needed), OR
+    2. Browser OAuth login + keyring setup on WSL
 
 ### Commands Prepared
 
@@ -88,11 +91,13 @@ EMBED_DIM="$(curl -fsS -H "Authorization: Bearer ${LITELLM_OPENCLAW_KEY}" \
 
 ---
 
-## Phase 5: Patch Orchestrator Gateway Configuration 🔲 QUEUED
+## Phase 5: Patch Orchestrator Gateway Configuration 🟡 PREPARED (BLOCKED on Phase 3)
 
 ### Configuration File
 
-`/tmp/nyra-openclaw.patch.json5` — 125+ line config patch covering:
+**Status:** Config patch JSON5 created at `/tmp/nyra-openclaw.patch.json5`
+
+**Content:** 125+ line patch covering:
 
 - Gateway mode, port (18789), auth (token + Tailscale)
 - Model providers (LiteLLM, OpenRouter, vLLM)
@@ -100,6 +105,12 @@ EMBED_DIM="$(curl -fsS -H "Authorization: Bearer ${LITELLM_OPENCLAW_KEY}" \
 - Plugins (mem0, codex, acpx)
 - MCP servers (nexus)
 - Browser & eval policies
+
+**Blocker:** Patch application fails with `TypeError: Invalid URL`
+
+- Root cause: Environment variable placeholders (`${LITELLM_BASE_URL}`, etc.) not resolved
+- Requires: Phase 3 Infisical secret injection to populate env vars
+- Once Phase 3 secrets available: `openclaw config patch --file /tmp/nyra-openclaw.patch.json5`
 
 ---
 
