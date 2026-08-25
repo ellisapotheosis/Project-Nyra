@@ -88,8 +88,8 @@ services:
       - ollama_models:/models
     environment:
       - OLLAMA_URL=http://worker-3060-ollama:11434
-      - AVAILABLE_MODELS=llama3.2:3b,phi3:mini,nomic-embed-text
-      - DEFAULT_MODEL=llama3.2:3b
+      - AVAILABLE_MODELS=qwen3:4b,nomic-embed-text
+      - DEFAULT_MODEL=qwen3:4b
     command: python /app/switcher.py
     depends_on:
       ollama:

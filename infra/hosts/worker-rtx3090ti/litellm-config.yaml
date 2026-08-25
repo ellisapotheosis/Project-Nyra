@@ -2,13 +2,13 @@
 # Provides an OpenAI-compatible API for the local vLLM backend.
 
 model_list:
-  - model_name: ${MODEL_ID}
+  - model_name: local/qwen3.8-27b
     litellm_params:
-      model: openai/${MODEL_ID}
+      model: openai/Qwen3.8-27B
       api_base: ${VLLM_BASE_URL}
       api_key: dummy
       timeout: 120
-      max_tokens: 32768
+      max_tokens: 8192
     model_info:
       mode: chat
       supports_function_calling: true

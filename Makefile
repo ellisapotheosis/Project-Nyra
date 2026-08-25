@@ -52,6 +52,13 @@ WORKER_5090_CONTEXT ?= worker-rtx5090
 WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
 WORKER_3060_CONTEXT ?= worker-rtx3060
 
+# Canonical host/env contract.  Compose files remain host-owned under
+# infra/hosts/<host>; these examples describe the injection boundary only.
+HOSTS := orchestrator oracle-vps worker-rtx3090ti worker-rtx3060 worker-rtx5090
+HOST_EXAMPLE_ENVS := $(foreach host,$(HOSTS),infra/hosts/$(host)/example.env)
+HOSTS_SHARED_EXAMPLE := infra/hosts/hosts-shared.example.env
+SHARED_EXAMPLE_ENV := infra/shared-example.env
+
 DEFAULT_PROFILES ?= apps,sync,debug
 
 .PHONY: help install test lint validate up down restart logs ps pull verify-paths dev-orchestrate dev-down dev-panels dev-status dev-llxprt-jefe dev-llxprt-code llxprt-bridge-up llxprt-bridge-down llxprt-bridge-status llxprt-oracle-tunnel-up llxprt-oracle-tunnel-down llxprt-oracle-tunnel-status llxprt-oracle-subscription-up up-worker-3090ti up-worker-5090 up-worker-3060 up-all-workers down-all-workers paperclip-up paperclip-down paperclip-logs paperclip-status oracle-config \
@@ -65,7 +72,8 @@ DEFAULT_PROFILES ?= apps,sync,debug
   oracle-mcp-tools-up oracle-mcp-tools-down oracle-mcp-tools-ps \
   oracle-portainer-up oracle-portainer-down oracle-portainer-ps \
   sync-env sync-env-all \
-  up-all down-all cluster-status
+  up-all down-all cluster-status host-env-examples compose-location-check \
+  stack-config-check stack-up stack-status
 
 restoration-up: oracle-mcp-tools-up oracle-memory-full-up
 	@echo "🚀 Bringing up LLXPRT cluster..."
@@ -105,6 +113,9 @@ help:
 	@echo "make forgejo-up         Start Forgejo + Actions"
 	@echo "make twenty-crm-up      Start Twenty CRM"
 	@echo "make verify-paths       Verify Makefile path references exist"
+	@echo "make stack-config-check Validate canonical Compose and env-example layout"
+	@echo "make stack-up           Validate, then start the distributed stack"
+	@echo "make stack-status       Show the distributed stack status"
 	@echo
 	@echo "--- CLOUDFLARED TUNNELS ---"
 	@echo "make cf-orch-up         Start orchestrator CF tunnel (separate from main stack)"
@@ -173,6 +184,37 @@ verify-paths:
 	@test -f $(WORKER_3090TI_NERVE_COMPOSE) || (echo "Missing $(WORKER_3090TI_NERVE_COMPOSE)" && exit 1)
 	@test -f $(WORKER_5090_NERVE_COMPOSE) || (echo "Missing $(WORKER_5090_NERVE_COMPOSE)" && exit 1)
 	@echo "All Makefile compose paths are valid."
+
+host-env-examples:
+	@for env_file in $(HOST_EXAMPLE_ENVS); do \
+		test -f "$$env_file" || { echo "Missing $$env_file"; exit 1; }; \
+	done
+	@test -f $(HOSTS_SHARED_EXAMPLE) || (echo "Missing $(HOSTS_SHARED_EXAMPLE)" && exit 1)
+	@test -f $(SHARED_EXAMPLE_ENV) || (echo "Missing $(SHARED_EXAMPLE_ENV)" && exit 1)
+	@echo "All host and shared env examples are present."
+
+compose-location-check:
+	@outside="$$(find . -type f \( -name 'docker-compose*.yml' -o -name 'docker-compose*.yaml' -o -name 'compose*.yml' -o -name 'compose*.yaml' \) \
+		-not -path './.git/*' \
+		-not -path './infra/hosts/*' \
+		-not -path './node_modules/*' \
+		-not -path './docs/archive/*' \
+		-not -path './apps/guidance/references/*' \
+		-not -path './external/*' \
+		-not -path './bootstrap/*' | sort)"; \
+	if [ -n "$$outside" ]; then \
+		echo "Compose files outside infra/hosts are not allowed:"; \
+		echo "$$outside"; exit 1; \
+	fi
+	@echo "Compose location check passed: active Compose files are under infra/hosts."
+
+stack-config-check: verify-paths host-env-examples compose-location-check
+	@echo "Canonical stack configuration check passed."
+
+stack-up: stack-config-check
+	@$(MAKE) up-all
+
+stack-status: cluster-status
 
 dev-orchestrate:
 	@echo "🎨 Starting local development orchestration..."
