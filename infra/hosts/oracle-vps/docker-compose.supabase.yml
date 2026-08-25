@@ -1,0 +1,115 @@
+# Supabase — Backend + Auth Platform
+# Provides database, authentication, real-time subscriptions for webapp
+name: supabase-stack
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+
+services:
+  supabase-db:
+    <<: *common
+    image: postgres:15-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-db
+    environment:
+      POSTGRES_USER: ${SUPABASE_DB_USER:-supabase}
+      POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:?set SUPABASE_DB_PASSWORD}
+      POSTGRES_DB: ${SUPABASE_DB_NAME:-postgres}
+      POSTGRES_INITDB_ARGS: -c shared_preload_libraries=pg_stat_statements
+    volumes:
+      - supabase_db_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${SUPABASE_DB_USER:-supabase} -d ${SUPABASE_DB_NAME:-postgres}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [nyra_net]
+
+  supabase-auth:
+    <<: *common
+    image: supabase/gotrue:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-auth
+    environment:
+      GOTRUE_DB_DRIVER: postgres
+      DB_NAMESPACE: auth
+      GOTRUE_DB_DATABASE_URL: postgresql://${SUPABASE_DB_USER:-supabase}:${SUPABASE_DB_PASSWORD:?set SUPABASE_DB_PASSWORD}@supabase-db:5432/${SUPABASE_DB_NAME:-postgres}
+      GOTRUE_JWT_SECRET: ${SUPABASE_JWT_SECRET:?set SUPABASE_JWT_SECRET}
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_EXTERNAL_URL: ${SUPABASE_EXTERNAL_URL:-https://auth.projectnyra.com}
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_SITE_URL: ${SUPABASE_SITE_URL:-https://projectnyra.com}
+      GOTRUE_MAILER_AUTOCONFIRM: ${GOTRUE_MAILER_AUTOCONFIRM:-true}
+      GOTRUE_LOG_LEVEL: debug
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:9999:9999"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9999/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  supabase-realtime:
+    <<: *common
+    image: supabase/realtime:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-realtime
+    environment:
+      DB_HOST: supabase-db
+      DB_NAME: ${SUPABASE_DB_NAME:-postgres}
+      DB_USER: ${SUPABASE_DB_USER:-supabase}
+      DB_PASSWORD: ${SUPABASE_DB_PASSWORD:?set SUPABASE_DB_PASSWORD}
+      DB_PORT: 5432
+      DB_SSL: "false"
+      FLY_ALLOC_ID: fly_alloc_id_dummy
+      FLY_APP_NAME: realtime
+      FLY_REGION: wss
+      SECURE_CHANNELS: "true"
+      JWT_SECRET: ${SUPABASE_JWT_SECRET:?set SUPABASE_JWT_SECRET}
+      ENVIRONMENT: production
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:4000:4000"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  supabase-vector:
+    <<: *common
+    image: ankane/pgvector:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-vector
+    environment:
+      POSTGRES_USER: ${SUPABASE_DB_USER:-supabase}
+      POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:?set SUPABASE_DB_PASSWORD}
+      POSTGRES_DB: ${SUPABASE_DB_NAME:-postgres}
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    networks: [nyra_net]
+
+networks:
+  nyra_net:
+    external: true
+    name: nyra_net
+
+volumes:
+  supabase_db_data:
