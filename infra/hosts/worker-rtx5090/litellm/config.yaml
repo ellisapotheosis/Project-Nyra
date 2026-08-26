@@ -2,8 +2,8 @@ model_list:
   # ── Local GPU — RTX 5090 (llama.cpp, Qwen3.8-27B Q4_K_M) ──────────────────
   - model_name: local/qwen3.8-27b
     litellm_params:
-      model: openai/Qwen3.8-27B
-      api_base: http://worker-5090-vllm:8000/v1
+      model: openai/qwen3.8-27b
+      api_base: http://qwen38-llama:8000/v1
       api_key: "not-needed"
       timeout: 300
 

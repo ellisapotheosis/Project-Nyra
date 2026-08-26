@@ -1,0 +1,42 @@
+name: oracle-vps-tailscale-proxy
+
+# Private reverse proxy only. Public traffic remains on the Cloudflare Tunnel.
+# Set ORACLE_TAILSCALE_IP after the Oracle node is authenticated to Tailscale;
+# the loopback default prevents accidental public exposure during bootstrap.
+services:
+  tailscale-caddy:
+    image: caddy:2-alpine
+    container_name: nyra-tailscale-caddy
+    restart: unless-stopped
+    ports:
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:80:80"
+      - "${ORACLE_TAILSCALE_IP:-127.0.0.1}:443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_tailscale_data:/data
+      - caddy_tailscale_config:/config
+    networks:
+      - nyra_net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "wget", "--no-check-certificate", "--spider", "--timeout=5", "https://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    labels:
+      com.projectnyra.service: tailscale-caddy
+      com.projectnyra.visibility: tailscale-only
+      com.projectnyra.public-ingress: cloudflare-tunnel
+
+volumes:
+  caddy_tailscale_data:
+    name: nyra_caddy_tailscale_data
+  caddy_tailscale_config:
+    name: nyra_caddy_tailscale_config
+
+networks:
+  nyra_net:
+    external: true
+    name: ${ORACLE_MAIN_NETWORK:-nyra-network_nyra_net}

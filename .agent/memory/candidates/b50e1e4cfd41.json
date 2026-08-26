@@ -1,0 +1,100 @@
+{
+  "id": "b50e1e4cfd41",
+  "key": "pattern_disable_warning_bash_b50e1e",
+  "name": "pattern_disable_warning_bash_b50e1e",
+  "claim": "High-stakes op completed (deployment): cat > /home/ellisapotheosis/repos/project-nyra/NEXT_CRITICAL_PATH.md << 'EOF'",
+  "conditions": [
+    "bash",
+    "cmd",
+    "disable",
+    "git",
+    "hint",
+    "out",
+    "warning"
+  ],
+  "evidence_ids": [
+    "2026-07-20T16:55:31.099300+00:00",
+    "2026-07-25T17:14:22.809731+00:00",
+    "2026-07-25T22:54:49.009760+00:00",
+    "2026-08-24T14:46:04.822933+00:00",
+    "2026-08-24T14:50:32.180612+00:00",
+    "2026-08-25T13:16:37.753967+00:00"
+  ],
+  "cluster_size": 6,
+  "canonical_salience": 13.5,
+  "staged_at": "2026-08-26T09:44:48.514277+00:00",
+  "status": "staged",
+  "decisions": [
+    {
+      "ts": "2026-08-26T09:44:48.514277+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:00:19.268765+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:03:49.698486+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:19:38.754053+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:20:34.205006+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:30:28.590627+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:30:45.334910+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:31:46.481452+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:32:38.819986+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:33:00.977928+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T10:33:36.440686+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T11:55:47.382500+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T11:56:21.311583+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-26T11:56:55.123560+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    }
+  ],
+  "rejection_count": 0
+}

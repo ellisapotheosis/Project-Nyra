@@ -121,25 +121,31 @@ model_list:
   # ── OpenRouter Free Tier ────────────────────────────────────────────────────
   - model_name: openrouter/gemini-flash
     litellm_params:
-      model: openrouter/google/gemini-2.0-flash-exp:free
+      model: openrouter/google/gemma-4-26b-a4b-it:free
       api_key: os.environ/OPENROUTER_API_KEY
       timeout: 60
 
   - model_name: openrouter/deepseek
     litellm_params:
-      model: openrouter/deepseek/deepseek-chat:free
+      model: openrouter/cohere/north-mini-code:free
       api_key: os.environ/OPENROUTER_API_KEY
       timeout: 90
 
   - model_name: openrouter/qwen3
     litellm_params:
-      model: openrouter/qwen/qwen3-30b-a3b:free
+      model: openrouter/nvidia/nemotron-3.5-lightning:free
       api_key: os.environ/OPENROUTER_API_KEY
       timeout: 120
 
   - model_name: openrouter/llama4
     litellm_params:
-      model: openrouter/meta-llama/llama-4-scout:free
+      model: openrouter/nvidia/nemotron-3.5-lightning:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 60
+
+  - model_name: openrouter/cohere-code
+    litellm_params:
+      model: openrouter/cohere/north-mini-code:free
       api_key: os.environ/OPENROUTER_API_KEY
       timeout: 60
 

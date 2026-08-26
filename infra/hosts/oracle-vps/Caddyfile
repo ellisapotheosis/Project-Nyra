@@ -1,15 +1,12 @@
 # Caddy Reverse Proxy Configuration — Oracle VPS
 # Purpose: Single entry point for all services via Tailscale mesh
-# Binding: 100.64.0.3:443 (Tailscale IP, HTTPS only, no HTTP)
+# Binding: ORACLE_TAILSCALE_IP:443 (Tailscale IP, HTTPS only, no public bind)
 # TLS: Automatic certificates via ACME (LetsEncrypt or internal CA)
 # DNS: MagicDNS (trex-fiordland.ts.net suffix)
 
 # Global settings
 {
 	admin off
-	on_demand_tls {
-		ask http://localhost:2019/caddy/admin/api/config
-	}
 	log default {
 		output file /var/log/caddy/access.log {
 			roll_size 100mb
@@ -17,6 +14,13 @@
 		}
 		level info
 	}
+}
+
+# Container/process health probe. The Compose healthcheck reaches this over
+# the private 443 listener without requiring an application route.
+:443 {
+	tls internal
+	respond /health "OK" 200
 }
 
 # ============================================================================

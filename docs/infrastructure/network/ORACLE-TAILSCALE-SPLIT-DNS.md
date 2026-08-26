@@ -13,6 +13,21 @@ It is available as `make oracle-tailscale-up`. The command must run on
 only registers the node, tags, and route acceptance; it does not create DNS
 records by itself.
 
+As of 2026-08-26, OCI access is available through the instance's public
+address `163.192.46.128` on SSH port `23` (`ubuntu`), while the Tailscale node
+is still `NeedsLogin`. The command was executed on Oracle and returned the
+Tailscale authentication URL, but the node cannot receive a Tailscale address
+or advertise tags until that browser approval (or a pre-authorized auth key) is
+provided.
+
+The private Caddy proxy is now defined in
+`infra/hosts/oracle-vps/docker-compose.tailscale-proxy.yml`. It is healthy and
+binds HTTPS to `127.0.0.1:443` during the unauthenticated bootstrap state. Once
+Oracle is enrolled, set `ORACLE_TAILSCALE_IP` to the node's Tailscale address
+and recreate that Compose service; it will then bind 80/443 to the Tailscale
+interface only. OCI public 443 remains closed intentionally because public
+application and MCP ingress is provided by the healthy Cloudflare Tunnel.
+
 ## Required tailnet DNS configuration
 
 In the Tailscale admin console, configure a nameserver/split-DNS rule for
@@ -42,6 +57,20 @@ tailscale status
 dig +short litellm.projectnyra.com
 curl -fsS https://litellm.projectnyra.com/health
 ```
+
+For the local reverse-proxy process check on Oracle:
+
+```bash
+ssh -p 23 ubuntu@163.192.46.128
+sudo docker ps --filter name=nyra-tailscale-caddy
+sudo ss -ltnp | grep ':443 '
+curl -sk --resolve localhost:443:127.0.0.1 https://localhost/health
+```
+
+The expected pre-enrollment result is a healthy Caddy container, a loopback
+443 listener, and an `OK` response. After Tailscale enrollment, repeat the
+check against the Tailscale address and confirm the split-DNS answer for each
+approved service hostname.
 
 If `make oracle-tailscale-up` cannot connect, Oracle is unavailable and the
 configuration is not confirmed. Do not run the command on another host as a

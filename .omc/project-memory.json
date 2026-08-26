@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1787566608657,
+  "lastScanned": 1787737216848,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
   "techStack": {
     "languages": [
@@ -8,19 +8,25 @@
         "name": "JavaScript/TypeScript",
         "version": ">=20",
         "confidence": "high",
-        "markers": ["package.json"]
+        "markers": [
+          "package.json"
+        ]
       },
       {
         "name": "TypeScript",
         "version": null,
         "confidence": "high",
-        "markers": ["tsconfig.json"]
+        "markers": [
+          "tsconfig.json"
+        ]
       },
       {
         "name": "C/C++",
         "version": null,
         "confidence": "high",
-        "markers": ["Makefile"]
+        "markers": [
+          "Makefile"
+        ]
       }
     ],
     "frameworks": [
@@ -84,7 +90,12 @@
       "services/*/*",
       "packages/*"
     ],
-    "mainDirectories": ["docs", "scripts", "src", "tests"],
+    "mainDirectories": [
+      "docs",
+      "scripts",
+      "src",
+      "tests"
+    ],
     "gitBranches": null
   },
   "customNotes": [],
@@ -93,7 +104,7 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1787566608617,
+      "lastAccessed": 1787737216823,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
@@ -105,21 +116,21 @@
       "path": "archive",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787566608618,
+      "lastAccessed": 1787737216824,
       "keyFiles": []
     },
     "bootstrap": {
       "path": "bootstrap",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787566608626,
+      "lastAccessed": 1787737216825,
       "keyFiles": []
     },
     "cloudflare-access-backup": {
       "path": "cloudflare-access-backup",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1787566608630,
+      "lastAccessed": 1787737216830,
       "keyFiles": [
         "ROLLBACK.md",
         "applications.before.json",
@@ -132,7 +143,7 @@
       "path": "conductor",
       "purpose": null,
       "fileCount": 6,
-      "lastAccessed": 1787566608631,
+      "lastAccessed": 1787737216834,
       "keyFiles": [
         "index.md",
         "product-guidelines.md",
@@ -145,48 +156,53 @@
       "path": "configs",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787566608631,
+      "lastAccessed": 1787737216835,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 2,
-      "lastAccessed": 1787566608631,
-      "keyFiles": ["campaign-templates.json", "seed-leads.json"]
+      "lastAccessed": 1787737216836,
+      "keyFiles": [
+        "campaign-templates.json",
+        "seed-leads.json"
+      ]
     },
     "development": {
       "path": "development",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1787566608632,
-      "keyFiles": ["README.md"]
+      "lastAccessed": 1787737216836,
+      "keyFiles": [
+        "README.md"
+      ]
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 6,
-      "lastAccessed": 1787566608633,
+      "fileCount": 8,
+      "lastAccessed": 1787737216837,
       "keyFiles": [
+        "AIONUI_WINDOWS_BUILD.md",
         "CLOUDFLARE-PAGES-DEPLOYMENT.md",
+        "DEVICE_APPROVAL_GUIDE.md",
         "INFISICAL_GATEWAY_SETUP.md",
-        "MANUAL_ACTIONS_INFISICAL_GATEWAY.md",
-        "OMNIBUS-INFRASTRUCTURE-EXECUTION-SPEC.md",
-        "OWNER_MANUAL_ACTIONS.md"
+        "MANUAL_ACTIONS_INFISICAL_GATEWAY.md"
       ]
     },
     "external": {
       "path": "external",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787566608633,
+      "lastAccessed": 1787737216838,
       "keyFiles": []
     },
     "infra": {
       "path": "infra",
       "purpose": null,
-      "fileCount": 13,
-      "lastAccessed": 1787566608634,
+      "fileCount": 14,
+      "lastAccessed": 1787737216838,
       "keyFiles": [
         "0-100-AUTONOMOUS-PROMPT-GOD.md",
         "CLAUDE.md",
@@ -199,21 +215,23 @@
       "path": "ops",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787566608635,
+      "lastAccessed": 1787737216838,
       "keyFiles": []
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1787566608636,
-      "keyFiles": ["CLAUDE.md"]
+      "lastAccessed": 1787737216839,
+      "keyFiles": [
+        "CLAUDE.md"
+      ]
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
-      "fileCount": 67,
-      "lastAccessed": 1787566608637,
+      "fileCount": 70,
+      "lastAccessed": 1787737216839,
       "keyFiles": [
         "Initialize-CodexEnvironment.sh",
         "agent-vault-infisical-sync.sh",
@@ -226,61 +244,68 @@
       "path": "security",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787566608637,
+      "lastAccessed": 1787737216839,
       "keyFiles": []
     },
     "services": {
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 1,
-      "lastAccessed": 1787566608638,
-      "keyFiles": ["CLAUDE.md"]
+      "lastAccessed": 1787737216840,
+      "keyFiles": [
+        "CLAUDE.md"
+      ]
     },
     "skills": {
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787566608638,
+      "lastAccessed": 1787737216840,
       "keyFiles": []
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1787566608638,
-      "keyFiles": ["CLAUDE.md"]
+      "lastAccessed": 1787737216840,
+      "keyFiles": [
+        "CLAUDE.md"
+      ]
     },
     "tests": {
       "path": "tests",
       "purpose": "Test files",
-      "fileCount": 4,
-      "lastAccessed": 1787566608639,
+      "fileCount": 7,
+      "lastAccessed": 1787737216841,
       "keyFiles": [
         "README.md",
         "README_VITEST.md",
         "jest.setup.js",
-        "tsconfig.json"
+        "phase3-comprehensive-e2e.sh",
+        "phase3-failover-memory-tests.sh"
       ]
     },
     "archive/docs": {
       "path": "archive/docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1787566608641,
+      "lastAccessed": 1787737216842,
       "keyFiles": []
     },
     "development/docs": {
       "path": "development/docs",
       "purpose": "Documentation",
       "fileCount": 1,
-      "lastAccessed": 1787566608649,
-      "keyFiles": ["memory-integration.md"]
+      "lastAccessed": 1787737216844,
+      "keyFiles": [
+        "memory-integration.md"
+      ]
     },
     "ops/scripts": {
       "path": "ops/scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 4,
-      "lastAccessed": 1787566608651,
+      "lastAccessed": 1787737216845,
       "keyFiles": [
         "infisical-oracle-compose.sh",
         "install-infisical-gateway.sh",
@@ -291,22 +316,29 @@
       "path": "packages/assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1787566608654,
+      "lastAccessed": 1787737216846,
       "keyFiles": []
     },
     "packages/config": {
       "path": "packages/config",
       "purpose": "Configuration files",
       "fileCount": 2,
-      "lastAccessed": 1787566608655,
-      "keyFiles": ["README.md", "package.json"]
+      "lastAccessed": 1787737216846,
+      "keyFiles": [
+        "README.md",
+        "package.json"
+      ]
     },
     "tests/fixtures": {
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
-      "lastAccessed": 1787566608656,
-      "keyFiles": ["agents.json", "leads.json", "memory-patterns.json"]
+      "lastAccessed": 1787737216848,
+      "keyFiles": [
+        "agents.json",
+        "leads.json",
+        "memory-patterns.json"
+      ]
     }
   },
   "hotPaths": [
