@@ -196,8 +196,8 @@ networks:
     external: true
     name: nyra_net
   llm_private:
-    external: true
-    name: nyra-network_nyra_net
+    name: nyra_llm_private
+    internal: false
 
 volumes:
   letta_postgres:

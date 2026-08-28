@@ -37,7 +37,7 @@ services:
 
   supabase-auth:
     <<: *common
-    image: supabase/gotrue:latest
+    image: supabase/gotrue:v2.148.0
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-auth
     environment:
       GOTRUE_DB_DRIVER: postgres
