@@ -45,7 +45,7 @@ services:
       mem0:
         condition: service_healthy
     ports:
-      - ${ORACLE_TAILSCALE_IP:-127.0.0.1}:${LETTA_HOST_PORT:-8283}:8283
+      - 127.0.0.1:${LETTA_HOST_PORT:-8283}:8283
     volumes:
       - letta_state:/root/.letta
     networks:
