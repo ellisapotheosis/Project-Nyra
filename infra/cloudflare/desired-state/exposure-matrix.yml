@@ -46,6 +46,11 @@ pages:
     notes: "Human UI for Nexus. Pages project: projectnyra-nexus."
 
 routes:
+  - hostname: projectnyra.projectnyra.com
+    tunnel: oracle
+    origin: http://webapp:3001
+    exposure: public_auth
+    notes: Primary projectnyra app endpoint. Broker/customer webapp. Keep Access until Supabase/app auth is production-ready.
   - hostname: app.projectnyra.com
     tunnel: oracle
     origin: http://webapp:3001
