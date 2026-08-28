@@ -121,7 +121,7 @@ model_list:
   # ── OpenRouter Free Tier ────────────────────────────────────────────────────
   - model_name: openrouter/gemini-flash
     litellm_params:
-      model: openrouter/google/gemma-4-26b-a4b-it:free
+      model: openrouter/nvidia/nemotron-3.5-lightning:free
       api_key: os.environ/OPENROUTER_API_KEY
       timeout: 60
 

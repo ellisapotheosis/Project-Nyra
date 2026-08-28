@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1787589020531,
+  "lastScanned": 1787755064403,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra/infra",
   "techStack": {
     "languages": [
@@ -79,7 +79,7 @@
       "path": "agent-vault",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1787589020514,
+      "lastAccessed": 1787755064391,
       "keyFiles": [
         "README.md",
         "agent-runner.env.example",
@@ -90,42 +90,42 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787589020515,
+      "lastAccessed": 1787755064392,
       "keyFiles": []
     },
     "cleanup_archive": {
       "path": "cleanup_archive",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787589020523,
+      "lastAccessed": 1787755064395,
       "keyFiles": []
     },
     "cloudflare": {
       "path": "cloudflare",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1787589020524,
+      "lastAccessed": 1787755064396,
       "keyFiles": ["apply-access-apps.sh", "apply-cloudflare-desired-state.sh"]
     },
     "configs": {
       "path": "configs",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787589020525,
+      "lastAccessed": 1787755064397,
       "keyFiles": []
     },
     "docker": {
       "path": "docker",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787589020525,
+      "lastAccessed": 1787755064397,
       "keyFiles": []
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 9,
-      "lastAccessed": 1787589020525,
+      "lastAccessed": 1787755064397,
       "keyFiles": [
         "INFRA-CONSOLIDATION-PLAN.md",
         "OPENCLAW_CHAT_UI_PLAN.md",
@@ -138,7 +138,7 @@
       "path": "env",
       "purpose": null,
       "fileCount": 10,
-      "lastAccessed": 1787589020525,
+      "lastAccessed": 1787755064398,
       "keyFiles": [
         "composio.env.example",
         "nyra.env.example",
@@ -150,8 +150,8 @@
     "hosts": {
       "path": "hosts",
       "purpose": null,
-      "fileCount": 10,
-      "lastAccessed": 1787589020526,
+      "fileCount": 11,
+      "lastAccessed": 1787755064398,
       "keyFiles": [
         "DEPLOYMENT_SUMMARY.md",
         "HERMES_DEPLOYMENT_CHECKLIST.md",
@@ -164,28 +164,28 @@
       "path": "images",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1787589020526,
+      "lastAccessed": 1787755064398,
       "keyFiles": ["Dockerfile.nextjs"]
     },
     "komodo": {
       "path": "komodo",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1787589020526,
+      "lastAccessed": 1787755064398,
       "keyFiles": ["README.md"]
     },
     "mcp-gateway": {
       "path": "mcp-gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1787589020526,
+      "lastAccessed": 1787755064398,
       "keyFiles": ["cloudflared-config.yml", "nexus-router-mcp-config.yml"]
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
-      "fileCount": 32,
-      "lastAccessed": 1787589020527,
+      "fileCount": 35,
+      "lastAccessed": 1787755064399,
       "keyFiles": [
         "README.md",
         "ai-grid.sh",
@@ -198,35 +198,35 @@
       "path": "security",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787589020527,
+      "lastAccessed": 1787755064399,
       "keyFiles": []
     },
     "shared": {
       "path": "shared",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787589020527,
+      "lastAccessed": 1787755064399,
       "keyFiles": []
     },
     "systemd": {
       "path": "systemd",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787589020527,
+      "lastAccessed": 1787755064400,
       "keyFiles": []
     },
     "agent-vault/scripts": {
       "path": "agent-vault/scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 2,
-      "lastAccessed": 1787589020528,
+      "lastAccessed": 1787755064400,
       "keyFiles": ["check-agent-vault.sh", "create-infisical-vaults.sh"]
     },
     "agent-vault/services": {
       "path": "agent-vault/services",
       "purpose": "Business logic services",
       "fileCount": 3,
-      "lastAccessed": 1787589020528,
+      "lastAccessed": 1787755064401,
       "keyFiles": [
         "nyra-comms.services.example.yaml",
         "nyra-github.services.example.yaml",
@@ -237,51 +237,39 @@
       "path": "docker/build",
       "purpose": "Build output",
       "fileCount": 0,
-      "lastAccessed": 1787589020530,
+      "lastAccessed": 1787755064402,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "hosts/worker-rtx5090/docker-compose.yml",
-      "accessCount": 4,
-      "lastAccessed": 1787589332200,
-      "type": "file"
-    },
-    {
-      "path": "hosts/orchestrator/litellm/config.yaml",
-      "accessCount": 4,
-      "lastAccessed": 1787589412007,
-      "type": "file"
-    },
-    {
-      "path": "hosts/worker-rtx5090/litellm/config.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1787589377191,
-      "type": "file"
-    },
-    {
-      "path": "hosts/orchestrator/docker-compose.litellm.yml",
-      "accessCount": 2,
-      "lastAccessed": 1787589420120,
-      "type": "file"
-    },
-    {
-      "path": "hosts/orchestrator/docker-compose.openharness.yml",
-      "accessCount": 2,
-      "lastAccessed": 1787608648643,
-      "type": "file"
-    },
-    {
-      "path": "hosts/worker-rtx5090/docker-compose.nerve.yml",
+      "path": "hosts/oracle-vps/example.env",
       "accessCount": 1,
-      "lastAccessed": 1787589355203,
+      "lastAccessed": 1787906652306,
       "type": "file"
     },
     {
-      "path": "hosts/orchestrator/docker-compose.omnigent.yml",
+      "path": "hosts/oracle-vps/.env.oracle",
       "accessCount": 1,
-      "lastAccessed": 1787608643263,
+      "lastAccessed": 1787906668802,
+      "type": "file"
+    },
+    {
+      "path": "hosts/oracle-vps/.env.example",
+      "accessCount": 1,
+      "lastAccessed": 1787906669103,
+      "type": "file"
+    },
+    {
+      "path": "hosts/oracle-vps/.env.agent-vault",
+      "accessCount": 1,
+      "lastAccessed": 1787906669411,
+      "type": "file"
+    },
+    {
+      "path": "hosts/oracle-vps/.env",
+      "accessCount": 1,
+      "lastAccessed": 1787906719093,
       "type": "file"
     }
   ],

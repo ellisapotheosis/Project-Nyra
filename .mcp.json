@@ -11,12 +11,12 @@
     },
     "letta-mcp": {
       "type": "http",
-      "url": "http://oracle-vps.trex-fiordland.ts.net:8284/mcp",
+      "url": "https://letta-mcp.projectnyra.com/mcp",
       "startup_timeout_sec": 30
     },
     "openmemory": {
       "type": "http",
-      "url": "http://oracle-vps.trex-fiordland.ts.net:8765/mcp/claude-code/http/nyra",
+      "url": "https://openmemory-mcp.projectnyra.com/mcp/claude-code/http/nyra",
       "startup_timeout_sec": 30
     },
     "serena": {
