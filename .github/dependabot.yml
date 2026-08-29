@@ -22,6 +22,11 @@ updates:
     directory: "/"
     exclude-paths:
       - "apps/twenty-crm/**"
+      - "docs/archive/**"
+      - "apps/guidance/references/**"
+      - "data/**"
+      - "**/.omc/**"
+      - "**/.agent/**"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -41,6 +46,10 @@ updates:
     directory: "/memory"
     exclude-paths:
       - "apps/twenty-crm/**"
+      - "../docs/archive/**"
+      - "../data/**"
+      - "**/.omc/**"
+      - "**/.agent/**"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -61,6 +70,11 @@ updates:
     directory: "/apps"
     exclude-paths:
       - "apps/twenty-crm/**"
+      - "guidance/references/**"
+      - "../docs/archive/**"
+      - "../data/**"
+      - "**/.omc/**"
+      - "**/.agent/**"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -81,6 +95,10 @@ updates:
     directory: "/services"
     exclude-paths:
       - "apps/twenty-crm/**"
+      - "../docs/archive/**"
+      - "../data/**"
+      - "**/.omc/**"
+      - "**/.agent/**"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -101,6 +119,10 @@ updates:
     directory: "/packages"
     exclude-paths:
       - "apps/twenty-crm/**"
+      - "../docs/archive/**"
+      - "../data/**"
+      - "**/.omc/**"
+      - "**/.agent/**"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -136,6 +158,12 @@ updates:
   # Python dependencies
   - package-ecosystem: "pip"
     directory: "/"
+    exclude-paths:
+      - "docs/archive/**"
+      - "apps/guidance/references/**"
+      - "data/**"
+      - "**/.omc/**"
+      - "**/.agent/**"
     schedule:
       interval: "weekly"
       day: "monday"
