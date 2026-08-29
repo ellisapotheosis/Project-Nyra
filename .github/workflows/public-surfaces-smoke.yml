@@ -1,0 +1,27 @@
+name: Public surfaces smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/ci/check-public-surfaces.sh"
+      - ".github/workflows/public-surfaces-smoke.yml"
+  pull_request:
+    paths:
+      - "scripts/ci/check-public-surfaces.sh"
+      - ".github/workflows/public-surfaces-smoke.yml"
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check public and protected surfaces
+        run: bash scripts/ci/check-public-surfaces.sh
