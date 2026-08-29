@@ -6,7 +6,7 @@ export default defineConfig({
     react: 'src/react/index.tsx',
   },
   format: ['cjs', 'esm'],
-  dts: true,
+  dts: process.env.TSUP_DTS !== 'false',
   splitting: false,
   sourcemap: true,
   clean: true,

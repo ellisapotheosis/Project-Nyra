@@ -21,6 +21,8 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCrmWorkspaceData, type WorkspaceData } from "@/lib/crm-data";
+
+export const dynamic = "force-dynamic";
 import { cn } from "@/lib/utils";
 
 function currency(value: number) {
