@@ -45,8 +45,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
-        with:
-          version: "10.27.0"
 
       - name: Generate verification ID
         id: setup
@@ -85,8 +83,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
-        with:
-          version: "10.27.0"
 
       - name: Restore dependencies
         uses: actions/cache@v5
@@ -142,8 +138,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
-        with:
-          version: "10.27.0"
 
       - name: Restore dependencies
         uses: actions/cache@v5
@@ -208,8 +202,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
-        with:
-          version: 10.27.0
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -267,8 +259,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
-        with:
-          version: "10.27.0"
 
       - name: Restore dependencies
         uses: actions/cache@v5
@@ -364,8 +354,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
-        with:
-          version: "10.27.0"
 
       - name: Download build artifacts
         uses: actions/download-artifact@v8
