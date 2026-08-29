@@ -39,8 +39,6 @@ ingress:
     service: http://openwebui:8080
   - hostname: clawteam.projectnyra.com
     service: http://clawteam:8080
-  - hostname: paperclip.projectnyra.com
-    service: http://paperclip:3100
 
   # Business service APIs
   - hostname: crm-api.projectnyra.com
@@ -65,10 +63,6 @@ ingress:
     service: http://twenty-mcp:8400
   - hostname: infisical-mcp.projectnyra.com
     service: http://infisical-mcp:8766
-  - hostname: mempalace-mcp.projectnyra.com
-    service: http://mempalace-mcp:8000
-  - hostname: paperclip-mcp.projectnyra.com
-    service: http://paperclip-mcp:8767
 
   # Git and observability
   - hostname: git.projectnyra.com

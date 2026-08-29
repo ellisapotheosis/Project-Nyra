@@ -17,8 +17,6 @@ compose_config() {
 
 compose_config "oracle agent utilities" \
   env \
-    PAPERCLIP_DB_PASSWORD=x \
-    PAPERCLIP_SESSION_SECRET=x \
     SEARXNG_SECRET=x \
     BROWSERLESS_TOKEN=x \
     docker compose -f infra/hosts/oracle-vps/docker-compose.oracle.yml config

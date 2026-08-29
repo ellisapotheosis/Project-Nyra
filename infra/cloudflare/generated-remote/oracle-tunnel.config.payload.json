@@ -1,6 +1,10 @@
 {
   "config": {
     "ingress": [
+      {
+        "hostname": "projectnyra.projectnyra.com",
+        "service": "http://webapp:3001"
+      },
       { "hostname": "app.projectnyra.com", "service": "http://webapp:3001" },
       {
         "hostname": "api.projectnyra.com",
@@ -29,10 +33,6 @@
       {
         "hostname": "openwebui.projectnyra.com",
         "service": "http://openwebui:8080"
-      },
-      {
-        "hostname": "paperclip.projectnyra.com",
-        "service": "http://paperclip:3100"
       },
       {
         "hostname": "clawteam.projectnyra.com",

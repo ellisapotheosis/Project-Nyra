@@ -829,10 +829,7 @@ export default function Home() {
                     </select>
                   </div>
 
-                  <Button
-                    className="w-full bg-[#c9a84c] hover:bg-[#f0d080] text-[#0a1628] font-bold h-12 rounded-lg"
-                    asChild
-                  >
+                  <Button className="w-full bg-[#c9a84c] hover:bg-[#f0d080] text-[#0a1628] font-bold h-12 rounded-lg">
                     <ShimmerButton>Get My Rate</ShimmerButton>
                   </Button>
 

@@ -2,9 +2,9 @@
 # Provides an OpenAI-compatible API over the local Ollama runtime.
 
 model_list:
-  - model_name: worker-3060-code
+  - model_name: local/qwen3-4b-3060
     litellm_params:
-      model: ollama/codellama:7b-q4
+      model: ollama/qwen3:4b
       api_base: http://ollama:11434
       timeout: 120
       max_tokens: 8192
@@ -13,15 +13,15 @@ model_list:
       supports_function_calling: true
       supports_vision: false
 
-  - model_name: worker-3060-general
+  - model_name: local/embeddings
     litellm_params:
-      model: ollama/llama3.2:3b
+      model: ollama/nomic-embed-text
       api_base: http://ollama:11434
       timeout: 120
       max_tokens: 8192
     model_info:
-      mode: chat
-      supports_function_calling: true
+      mode: embedding
+      supports_function_calling: false
       supports_vision: false
 
 general_settings:

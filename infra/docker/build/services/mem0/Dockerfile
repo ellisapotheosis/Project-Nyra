@@ -2,15 +2,16 @@ FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y \
     build-essential \
+    libpq-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY services/mem0/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py .
+COPY services/mem0/main.py ./main.py
 
 ENV PYTHONIOENCODING=utf-8
 

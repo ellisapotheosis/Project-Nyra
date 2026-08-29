@@ -27,6 +27,11 @@ pages:
   - hostname: www.ratehunter.net
     target: cloudflare_pages
     access: public
+  - hostname: 3d.ratehunter.net
+    target: cloudflare_pages
+    pages_project: ratehunter-3d
+    access: public
+    notes: Static 3D RateHunter landing surface.
   - hostname: projectnyra.com
     target: cloudflare_pages
     access: public
@@ -41,6 +46,11 @@ pages:
     notes: "Human UI for Nexus. Pages project: projectnyra-nexus."
 
 routes:
+  - hostname: projectnyra.projectnyra.com
+    tunnel: oracle
+    origin: http://webapp:3001
+    exposure: public_auth
+    notes: Primary projectnyra app endpoint. Broker/customer webapp. Keep Access until Supabase/app auth is production-ready.
   - hostname: app.projectnyra.com
     tunnel: oracle
     origin: http://webapp:3001
@@ -98,26 +108,10 @@ routes:
     origin: http://nexus:3000
     exposure: public_service_token
     notes: Legacy machine/API entrypoint. Prefer mcp-gateway.projectnyra.com for new clients.
-  - hostname: mcp-gateway.projectnyra.com
-    tunnel: oracle
-    origin: http://nexus:3000
-    exposure: public_service_token
-    access_app_id: 04dfff31-98d9-4ffe-b417-225d6c4ac1f7
-    notes: >
-      Primary MCP entrypoint for all AI clients (Codex, Claude, ChatGPT app connectors).
-      Policy 1: non_identity service token bypass (any CF service token).
-      Policy 2: human email allow (edaneandersen@gmail.com, andersenj949@gmail.com,
-      @projectnyra.com, @ratehunter.net, @monitapu.com).
-      CORS enabled for chatgpt.com and chat.openai.com.
-      Tailscale bypass: use http://oracle-vps.trex-fiordland.ts.net:3000/mcp directly (no auth).
   - hostname: litellm.projectnyra.com
     tunnel: oracle
     origin: http://litellm:4000
     exposure: owner_only_public_auth
-  - hostname: paperclip.projectnyra.com
-    tunnel: oracle
-    origin: http://paperclip:3100
-    exposure: public_auth
   - hostname: clawteam.projectnyra.com
     tunnel: oracle
     origin: http://clawteam:8080
@@ -176,12 +170,8 @@ mcp_policy:
       origin: http://twenty-mcp:8400
     - hostname: infisical-mcp.projectnyra.com
       origin: http://infisical-mcp:8766
-    - hostname: mempalace-mcp.projectnyra.com
-      origin: http://mempalace-mcp:8000
     - hostname: git-mcp.projectnyra.com
       origin: http://git-mcp:8773
-    - hostname: paperclip-mcp.projectnyra.com
-      origin: http://paperclip-mcp:8767
     - hostname: magicui-mcp.projectnyra.com
       origin: http://magicui-mcp:8768
     - hostname: shadcn-mcp.projectnyra.com
@@ -202,6 +192,34 @@ mcp_policy:
       origin: http://gitingest-mcp:8777
     - hostname: codebase-index-mcp.projectnyra.com
       origin: http://codebase-index-mcp:8778
+
+mcp_portals:
+  - name: MCP-Gateway
+    hostname: mcp-gateway.projectnyra.com
+    cloudflare_managed: true
+    linked_server: nyra-bearer
+    linked_server_url: https://nexus-router.projectnyra.com/mcp
+    managed_oauth: true
+    machine_access: service_token
+    linked_server_on_behalf: false
+    origin_identity_authority: cloudflare_access
+    upstream_credential: infisical:/hosts/shared/CF_PORTAL_NEXUS_UPSTREAM_BEARER
+    oauth_redirect_uris:
+      - https://chatgpt.com/connector/oauth/ScujoiRI23cB
+    status: verified_access_and_mcp_initialize
+  - name: MCP-Gateway (legacy alias)
+    hostname: mcp-portal.projectnyra.com
+    cloudflare_managed: true
+    linked_server: nyra-bearer
+    linked_server_url: https://nexus-router.projectnyra.com/mcp
+    managed_oauth: true
+    oauth_redirect_uris:
+      - https://chatgpt.com/connector/oauth/ScujoiRI23cB
+    machine_access: service_token
+    linked_server_on_behalf: false
+    origin_identity_authority: cloudflare_access
+    upstream_credential: infisical:/hosts/shared/CF_PORTAL_NEXUS_UPSTREAM_BEARER
+    status: verified_access_and_mcp_initialize
 
 not_tunneled:
   - postgres

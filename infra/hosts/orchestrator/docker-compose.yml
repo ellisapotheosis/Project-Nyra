@@ -9,10 +9,12 @@ services:
       - "8001:18789"
     environment:
       NODE_ENV: production
-      NEXUS_API_URL: "http://100.64.0.3:3000"
-      LITELLM_API_URL: "http://100.64.0.3:4000"
-      MEM0_API_URL: ${MEM0_API_URL:-http://100.64.0.3:5000}
-      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://100.64.0.3:8089}
+      NEXUS_API_URL: "http://oracle.trex-fiordland.ts.net:3000"
+      LITELLM_API_URL: "http://litellm.projectnyra.com"
+      MEM0_API_URL: ${MEM0_API_URL:-http://oracle.trex-fiordland.ts.net:5000}
+      QUOTE_ENGINE_URL: ${QUOTE_ENGINE_URL:-http://oracle.trex-fiordland.ts.net:8089}
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+      OPENCLAW_GATEWAY_AUTH: token
     restart: unless-stopped
     networks:
       - nyra-network

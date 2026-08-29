@@ -92,5 +92,4 @@ hosts:
       - infra/hosts/oracle-vps/docker-compose.activepieces-mcp.yml
     optional_overlays:
       - infra/hosts/oracle-vps/docker-compose.memory-extra.yml
-      - infra/hosts/oracle-vps/docker-compose.paperclip.yml
       - infra/hosts/oracle-vps/docker-compose.restoration.yml

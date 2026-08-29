@@ -1,0 +1,146 @@
+# n8n Workflow Automation Engine
+# Orchestrates multi-step workflows across entire stack
+name: n8n-automation
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+
+services:
+  n8n-db:
+    <<: *common
+    image: postgres:15-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-n8n-db
+    environment:
+      POSTGRES_USER: ${N8N_DB_USER:-n8n}
+      POSTGRES_PASSWORD: ${N8N_DB_PASSWORD:?set N8N_DB_PASSWORD}
+      POSTGRES_DB: ${N8N_DB_NAME:-n8n}
+    volumes:
+      - n8n_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${N8N_DB_USER:-n8n} -d ${N8N_DB_NAME:-n8n}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [nyra_net]
+
+  n8n:
+    <<: *common
+    image: n8nio/n8n:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-n8n
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: n8n-db
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${N8N_DB_NAME:-n8n}
+      DB_POSTGRESDB_USER: ${N8N_DB_USER:-n8n}
+      DB_POSTGRESDB_PASSWORD: ${N8N_DB_PASSWORD:?set N8N_DB_PASSWORD}
+      N8N_HOST: ${N8N_HOST:-n8n.projectnyra.com}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: https
+      NODE_ENV: production
+      N8N_SECURE_COOKIE: "true"
+      N8N_EDITOR_BASE_URL: https://n8n.projectnyra.com/
+      WEBHOOK_URL: https://n8n.projectnyra.com/
+      N8N_LOG_LEVEL: info
+      N8N_LOG_OUTPUT: combined
+      N8N_SKIP_WEBHOOK_VALIDATION: "false"
+      # Authentication
+      N8N_AUTH_EXCLUDES_ENDPOINTS: /health,/webhook/,/.well-known/
+      # Email
+      N8N_EMAIL_MODE: smtp
+      N8N_SMTP_HOST: ${N8N_SMTP_HOST:-}
+      N8N_SMTP_PORT: ${N8N_SMTP_PORT:-587}
+      N8N_SMTP_USER: ${N8N_SMTP_USER:-}
+      N8N_SMTP_PASS: ${N8N_SMTP_PASS:-}
+      N8N_SMTP_SENDER: ${N8N_SMTP_SENDER:-n8n@projectnyra.com}
+      # Encryption key
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?set N8N_ENCRYPTION_KEY}
+      # Custom nodes
+      N8N_CUSTOM_EXTENSIONS: ${N8N_CUSTOM_EXTENSIONS:-}
+      # Execution mode
+      EXECUTIONS_DATA_PRUNE_TIMEOUT: 3600
+      EXECUTIONS_DATA_MAX_AGE: 2592000
+    depends_on:
+      n8n-db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./configs/n8n/workflows:/home/node/.n8n/workflows:ro
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  n8n-worker:
+    <<: *common
+    image: n8nio/n8n:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-n8n-worker
+    command: worker
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: n8n-db
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${N8N_DB_NAME:-n8n}
+      DB_POSTGRESDB_USER: ${N8N_DB_USER:-n8n}
+      DB_POSTGRESDB_PASSWORD: ${N8N_DB_PASSWORD:?set N8N_DB_PASSWORD}
+      NODE_ENV: production
+      N8N_LOG_LEVEL: info
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?set N8N_ENCRYPTION_KEY}
+      QUEUE_BULL_REDIS_HOST: ${N8N_QUEUE_REDIS_HOST:-redis-cache}
+      QUEUE_BULL_REDIS_PORT: ${N8N_QUEUE_REDIS_PORT:-6379}
+      QUEUE_BULL_REDIS_DB: ${N8N_QUEUE_REDIS_DB:-0}
+      EXECUTION_MODE: queue
+    depends_on:
+      - n8n-db
+      - redis-cache
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "n8n"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Webhooks listener (for external integrations)
+  n8n-webhook:
+    <<: *common
+    image: n8nio/n8n:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-n8n-webhook
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: n8n-db
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${N8N_DB_NAME:-n8n}
+      DB_POSTGRESDB_USER: ${N8N_DB_USER:-n8n}
+      DB_POSTGRESDB_PASSWORD: ${N8N_DB_PASSWORD:?set N8N_DB_PASSWORD}
+      NODE_ENV: production
+      N8N_LOG_LEVEL: info
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?set N8N_ENCRYPTION_KEY}
+      WEBHOOK_URL: https://hooks.projectnyra.com/
+      N8N_WEBHOOK_TUNNEL_URL: https://hooks.projectnyra.com/
+    depends_on:
+      - n8n-db
+    ports:
+      - "127.0.0.1:5679:5678"
+    networks: [nyra_net]
+
+networks:
+  nyra_net:
+    external: true
+    name: nyra_net
+
+volumes:
+  n8n_db_data:
+  n8n_data:

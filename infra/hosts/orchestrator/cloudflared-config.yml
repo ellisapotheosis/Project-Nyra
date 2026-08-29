@@ -29,5 +29,18 @@ ingress:
     originRequest:
       noTLSVerify: true
 
+  # Phase 3 — AI Orchestration Services
+  - hostname: mission-control.projectnyra.com
+    service: http://nyra-mission-control:9090
+
+  - hostname: aionui.projectnyra.com
+    service: http://nyra-aionui:3000
+
+  - hostname: clawteam.projectnyra.com
+    service: http://nyra-clawteam-primary:9000
+
+  - hostname: nerveui.projectnyra.com
+    service: http://worker-5090-nerve-ui:5000
+
   # Orchestrator catch-all. Required by cloudflared.
   - service: http_status:404

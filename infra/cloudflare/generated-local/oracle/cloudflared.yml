@@ -38,8 +38,6 @@ ingress:
     service: http://nexus:3000
   - hostname: litellm.projectnyra.com
     service: http://litellm:4000
-  - hostname: paperclip.projectnyra.com
-    service: http://paperclip:3100
   - hostname: clawteam.projectnyra.com
     service: http://clawteam:8080
   - hostname: agent-vault.projectnyra.com

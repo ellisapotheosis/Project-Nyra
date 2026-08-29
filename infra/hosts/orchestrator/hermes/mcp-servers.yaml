@@ -17,12 +17,6 @@ mcp_servers:
       token: ${NEXUS_API_KEY}
 
   # ── Memory Systems ──────────────────────────────────────────────────────
-  mempalace:
-    type: http
-    url: "http://100.64.0.3:8002"
-    description: "Mempalace persistent memory via MCP"
-    timeout_ms: 15000
-
   openmemory:
     type: http
     url: "http://100.64.0.3:8765"
@@ -113,16 +107,6 @@ mcp_servers:
     auth:
       type: bearer
       token: ${INFISICAL_MCP_TOKEN}
-
-  # ── Process Automation ──────────────────────────────────────────────────
-  paperclip:
-    type: http
-    url: "http://100.64.0.3:8767"
-    description: "Paperclip multi-agent orchestration MCP"
-    timeout_ms: 60000
-    auth:
-      type: bearer
-      token: ${PAPERCLIP_API_KEY}
 
   # ── Next.js Development ────────────────────────────────────────────────
   next_devtools:

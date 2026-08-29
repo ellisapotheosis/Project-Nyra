@@ -96,12 +96,17 @@ services:
     ports:
       - "${LITELLM_PORT:-4000}:4000"
     environment:
-      - VLLM_BASE_URL=http://worker-5090-vllm:8000/v1
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      LLXPRT_BRIDGE_API_KEY: ${LLXPRT_BRIDGE_API_KEY:-llxprt_bf13b82bb4071b6fe96fde8c31b568142060921d2c83b01abe91d00c625876f2}
+      OMNIROUTE_API_KEY: ${OMNIROUTE_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
     volumes:
       - ./litellm:/app/litellm:ro
     command: --config /app/litellm/config.yaml --port 4000
     depends_on:
-      vllm:
+      qwen38-llama:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - worker-network
@@ -173,7 +178,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-health
     restart: unless-stopped
     depends_on:
-      - vllm
+      - qwen38-llama
       - litellm
     environment:
       - VLLM_URL=http://worker-5090-vllm:8000
@@ -182,7 +187,7 @@ services:
     command:
       - |
         while true; do
-          curl -sf http://worker-5090-vllm:8000/health || echo "vLLM Down"
+          curl -sf http://worker-5090-vllm:8000/health || echo "llama.cpp Down"
           sleep 60
         done
     networks:
@@ -191,6 +196,7 @@ services:
   qwen38-llama:
     image: ${LLAMA_CPP_IMAGE:-ghcr.io/ggml-org/llama.cpp:server-cuda}
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-qwen38-llama
+    hostname: worker-5090-vllm
     restart: unless-stopped
     deploy:
       resources:
@@ -214,6 +220,12 @@ services:
       - "99"
       - "--ctx-size"
       - "4096"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     networks:
       - worker-network
 

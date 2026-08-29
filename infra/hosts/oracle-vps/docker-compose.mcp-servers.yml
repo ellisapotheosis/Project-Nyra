@@ -1,0 +1,237 @@
+# MCP Servers — Aggregated via Nexus Router
+# These route through nexus-router for unified MCP interface
+# Exposed on Tailscale IPs + behind cloudflare access for sensitive operations
+name: mcp-servers
+
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+
+services:
+  # ── Web Search & Crawling ──
+  tavily-mcp:
+    <<: *common
+    image: ${TAVILY_MCP_IMAGE:-node:20-alpine}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-tavily-mcp
+    environment:
+      TAVILY_API_KEY: ${TAVILY_API_KEY:?set TAVILY_API_KEY}
+      PORT: 8775
+    ports:
+      - "127.0.0.1:8775:8775"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8775/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  firecrawl-mcp:
+    <<: *common
+    image: ${FIRECRAWL_MCP_IMAGE:-node:20-alpine}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-firecrawl-mcp
+    environment:
+      FIRECRAWL_API_KEY: ${FIRECRAWL_API_KEY:?set FIRECRAWL_API_KEY}
+      PORT: 8772
+    ports:
+      - "127.0.0.1:8772:8772"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8772/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Browser Automation ──
+  playwright-mcp:
+    <<: *common
+    image: ${PLAYWRIGHT_MCP_IMAGE:-mcr.microsoft.com/playwright:v1.40.0}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-playwright-mcp
+    environment:
+      MCP_PORT: 8771
+      BROWSER_WS_ENDPOINT: ${BROWSER_WS_ENDPOINT:-ws://browserless:3000}
+    ports:
+      - "127.0.0.1:8771:8771"
+    networks: [nyra_net]
+    depends_on:
+      - browserless
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8771/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  browserless:
+    <<: *common
+    image: browserless/base:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-browserless
+    environment:
+      DEBUG: browserless*
+      MAX_CONCURRENT_SESSIONS: ${BROWSERLESS_MAX_SESSIONS:-10}
+      TIMEOUT: ${BROWSERLESS_TIMEOUT:-30000}
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Reasoning & Thinking ──
+  sequential-thinking-mcp:
+    <<: *common
+    image: ${SEQUENTIAL_THINKING_IMAGE:-python:3.11}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-sequential-thinking-mcp
+    environment:
+      MCP_PORT: 8770
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY}
+    ports:
+      - "127.0.0.1:8770:8770"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8770/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Design & UI Components ──
+  shadcn-mcp:
+    <<: *common
+    image: ${SHADCN_MCP_IMAGE:-node:20-alpine}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-shadcn-mcp
+    environment:
+      MCP_PORT: 8769
+    ports:
+      - "127.0.0.1:8769:8769"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8769/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  magicui-mcp:
+    <<: *common
+    image: ${MAGICUI_MCP_IMAGE:-node:20-alpine}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-magicui-mcp
+    environment:
+      MCP_PORT: 8768
+    ports:
+      - "127.0.0.1:8768:8768"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8768/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── 3D & Creative ──
+  spline-mcp:
+    <<: *common
+    image: ${SPLINE_MCP_IMAGE:-node:20-alpine}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-spline-mcp
+    environment:
+      MCP_PORT: 8767
+      SPLINE_API_KEY: ${SPLINE_API_KEY:-}
+    ports:
+      - "127.0.0.1:8767:8767"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8767/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  blender-mcp:
+    <<: *common
+    image: ${BLENDER_MCP_IMAGE:-blender:latest}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-blender-mcp
+    environment:
+      MCP_PORT: 8766
+    ports:
+      - "127.0.0.1:8766:8766"
+    networks: [nyra_net]
+    # Blender health check omitted (complex startup)
+
+  canva-mcp:
+    <<: *common
+    image: ${CANVA_MCP_IMAGE:-node:20-alpine}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-canva-mcp
+    environment:
+      MCP_PORT: 8765
+      CANVA_API_KEY: ${CANVA_API_KEY:?set CANVA_API_KEY}
+    ports:
+      - "127.0.0.1:8765:8765"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8765/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Framework Tools ──
+  next-devtools-mcp:
+    <<: *common
+    image: ${NEXT_DEVTOOLS_IMAGE:-node:20-alpine}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-next-devtools-mcp
+    environment:
+      MCP_PORT: 8774
+    ports:
+      - "127.0.0.1:8774:8774"
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8774/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Code & Git ──
+  git-mcp:
+    <<: *common
+    image: ${GIT_MCP_IMAGE:-alpine/git:latest}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-git-mcp
+    environment:
+      MCP_PORT: 8773
+      GIT_REPO_PATH: ${GIT_REPO_PATH:-/workspace}
+    ports:
+      - "127.0.0.1:8773:8773"
+    volumes:
+      - /home/ellisapotheosis/repos/project-nyra:/workspace:ro
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8773/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  codebase-index-mcp:
+    <<: *common
+    image: ${CODEBASE_INDEX_IMAGE:-node:20-alpine}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-codebase-index-mcp
+    environment:
+      MCP_PORT: 8778
+      INDEX_PATH: ${INDEX_PATH:-/index}
+      REPO_PATH: ${REPO_PATH:-/workspace}
+    ports:
+      - "127.0.0.1:8778:8778"
+    volumes:
+      - /home/ellisapotheosis/repos/project-nyra:/workspace:ro
+      - codebase_index_data:/index
+    networks: [nyra_net]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8778/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  nyra_net:
+    external: true
+    name: nyra_net
+
+volumes:
+  codebase_index_data:

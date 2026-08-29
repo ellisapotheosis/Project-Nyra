@@ -150,9 +150,6 @@ url = "http://ha-mcp:8086/mcp"
 
 # ── External / cloud MCP servers ──────────────────────────────────────────────
 
-# Mempalace: memory palace graph-based indexing
-[mcp.servers.mempalace]
-url = "http://100.64.0.3:8002/sse"
 
 # ── TOOL DISCOVERY & FUZZY SEARCH ────────────────────────────────────────────
 

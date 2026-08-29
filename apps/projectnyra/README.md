@@ -69,7 +69,8 @@ routing, but run the Next.js server close to the Oracle-hosted Supabase stack.
 Recommended split:
 
 - `apps/projectnyra-landing`: Cloudflare Pages, public 3D landing page for `projectnyra.com`.
-- `apps/ratehunter/landing`: Cloudflare Pages, public mortgage marketing and lead capture for `ratehunter.net`.
+- `apps/ratehunter`: Cloudflare Pages, public mortgage marketing and lead capture for `ratehunter.net`.
+- `apps/ratehunter-3d`: Cloudflare Pages, static 3D landing for `3d.ratehunter.net`.
 - `apps/projectnyra`: Oracle VPS, primary full-stack webapp at `app.projectnyra.com`.
 - Supabase: Oracle VPS, exposed only through HTTPS API/auth routes such as
   `supabase.projectnyra.com`.

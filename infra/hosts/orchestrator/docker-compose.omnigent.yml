@@ -1,0 +1,49 @@
+# Omnigent — AI Governance & Policy Enforcement Layer
+# Arbitrates agent decisions, enforces constraints, validates outputs
+# Non-persistent meta-harness for safety boundaries
+
+services:
+  omnigent:
+    image: python:3.11-slim
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-omnigent
+    environment:
+      OMNIGENT_PORT: 8003
+      LITELLM_GATEWAY: http://litellm:4000/v1
+      LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      LOG_LEVEL: info
+      # Policy constraints
+      MAX_TOKENS_PER_REQUEST: 4096
+      MAX_REQUESTS_PER_MINUTE: 60
+      ALLOWED_MODELS: "local/qwen3.8-27b,omniroute/auto,openrouter/qwen3"
+      SAFETY_MODE: "strict"
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./omnigent/governance.py:/app/governance.py:ro
+      - omnigent_cache:/tmp/omnigent
+    command: python /app/governance.py
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8003/health', timeout=3)",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: governance
+      com.projectnyra.component: omnigent
+
+networks:
+  nyra-network:
+    external: true
+
+volumes:
+  omnigent_cache:

@@ -1,5 +1,5 @@
-# Cloudflare Tunnel Configuration with MCP Gateway
-# This exposes the Nexus Router MCP server via Cloudflare Tunnel
+# LEGACY / NON-DEPLOYABLE: Cloudflare MCP Portal now fronts Grafbase Nexus.
+# Do not deploy this retired custom gateway tunnel configuration.
 
 tunnel: projectnyra-tunnel
 credentials-file: ~/.cloudflared/projectnyra-tunnel-credentials.json

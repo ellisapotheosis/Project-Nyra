@@ -1,0 +1,55 @@
+name: Deploy Project Nyra Landing to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/projectnyra-landing/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/deploy-projectnyra-pages.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: projectnyra-landing-pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: write
+
+env:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "10.27.0"
+  PROJECT_NAME: projectnyra-landing
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build OpenNext Pages artifact
+        working-directory: apps/projectnyra-landing
+        run: pnpm run build:cf
+
+      - name: Deploy Pages artifact
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ env.PROJECT_NAME }}
+          directory: apps/projectnyra-landing/.open-next
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          wranglerVersion: "3"

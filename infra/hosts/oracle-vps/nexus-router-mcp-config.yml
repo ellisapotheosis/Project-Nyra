@@ -1,3 +1,5 @@
+# LEGACY / NON-DEPLOYABLE: use the Grafbase Nexus service and Cloudflare MCP Portal.
+# This retired custom gateway configuration must not be deployed.
 # Nexus Router MCP Gateway Configuration
 # Integrates with Cloudflare Tunnel and Project Nyra services
 

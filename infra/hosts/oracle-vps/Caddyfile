@@ -1,15 +1,12 @@
 # Caddy Reverse Proxy Configuration — Oracle VPS
 # Purpose: Single entry point for all services via Tailscale mesh
-# Binding: 100.64.0.3:443 (Tailscale IP, HTTPS only, no HTTP)
+# Binding: ORACLE_TAILSCALE_IP:443 (Tailscale IP, HTTPS only, no public bind)
 # TLS: Automatic certificates via ACME (LetsEncrypt or internal CA)
 # DNS: MagicDNS (trex-fiordland.ts.net suffix)
 
 # Global settings
 {
 	admin off
-	on_demand_tls {
-		ask http://localhost:2019/caddy/admin/api/config
-	}
 	log default {
 		output file /var/log/caddy/access.log {
 			roll_size 100mb
@@ -17,6 +14,13 @@
 		}
 		level info
 	}
+}
+
+# Container/process health probe. The Compose healthcheck reaches this over
+# the private 443 listener without requiring an application route.
+:443 {
+	tls internal
+	respond /health "OK" 200
 }
 
 # ============================================================================
@@ -61,8 +65,9 @@ hooks.projectnyra.com {
 # --- MCP Servers (Isolated via separate hostnames) ---
 
 # Letta Memory/Conversation System
-letta-mcp.trex-fiordland.ts.net {
-	reverse_proxy localhost:8284 {
+letta-mcp.trex-fiordland.ts.net, letta-mcp.projectnyra.com {
+	tls internal
+	reverse_proxy oracle-vps-memory-letta-mcp:6507 {
 		header_up X-Forwarded-Proto https
 	}
 	log {
@@ -108,13 +113,6 @@ infisical-mcp.trex-fiordland.ts.net {
 # Magic UI Components
 magicui-mcp.trex-fiordland.ts.net {
 	reverse_proxy localhost:8768 {
-		header_up X-Forwarded-Proto https
-	}
-}
-
-# Paperclip Document Processing
-paperclip-mcp.trex-fiordland.ts.net {
-	reverse_proxy localhost:8767 {
 		header_up X-Forwarded-Proto https
 	}
 }
@@ -169,8 +167,9 @@ gitingest-mcp.trex-fiordland.ts.net {
 }
 
 # OpenMemory Integration
-openmemory-mcp.trex-fiordland.ts.net {
-	reverse_proxy localhost:8765 {
+openmemory-mcp.trex-fiordland.ts.net, openmemory-mcp.projectnyra.com {
+	tls internal
+	reverse_proxy openmemory-mcp:8765 {
 		header_up X-Forwarded-Proto https
 	}
 }
@@ -197,8 +196,9 @@ crm-api.trex-fiordland.ts.net {
 }
 
 # Nexus LLM Router
-nexus.trex-fiordland.ts.net {
-	reverse_proxy localhost:6000 {
+nexus.trex-fiordland.ts.net, nexus.projectnyra.com, nexus-router.projectnyra.com, mcp-gateway.projectnyra.com {
+	tls internal
+	reverse_proxy nexus:3000 {
 		header_up X-Forwarded-Proto https
 		header_up X-Forwarded-For {http.request.remote.host}
 	}
@@ -208,8 +208,9 @@ nexus.trex-fiordland.ts.net {
 }
 
 # LiteLLM Model Proxy
-litellm.trex-fiordland.ts.net {
-	reverse_proxy localhost:4000 {
+litellm.trex-fiordland.ts.net, litellm.projectnyra.com {
+	tls internal
+	reverse_proxy litellm:4000 {
 		header_up X-Forwarded-Proto https
 	}
 	log {
@@ -220,22 +221,17 @@ litellm.trex-fiordland.ts.net {
 # --- Memory & State Management ---
 
 # Letta Conversation Memory
-letta.trex-fiordland.ts.net {
-	reverse_proxy localhost:8283 {
+letta.trex-fiordland.ts.net, letta.projectnyra.com {
+	tls internal
+	reverse_proxy oracle-vps-memory-letta:8283 {
 		header_up X-Forwarded-Proto https
 	}
 }
 
 # Mem0 Enterprise Memory
-mem0.trex-fiordland.ts.net {
-	reverse_proxy localhost:5001 {
-		header_up X-Forwarded-Proto https
-	}
-}
-
-# Redis Cache
-redis.trex-fiordland.ts.net {
-	reverse_proxy localhost:6379 {
+mem0.trex-fiordland.ts.net, mem0.projectnyra.com {
+	tls internal
+	reverse_proxy oracle-vps-memory-mem0:5000 {
 		header_up X-Forwarded-Proto https
 	}
 }
@@ -248,13 +244,6 @@ twenty-crm.trex-fiordland.ts.net {
 		header_up X-Forwarded-For {http.request.remote.host}
 		header_up X-Forwarded-Proto https
 		header_up X-Forwarded-Host {http.request.host}
-	}
-}
-
-# Twenty Database (via Supabase)
-twenty-db.trex-fiordland.ts.net {
-	reverse_proxy localhost:5433 {
-		header_up X-Forwarded-Proto https
 	}
 }
 

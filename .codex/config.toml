@@ -100,13 +100,10 @@ args = [
 command = "npx"
 startup_timeout_sec = 120
 
-[mcp_servers.nexus-router]
-startup_timeout_sec = 120
-url = "https://nexus-router.projectnyra.com/mcp"
-
 [mcp_servers.mcp-gateway]
 startup_timeout_sec = 120
 url = "https://mcp-gateway.projectnyra.com/mcp"
+http_headers = { "CF-Access-Client-Id" = "${CF_GATEWAY_ACCESS_CLIENT_ID}", "CF-Access-Client-Secret" = "${CF_GATEWAY_ACCESS_CLIENT_SECRET}" }
 
 [mcp_servers.playwright]
 args = [

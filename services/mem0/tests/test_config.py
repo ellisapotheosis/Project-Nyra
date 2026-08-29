@@ -29,12 +29,33 @@ def test_build_config_standard():
         assert cfg["llm"]["config"]["api_key"] == "test-openai-key"
         assert cfg["embedder"]["config"]["api_key"] == "test-openai-key"
         
-        # Verify FalkorDB configs
-        assert cfg["graph_store"]["provider"] == "falkordb"
-        assert cfg["graph_store"]["config"]["url"] == "redis://test-falkor:6379"
+        # FalkorDB is handled by the explicit compatibility adapter, not an
+        # unsupported Mem0 graph_store provider.
+        assert "graph_store" not in cfg
 
 def test_build_config_no_falkordb():
     """Verify that graph_store config is omitted when FALKORDB_URL is not set."""
     with patch.dict(os.environ, {}, clear=True):
         cfg = _build_config()
         assert "graph_store" not in cfg
+
+
+def test_build_config_local_worker_route_and_dimensions():
+    """The canonical memory route must be configurable for the 3060 Ollama host."""
+    with patch.dict(os.environ, {
+        "MEM0_LLM_API_KEY": "not-needed",
+        "MEM0_LLM_BASE_URL": "http://100.64.0.12:11435/v1",
+        "MEM0_LLM_MODEL": "llama3.2:3b",
+        "MEM0_EMBEDDER_API_KEY": "not-needed",
+        "MEM0_EMBEDDER_BASE_URL": "http://100.64.0.12:11435/v1",
+        "MEM0_EMBEDDER_MODEL": "nomic-embed-text",
+        "MEM0_EMBEDDING_DIMS": "768",
+    }, clear=True):
+        cfg = _build_config()
+
+    assert cfg["llm"]["config"]["model"] == "llama3.2:3b"
+    assert cfg["llm"]["config"]["openai_base_url"] == "http://100.64.0.12:11435/v1"
+    assert cfg["embedder"]["config"]["model"] == "nomic-embed-text"
+    assert cfg["embedder"]["config"]["embedding_dims"] == 768
+    assert cfg["embedder"]["config"]["openai_base_url"] == "http://100.64.0.12:11435/v1"
+    assert cfg["vector_store"]["config"]["embedding_model_dims"] == 768

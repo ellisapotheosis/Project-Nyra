@@ -15,10 +15,11 @@ include ../../shared/makefiles/infisical.mk
 COMPOSE_FILE          := docker-compose.yml
 FORGEJO_COMPOSE       := docker-compose.forgejo.yml
 PROTECTED_COMPOSE     := docker-compose.protected.yml
+TAILSCALE_PROXY_COMPOSE := docker-compose.tailscale-proxy.yml
 MEMORY_COMPOSE        := docker-compose.memory.yml
 APPS_COMPOSE          := docker-compose.apps.yml
 
-.PHONY: up down restart protected-up protected-down forgejo-up forgejo-down \
+.PHONY: up down restart protected-up protected-down tailscale-proxy-up tailscale-proxy-status forgejo-up forgejo-down \
         memory-up memory-down apps-up apps-down logs status pull
 
 # ── Main stack ────────────────────────────────────────────────────────────────
@@ -54,6 +55,14 @@ protected-down:
 
 protected-status:
 	docker compose -p oracle-vps-protected -f $(PROTECTED_COMPOSE) ps
+
+# Private HTTPS reverse proxy. Keep ORACLE_TAILSCALE_IP unset until the host
+# has authenticated to Tailscale; the Compose default binds only to loopback.
+tailscale-proxy-up:
+	$(INJECT) docker compose -p oracle-vps-tailscale-proxy -f $(TAILSCALE_PROXY_COMPOSE) up -d
+
+tailscale-proxy-status:
+	docker compose -p oracle-vps-tailscale-proxy -f $(TAILSCALE_PROXY_COMPOSE) ps
 
 # ── Forgejo ───────────────────────────────────────────────────────────────────
 forgejo-up:
