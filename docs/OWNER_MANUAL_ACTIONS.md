@@ -2,6 +2,33 @@
 
 Steps that require a human login, MFA, or dashboard UI because the API is blocked.
 
+## Repair Orchestrator Infisical Secrets Bootstrap
+
+**Observed:** `nyra-cf-secrets-init` exits before writing `/run/nyra-secrets`
+when the Docker Desktop host has no valid Infisical CLI session or domain URL.
+The container must not fall back to interactive login because it runs
+non-interactively.
+
+Owner actions:
+
+1. On the orchestrator host, authenticate the Infisical CLI with the managed
+   Infisical domain and the approved machine identity or service token.
+2. Verify the identity can read the `prod` environment at
+   `/hosts/orchestrator` without printing secret values.
+3. Export the resulting non-interactive credentials to the deployment shell
+   and recreate only the `secrets-init` service from the orchestrator compose
+   stack. Confirm the shared secrets volume contains the expected files before
+   restarting consumers.
+4. If the CLI reports `Unable to parse domain url`, correct the Infisical URL
+   in the host environment; do not embed the URL or token in a compose file.
+
+Validation:
+
+```bash
+docker inspect nyra-cf-secrets-init --format '{{.State.ExitCode}}'
+docker run --rm -v nyra_cf_secrets:/run/nyra-secrets alpine:3.20 ls -la /run/nyra-secrets
+```
+
 ## Forgejo migration checkpoints
 
 The Forgejo migration is intentionally staged. The live Oracle Gitea source is
