@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1787737216848,
+  "lastScanned": 1787907183011,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra",
   "techStack": {
     "languages": [
@@ -93,7 +93,7 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1787737216823,
+      "lastAccessed": 1787907182983,
       "keyFiles": [
         "CLAUDE.md",
         "README.md",
@@ -105,21 +105,21 @@
       "path": "archive",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787737216824,
+      "lastAccessed": 1787907182984,
       "keyFiles": []
     },
     "bootstrap": {
       "path": "bootstrap",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787737216825,
+      "lastAccessed": 1787907182992,
       "keyFiles": []
     },
     "cloudflare-access-backup": {
       "path": "cloudflare-access-backup",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1787737216830,
+      "lastAccessed": 1787907182995,
       "keyFiles": [
         "ROLLBACK.md",
         "applications.before.json",
@@ -132,7 +132,7 @@
       "path": "conductor",
       "purpose": null,
       "fileCount": 6,
-      "lastAccessed": 1787737216834,
+      "lastAccessed": 1787907182996,
       "keyFiles": [
         "index.md",
         "product-guidelines.md",
@@ -145,28 +145,28 @@
       "path": "configs",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787737216835,
+      "lastAccessed": 1787907182998,
       "keyFiles": []
     },
     "data": {
       "path": "data",
       "purpose": "Data files",
       "fileCount": 2,
-      "lastAccessed": 1787737216836,
+      "lastAccessed": 1787907182999,
       "keyFiles": ["campaign-templates.json", "seed-leads.json"]
     },
     "development": {
       "path": "development",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1787737216836,
+      "lastAccessed": 1787907182999,
       "keyFiles": ["README.md"]
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 8,
-      "lastAccessed": 1787737216837,
+      "lastAccessed": 1787907182999,
       "keyFiles": [
         "AIONUI_WINDOWS_BUILD.md",
         "CLOUDFLARE-PAGES-DEPLOYMENT.md",
@@ -179,14 +179,14 @@
       "path": "external",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787737216838,
+      "lastAccessed": 1787907183000,
       "keyFiles": []
     },
     "infra": {
       "path": "infra",
       "purpose": null,
       "fileCount": 14,
-      "lastAccessed": 1787737216838,
+      "lastAccessed": 1787907183000,
       "keyFiles": [
         "0-100-AUTONOMOUS-PROMPT-GOD.md",
         "CLAUDE.md",
@@ -199,21 +199,21 @@
       "path": "ops",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787737216838,
+      "lastAccessed": 1787907183000,
       "keyFiles": []
     },
     "packages": {
       "path": "packages",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1787737216839,
+      "lastAccessed": 1787907183000,
       "keyFiles": ["CLAUDE.md"]
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 70,
-      "lastAccessed": 1787737216839,
+      "lastAccessed": 1787907183001,
       "keyFiles": [
         "Initialize-CodexEnvironment.sh",
         "agent-vault-infisical-sync.sh",
@@ -226,35 +226,35 @@
       "path": "security",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787737216839,
+      "lastAccessed": 1787907183001,
       "keyFiles": []
     },
     "services": {
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 1,
-      "lastAccessed": 1787737216840,
+      "lastAccessed": 1787907183002,
       "keyFiles": ["CLAUDE.md"]
     },
     "skills": {
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787737216840,
+      "lastAccessed": 1787907183002,
       "keyFiles": []
     },
     "src": {
       "path": "src",
       "purpose": "Source code",
       "fileCount": 1,
-      "lastAccessed": 1787737216840,
+      "lastAccessed": 1787907183002,
       "keyFiles": ["CLAUDE.md"]
     },
     "tests": {
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 7,
-      "lastAccessed": 1787737216841,
+      "lastAccessed": 1787907183003,
       "keyFiles": [
         "README.md",
         "README_VITEST.md",
@@ -267,21 +267,21 @@
       "path": "archive/docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1787737216842,
+      "lastAccessed": 1787907183003,
       "keyFiles": []
     },
     "development/docs": {
       "path": "development/docs",
       "purpose": "Documentation",
       "fileCount": 1,
-      "lastAccessed": 1787737216844,
+      "lastAccessed": 1787907183006,
       "keyFiles": ["memory-integration.md"]
     },
     "ops/scripts": {
       "path": "ops/scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 4,
-      "lastAccessed": 1787737216845,
+      "lastAccessed": 1787907183008,
       "keyFiles": [
         "infisical-oracle-compose.sh",
         "install-infisical-gateway.sh",
@@ -292,29 +292,29 @@
       "path": "packages/assets",
       "purpose": "Static assets",
       "fileCount": 0,
-      "lastAccessed": 1787737216846,
+      "lastAccessed": 1787907183008,
       "keyFiles": []
     },
     "packages/config": {
       "path": "packages/config",
       "purpose": "Configuration files",
       "fileCount": 2,
-      "lastAccessed": 1787737216846,
+      "lastAccessed": 1787907183009,
       "keyFiles": ["README.md", "package.json"]
     },
     "tests/fixtures": {
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
-      "lastAccessed": 1787737216848,
+      "lastAccessed": 1787907183011,
       "keyFiles": ["agents.json", "leads.json", "memory-patterns.json"]
     }
   },
   "hotPaths": [
     {
       "path": "infra/hosts/oracle-vps/docker-compose.yml",
-      "accessCount": 36,
-      "lastAccessed": 1787663401836,
+      "accessCount": 41,
+      "lastAccessed": 1787907301749,
       "type": "file"
     },
     {
@@ -324,15 +324,15 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/orchestrator/docker-compose.yml",
-      "accessCount": 28,
-      "lastAccessed": 1787754820892,
+      "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
+      "accessCount": 30,
+      "lastAccessed": 1787907715027,
       "type": "file"
     },
     {
-      "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
-      "accessCount": 25,
-      "lastAccessed": 1787754824639,
+      "path": "infra/hosts/orchestrator/docker-compose.yml",
+      "accessCount": 30,
+      "lastAccessed": 1787982985106,
       "type": "file"
     },
     {
@@ -366,6 +366,12 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/oracle-vps/docker-compose.apps.yml",
+      "accessCount": 13,
+      "lastAccessed": 1787907076762,
+      "type": "file"
+    },
+    {
       "path": "infra/hosts/orchestrator/docker-compose.cloudflared.yml",
       "accessCount": 12,
       "lastAccessed": 1778326670131,
@@ -378,12 +384,6 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/oracle-vps/docker-compose.apps.yml",
-      "accessCount": 12,
-      "lastAccessed": 1785197693102,
-      "type": "file"
-    },
-    {
       "path": "infra/hosts/oracle-vps/docker-compose.memory-extra.yml",
       "accessCount": 10,
       "lastAccessed": 1778326680841,
@@ -393,6 +393,12 @@
       "path": "infra/hosts/oracle-vps/docker-compose.paperclip.yml",
       "accessCount": 10,
       "lastAccessed": 1778326708834,
+      "type": "file"
+    },
+    {
+      "path": "infra/hosts/orchestrator/docker-compose.clawteam.yml",
+      "accessCount": 10,
+      "lastAccessed": 1787982993129,
       "type": "file"
     },
     {
@@ -411,12 +417,6 @@
       "path": "package.json",
       "accessCount": 8,
       "lastAccessed": 1777975348519,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.clawteam.yml",
-      "accessCount": 8,
-      "lastAccessed": 1778313027030,
       "type": "file"
     },
     {

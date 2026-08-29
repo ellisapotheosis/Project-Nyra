@@ -65,8 +65,9 @@ hooks.projectnyra.com {
 # --- MCP Servers (Isolated via separate hostnames) ---
 
 # Letta Memory/Conversation System
-letta-mcp.trex-fiordland.ts.net {
-	reverse_proxy localhost:8284 {
+letta-mcp.trex-fiordland.ts.net, letta-mcp.projectnyra.com {
+	tls internal
+	reverse_proxy oracle-vps-memory-letta-mcp:6507 {
 		header_up X-Forwarded-Proto https
 	}
 	log {
@@ -166,8 +167,9 @@ gitingest-mcp.trex-fiordland.ts.net {
 }
 
 # OpenMemory Integration
-openmemory-mcp.trex-fiordland.ts.net {
-	reverse_proxy localhost:8765 {
+openmemory-mcp.trex-fiordland.ts.net, openmemory-mcp.projectnyra.com {
+	tls internal
+	reverse_proxy openmemory-mcp:8765 {
 		header_up X-Forwarded-Proto https
 	}
 }
@@ -194,8 +196,9 @@ crm-api.trex-fiordland.ts.net {
 }
 
 # Nexus LLM Router
-nexus.trex-fiordland.ts.net {
-	reverse_proxy localhost:6000 {
+nexus.trex-fiordland.ts.net, nexus.projectnyra.com, nexus-router.projectnyra.com, mcp-gateway.projectnyra.com {
+	tls internal
+	reverse_proxy nexus:3000 {
 		header_up X-Forwarded-Proto https
 		header_up X-Forwarded-For {http.request.remote.host}
 	}
@@ -205,8 +208,9 @@ nexus.trex-fiordland.ts.net {
 }
 
 # LiteLLM Model Proxy
-litellm.trex-fiordland.ts.net {
-	reverse_proxy localhost:4000 {
+litellm.trex-fiordland.ts.net, litellm.projectnyra.com {
+	tls internal
+	reverse_proxy litellm:4000 {
 		header_up X-Forwarded-Proto https
 	}
 	log {
@@ -217,15 +221,17 @@ litellm.trex-fiordland.ts.net {
 # --- Memory & State Management ---
 
 # Letta Conversation Memory
-letta.trex-fiordland.ts.net {
-	reverse_proxy localhost:8283 {
+letta.trex-fiordland.ts.net, letta.projectnyra.com {
+	tls internal
+	reverse_proxy oracle-vps-memory-letta:8283 {
 		header_up X-Forwarded-Proto https
 	}
 }
 
 # Mem0 Enterprise Memory
-mem0.trex-fiordland.ts.net {
-	reverse_proxy localhost:5001 {
+mem0.trex-fiordland.ts.net, mem0.projectnyra.com {
+	tls internal
+	reverse_proxy oracle-vps-memory-mem0:5000 {
 		header_up X-Forwarded-Proto https
 	}
 }

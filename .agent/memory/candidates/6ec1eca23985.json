@@ -24,7 +24,7 @@
     "2026-08-24T22:01:58.254092+00:00"
   ],
   "cluster_size": 3,
-  "canonical_salience": 12.285,
+  "canonical_salience": 11.88,
   "staged_at": "2026-08-24T22:02:15.390768+00:00",
   "status": "staged",
   "decisions": [
@@ -300,6 +300,166 @@
     },
     {
       "ts": "2026-08-28T08:03:16.584025+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:51:03.625365+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:54:10.479126+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:54:17.661479+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:54:28.303845+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:55:12.495280+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:55:45.140067+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:55:58.228169+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:56:19.472918+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:56:33.335448+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:56:38.051452+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:56:39.742939+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:57:29.980015+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T08:58:37.901854+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:00:27.429648+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:00:59.559862+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:01:08.813840+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:01:46.838744+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:02:16.713224+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:03:00.105025+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:03:12.712635+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:04:13.165204+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:15:36.763166+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:18:21.189844+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:18:32.050273+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T09:56:41.143520+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T10:01:49.669367+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T10:03:15.892420+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T10:05:17.728762+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-28T10:23:36.760144+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-29T05:51:38.811309+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-29T05:53:15.539948+00:00",
+      "action": "staged",
+      "reviewer": "auto_dream"
+    },
+    {
+      "ts": "2026-08-29T05:56:22.310996+00:00",
       "action": "staged",
       "reviewer": "auto_dream"
     }

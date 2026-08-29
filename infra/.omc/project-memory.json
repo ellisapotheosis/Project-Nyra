@@ -243,6 +243,24 @@
   },
   "hotPaths": [
     {
+      "path": "hosts/oracle-vps/.env",
+      "accessCount": 2,
+      "lastAccessed": 1787906994638,
+      "type": "file"
+    },
+    {
+      "path": "hosts/oracle-vps/docker-compose.memory.yml",
+      "accessCount": 2,
+      "lastAccessed": 1787907093310,
+      "type": "file"
+    },
+    {
+      "path": "hosts/orchestrator/docker-compose.clawteam.yml",
+      "accessCount": 2,
+      "lastAccessed": 1787907829679,
+      "type": "file"
+    },
+    {
       "path": "hosts/oracle-vps/example.env",
       "accessCount": 1,
       "lastAccessed": 1787906652306,
@@ -267,9 +285,9 @@
       "type": "file"
     },
     {
-      "path": "hosts/oracle-vps/.env",
+      "path": "hosts/orchestrator/cloudflared-config.yml",
       "accessCount": 1,
-      "lastAccessed": 1787906719093,
+      "lastAccessed": 1787982661804,
       "type": "file"
     }
   ],
