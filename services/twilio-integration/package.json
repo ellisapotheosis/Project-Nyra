@@ -51,6 +51,6 @@
     "@types/supertest": "^6.0.2",
     "eslint": "^10.2.0",
     "@typescript-eslint/eslint-plugin": "^8.64.0",
-    "@typescript-eslint/parser": "^8.58.2"
+    "@typescript-eslint/parser": "^8.68.0"
   }
 }
