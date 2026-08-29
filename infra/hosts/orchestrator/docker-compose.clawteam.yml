@@ -32,3 +32,7 @@ services:
           memory: 5g
         reservations:
           memory: 3g
+
+networks:
+  nyra-network:
+    external: true
