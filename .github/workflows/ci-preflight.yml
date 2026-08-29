@@ -92,11 +92,7 @@ jobs:
             else
               echo "- Required files: ❌ missing"
             fi
-            if [ "${{ steps.mirror.outputs.ok }}" = "true" ]; then
-              echo "- Mirror secrets: ✅ configured"
-            else
-              echo "- Mirror secrets: ⚠️ missing (mirror workflow will skip)"
-            fi
+            echo "- Repository mirror: disabled (GitHub is the canonical remote)"
             if [ "${{ steps.pages.outputs.enabled }}" = "true" ]; then
               echo "- GitHub Pages: ✅ configured"
             else

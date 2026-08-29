@@ -30,7 +30,7 @@ rm -f "$tmp_host_offender"
 
 bash scripts/infra/assert-compose-source-of-truth.sh >/dev/null
 
-grep -q 'APP_DIR: "apps/ratehunter/landing"' .github/workflows/deploy-cloudflare-pages.yml
+grep -q 'APP_DIR: "apps/ratehunter"' .github/workflows/deploy-cloudflare-pages.yml
 grep -q 'PNPM_VERSION: "10.27.0"' .github/workflows/deploy-cloudflare-pages.yml
 for preview_app in apps/projectnyra apps/ratehunter; do
   if [[ ! -f "$preview_app/package.json" ]]; then
