@@ -46,7 +46,7 @@ concurrency:
 # Configure environment variables for the workflow
 env:
   NODE_VERSION: "20"
-  PNPM_VERSION: "10.27.0"
+  PNPM_VERSION: "11.9.0"
   APP_DIR: "apps/ratehunter"
   CLOUDFLARE_PROJECT_NAME: "ratehunter-landing"
   PRODUCTION_DOMAIN: "https://ratehunter.net"
