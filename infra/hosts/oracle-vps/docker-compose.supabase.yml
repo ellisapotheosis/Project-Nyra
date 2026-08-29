@@ -19,7 +19,6 @@ services:
       POSTGRES_USER: ${SUPABASE_DB_USER:-supabase}
       POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:?set SUPABASE_DB_PASSWORD}
       POSTGRES_DB: ${SUPABASE_DB_NAME:-postgres}
-      POSTGRES_INITDB_ARGS: -c shared_preload_libraries=pg_stat_statements
     volumes:
       - supabase_db_data:/var/lib/postgresql/data
     ports:
