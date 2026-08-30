@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+  <head>
+    <title>NerveUI - Worker Agent Interface</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧠 Nerve Agent UI</h1>
+      <div class="status">
+        <h2>Worker Status</h2>
+        <p id="worker-id">Worker: Loading...</p>
+        <p id="nerve-health">Nerve: Checking...</p>
+        <p id="openclaw-health">OpenClaw: Checking...</p>
+      </div>
+      <div class="stats">
+        <h2>Agent Activity</h2>
+        <p>Active agents: <span id="active-agents">0</span></p>
+        <p>Tasks processed: <span id="tasks-completed">0</span></p>
+        <p>Last request: <span id="last-request">Never</span></p>
+      </div>
+    </div>
+    <script>
+      setInterval(() => {
+        document.getElementById("last-request").innerText =
+          new Date().toLocaleTimeString();
+      }, 1000);
+    </script>
+  </body>
+</html>
