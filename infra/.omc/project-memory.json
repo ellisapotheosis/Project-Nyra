@@ -310,6 +310,18 @@
       "accessCount": 1,
       "lastAccessed": 1788084822548,
       "type": "file"
+    },
+    {
+      "path": "hosts/oracle-vps/docker-compose.automation.yml",
+      "accessCount": 1,
+      "lastAccessed": 1788110610912,
+      "type": "file"
+    },
+    {
+      "path": "hosts/oracle-vps/docker-compose.n8n-full.yml",
+      "accessCount": 1,
+      "lastAccessed": 1788110613639,
+      "type": "file"
     }
   ],
   "userDirectives": []

@@ -1,10 +1,47 @@
 {
   "sessions": {
+    "ecaf294d-fd71-42b6-a098-e1d90e7f502c": {
+      "injectedPaths": [
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/deploy-checklist/SKILL.md",
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md"
+      ],
+      "timestamp": 1788115644300
+    },
     "6f4f6c58-09cd-422c-988a-7f0eaea3244a": {
       "injectedPaths": [
         "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md"
       ],
-      "timestamp": 1788109509673
+      "timestamp": 1788116228152
+    },
+    "32e6a52e-54f8-4a4c-bc55-d8bb553795cd": {
+      "injectedPaths": [
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md"
+      ],
+      "timestamp": 1788116250299
+    },
+    "699ce6c6-33c2-4b73-8ac5-1267c1c0338d": {
+      "injectedPaths": [
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md",
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/deploy-checklist/SKILL.md",
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/data-layer/SKILL.md",
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/debug-investigator/SKILL.md"
+      ],
+      "timestamp": 1788117159933
+    },
+    "7dd44800-6c15-47ed-8d76-0df5fb94a77b": {
+      "injectedPaths": [
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md"
+      ],
+      "timestamp": 1788117119642
+    },
+    "ee751818-9ab3-4ffd-8ee8-f4f55d785e34": {
+      "injectedPaths": [
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/git-proxy/SKILL.md",
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/deploy-checklist/SKILL.md",
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/data-layer/SKILL.md",
+        "/home/ellisapotheosis/repos/project-nyra/.agents/skills/debug-investigator/SKILL.md"
+      ],
+      "timestamp": 1788117157396
     }
   }
 }

@@ -1,0 +1,87 @@
+# Infisical Agent Configuration
+# Fetches secrets from Infisical Cloud and writes to runtime volumes
+# Usage: infisical-agent -c infra/configs/infisical/infisical-agent.yaml
+
+infisical:
+  address: "https://app.infisical.com"
+
+auth:
+  type: "universal-auth"
+  config:
+    client-id: "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}"
+    client-secret: "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}"
+
+templates:
+  # Oracle VPS — all services
+  - env: "${INFISICAL_ENV:-dev}"
+    project-id: "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+    path: "/hosts/oracle-vps"
+    destination: "/run/nyra-secrets/oracle-vps.env"
+    polling-interval: "60s"
+    file-mode: "0600"
+    owner: "root"
+    group: "root"
+    on-change: "signal"
+    on-change-signal: "SIGHUP"
+
+  # Orchestrator services
+  - env: "${INFISICAL_ENV:-dev}"
+    project-id: "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+    path: "/hosts/orchestrator"
+    destination: "/run/nyra-secrets/orchestrator.env"
+    polling-interval: "60s"
+    file-mode: "0600"
+    owner: "root"
+    group: "root"
+    on-change: "signal"
+    on-change-signal: "SIGHUP"
+
+  # LiteLLM shared credentials
+  - env: "${INFISICAL_ENV:-dev}"
+    project-id: "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+    path: "/llm-providers/litellm"
+    destination: "/run/nyra-secrets/litellm.env"
+    polling-interval: "60s"
+    file-mode: "0600"
+    owner: "root"
+    group: "root"
+    on-change: "signal"
+    on-change-signal: "SIGHUP"
+
+  # Database credentials
+  - env: "${INFISICAL_ENV:-dev}"
+    project-id: "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+    path: "/databases/postgres"
+    destination: "/run/nyra-secrets/postgres.env"
+    polling-interval: "60s"
+    file-mode: "0600"
+    owner: "postgres"
+    group: "postgres"
+    on-change: "signal"
+    on-change-signal: "SIGHUP"
+
+  # Redis credentials
+  - env: "${INFISICAL_ENV:-dev}"
+    project-id: "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+    path: "/databases/redis"
+    destination: "/run/nyra-secrets/redis.env"
+    polling-interval: "60s"
+    file-mode: "0600"
+    owner: "redis"
+    group: "redis"
+    on-change: "signal"
+    on-change-signal: "SIGHUP"
+
+  # Security/Infisical bootstrap
+  - env: "${INFISICAL_ENV:-dev}"
+    project-id: "8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+    path: "/security/infisical/local"
+    destination: "/run/nyra-secrets/infisical-local.env"
+    polling-interval: "60s"
+    file-mode: "0600"
+    owner: "root"
+    group: "root"
+
+logging:
+  level: "info"
+  format: "json"
