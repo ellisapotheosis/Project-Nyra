@@ -110,6 +110,12 @@ jobs:
                     context="."
                     dockerfile="infra/docker/build/services/${service}/Dockerfile"
                     ;;
+                  mem0|mempalace-mcp|openmemory-mcp)
+                    # These Dockerfiles live under infra/ but use the
+                    # repository root as their build context.
+                    context="."
+                    dockerfile="infra/docker/build/services/${service}/Dockerfile"
+                    ;;
                 esac
 
                 MATRIX="${MATRIX}{\"name\":\"${service}\",\"context\":\"${context}\",\"dockerfile\":\"${dockerfile}\",\"type\":\"service\"},"
