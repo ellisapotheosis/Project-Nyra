@@ -114,15 +114,6 @@ mcp_servers:
 # can normalize its messaging paths for 1.0 clients. Upgrade adapters to native
 # 1.0 before making task APIs a hard public contract.
 agents:
-  - agent_name: llxprt-dev
-    agent_card_params:
-      name: Project Nyra LLxprt Development Agent
-      description: Subscription-backed coding agent hosted on worker-rtx5090
-      url: os.environ/LLXPRT_A2A_URL
-      protocolVersion: "0.3"
-    litellm_params:
-      require_trace_id_on_calls_to_agent: true
-
   - agent_name: hermes-product
     agent_card_params:
       name: Project Nyra Hermes Product Assistant

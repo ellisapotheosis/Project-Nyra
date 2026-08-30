@@ -5,7 +5,6 @@ ROUTES = {
     "openclaw-3090.projectnyra.com": ("worker-3090-openclaw", 18789),
     "vllm-3090.projectnyra.com": ("worker-rtx3090ti-worker-3090-vllm", 8000),
     "grafana-3090.projectnyra.com": ("worker-rtx3090ti-worker-grafana", 3000),
-    "llxprt-3090.projectnyra.com": ("worker-rtx3090ti-worker-3090ti-llxprt-bridge", 8090),
     "litellm-3090.projectnyra.com": ("worker-rtx3090ti-worker-3090-litellm", 4000),
     "switcher-3090.projectnyra.com": ("worker-rtx3090ti-worker-3090-switcher", 8090),
 }
