@@ -208,7 +208,7 @@ nexus.trex-fiordland.ts.net, nexus.projectnyra.com, nexus-router.projectnyra.com
 }
 
 # LiteLLM Model Proxy
-litellm.trex-fiordland.ts.net, litellm.projectnyra.com {
+litellm.trex-fiordland.ts.net {
 	tls internal
 	reverse_proxy litellm:4000 {
 		header_up X-Forwarded-Proto https
@@ -319,6 +319,7 @@ webapp.trex-fiordland.ts.net {
 
 # Infisical Web UI + API
 infisical.trex-fiordland.ts.net {
+	tls internal
 	reverse_proxy 100.64.0.3:8200 {
 		header_up X-Forwarded-For {http.request.remote.host}
 		header_up X-Forwarded-Proto https
@@ -332,8 +333,9 @@ infisical.trex-fiordland.ts.net {
 # --- Credential & Security ---
 
 # Agent Vault (Credential Proxy for AI Agents)
-agent-vault.trex-fiordland.ts.net {
-	reverse_proxy localhost:14321 {
+agent-vault.trex-fiordland.ts.net, agent-vault.projectnyra.com {
+	tls internal
+	reverse_proxy 100.64.0.3:14321 {
 		header_up X-Forwarded-For {http.request.remote.host}
 		header_up X-Forwarded-Proto https
 		header_up X-Forwarded-Host {http.request.host}

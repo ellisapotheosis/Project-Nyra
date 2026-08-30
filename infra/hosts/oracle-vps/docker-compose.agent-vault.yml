@@ -2,12 +2,8 @@
 # Overlay onto the canonical oracle-vps compose.
 # Usage: docker --context oracle compose -f docker-compose.yml -f docker-compose.agent-vault.yml up -d agent-vault
 #
-# Requires vars in .env.agent-vault:
-#   AGENT_VAULT_ADDR                          – local/private access URL (http://127.0.0.1:14321)
-#   AGENT_VAULT_MASTER_PASSWORD               – strong random master password
-#   INFISICAL_URL                             – https://app.infisical.com (Cloud only)
-#   INFISICAL_UNIVERSAL_AUTH_CLIENT_ID        – read-only Machine Identity client ID
-#   INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET    – read-only Machine Identity client secret
+# Infisical is the read-only credential store for Agent Vault. The Universal
+# Auth values are supplied at deployment time and must not be committed.
 
 services:
   agent-vault:
@@ -15,14 +11,18 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-agent-vault
     restart: unless-stopped
     environment:
-      AGENT_VAULT_ADDR: ${AGENT_VAULT_ADDR:-http://127.0.0.1:14321}
-      AGENT_VAULT_MASTER_PASSWORD: ${AGENT_VAULT_MASTER_PASSWORD}
+      AGENT_VAULT_ADDR: ${AGENT_VAULT_ADDR:-http://100.64.0.3:14321}
+      INFISICAL_URL: ${INFISICAL_URL:-https://app.infisical.com}
+      # Prefer the exact Universal Auth names used by Infisical; retain the
+      # CLIENT_* aliases for Agent Vault/image versions that still expect them.
+      INFISICAL_UNIVERSAL_AUTH_ID: ${INFISICAL_UNIVERSAL_AUTH_ID:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:?INFISICAL_UNIVERSAL_AUTH_ID required}}
+      INFISICAL_UNIVERSAL_AUTH_SECRET: ${INFISICAL_UNIVERSAL_AUTH_SECRET:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:?INFISICAL_UNIVERSAL_AUTH_SECRET required}}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_ID:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:?INFISICAL_UNIVERSAL_AUTH_ID required}}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_SECRET:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:?INFISICAL_UNIVERSAL_AUTH_SECRET required}}
+      AGENT_VAULT_MASTER_PASSWORD: ${AGENT_VAULT_MASTER_PASSWORD:?AGENT_VAULT_MASTER_PASSWORD required}
       AGENT_VAULT_LOG_LEVEL: ${AGENT_VAULT_LOG_LEVEL:-info}
       AGENT_VAULT_LOGS_MAX_AGE_HOURS: ${AGENT_VAULT_LOGS_MAX_AGE_HOURS:-168}
       AGENT_VAULT_LOGS_MAX_ROWS_PER_VAULT: ${AGENT_VAULT_LOGS_MAX_ROWS_PER_VAULT:-10000}
-      INFISICAL_URL: ${INFISICAL_URL:-https://app.infisical.com}
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
       AGENT_VAULT_SMTP_HOST: ${AGENT_VAULT_SMTP_HOST:-}
       AGENT_VAULT_SMTP_PORT: ${AGENT_VAULT_SMTP_PORT:-587}
       AGENT_VAULT_SMTP_USERNAME: ${AGENT_VAULT_SMTP_USERNAME:-}
@@ -37,8 +37,8 @@ services:
     # Port 14321: Agent Vault management/admin UI (private only)
     # Port 14322: Agent Vault credential proxy (private only, for vaulted agents)
     ports:
-      - "127.0.0.1:14321:14321"
-      - "127.0.0.1:14322:14322"
+      - "${ORACLE_TAILSCALE_IP:-100.64.0.3}:14321:14321"
+      - "${ORACLE_TAILSCALE_IP:-100.64.0.3}:14322:14322"
     volumes:
       - agent_vault_data:/data
     networks:
@@ -53,7 +53,8 @@ services:
 networks:
   nyra_net:
     external: true
-    name: nyra_net
+    name: ${ORACLE_MAIN_NETWORK:-nyra-network_nyra_net}
 
 volumes:
   agent_vault_data:
+    name: oracle-vps_agent_vault_data

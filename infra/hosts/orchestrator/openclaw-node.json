@@ -1,0 +1,6 @@
+{
+  "displayName": "orchestrator",
+  "gatewayUrl": "ws://100.64.0.3:18789",
+  "tokenSource": "Infisical /infra/ai-profiles/openclaw (OPENCLAW_GATEWAY_TOKEN)",
+  "runtime": "wsl2-systemd-user"
+}

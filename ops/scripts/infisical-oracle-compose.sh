@@ -27,14 +27,20 @@ bootstrap_token() {
     return 0
   fi
 
-  : "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:?set INFISICAL_TOKEN or Universal Auth client ID}"
-  : "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:?set INFISICAL_TOKEN or Universal Auth client secret}"
-  : "${INFISICAL_HOST_URL:?set INFISICAL_HOST_URL for Universal Auth}"
+  # Accept Infisical's canonical ID/SECRET names and the older CLIENT_* aliases.
+  INFISICAL_UNIVERSAL_AUTH_CLIENT_ID="${INFISICAL_UNIVERSAL_AUTH_ID:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}}"
+  INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET="${INFISICAL_UNIVERSAL_AUTH_SECRET:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}}"
+  export INFISICAL_UNIVERSAL_AUTH_CLIENT_ID INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET
+  : "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:?set INFISICAL_TOKEN or Universal Auth ID}"
+  : "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:?set INFISICAL_TOKEN or Universal Auth secret}"
+  # Accept the canonical local secret name used by ~/.zsh/99-secrets.zsh.
+  # INFISICAL_HOST_URL remains supported for older environments.
+  INFISICAL_LOGIN_DOMAIN="${INFISICAL_HOST_URL:-${INFISICAL_URL:-https://app.infisical.com}}"
 
   infisical login --method universal-auth \
     --client-id "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" \
     --client-secret "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" \
-    --domain "$INFISICAL_HOST_URL" \
+    --domain "$INFISICAL_LOGIN_DOMAIN" \
     --silent 2>&1 \
     | awk '/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/ { token=$0 } END { print token }'
 }
@@ -59,6 +65,16 @@ infisical export \
 # bootstrap token. It is supplied only to the Compose invocation and not persisted.
 printf 'INFISICAL_TOKEN=%s\nINFISICAL_PROJECT_ID=%s\nINFISICAL_ENV=%s\nINFISICAL_PATH=%s\n' \
   "$TOKEN" "$PROJECT_ID" "$ENV_NAME" "$SECRET_PATH" >>"$RUNTIME_ENV"
+
+# Compose interpolation on a remote Docker context happens on the remote host.
+# Carry the already-authenticated Machine Identity through the ephemeral env
+# file so Agent Vault receives it without persisting credentials in the repo or
+# on the Oracle host. Shell values take precedence over exported env-file data.
+if [[ -n "${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID:-}" && -n "${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET:-}" ]]; then
+  printf 'INFISICAL_UNIVERSAL_AUTH_ID=%s\nINFISICAL_UNIVERSAL_AUTH_SECRET=%s\nINFISICAL_UNIVERSAL_AUTH_CLIENT_ID=%s\nINFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=%s\n' \
+    "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" \
+    "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" >>"$RUNTIME_ENV"
+fi
 
 # The canonical Oracle Compose declares the project name `nyra-network`,
 # while its explicit container_name values use the historical

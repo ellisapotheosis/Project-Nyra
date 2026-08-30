@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+source /home/ellisapotheosis/.zsh/99-secrets.zsh 2>/dev/null || true
+INFISICAL_BIN="$(command -v infisical || true)"
+if [[ -z "$INFISICAL_BIN" ]]; then INFISICAL_BIN=/home/ellisapotheosis/.local/bin/infisical; fi
+if [[ -x "$INFISICAL_BIN" ]]; then
+  # Import only OpenClaw keys. Other Infisical keys may contain header names
+  # with hyphens, which are not valid shell identifiers.
+  while IFS= read -r line; do
+    case "$line" in
+      'export OPENCLAW_GATEWAY_TOKEN='*|'export OPENCLAW_GATEWAY_PORT='*|'export OPENCLAW_TAILSCALE_ALLOW='*|'export OPENCLAW_CONTROL_UI_ENABLED='*) eval "$line" ;;
+    esac
+  done < <($INFISICAL_BIN export --env=dev --path=/infra/ai-profiles/openclaw --format=dotenv-export 2>/dev/null)
+fi
+export OPENCLAW_GATEWAY_HOST=100.64.0.3 OPENCLAW_GATEWAY_PORT=18789
+exec /home/ellisapotheosis/.local/share/fnm/node-versions/v24.18.0/installation/bin/node /home/ellisapotheosis/.npm-global/lib/node_modules/openclaw/openclaw.mjs node run --host 100.64.0.3 --port 18789 --no-tls --display-name worker-rtx5090
