@@ -11,11 +11,6 @@ COMPOSE ?= docker compose -f $(COMPOSE_FILE)
 CF_ORCH_COMPOSE  := infra/hosts/orchestrator/docker-compose.cloudflared.yml
 ORACLE_APPS_COMPOSE := infra/hosts/oracle-vps/docker-compose.apps.yml
 
-# Host Specific Compose Files
-ORCHESTRATOR_LLXPRT_COMPOSE := infra/hosts/orchestrator/docker-compose.llxprt.yml
-WORKER_3060_LLXPRT_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
-WORKER_3090TI_LLXPRT_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
-WORKER_5090_LLXPRT_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
 ORACLE_ACTIVEPIECES_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.activepieces-mcp.yml
 
 # Canonical Host Composes
@@ -35,7 +30,7 @@ ORACLE_MEMORY_EXTRA_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory-extr
 ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
 ORACLE_AGENT_VAULT_COMPOSE := infra/hosts/oracle-vps/docker-compose.agent-vault.yml
 ORACLE_UI_FACTORY_SERVICES := nyra-ui-engine magicui-mcp shadcn-mcp
-ORACLE_MCP_TOOL_SERVICES := llxprt-bridge-proxy activepieces-mcp litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
+ORACLE_MCP_TOOL_SERVICES := activepieces-mcp litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
 ORACLE_PORTAINER_SERVICES := portainer portainer-edge-agent
 INFISICAL_RUNTIME_COMPOSE := infra/hosts/_templates/docker-compose.infisical-runtime.yml
 WORKER_AI_COMMON_COMPOSE := infra/hosts/_templates/docker-compose.worker-ai-common.yml
@@ -76,11 +71,6 @@ DEFAULT_PROFILES ?= apps,sync,debug
   stack-config-check stack-up stack-status
 
 restoration-up: oracle-mcp-tools-up oracle-memory-full-up
-	@echo "🚀 Bringing up LLXPRT cluster..."
-	@docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_LLXPRT_COMPOSE) up -d
-	@docker --context $(WORKER_5090_CONTEXT) compose -f $(WORKER_5090_LLXPRT_COMPOSE) up -d
-	@docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WORKER_3090TI_LLXPRT_COMPOSE) up -d
-	@docker --context $(WORKER_3060_CONTEXT) compose -f $(WORKER_3060_LLXPRT_COMPOSE) up -d
 	@echo "🐾 Starting ActivePieces MCP on Oracle..."
 	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_ACTIVEPIECES_MCP_COMPOSE) up -d
 	@echo "✅ Full Restoration Stack is LIVE."

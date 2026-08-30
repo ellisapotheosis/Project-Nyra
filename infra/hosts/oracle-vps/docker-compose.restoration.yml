@@ -1,19 +1,4 @@
 services:
-  # ── LLxprt Subscription Bridge ──────────────────────────────────────────
-  llxprt-bridge:
-    build:
-      context: ../../../services/llxprt-bridge
-      dockerfile: ../../infra/docker/build/services/llxprt-bridge/Dockerfile
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-restoration-llxprt-bridge
-    restart: unless-stopped
-    environment:
-      LLXPRT_BRIDGE_API_KEY: ${LLXPRT_BRIDGE_API_KEY:-}
-    networks:
-      nyra-network_nyra_net:
-        aliases:
-          - llxprt-bridge
-          - nyra-llxprt-bridge
-
   # ── ActivePieces MCP ────────────────────────────────────────────────────
   activepieces-mcp:
     build:
