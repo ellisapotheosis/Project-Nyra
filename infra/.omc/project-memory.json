@@ -243,6 +243,12 @@
   },
   "hotPaths": [
     {
+      "path": "hosts/oracle-vps/docker-compose.supabase.yml",
+      "accessCount": 4,
+      "lastAccessed": 1787987043292,
+      "type": "file"
+    },
+    {
       "path": "hosts/oracle-vps/.env",
       "accessCount": 2,
       "lastAccessed": 1787906994638,

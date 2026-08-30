@@ -1,6 +1,6 @@
 # Review Queue
 
-**Pending:** 11
+**Pending:** 12
 **Oldest staged:** 2026-07-23T02:26:11.126458+00:00
 
 Run `python .agent/tools/list_candidates.py` for detail, then:
@@ -11,6 +11,7 @@ Run `python .agent/tools/list_candidates.py` for detail, then:
 
 ## Priority order (top 10)
 
+- **8328a16f536d** (priority=48141.00, size=1783, rejections=0) — FAILURE in claude-code: Command failed: ssh oracle "docker exec oracle-vps-supab
 - **874148d31555** (priority=43041.37, size=1635, rejections=0) — FAILURE in claude-code: High-stakes op FAILED (prod): set +x && infisical run --
 - **4a6d6211ee0c** (priority=378.00, size=14, rejections=0) — High-stakes op completed (deploy): git add -A && git commit -m "feat(security):
 - **2b32f246715f** (priority=324.00, size=12, rejections=0) — Wrote /home/ellisapotheosis/repos/project-nyra/infra/agent-vault/scripts/create-
@@ -20,4 +21,3 @@ Run `python .agent/tools/list_candidates.py` for detail, then:
 - **b50e1e4cfd41** (priority=92.57, size=6, rejections=0) — High-stakes op completed (deployment): cat > /home/ellisapotheosis/repos/project
 - **05fc96009e48** (priority=81.00, size=3, rejections=0) — High-stakes op completed (deploy): # Fix CRLF line endings in scripts
 - **cc24e1293107** (priority=45.82, size=3, rejections=0) — High-stakes op completed (secret): cat > /tmp/infisical_keys.sh << 'EOF'
-- **6ec1eca23985** (priority=45.82, size=3, rejections=0) — Wrote /home/ellisapotheosis/.claude/projects/-home-ellisapotheosis-repos-project

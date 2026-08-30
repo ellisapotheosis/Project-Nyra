@@ -348,6 +348,12 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/orchestrator/docker-compose.cloudflared.yml",
+      "accessCount": 15,
+      "lastAccessed": 1787984269084,
+      "type": "file"
+    },
+    {
       "path": "infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml",
       "accessCount": 14,
       "lastAccessed": 1778313219098,
@@ -369,12 +375,6 @@
       "path": "infra/hosts/oracle-vps/docker-compose.apps.yml",
       "accessCount": 13,
       "lastAccessed": 1787907076762,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/docker-compose.cloudflared.yml",
-      "accessCount": 12,
-      "lastAccessed": 1778326670131,
       "type": "file"
     },
     {
@@ -426,6 +426,12 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/orchestrator/cloudflared-config.yml",
+      "accessCount": 8,
+      "lastAccessed": 1787984320094,
+      "type": "file"
+    },
+    {
       "path": "infra/hosts/host-layout.yaml",
       "accessCount": 7,
       "lastAccessed": 1785020130246,
@@ -459,12 +465,6 @@
       "path": ".mcp.json",
       "accessCount": 6,
       "lastAccessed": 1787566859337,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/orchestrator/cloudflared-config.yml",
-      "accessCount": 5,
-      "lastAccessed": 1785020133797,
       "type": "file"
     },
     {
