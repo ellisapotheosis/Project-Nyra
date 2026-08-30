@@ -921,19 +921,6 @@ services:
       - "8000:8000"
     networks: [nyra_net]
 
-  # ── LiteLLM Proxy ─────────────────────────────────────────────────────────
-  # Moved from orchestrator: co-located with Nexus to eliminate Tailscale hop.
-  llxprt-bridge-proxy:
-    image: alpine/socat:1.8.0.3
-    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-llxprt-bridge-proxy
-    restart: unless-stopped
-    network_mode: host
-    command:
-      - "-d"
-      - "-d"
-      - "TCP-LISTEN:8091,bind=172.20.0.1,fork,reuseaddr"
-      - "TCP:127.0.0.1:8090"
-
   # ── OmniRoute provider gateway ──────────────────────────────────────────
   # Private upstream for LiteLLM. Its dashboard is loopback-only for SSH
   # forwarding; do not add this service to Cloudflared or Nexus MCP.
@@ -978,7 +965,6 @@ services:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-}
       CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:?set CLOUDFLARE_API_TOKEN}
       DATABASE_URL: postgresql://${POSTGRES_USER:-nyra}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-nyra}
-      LLXPRT_BRIDGE_API_KEY: ${LLXPRT_BRIDGE_API_KEY:-}
       OMNIROUTE_API_KEY: ${OMNIROUTE_API_KEY:?OMNIROUTE_API_KEY is required}
       REDIS_HOST: redis-cache
       REDIS_PORT: "6379"
@@ -987,8 +973,6 @@ services:
     volumes:
       - ../../configs/litellm/config.yaml:/app/config/config.yaml:ro
     depends_on:
-      llxprt-bridge-proxy:
-        condition: service_started
       omniroute:
         condition: service_healthy
       postgres:
@@ -1037,8 +1021,6 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
-      LLXPRT_JEFE_BASE_URL: ${LLXPRT_JEFE_BASE_URL:-}
-      LLXPRT_JEFE_API_KEY: ${LLXPRT_JEFE_API_KEY:-}
     volumes:
       - ./nexus.toml:/etc/nexus.toml:ro
     depends_on:

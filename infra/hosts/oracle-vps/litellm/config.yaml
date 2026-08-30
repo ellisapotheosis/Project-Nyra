@@ -2,14 +2,12 @@
 #
 # Provider Chain (Tier Order):
 # 1. Claude API (native Anthropic subscription)
-# 2. Codex CLI subscription (OpenAI-compatible via llxprt-bridge)
-# 3. OmniRoute free models (oracle-vps local)
-# 4. Local worker models (vLLM + Ollama)
-# 5. OpenRouter fallback (free tier)
+# 2. OmniRoute free models (oracle-vps local)
+# 3. Local worker models (vLLM + Ollama)
+# 4. OpenRouter fallback (free tier)
 #
 # Secrets injected at runtime via Infisical:
 #   CLAUDE_API_KEY           — Anthropic API key (sk-ant-...)
-#   CODEX_API_KEY            — Codex subscription key
 #   OMNIROUTE_API_KEY        — OmniRoute endpoint key
 #   OPENROUTER_API_KEY       — OpenRouter free tier key
 #   LITELLM_MASTER_KEY       — LiteLLM admin key (sk-...)
@@ -66,39 +64,8 @@ model_list:
       output_cost_per_token: 0.000075
       max_tokens: 16000
 
-  # ============================================================================
-  # TIER 2: CODEX CLI SUBSCRIPTION (OpenAI-Compatible via Proxy)
-  # ============================================================================
-  - model_name: codex/api
-    litellm_params:
-      model: openai/claude-code
-      api_base: http://worker-rtx5090.projectnyra.com:8090/v1
-      api_key: os.environ/CODEX_API_KEY
-      timeout: 300
-    model_info:
-      mode: "chat"
-      supports_function_calling: true
-      supports_vision: false
-      input_cost_per_token: 0.000001
-      output_cost_per_token: 0.000002
-      max_tokens: 8000
-
-  - model_name: codex/subscription
-    litellm_params:
-      model: openai/claude-desktop
-      api_base: http://worker-rtx5090.projectnyra.com:8090/v1
-      api_key: os.environ/CODEX_API_KEY
-      timeout: 240
-    model_info:
-      mode: "chat"
-      supports_function_calling: true
-      supports_vision: false
-      input_cost_per_token: 0.000001
-      output_cost_per_token: 0.000001
-      max_tokens: 8000
-
-  # ============================================================================
-  # TIER 3: OMNIROUTE (Free Models on Oracle VPS)
+  # ==========================================================================
+  # TIER 2: OMNIROUTE (Free Models on Oracle VPS)
   # ============================================================================
   - model_name: omniroute/auto
     litellm_params:
@@ -326,7 +293,7 @@ model_list:
 
   - model_name: coding
     litellm_params:
-      model: codex/subscription
+      model: omniroute/auto
 
 # ============================================================================
 # PROVIDER CHAIN CONFIGURATION (Fallback Order)
@@ -340,7 +307,6 @@ router_settings:
     - {
         "claude/3-5-sonnet":
           [
-            "codex/subscription",
             "omniroute/auto",
             "local/qwen-3.1-72b",
             "openrouter/deepseek-r1-free",
@@ -355,17 +321,10 @@ router_settings:
     - {
         "claude/3-opus":
           [
-            "codex/subscription",
             "omniroute/reasoning",
             "local/deepseek-r1",
             "openrouter/deepseek-r1-free",
           ],
-      }
-
-    # Coding-specific chains
-    - {
-        "codex/subscription":
-          ["local/qwen-coder-32b", "omniroute/coding", "openrouter/qwen-free"],
       }
 
     # OmniRoute chains
@@ -378,7 +337,6 @@ router_settings:
         "omniroute/coding":
           [
             "local/qwen-coder-32b",
-            "codex/subscription",
             "openrouter/qwen-free",
           ],
       }
@@ -413,16 +371,16 @@ router_settings:
 
 letta_settings:
   # Primary model for agent reasoning
-  agent_model: "default" # Routes to claude/3-5-sonnet → codex → omniroute → local → openrouter
+  agent_model: "default" # Routes to claude/3-5-sonnet → omniroute → local → openrouter
 
   # Fast summarization (for memory operations)
   summarization_model: "fast" # Routes to claude/3-5-haiku → omniroute/fast → local → openrouter
 
   # Reasoning-heavy tasks (analysis, decision-making)
-  reasoning_model: "reasoning" # Routes to claude/3-opus → codex → omniroute/reasoning → local → openrouter
+  reasoning_model: "reasoning" # Routes to claude/3-opus → omniroute/reasoning → local → openrouter
 
   # Code generation tasks
-  coding_model: "coding" # Routes to codex/subscription → local/qwen-coder-32b → omniroute/coding → openrouter
+  coding_model: "coding" # Routes to omniroute/auto → local/qwen-coder-32b → openrouter
 
   # Embeddings for vector search
   embedding_model: "local/embeddings"

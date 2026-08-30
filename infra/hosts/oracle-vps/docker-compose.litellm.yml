@@ -1,7 +1,7 @@
 # ============================================================================
 # LiteLLM Multi-Provider Gateway — Oracle VPS
 # ============================================================================
-# Multi-tier provider routing: Claude → Codex → OmniRoute → Local → OpenRouter
+# Multi-tier provider routing: Claude → OmniRoute → Local → OpenRouter
 #
 # Usage:
 #   docker compose -f docker-compose.yml -f docker-compose.litellm.yml up -d
@@ -16,7 +16,7 @@
 #   curl http://localhost:4000/v1/models
 #
 # Requirements:
-#   - .env.litellm file with: CLAUDE_API_KEY, CODEX_API_KEY, OMNIROUTE_API_KEY,
+#   - .env.litellm file with: CLAUDE_API_KEY, OMNIROUTE_API_KEY,
 #     OPENROUTER_API_KEY, LITELLM_MASTER_KEY, LITELLM_DATABASE_URL (optional)
 
 services:
@@ -35,9 +35,6 @@ services:
     environment:
       # === Anthropic ===
       CLAUDE_API_KEY: ${CLAUDE_API_KEY:?CLAUDE_API_KEY required (sk-ant-...)}
-
-      # === Codex (via llxprt-bridge) ===
-      CODEX_API_KEY: ${CODEX_API_KEY:?CODEX_API_KEY required}
 
       # === OmniRoute (free models) ===
       OMNIROUTE_API_KEY: ${OMNIROUTE_API_KEY:?OMNIROUTE_API_KEY required}
