@@ -1,0 +1,31 @@
+# AionUI — AI Orchestration Interface
+# Web dashboard for managing Phase 3 agents and workflows
+
+services:
+  aionui:
+    image: projectnyra/aionui:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-aionui
+    environment:
+      PORT: 3000
+      LITELLM_BASE_URL: http://nyra-litellm:4000/v1
+      LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
+      OPENCLAW_URL: http://nyra-openclaw-gateway:8001
+      MISSION_CONTROL_URL: http://nyra-mission-control:9090
+      LOG_LEVEL: info
+    ports:
+      - "3001:3000"
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: ui
+      com.projectnyra.component: aionui
+
+networks:
+  nyra-network:
+    external: true

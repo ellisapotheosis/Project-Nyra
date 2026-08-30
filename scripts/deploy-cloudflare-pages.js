@@ -131,7 +131,7 @@ async function deployProject(
     console.log(`  → Setting environment variables...`);
     const envVars = {
       NODE_VERSION: "20.18.0",
-      PNPM_VERSION: "11.9.0",
+      PNPM_VERSION: "10.27.0",
       ...env,
     };
 

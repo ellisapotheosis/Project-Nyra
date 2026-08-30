@@ -98,6 +98,15 @@ jobs:
               if [[ "$dir" == *"infra-archived"* ]]; then continue; fi
               if [ -f "$dir" ]; then
                 service=$(dirname "$dir" | cut -d'/' -f5)
+
+                # The upstream mem0 repository no longer ships the
+                # openmemory/api source tree used by this legacy image.
+                # Keep the Dockerfile available for host-side compatibility,
+                # but do not advertise an unrebuildable CI target.
+                if [ "$service" = "openmemory-mcp" ]; then
+                  continue
+                fi
+
                 context="services/${service}"
                 dockerfile="infra/docker/build/services/${service}/Dockerfile"
 
@@ -107,6 +116,12 @@ jobs:
 
                 case "$service" in
                   crm-api)
+                    context="."
+                    dockerfile="infra/docker/build/services/${service}/Dockerfile"
+                    ;;
+                  mem0|mempalace-mcp|openmemory-mcp)
+                    # These Dockerfiles live under infra/ but use the
+                    # repository root as their build context.
                     context="."
                     dockerfile="infra/docker/build/services/${service}/Dockerfile"
                     ;;

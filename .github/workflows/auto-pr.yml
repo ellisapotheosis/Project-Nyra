@@ -56,7 +56,7 @@ jobs:
             if [[ "$TYPE" == "consolidation" || "$TYPE" == "codex" ]]; then
               BASE_BRANCH="main"
             else
-              BASE_BRANCH="main"
+              BASE_BRANCH="develop"
             fi
           fi
           echo "base-branch=$BASE_BRANCH" >> $GITHUB_OUTPUT

@@ -192,6 +192,16 @@ mcp_policy:
       origin: http://gitingest-mcp:8777
     - hostname: codebase-index-mcp.projectnyra.com
       origin: http://codebase-index-mcp:8778
+    - hostname: composio-mcp.projectnyra.com
+      origin: http://composio-mcp:8790
+    - hostname: github-mcp.projectnyra.com
+      origin: http://github-mcp:8782
+    - hostname: docker-mcp.projectnyra.com
+      origin: http://docker-mcp:8783
+    - hostname: filesystem-mcp.projectnyra.com
+      origin: http://filesystem-mcp:8784
+    - hostname: docker-gateway-mcp.projectnyra.com
+      origin: http://docker-gateway-mcp:8788
 
 mcp_portals:
   - name: MCP-Gateway
@@ -255,12 +265,24 @@ tailscale_private:
       origin: http://meshy-mcp:8780
       port: 8780
       description: Meshy AI 3D generation MCP server
-    - name: loki-website-mcp
-      magicdns: loki-website-mcp.trex-fiordland.ts.net
-      split_dns: loki-website-mcp.projectnyra.com
-      origin: http://loki-website-mcp:8781
+    - name: blender-mcp
+      magicdns: blender-mcp.trex-fiordland.ts.net
+      split_dns: blender-mcp.projectnyra.com
+      origin: http://blender-mcp:8781
       port: 8781
-      description: Loki website builder MCP server (not Grafana Loki log aggregator)
+      description: Blender Python MCP server for 3D modeling and rendering
+    - name: twenty-crm-mcp
+      magicdns: twenty-crm-mcp.trex-fiordland.ts.net
+      split_dns: twenty-crm-mcp.projectnyra.com
+      origin: http://twenty-mcp:8400
+      port: 8400
+      description: Twenty CRM MCP server for customer relationship management
+    - name: openmemory-mcp
+      magicdns: openmemory-mcp.trex-fiordland.ts.net
+      split_dns: openmemory-mcp.projectnyra.com
+      origin: http://openmemory-mcp:8785
+      port: 8785
+      description: Local memory and knowledge graph MCP server (Qdrant + FalkorDB)
     - name: litellm-router
       magicdns: litellm-router.trex-fiordland.ts.net
       split_dns: litellm-router.projectnyra.com

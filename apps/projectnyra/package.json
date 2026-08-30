@@ -4,7 +4,6 @@
   "description": "Project Nyra product surface",
   "private": true,
   "scripts": {
-    "prebuild": "TSUP_DTS=false pnpm --filter @project-nyra/websocket-client build",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

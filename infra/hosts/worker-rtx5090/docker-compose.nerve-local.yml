@@ -1,0 +1,81 @@
+# Nerve — Local Agent Coordinator (Worker-RTX5090)
+# Manages task execution via local OpenClaw instance
+# Routes to LiteLLM on oracle-vps for model routing
+
+services:
+  nerve:
+    image: projectnyra/nerve:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nerve
+    environment:
+      NERVE_PORT: 7000
+      OPENCLAW_URL: http://localhost:18789
+      LITELLM_BASE_URL: http://100.64.0.3:4000/v1
+      LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
+      WORKER_ID: worker-rtx5090
+      LOG_LEVEL: INFO
+    ports:
+      - "7000:7000"
+    depends_on:
+      - openclaw
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: worker
+      com.projectnyra.component: nerve
+
+  openclaw:
+    image: projectnyra/openclaw-gateway:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openclaw
+    environment:
+      OPENCLAW_PORT: 18789
+      LITELLM_URL: http://100.64.0.3:4000/v1
+      LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
+      LOG_LEVEL: INFO
+    ports:
+      - "18789:18789"
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: worker
+      com.projectnyra.component: openclaw
+
+  nerve-ui:
+    image: projectnyra/nerveui:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nerveui
+    environment:
+      PORT: 5000
+      NERVE_URL: http://nerve:7000
+      OPENCLAW_URL: http://localhost:18789
+      WORKER_GPU: nvidia
+      LOG_LEVEL: INFO
+    ports:
+      - "5000:5000"
+    depends_on:
+      - nerve
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: worker
+      com.projectnyra.component: nerveui
+
+networks:
+  nyra-network:
+    external: true

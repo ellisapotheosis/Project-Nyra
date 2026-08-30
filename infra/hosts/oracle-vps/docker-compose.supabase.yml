@@ -19,7 +19,6 @@ services:
       POSTGRES_USER: ${SUPABASE_DB_USER:-supabase}
       POSTGRES_PASSWORD: ${SUPABASE_DB_PASSWORD:?set SUPABASE_DB_PASSWORD}
       POSTGRES_DB: ${SUPABASE_DB_NAME:-postgres}
-      POSTGRES_INITDB_ARGS: -c shared_preload_libraries=pg_stat_statements
     volumes:
       - supabase_db_data:/var/lib/postgresql/data
     ports:
@@ -39,10 +38,13 @@ services:
     <<: *common
     image: supabase/gotrue:v2.148.0
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-auth
+    env_file:
+      - .env
     environment:
       GOTRUE_DB_DRIVER: postgres
       DB_NAMESPACE: auth
       GOTRUE_DB_DATABASE_URL: postgresql://${SUPABASE_DB_USER:-supabase}:${SUPABASE_DB_PASSWORD:?set SUPABASE_DB_PASSWORD}@supabase-db:5432/${SUPABASE_DB_NAME:-postgres}
+      API_EXTERNAL_URL: ${SUPABASE_EXTERNAL_URL:-https://auth.projectnyra.com}
       GOTRUE_JWT_SECRET: ${SUPABASE_JWT_SECRET:?set SUPABASE_JWT_SECRET}
       GOTRUE_JWT_EXP: 3600
       GOTRUE_JWT_AUD: authenticated
@@ -85,7 +87,7 @@ services:
       supabase-db:
         condition: service_healthy
     ports:
-      - "127.0.0.1:4000:4000"
+      - "127.0.0.1:4001:4000"
     networks: [nyra_net]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4000/health"]

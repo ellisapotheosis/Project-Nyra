@@ -1,0 +1,32 @@
+# Nerve — Worker Agent Backend
+# Manages local agent lifecycle on worker nodes
+# Coordinates with OpenClaw + ClawTeam for distributed execution
+
+services:
+  nerve:
+    image: projectnyra/nerve:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nerve
+    environment:
+      OPENCLAW_URL: http://nyra-openclaw-gateway:8001
+      CLAWTEAM_URL: http://nyra-clawteam-primary:8085
+      LITELLM_BASE_URL: http://nyra-litellm:4000/v1
+      LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
+      WORKER_ID: orchestrator
+      LOG_LEVEL: info
+    ports:
+      - "7000:7000"
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: control-plane
+      com.projectnyra.component: nerve
+
+networks:
+  nyra-network:
+    external: true
