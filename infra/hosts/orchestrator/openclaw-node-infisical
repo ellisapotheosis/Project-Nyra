@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+NODE=/home/ellisapotheosis/.local/share/fnm/node-versions/v26.8.1/installation/bin/node
+CLI=/home/ellisapotheosis/.local/share/fnm/node-versions/v26.8.1/installation/lib/node_modules/openclaw/dist/index.js
+INFISICAL=/home/linuxbrew/.linuxbrew/bin/infisical
+SECRETS_FILE=/home/ellisapotheosis/.zsh/99-secrets.zsh
+eval "$(zsh -f -c 'source "$1" >/dev/null 2>&1; printf "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID=%q\\n" "$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID"; printf "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET=%q\\n" "$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET"; printf "INFISICAL_PROJECT_ID=%q\\n" "$INFISICAL_PROJECT_ID"' _ "$SECRETS_FILE")"
+export INFISICAL_UNIVERSAL_AUTH_CLIENT_ID INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET INFISICAL_DISABLE_UPDATE_CHECK=true
+token="$($INFISICAL login --method=universal-auth --client-id="$INFISICAL_UNIVERSAL_AUTH_CLIENT_ID" --client-secret="$INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET" --plain --silent 2>/dev/null)"
+export OPENCLAW_GATEWAY_TOKEN="$($INFISICAL export --token="$token" --env=dev --projectId="$INFISICAL_PROJECT_ID" --path=/infra/ai-profiles/openclaw --format=json --silent | jq -r '.[] | select(.key == "OPENCLAW_GATEWAY_TOKEN") | .value')"
+export OPENCLAW_GATEWAY_HOST=100.64.0.3 OPENCLAW_GATEWAY_PORT=18789
+# Cloudflare Access is for the public MCP route, not this internal ws:// link.
+unset CF_GATEWAY_ACCESS_CLIENT_ID CF_GATEWAY_ACCESS_CLIENT_SECRET CF_ACCESS_CLIENT_ID CF_ACCESS_CLIENT_SECRET CLOUDFLARE_ACCESS_CLIENT_ID CLOUDFLARE_ACCESS_CLIENT_SECRET INFISICAL_CUSTOM_HEADERS OPENCLAW_GATEWAY_URL OPENCLAW_GATEWAY_HOSTNAME
+while IFS= read -r _v; do unset "$_v"; done < <(env | cut -d= -f1 | grep -E '^(CF_|CLOUDFLARE_)' || true)
+unset token INFISICAL_UNIVERSAL_AUTH_CLIENT_ID INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET INFISICAL_PROJECT_ID
+export OPENCLAW_STATE_DIR="$HOME/.openclaw-node" OPENCLAW_CONFIG_DIR="$HOME/.openclaw-node" OPENCLAW_CONFIG_PATH="$HOME/.openclaw-node/openclaw.json"
+mkdir -p "$OPENCLAW_CONFIG_DIR"
+[[ -s "$OPENCLAW_CONFIG_PATH" ]] || printf '{"gateway":{"mode":"local"}}\n' > "$OPENCLAW_CONFIG_PATH"
+exec "$NODE" "$CLI" node run --host 100.64.0.3 --port 18789 --no-tls --display-name orchestrator

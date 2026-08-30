@@ -11,9 +11,8 @@ originRequest:
   noHappyEyeballs: false
 
 ingress:
-  # Home Assistant Green / Linkwarden. Protect with Cloudflare Access.
-  # Current dashboard-managed config uses linkwarden.projectnyra.com to the same
-  # origin; prefer links.projectnyra.com going forward.
+  # Linkwarden (document management). Protect with Cloudflare Access.
+  # Prefer links.projectnyra.com going forward.
   - hostname: links.projectnyra.com
     service: http://100.64.0.2:3007
 

@@ -65,20 +65,8 @@ ingress:
   - hostname: openwebui.projectnyra.com
     service: http://openwebui:8080
 
-  - hostname: litellm.projectnyra.com
-    service: http://litellm:4000
-
   - hostname: nexus-router.projectnyra.com
     service: http://nexus:3000
-
-  - hostname: agent-vault.projectnyra.com
-    service: http://agent-vault:8080
-
-  - hostname: infisical.projectnyra.com
-    service: http://agent-vault:8080
-
-  - hostname: clawteam.projectnyra.com
-    service: http://clawteam:8080
 
   - hostname: letta.projectnyra.com
     service: http://letta:8283

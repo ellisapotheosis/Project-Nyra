@@ -494,8 +494,10 @@ services:
       INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:-8374cea9-e5e8-4050-bda4-b91f25ab30ef}
       INFISICAL_ENVIRONMENT: ${INFISICAL_ENV:-prod}
       INFISICAL_FOLDER_PATH: ${INFISICAL_PATH:-/hosts/oracle-vps}
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}
-      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}
+      INFISICAL_UNIVERSAL_AUTH_ID: ${INFISICAL_UNIVERSAL_AUTH_ID:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}}
+      INFISICAL_UNIVERSAL_AUTH_SECRET: ${INFISICAL_UNIVERSAL_AUTH_SECRET:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_UNIVERSAL_AUTH_ID:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_ID}}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_UNIVERSAL_AUTH_SECRET:-${INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET}}
       NPM_CONFIG_CACHE: /tmp/.npm
     command:
       - npx
@@ -952,6 +954,52 @@ services:
       retries: 5
       start_period: 45s
 
+  # ── Central OpenClaw Gateway ────────────────────────────────────────────
+  # Hub for Windows Companion apps and WSL node daemons. Keep the listener
+  # Tailscale-only; public Cloudflare ingress is intentionally not configured.
+  openclaw-gateway:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openclaw-gateway
+    restart: unless-stopped
+    environment:
+      OPENCLAW_STATE_DIR: /home/node/.openclaw
+      OPENCLAW_CONFIG_PATH: /home/node/.openclaw/openclaw.json
+      OPENCLAW_CONFIG_DIR: /home/node/.openclaw
+      OPENCLAW_WORKSPACE_DIR: /home/node/.openclaw/workspace
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required}
+      OPENCLAW_GATEWAY_BIND: lan
+    # The upstream image entrypoint is tini; invoke the bundled CLI explicitly.
+    command:
+      [
+        "node",
+        "openclaw.mjs",
+        "gateway",
+        "run",
+        "--port",
+        "18789",
+        "--allow-unconfigured",
+        "--bind",
+        "lan",
+        "--auth",
+        "token",
+      ]
+    ports:
+      - "${ORACLE_TAILSCALE_IP:-100.64.0.3}:18789:18789"
+    volumes:
+      - openclaw_config:/home/node/.openclaw
+      - openclaw_workspace:/home/node/.openclaw/workspace
+    networks: [nyra_net]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "const net=require(''net''); const s=net.createConnection(18789,''127.0.0.1''); s.on(''connect'',()=>{s.end();process.exit(0)}); s.on(''error'',()=>process.exit(1)); setTimeout(()=>process.exit(1),2000)"',
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+
   litellm:
     image: ghcr.io/berriai/litellm:v1.92.0
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-litellm
@@ -1000,7 +1048,7 @@ services:
     restart: unless-stopped
     command: ["ha-mcp-web"]
     environment:
-      HOMEASSISTANT_URL: ${HOMEASSISTANT_URL:-https://homeassistant.projectnyra.com}
+      HOMEASSISTANT_URL: ${HOMEASSISTANT_URL:-http://100.64.0.2:8123}
       HOMEASSISTANT_TOKEN: ${HOMEASSISTANT_TOKEN:-${HOME_ASSISTANT_TOKEN:-${HOME_ASSISTANT_TOKEN_SECRET:-}}}
       BACKUP_HINT: ${HA_MCP_BACKUP_HINT:-normal}
       HAMCP_ENABLE_FILESYSTEM_TOOLS: ${HAMCP_ENABLE_FILESYSTEM_TOOLS:-false}

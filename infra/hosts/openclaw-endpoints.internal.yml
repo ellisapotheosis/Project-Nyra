@@ -1,0 +1,41 @@
+# Internal-only OpenClaw endpoint contract.
+# Publish these records in the Tailscale Split DNS resolver for projectnyra.com.
+# The only gateway is the Oracle VPS gateway. Nodes and Windows companions
+# connect to it; they do not listen as independent gateways.
+zone: projectnyra.com
+gateway:
+  canonical:
+    hostname: openclaw-gateway.projectnyra.com
+    address: 100.64.0.3
+    port: 18789
+    websocket_url: ws://100.64.0.3:18789
+    role: central-gateway
+  aliases:
+    - local-gateway.projectnyra.com
+    - claw-gateway.projectnyra.com
+
+clients:
+  orchestrator:
+    hostname: openclaw-app-orchestrator.projectnyra.com
+    gateway_url: ws://openclaw-gateway.projectnyra.com:18789
+    role: wsl-node-and-windows-companion
+  worker-rtx5090:
+    hostname: openclaw-app-rtx5090.projectnyra.com
+    gateway_url: ws://openclaw-gateway.projectnyra.com:18789
+    role: wsl-node-and-windows-companion
+  worker-rtx3090ti:
+    hostname: openclaw-app-rtx3090ti.projectnyra.com
+    gateway_url: ws://openclaw-gateway.projectnyra.com:18789
+    role: wsl-node-template
+  worker-rtx3060:
+    hostname: openclaw-app-rtx3060.projectnyra.com
+    gateway_url: ws://openclaw-gateway.projectnyra.com:18789
+    role: wsl-node-template
+
+# Backwards-compatible names. These are aliases to the one central gateway,
+# not additional gateway instances.
+aliases:
+  openclaw-gateway.projectnyra.com: openclaw-gateway.projectnyra.com
+  local-gateway.projectnyra.com: openclaw-gateway.projectnyra.com
+  claw-gateway.projectnyra.com: openclaw-gateway.projectnyra.com
+  openclaw-5090.projectnyra.com: openclaw-gateway.projectnyra.com

@@ -5,13 +5,6 @@
   "service_token_policy": "allow only named Cloudflare Access service tokens for machine-to-machine calls",
   "applications": [
     {
-      "name": "Home Assistant (User OTP Auth)",
-      "hostnames": ["ha.projectnyra.com"],
-      "type": "self_hosted",
-      "policy": "tier3_email_otp",
-      "description": "User access with email OTP (15-min TTL) to edaneandersen@gmail.com"
-    },
-    {
       "name": "Portainer VPS + Orchestrator (Admin Service Token)",
       "hostnames": [
         "portainer-vps.projectnyra.com",
