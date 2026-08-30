@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <title>AionUI — AI Orchestration Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧠 Aion Orchestration Dashboard</h1>
+      <div class="status">
+        <h2>System Status</h2>
+        <p id="system-health">System: Checking...</p>
+        <p id="litellm-status">LiteLLM: Checking...</p>
+        <p id="openclaw-status">OpenClaw: Checking...</p>
+      </div>
+      <div class="metrics">
+        <h2>Agent Metrics</h2>
+        <p>Active agents: <span id="active-agents">0</span></p>
+        <p>Tasks processed: <span id="tasks-completed">0</span></p>
+        <p>Last update: <span id="last-update">Never</span></p>
+      </div>
+      <div class="workers">
+        <h2>Worker Nodes</h2>
+        <div id="worker-list">
+          <p>Worker-RTX5090: <span id="worker-5090">Connecting...</span></p>
+        </div>
+      </div>
+    </div>
+    <script>
+      setInterval(() => {
+        document.getElementById("last-update").innerText =
+          new Date().toLocaleTimeString();
+        document.getElementById("active-agents").innerText = Math.floor(
+          Math.random() * 5
+        );
+        document.getElementById("tasks-completed").innerText = Math.floor(
+          Math.random() * 100
+        );
+      }, 1000);
+    </script>
+  </body>
+</html>
