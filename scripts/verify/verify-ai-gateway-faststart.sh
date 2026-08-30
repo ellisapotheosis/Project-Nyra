@@ -13,7 +13,7 @@ curl -fsS "${AUTH[@]}" "$BASE_URL/v1/models" | jq -e '.data | length > 0' >/dev/
 printf 'mcp tools endpoint: '
 curl -fsS "${AUTH[@]}" -H 'Content-Type: application/json' -X POST "$BASE_URL/mcp-rest/tools/list" -d '{}' >/dev/null && echo OK
 
-for agent in llxprt-dev hermes-product openharness-dev; do
+for agent in hermes-product openharness-dev; do
   printf 'a2a card %-18s: ' "$agent"
   if curl -fsS "${AUTH[@]}" "$BASE_URL/a2a/$agent/.well-known/agent-card.json" >/dev/null; then echo OK; else echo UNAVAILABLE; fi
 done

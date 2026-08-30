@@ -7,28 +7,6 @@ model_list:
       api_key: "not-needed"
       timeout: 300
 
-  # ── llxprt-bridge — Subscription Models (claude-code, codex, gemini) ───────
-  - model_name: llxprt/claude
-    litellm_params:
-      model: openai/llxprt-claude
-      api_base: http://llxprt-bridge:8090/v1
-      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
-      timeout: 180
-
-  - model_name: llxprt/codex
-    litellm_params:
-      model: openai/llxprt-codex
-      api_base: http://llxprt-bridge:8090/v1
-      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
-      timeout: 180
-
-  - model_name: llxprt/gemini
-    litellm_params:
-      model: openai/llxprt-gemini
-      api_base: http://llxprt-bridge:8090/v1
-      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
-      timeout: 180
-
   # ── OmniRoute (oracle-vps via Tailscale) ───────────────────────────────────
   - model_name: omniroute/auto
     litellm_params:
@@ -81,9 +59,8 @@ router_settings:
   routing_strategy: usage-based-routing-v2
   fallbacks:
     - { "local/qwen3.8-27b": ["omniroute/auto", "openrouter/qwen3"] }
-    - { "llxprt/claude": ["omniroute/auto", "openrouter/gemini-flash"] }
     - { "omniroute/auto": ["local/qwen3.8-27b", "openrouter/qwen3"] }
-    - { "omniroute/coding": ["llxprt/codex", "openrouter/deepseek"] }
+    - { "omniroute/coding": ["openrouter/deepseek"] }
 
 litellm_settings:
   set_verbose: false

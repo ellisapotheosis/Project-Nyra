@@ -40,7 +40,6 @@ hosts:
       - infra/hosts/orchestrator/docker-compose.cloudflared.yml
       - infra/hosts/orchestrator/docker-compose.observability.yml
       - infra/hosts/orchestrator/docker-compose.clawteam.yml
-      - infra/hosts/orchestrator/docker-compose.llxprt.yml
       - infra/hosts/orchestrator/docker-compose.bitnet.yml
       - infra/hosts/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml
     env_files:
@@ -57,7 +56,6 @@ hosts:
           - infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
           - infra/hosts/worker-rtx5090/docker-compose.gpu.yml
           - infra/hosts/worker-rtx5090/docker-compose.clawteam.yml
-          - infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
           - infra/hosts/worker-rtx5090/docker-compose.nerve.yml
       worker-rtx3090ti:
         vram_gb: 24
@@ -67,7 +65,6 @@ hosts:
           - infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
           - infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml
           - infra/hosts/worker-rtx3090ti/docker-compose.clawteam.yml
-          - infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
           - infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
       worker-rtx3060:
         vram_gb: 12
@@ -77,7 +74,6 @@ hosts:
           - infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
           - infra/hosts/worker-rtx3060/docker-compose.gpu.yml
           - infra/hosts/worker-rtx3060/docker-compose.clawteam.yml
-          - infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
 
   oracle-vps:
     owner: cloud
