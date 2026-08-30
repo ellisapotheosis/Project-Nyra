@@ -80,7 +80,6 @@ export class MCPProxyService {
   private stdioProcesses: Map<string, ChildProcess> = new Map();
   private sseConnections: Map<string, EventSource> = new Map();
   private redis: RedisClient;
-  private syncInterval?: NodeJS.Timeout;
 
   private constructor() {
     this.redis = RedisClient.getInstance();
@@ -106,27 +105,9 @@ export class MCPProxyService {
     this.initializeFuzzySearch();
 
     // Start periodic sync
-    this.syncInterval = setInterval(() => this.syncAllTools(), 300000); // Every 5 minutes
+    setInterval(() => this.syncAllTools(), 300000); // Every 5 minutes
 
     logger.info(`MCP Proxy initialized with ${this.servers.size} servers`);
-  }
-
-  public shutdown(): void {
-    if (this.syncInterval) {
-      clearInterval(this.syncInterval);
-      this.syncInterval = undefined;
-    }
-
-    for (const process of this.stdioProcesses.values()) {
-      if (!process.killed) process.kill();
-    }
-    this.stdioProcesses.clear();
-
-    for (const connection of this.sseConnections.values()) {
-      (connection as any).close?.();
-    }
-    this.sseConnections.clear();
-    this.axiosInstances.clear();
   }
 
   private async loadMCPServers(): Promise<void> {

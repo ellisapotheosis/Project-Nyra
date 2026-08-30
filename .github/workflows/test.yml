@@ -12,6 +12,7 @@ concurrency:
 env:
   NODE_ENV: test
   LOG_LEVEL: error
+  PNPM_VERSION: 10.27.0
 
 jobs:
   unit-tests:
@@ -33,6 +34,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Get pnpm store directory
         id: pnpm-cache
@@ -123,6 +126,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Get pnpm store directory
         id: pnpm-cache
@@ -188,6 +193,8 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
       - name: Get pnpm store directory
         id: pnpm-cache

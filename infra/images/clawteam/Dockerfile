@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN git clone https://github.com/HKUDS/ClawTeam.git /tmp/clawteam && \
     cd /tmp/clawteam && \
     pip install --no-cache-dir -e . && \
+    cd / && \
     rm -rf /tmp/clawteam
 
 # Create state directory

@@ -180,10 +180,32 @@
       "proxied": true
     },
     {
+      "name": "mission-control",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "Phase 3: Mission Control audit service (100.64.0.10:9090)"
+    },
+    {
+      "name": "aionui",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "Phase 3: AionUI interface (100.64.0.10:3000)"
+    },
+    {
       "name": "clawteam",
       "type": "CNAME",
-      "content": "${ORACLE_TUNNEL_ID}.cfargotunnel.com",
-      "proxied": true
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "Phase 3: ClawTeam multi-agent coordinator (100.64.0.10:9000)"
+    },
+    {
+      "name": "nerveui",
+      "type": "CNAME",
+      "content": "${ORCHESTRATOR_TUNNEL_ID}.cfargotunnel.com",
+      "proxied": true,
+      "comment": "Phase 3: NerveUI worker interface (100.64.0.11:5000)"
     },
     {
       "name": "portainer-oracle",

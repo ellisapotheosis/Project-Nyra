@@ -7,9 +7,9 @@ services:
     image: python:3.11-slim
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-openharness
     environment:
-      OPENCLAW_GATEWAY_URL: http://openclaw-gateway:18789
-      CLAWTEAM_URL: http://clawteam-primary:8080
-      LITELLM_BASE_URL: http://litellm:4000/v1
+      OPENCLAW_GATEWAY_URL: http://nyra-openclaw-gateway:8001
+      CLAWTEAM_URL: http://nyra-clawteam-primary:8085
+      LITELLM_BASE_URL: http://nyra-litellm:4000/v1
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
       LETTA_URL: http://100.64.0.3:8283
       LOG_LEVEL: INFO
@@ -17,7 +17,7 @@ services:
       - "8002:8000"
     volumes:
       - ./openharness/agent-runtime.py:/app/agent-runtime.py:ro
-    command: python -m http.server 8000 --directory /app
+    command: python /app/agent-runtime.py
     networks:
       - nyra-network
     restart: unless-stopped

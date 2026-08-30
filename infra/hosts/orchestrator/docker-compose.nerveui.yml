@@ -1,0 +1,30 @@
+# NerveUI — Worker Agent Interface
+# Deployed on worker nodes (worker-rtx5090, etc.)
+# Provides local UI for agent status, model switching, task monitoring
+
+services:
+  nerveui:
+    image: projectnyra/nerveui:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nerveui
+    environment:
+      PORT: 5000
+      OPENCLAW_URL: http://localhost:18789
+      WORKER_GPU: nvidia
+      LOG_LEVEL: info
+    ports:
+      - "5000:5000"
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: worker
+      com.projectnyra.component: nerveui
+
+networks:
+  nyra-network:
+    external: true
