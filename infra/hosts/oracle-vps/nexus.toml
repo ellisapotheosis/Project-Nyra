@@ -61,3 +61,87 @@ auth.token = "{{ env.CLOUDFLARE_API_TOKEN }}"
 [mcp.servers.cloudflare-ai-gateway]
 protocol = "streamable-http"
 url = "https://ai-gateway.mcp.cloudflare.com/mcp"
+
+# ── Local MCP Servers (Docker) ──
+[mcp.servers.spline]
+protocol = "streamable-http"
+url = "http://spline-mcp:8779"
+
+[mcp.servers.meshy]
+protocol = "streamable-http"
+url = "http://meshy-mcp:8780"
+
+[mcp.servers.blender]
+protocol = "streamable-http"
+url = "http://blender-mcp:8781"
+
+[mcp.servers.github]
+protocol = "streamable-http"
+url = "http://github-mcp:8782"
+
+[mcp.servers.docker]
+protocol = "streamable-http"
+url = "http://docker-mcp:8783"
+
+[mcp.servers.filesystem]
+protocol = "streamable-http"
+url = "http://filesystem-mcp:8784"
+
+[mcp.servers.openmemory]
+protocol = "streamable-http"
+url = "http://openmemory-mcp:8785"
+
+[mcp.servers.docker-gateway]
+protocol = "streamable-http"
+url = "http://docker-gateway-mcp:8788"
+
+[mcp.servers.composio]
+protocol = "streamable-http"
+url = "http://composio-mcp:8790"
+auth.token = "{{ env.COMPOSIO_API_KEY }}"
+
+[mcp.servers.twenty]
+protocol = "streamable-http"
+url = "http://twenty-mcp:8400"
+
+# ── Existing Local MCP Servers ──
+[mcp.servers.playwright]
+protocol = "streamable-http"
+url = "http://playwright-mcp:8771"
+
+[mcp.servers.firecrawl]
+protocol = "streamable-http"
+url = "http://firecrawl-mcp:8772"
+
+[mcp.servers.git]
+protocol = "streamable-http"
+url = "http://git-mcp:8773"
+
+[mcp.servers.next-devtools]
+protocol = "streamable-http"
+url = "http://next-devtools-mcp:8774"
+
+[mcp.servers.tavily]
+protocol = "streamable-http"
+url = "http://tavily-mcp:8775"
+
+[mcp.servers.sequential-thinking]
+protocol = "streamable-http"
+url = "http://sequential-thinking-mcp:8770"
+
+[mcp.servers.shadcn]
+protocol = "streamable-http"
+url = "http://shadcn-mcp:8769"
+
+[mcp.servers.magicui]
+protocol = "streamable-http"
+url = "http://magicui-mcp:8768"
+
+[mcp.servers.canva]
+protocol = "streamable-http"
+url = "http://canva-mcp:8765"
+auth.token = "{{ env.CANVA_API_KEY }}"
+
+[mcp.servers.codebase-index]
+protocol = "streamable-http"
+url = "http://codebase-index-mcp:8778"

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1787755064403,
+  "lastScanned": 1788084915385,
   "projectRoot": "/home/ellisapotheosis/repos/project-nyra/infra",
   "techStack": {
     "languages": [
@@ -71,7 +71,10 @@
     "isMonorepo": true,
     "workspaces": ["packages/*", "services/*", "src/*", "apps/*"],
     "mainDirectories": ["docs", "scripts"],
-    "gitBranches": null
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
   },
   "customNotes": [],
   "directoryMap": {
@@ -79,7 +82,7 @@
       "path": "agent-vault",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1787755064391,
+      "lastAccessed": 1788084915374,
       "keyFiles": [
         "README.md",
         "agent-runner.env.example",
@@ -90,55 +93,55 @@
       "path": "apps",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787755064392,
+      "lastAccessed": 1788084915374,
       "keyFiles": []
     },
     "cleanup_archive": {
       "path": "cleanup_archive",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787755064395,
+      "lastAccessed": 1788084915378,
       "keyFiles": []
     },
     "cloudflare": {
       "path": "cloudflare",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1787755064396,
+      "lastAccessed": 1788084915380,
       "keyFiles": ["apply-access-apps.sh", "apply-cloudflare-desired-state.sh"]
     },
     "configs": {
       "path": "configs",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787755064397,
+      "lastAccessed": 1788084915380,
       "keyFiles": []
     },
     "docker": {
       "path": "docker",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787755064397,
+      "lastAccessed": 1788084915380,
       "keyFiles": []
     },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 9,
-      "lastAccessed": 1787755064397,
+      "fileCount": 14,
+      "lastAccessed": 1788084915381,
       "keyFiles": [
-        "INFRA-CONSOLIDATION-PLAN.md",
-        "OPENCLAW_CHAT_UI_PLAN.md",
-        "OPENCLAW_FUTURE_ROUTING.md",
-        "OPENCLAW_INTEGRATION_PLAN.md",
-        "OPENCLAW_OPERATIONS.md"
+        "ARCHITECTURE_2026-08-29.md",
+        "CLAWTEAM_BUILD_GUIDE.md",
+        "DEPLOYMENT_VERIFICATION_2026-08-30.md",
+        "FREE_MODEL_ROUTING.md",
+        "INFRA-CONSOLIDATION-PLAN.md"
       ]
     },
     "env": {
       "path": "env",
       "purpose": null,
       "fileCount": 10,
-      "lastAccessed": 1787755064398,
+      "lastAccessed": 1788084915381,
       "keyFiles": [
         "composio.env.example",
         "nyra.env.example",
@@ -151,7 +154,7 @@
       "path": "hosts",
       "purpose": null,
       "fileCount": 11,
-      "lastAccessed": 1787755064398,
+      "lastAccessed": 1788084915381,
       "keyFiles": [
         "DEPLOYMENT_SUMMARY.md",
         "HERMES_DEPLOYMENT_CHECKLIST.md",
@@ -164,28 +167,28 @@
       "path": "images",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1787755064398,
+      "lastAccessed": 1788084915381,
       "keyFiles": ["Dockerfile.nextjs"]
     },
     "komodo": {
       "path": "komodo",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1787755064398,
+      "lastAccessed": 1788084915382,
       "keyFiles": ["README.md"]
     },
     "mcp-gateway": {
       "path": "mcp-gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1787755064398,
+      "lastAccessed": 1788084915382,
       "keyFiles": ["cloudflared-config.yml", "nexus-router-mcp-config.yml"]
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 35,
-      "lastAccessed": 1787755064399,
+      "lastAccessed": 1788084915382,
       "keyFiles": [
         "README.md",
         "ai-grid.sh",
@@ -198,35 +201,35 @@
       "path": "security",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787755064399,
+      "lastAccessed": 1788084915382,
       "keyFiles": []
     },
     "shared": {
       "path": "shared",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787755064399,
+      "lastAccessed": 1788084915382,
       "keyFiles": []
     },
     "systemd": {
       "path": "systemd",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1787755064400,
+      "lastAccessed": 1788084915383,
       "keyFiles": []
     },
     "agent-vault/scripts": {
       "path": "agent-vault/scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 2,
-      "lastAccessed": 1787755064400,
+      "lastAccessed": 1788084915383,
       "keyFiles": ["check-agent-vault.sh", "create-infisical-vaults.sh"]
     },
     "agent-vault/services": {
       "path": "agent-vault/services",
       "purpose": "Business logic services",
       "fileCount": 3,
-      "lastAccessed": 1787755064401,
+      "lastAccessed": 1788084915384,
       "keyFiles": [
         "nyra-comms.services.example.yaml",
         "nyra-github.services.example.yaml",
@@ -237,21 +240,21 @@
       "path": "docker/build",
       "purpose": "Build output",
       "fileCount": 0,
-      "lastAccessed": 1787755064402,
+      "lastAccessed": 1788084915384,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
       "path": "hosts/oracle-vps/docker-compose.supabase.yml",
-      "accessCount": 4,
-      "lastAccessed": 1787987043292,
+      "accessCount": 7,
+      "lastAccessed": 1788050610993,
       "type": "file"
     },
     {
       "path": "hosts/oracle-vps/.env",
-      "accessCount": 2,
-      "lastAccessed": 1787906994638,
+      "accessCount": 3,
+      "lastAccessed": 1788050565334,
       "type": "file"
     },
     {
@@ -294,6 +297,18 @@
       "path": "hosts/orchestrator/cloudflared-config.yml",
       "accessCount": 1,
       "lastAccessed": 1787982661804,
+      "type": "file"
+    },
+    {
+      "path": "docs/DEPLOYMENT_VERIFICATION_2026-08-30.md",
+      "accessCount": 1,
+      "lastAccessed": 1788084574183,
+      "type": "file"
+    },
+    {
+      "path": "images/nexus-router/Dockerfile",
+      "accessCount": 1,
+      "lastAccessed": 1788084822548,
       "type": "file"
     }
   ],

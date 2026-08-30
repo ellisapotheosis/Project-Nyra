@@ -1,0 +1,127 @@
+# ============================================================================
+# LiteLLM Multi-Provider Gateway — Oracle VPS
+# ============================================================================
+# Multi-tier provider routing: Claude → Codex → OmniRoute → Local → OpenRouter
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.litellm.yml up -d
+#
+# Exposed at:
+#   - Internal: http://litellm:4000 (same docker network)
+#   - Tailscale: http://oracle-vps.trex-fiordland.ts.net:4000
+#   - Admin UI: http://oracle-vps.trex-fiordland.ts.net:4000/docs
+#
+# Health checks:
+#   curl http://localhost:4000/health/readiness
+#   curl http://localhost:4000/v1/models
+#
+# Requirements:
+#   - .env.litellm file with: CLAUDE_API_KEY, CODEX_API_KEY, OMNIROUTE_API_KEY,
+#     OPENROUTER_API_KEY, LITELLM_MASTER_KEY, LITELLM_DATABASE_URL (optional)
+
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:v1.92.0
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-litellm
+    restart: unless-stopped
+    command:
+      - "--config"
+      - "/app/config/config.yaml"
+      - "--port"
+      - "4000"
+    ports:
+      # Bind to all interfaces; Tailscale firewall restricts access
+      - "${LITELLM_HOST:-0.0.0.0}:${LITELLM_PORT:-4000}:4000"
+    environment:
+      # === Anthropic ===
+      CLAUDE_API_KEY: ${CLAUDE_API_KEY:?CLAUDE_API_KEY required (sk-ant-...)}
+
+      # === Codex (via llxprt-bridge) ===
+      CODEX_API_KEY: ${CODEX_API_KEY:?CODEX_API_KEY required}
+
+      # === OmniRoute (free models) ===
+      OMNIROUTE_API_KEY: ${OMNIROUTE_API_KEY:?OMNIROUTE_API_KEY required}
+
+      # === OpenRouter (fallback) ===
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?OPENROUTER_API_KEY required}
+
+      # === LiteLLM ===
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?LITELLM_MASTER_KEY required (sk-...)}
+      LITELLM_DATABASE_URL: ${LITELLM_DATABASE_URL:-}
+
+      # === Letta Agent Routing ===
+      LETTA_AGENTS_API_KEY: ${LETTA_AGENTS_API_KEY:-}
+      OPENCLAW_API_KEY: ${OPENCLAW_API_KEY:-}
+      PRODUCTION_API_KEY: ${PRODUCTION_API_KEY:-}
+
+      # === Logging ===
+      LOG_LEVEL: ${LITELLM_LOG_LEVEL:-INFO}
+      JSON_LOGS: "true"
+
+    volumes:
+      # Mount config from local directory
+      - ./litellm/config.yaml:/app/config/config.yaml:ro
+
+      # Optional: PostgreSQL for cost tracking
+      # - ${LITELLM_DATABASE_URL}
+
+    depends_on:
+      litellm-redis:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'python3 -c "import urllib.request; urllib.request.urlopen(''http://localhost:4000/health/readiness'', timeout=8)"',
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+    networks:
+      - nyra-network
+
+    labels:
+      com.projectnyra.service: "litellm-gateway"
+      com.projectnyra.host: "oracle-vps"
+      com.projectnyra.tier: "platform"
+
+  litellm-redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-litellm-redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - "--maxmemory"
+      - "2gb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+      - "--loglevel"
+      - "notice"
+
+    volumes:
+      - litellm_redis_data:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+    networks:
+      - nyra-network
+
+    labels:
+      com.projectnyra.service: "litellm-redis"
+      com.projectnyra.host: "oracle-vps"
+      com.projectnyra.tier: "cache"
+
+volumes:
+  litellm_redis_data:
+    driver: local
+
+networks:
+  nyra-network:
+    external: true

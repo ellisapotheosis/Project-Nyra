@@ -313,8 +313,8 @@
   "hotPaths": [
     {
       "path": "infra/hosts/oracle-vps/docker-compose.yml",
-      "accessCount": 41,
-      "lastAccessed": 1787907301749,
+      "accessCount": 44,
+      "lastAccessed": 1788085926444,
       "type": "file"
     },
     {
@@ -325,8 +325,8 @@
     },
     {
       "path": "infra/hosts/oracle-vps/docker-compose.memory.yml",
-      "accessCount": 30,
-      "lastAccessed": 1787907715027,
+      "accessCount": 32,
+      "lastAccessed": 1788085823375,
       "type": "file"
     },
     {
@@ -337,8 +337,8 @@
     },
     {
       "path": "infra/hosts/oracle-vps/docker-compose.oracle.yml",
-      "accessCount": 20,
-      "lastAccessed": 1778326662997,
+      "accessCount": 21,
+      "lastAccessed": 1788085822838,
       "type": "file"
     },
     {
@@ -354,15 +354,15 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml",
-      "accessCount": 14,
-      "lastAccessed": 1778313219098,
+      "path": "infra/hosts/oracle-vps/docker-compose.clawteam.yml",
+      "accessCount": 15,
+      "lastAccessed": 1788085829348,
       "type": "file"
     },
     {
-      "path": "infra/hosts/oracle-vps/docker-compose.clawteam.yml",
+      "path": "infra/hosts/worker-rtx3090ti/docker-compose.gpu.yml",
       "accessCount": 14,
-      "lastAccessed": 1787582796517,
+      "lastAccessed": 1778313219098,
       "type": "file"
     },
     {
@@ -480,6 +480,12 @@
       "type": "file"
     },
     {
+      "path": "infra/hosts/oracle-vps/nexus.toml",
+      "accessCount": 4,
+      "lastAccessed": 1788085883604,
+      "type": "file"
+    },
+    {
       "path": ".codex/config.toml",
       "accessCount": 3,
       "lastAccessed": 1777393588941,
@@ -507,12 +513,6 @@
       "path": ".husky/pre-commit",
       "accessCount": 2,
       "lastAccessed": 1777975359721,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/oracle-vps/nexus.toml",
-      "accessCount": 2,
-      "lastAccessed": 1778281856060,
       "type": "file"
     },
     {
