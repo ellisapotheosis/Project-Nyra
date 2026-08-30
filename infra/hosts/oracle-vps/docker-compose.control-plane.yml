@@ -1,0 +1,177 @@
+# Control Plane Migration to Oracle-VPS
+# Migrates: LiteLLM, Mission Control, Nexus, MCP Gateway, Forgejo, Portainer, Redis
+
+services:
+  litellm:
+    image: ghcr.io/berriai/litellm:main
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-litellm
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OMNIROUTE_API_KEY: ${OMNIROUTE_API_KEY}
+      LLXPRT_BRIDGE_API_KEY: ${LLXPRT_BRIDGE_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./litellm/config.yaml:/app/config.yaml:ro
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: control-plane
+      com.projectnyra.component: litellm
+
+  mission-control:
+    build:
+      context: ../../orchestrator/mission-control
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mission-control
+    environment:
+      MISSION_CONTROL_PORT: 9090
+      AUDIT_DIR: /audit
+      LOG_LEVEL: INFO
+    ports:
+      - "9090:9090"
+    volumes:
+      - mission_control_audit:/audit
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: audit
+      com.projectnyra.component: mission-control
+    read_only: true
+    cap_drop:
+      - ALL
+
+  nexus-router:
+    image: projectnyra/nexus-router:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-nexus-router
+    environment:
+      PORT: 7000
+      LITELLM_BASE_URL: http://nyra-litellm:4000/v1
+      LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
+    ports:
+      - "7000:7000"
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: control-plane
+      com.projectnyra.component: nexus-router
+
+  mcp-gateway:
+    image: projectnyra/mcp-gateway:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-mcp-gateway
+    environment:
+      PORT: 3000
+      LITELLM_URL: http://nyra-litellm:4000/v1
+      LOG_LEVEL: info
+    ports:
+      - "3002:3000"
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: control-plane
+      com.projectnyra.component: mcp-gateway
+
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-forgejo
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      FORGEJO__database__DB_TYPE: postgres
+      FORGEJO__database__HOST: 100.64.0.3:5432
+      FORGEJO__database__NAME: forgejo
+      FORGEJO__database__USER: forgejo
+      FORGEJO__database__PASSWD: ${FORGEJO_DB_PASSWORD}
+    ports:
+      - "3000:3000"
+      - "222:22"
+    volumes:
+      - forgejo_data:/data
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/version"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: control-plane
+      com.projectnyra.component: forgejo
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-portainer
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - portainer_data:/data
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: control-plane
+      com.projectnyra.component: portainer
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - nyra-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    labels:
+      com.projectnyra.tier: control-plane
+      com.projectnyra.component: redis
+
+networks:
+  nyra-network:
+    external: true
+
+volumes:
+  mission_control_audit:
+  forgejo_data:
+  portainer_data:
+  redis_data:
