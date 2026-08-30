@@ -817,7 +817,7 @@ services:
         apk add --no-cache git python3 py3-pip \
           && pip install --break-system-packages uv \
           && npm install --global --no-update-notifier supergateway \
-          && supergateway --stdio "uvx gitingestmcp@latest" --port 8777
+          && supergateway --stdio "uvx --with 'mcp<2' gitingestmcp@latest" --port 8777
     ports:
       - "8777:8777"
     volumes:
