@@ -1,0 +1,73 @@
+# Infisical Agent-Vault side-channel for the orchestrator.
+#
+# Compose with the canonical orchestrator and LiteLLM files. The sidecar has no
+# published ports and never receives the Docker socket. It atomically refreshes
+# file-backed secrets under /run/nyra-secrets/current/.
+
+services:
+  agent-vault:
+    build:
+      context: ../../images/infisical-secrets-init
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-agent-vault
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/universal-auth-agent-sidecar.sh"]
+    environment:
+      INFISICAL_TOKEN: ${INFISICAL_TOKEN:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${INFISICAL_MACHINE_IDENTITY_CLIENT_ID:-}
+      INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${INFISICAL_MACHINE_IDENTITY_CLIENT_SECRET:-}
+      INFISICAL_HOST_URL: ${INFISICAL_HOST_URL:-https://app.infisical.com}
+      INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:?INFISICAL_PROJECT_ID is required}
+      INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+      INFISICAL_PATH: ${INFISICAL_PATH:-/hosts/orchestrator}
+      INFISICAL_POLL_INTERVAL: ${INFISICAL_POLL_INTERVAL:-300}
+      HOME: /tmp
+      XDG_CONFIG_HOME: /tmp/.config
+    volumes:
+      - agent_vault_secrets:/run/nyra-secrets
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m,mode=0700
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "test -L /run/nyra-secrets/current && test -r /run/nyra-secrets/current/litellm_master_key",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 20s
+    networks:
+      - nyra-network
+    labels:
+      com.projectnyra.service: "agent-vault"
+      com.projectnyra.host: "orchestrator"
+      com.projectnyra.tier: "security"
+
+  litellm:
+    depends_on:
+      agent-vault:
+        condition: service_healthy
+    volumes:
+      - agent_vault_secrets:/run/nyra-secrets:ro
+
+  openclaw-gateway:
+    depends_on:
+      agent-vault:
+        condition: service_healthy
+    environment:
+      OPENCLAW_AUTH_TOKEN_FILE: /run/nyra-secrets/current/openclaw_gateway_token
+    volumes:
+      - agent_vault_secrets:/run/nyra-secrets:ro
+
+volumes:
+  agent_vault_secrets:
+    name: ${COMPOSE_PROJECT_NAME:-orchestrator}-agent-vault-secrets
+
+networks:
+  nyra-network:
+    driver: bridge

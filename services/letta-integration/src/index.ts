@@ -1,8 +1,15 @@
 export { LettaClient } from "./client/letta-client";
 export {
+  AGENT_TARGET_WORKSPACES,
+  EXECUTION_PRIORITIES,
+  OPENCLAW_EXECUTE_SECURE_TASK_TOOL_SCHEMA,
   OpenClawClient,
   MockOpenClawClient,
+  parseSecureTaskDirective,
+  type AgentTargetWorkspace,
+  type ExecutionPriority,
   type OpenClawConfig,
+  type SecureTaskDirective,
   type TaskDispatchPayload,
   type TaskDispatchResult,
 } from "./client/openclaw-client";

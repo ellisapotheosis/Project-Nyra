@@ -37,6 +37,8 @@ hosts:
     owner: control-plane
     compose_files:
       - infra/hosts/orchestrator/docker-compose.yml
+      - infra/hosts/orchestrator/docker-compose.litellm.yml
+      - infra/hosts/orchestrator/docker-compose.agent-vault.yml
       - infra/hosts/orchestrator/docker-compose.cloudflared.yml
       - infra/hosts/orchestrator/docker-compose.observability.yml
       - infra/hosts/orchestrator/docker-compose.clawteam.yml

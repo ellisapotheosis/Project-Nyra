@@ -1,18 +1,26 @@
-# LiteLLM — Canonical Gateway Config (Orchestrator)
+# LiteLLM — canonical composite gateway on the orchestrator.
 #
-# PRIMARY LiteLLM instance. All agents (OpenClaw, ClawTeam, etc.) route here.
-# Worker backends use Tailscale private DNS (*.projectnyra.com).
-# Oracle services (omniroute, letta) reach via Tailscale IP (100.64.0.3).
-#
-# Env vars injected at runtime:
-#   LITELLM_MASTER_KEY    — required; format: sk-<48+ random chars>
-#   OMNIROUTE_API_KEY     — required for omniroute/* models (subscriptions)
-#   OPENROUTER_API_KEY    — required for openrouter/* models (free tier)
-#   LLXPRT_BRIDGE_API_KEY — required for llxprt/* subscription models (claude-code, codex, gemini)
-#   OPENAI_API_KEY        — optional; for openai/* models
-#   ANTHROPIC_API_KEY     — optional; for anthropic/* models
+# Subscription-backed Claude/Codex/Gemini traffic is transported through the
+# existing llxprt bridge. CLI subscription sessions are not treated as API keys.
 
 model_list:
+  # Composite entrypoints used by agents. These preserve stable client-facing
+  # names while the fallback graph selects subscription, local, or free routes.
+  - model_name: composite/reasoning
+    litellm_params:
+      model: openai/llxprt-claude
+      api_base: http://worker-rtx5090.projectnyra.com:8090/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 180
+
+  - model_name: composite/coding
+    litellm_params:
+      model: openai/llxprt-codex
+      api_base: http://worker-rtx5090.projectnyra.com:8090/v1
+      api_key: os.environ/LLXPRT_BRIDGE_API_KEY
+      timeout: 180
+
+  # Local GPU — RTX 5090 (32 GB).
   - model_name: local/qwen3.8-27b
     litellm_params:
       model: openai/Qwen/Qwen3.8-27B
@@ -20,7 +28,6 @@ model_list:
       api_key: "not-needed"
       timeout: 300
 
-  # ── Local GPU — RTX 5090 (32 GB vLLM) ─────────────────────────────────────
   - model_name: local/gemma-4
     litellm_params:
       model: openai/google/gemma-4-26B-A4B-it
@@ -28,31 +35,34 @@ model_list:
       api_key: "not-needed"
       timeout: 120
 
-  # ── Local GPU — RTX 3090Ti (24 GB vLLM) ────────────────────────────────────
+  # Local GPU — RTX 3090 Ti (24 GB).
   - model_name: local/qwen-coder-32b
     litellm_params:
       model: openai/Qwen/Qwen2.5-Coder-32B-Instruct
       api_base: http://worker-rtx3090ti.projectnyra.com:8000/v1
       api_key: "not-needed"
-      timeout: 120
+      timeout: 180
 
-  # ── Local GPU — RTX 3060 (12 GB Ollama) ────────────────────────────────────
+  # Local GPU — RTX 3060 (12 GB Ollama utility tier).
   - model_name: local/qwen2.5-4b
     litellm_params:
       model: ollama/qwen2.5:4b
       api_base: http://worker-rtx3060.projectnyra.com:11434
+      timeout: 120
 
   - model_name: local/llama3.2-3b
     litellm_params:
       model: ollama/llama3.2:3b
       api_base: http://worker-rtx3060.projectnyra.com:11434
+      timeout: 120
 
   - model_name: local/embeddings
     litellm_params:
       model: ollama/nomic-embed-text
       api_base: http://worker-rtx3060.projectnyra.com:11434
+      timeout: 120
 
-  # ── OpenClaw Gateway ────────────────────────────────────────────────────────
+  # OpenClaw worker gateways.
   - model_name: claw/openclaw-5090
     litellm_params:
       model: openai/openclaw
@@ -74,7 +84,7 @@ model_list:
       api_key: "not-needed"
       timeout: 120
 
-  # ── llxprt-bridge — Subscription Models (worker-rtx5090 via Tailscale) ─────
+  # llxprt subscription bridge aliases.
   - model_name: llxprt/claude
     litellm_params:
       model: openai/llxprt-claude
@@ -96,7 +106,7 @@ model_list:
       api_key: os.environ/LLXPRT_BRIDGE_API_KEY
       timeout: 180
 
-  # ── OmniRoute (on oracle-vps via Tailscale) ─────────────────────────────────
+  # OmniRoute free/default routes on oracle-vps.
   - model_name: omniroute/auto
     litellm_params:
       model: openai/auto
@@ -118,7 +128,8 @@ model_list:
       api_key: os.environ/OMNIROUTE_API_KEY
       timeout: 90
 
-  # ── OpenRouter Free Tier ────────────────────────────────────────────────────
+  # OpenRouter free terminal fallbacks. Keep these terminal in the graph to
+  # prevent fallback loops when local and bridge routes are unavailable.
   - model_name: openrouter/gemini-flash
     litellm_params:
       model: openrouter/nvidia/nemotron-3.5-lightning:free
@@ -149,32 +160,68 @@ model_list:
       api_key: os.environ/OPENROUTER_API_KEY
       timeout: 60
 
-# ── Routing & Fallbacks ──────────────────────────────────────────────────────
 router_settings:
   routing_strategy: usage-based-routing-v2
+  enable_pre_call_checks: true
+  num_retries: 2
+  retry_after: 1
+  allowed_fails: 2
+  cooldown_time: 60
   fallbacks:
-    - { "local/qwen3.8-27b": ["omniroute/auto", "openrouter/qwen3"] }
+    - {
+        "composite/reasoning":
+          ["local/qwen3.8-27b", "omniroute/auto", "openrouter/qwen3"],
+      }
+    - {
+        "composite/coding":
+          ["local/qwen-coder-32b", "omniroute/coding", "openrouter/deepseek"],
+      }
+    - {
+        "llxprt/claude":
+          ["local/qwen3.8-27b", "omniroute/auto", "openrouter/qwen3"],
+      }
+    - {
+        "llxprt/codex":
+          ["local/qwen-coder-32b", "omniroute/coding", "openrouter/deepseek"],
+      }
+    - {
+        "llxprt/gemini":
+          ["local/qwen3.8-27b", "omniroute/fast", "openrouter/gemini-flash"],
+      }
+    - {
+        "local/qwen3.8-27b":
+          ["local/gemma-4", "omniroute/auto", "openrouter/qwen3"],
+      }
     - { "local/gemma-4": ["omniroute/auto", "openrouter/qwen3"] }
-    - { "local/qwen-coder-32b": ["omniroute/coding", "openrouter/deepseek"] }
-    - { "local/llama3.2-3b": ["openrouter/llama4", "openrouter/qwen3"] }
     - {
-        "omniroute/auto":
-          ["local/qwen3.8-27b", "local/gemma-4", "openrouter/qwen3"],
+        "local/qwen-coder-32b":
+          ["omniroute/coding", "openrouter/deepseek"],
       }
     - {
-        "omniroute/coding":
-          ["local/qwen-coder-32b", "llxprt/codex", "openrouter/deepseek"],
+        "local/qwen2.5-4b":
+          ["local/llama3.2-3b", "omniroute/fast", "openrouter/llama4"],
       }
-    - { "llxprt/claude": ["omniroute/auto", "openrouter/gemini-flash"] }
-    - { "claw/openclaw-5090": ["claw/openclaw-3090ti", "claw/openclaw-3060"] }
+    - {
+        "local/llama3.2-3b":
+          ["omniroute/fast", "openrouter/llama4"],
+      }
+    - { "omniroute/auto": ["openrouter/qwen3"] }
+    - { "omniroute/coding": ["openrouter/deepseek"] }
+    - { "omniroute/fast": ["openrouter/gemini-flash"] }
+    - {
+        "claw/openclaw-5090":
+          ["claw/openclaw-3090ti", "claw/openclaw-3060", "local/qwen3.8-27b"],
+      }
     - {
         "claw/openclaw-3090ti":
-          ["claw/openclaw-5090", "claw/openclaw-3060", "local/qwen-coder-32b"],
+          ["claw/openclaw-3060", "local/qwen-coder-32b"],
       }
+    - { "claw/openclaw-3060": ["local/qwen2.5-4b"] }
 
 litellm_settings:
   set_verbose: false
   drop_params: true
+  request_timeout: 420
   cache: true
   cache_params:
     type: redis
@@ -183,6 +230,4 @@ litellm_settings:
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
-  # Uncomment to enable virtual keys / usage tracking:
-  # database_url: os.environ/LITELLM_DATABASE_URL
   store_model_in_db: false
