@@ -38,10 +38,13 @@ services:
     <<: *common
     image: supabase/gotrue:v2.148.0
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-supabase-auth
+    env_file:
+      - .env
     environment:
       GOTRUE_DB_DRIVER: postgres
       DB_NAMESPACE: auth
       GOTRUE_DB_DATABASE_URL: postgresql://${SUPABASE_DB_USER:-supabase}:${SUPABASE_DB_PASSWORD:?set SUPABASE_DB_PASSWORD}@supabase-db:5432/${SUPABASE_DB_NAME:-postgres}
+      API_EXTERNAL_URL: ${SUPABASE_EXTERNAL_URL:-https://auth.projectnyra.com}
       GOTRUE_JWT_SECRET: ${SUPABASE_JWT_SECRET:?set SUPABASE_JWT_SECRET}
       GOTRUE_JWT_EXP: 3600
       GOTRUE_JWT_AUD: authenticated

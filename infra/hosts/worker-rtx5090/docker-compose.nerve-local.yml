@@ -12,7 +12,7 @@ services:
       LITELLM_BASE_URL: http://100.64.0.3:4000/v1
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
       WORKER_ID: worker-rtx5090
-      LOG_LEVEL: info
+      LOG_LEVEL: INFO
     ports:
       - "7000:7000"
     depends_on:
@@ -36,7 +36,7 @@ services:
       OPENCLAW_PORT: 18789
       LITELLM_URL: http://100.64.0.3:4000/v1
       LITELLM_API_KEY: ${LITELLM_MASTER_KEY}
-      LOG_LEVEL: info
+      LOG_LEVEL: INFO
     ports:
       - "18789:18789"
     networks:
@@ -59,7 +59,7 @@ services:
       NERVE_URL: http://nerve:7000
       OPENCLAW_URL: http://localhost:18789
       WORKER_GPU: nvidia
-      LOG_LEVEL: info
+      LOG_LEVEL: INFO
     ports:
       - "5000:5000"
     depends_on:
