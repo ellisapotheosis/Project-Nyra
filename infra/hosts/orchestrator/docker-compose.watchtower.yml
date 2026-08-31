@@ -1,0 +1,12 @@
+name: nyra-watchtower-orchestrator
+
+# Host-wide updater for every container running on the orchestrator Docker
+# daemon, including services started from any compose file in this folder.
+services:
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: nyra-watchtower-orchestrator
+    restart: unless-stopped
+    command: ["--cleanup", "--interval", "300"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

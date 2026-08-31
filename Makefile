@@ -46,6 +46,14 @@ WORKER_5090_CONTEXT ?= worker-rtx5090
 WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
 WORKER_3060_CONTEXT ?= worker-rtx3060
 
+# One host-wide updater per canonical Docker context. Each overlay watches all
+# containers on that host, regardless of which host compose file started them.
+WATCHTOWER_ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.watchtower.yml
+WATCHTOWER_ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.watchtower.yml
+WATCHTOWER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.watchtower.yml
+WATCHTOWER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.watchtower.yml
+WATCHTOWER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.watchtower.yml
+
 # Canonical host/env contract.  Compose files remain host-owned under
 # infra/hosts/<host>; these examples describe the injection boundary only.
 HOSTS := orchestrator oracle-vps worker-rtx3090ti worker-rtx3060 worker-rtx5090
@@ -66,6 +74,7 @@ DEFAULT_PROFILES ?= apps,sync,debug
   oracle-mcp-tools-up oracle-mcp-tools-down oracle-mcp-tools-ps \
   oracle-portainer-up oracle-portainer-down oracle-portainer-ps \
   oracle-tailscale-up \
+  watchtower-up watchtower-down watchtower-status \
   sync-env sync-env-all \
   up-all down-all cluster-status host-env-examples compose-location-check \
   stack-config-check stack-up stack-status
@@ -287,6 +296,29 @@ cf-orch-down:
 
 cf-orch-logs:
 	docker compose -f $(CF_ORCH_COMPOSE) logs -f --tail=100
+
+# --- HOST-WIDE CONTAINER UPDATES ---
+
+watchtower-up:
+	docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(WATCHTOWER_ORCHESTRATOR_COMPOSE) up -d
+	docker --context $(ORACLE_CONTEXT) compose -f $(WATCHTOWER_ORACLE_COMPOSE) up -d
+	docker --context $(WORKER_5090_CONTEXT) compose -f $(WATCHTOWER_5090_COMPOSE) up -d
+	docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WATCHTOWER_3090TI_COMPOSE) up -d
+	docker --context $(WORKER_3060_CONTEXT) compose -f $(WATCHTOWER_3060_COMPOSE) up -d
+
+watchtower-down:
+	docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(WATCHTOWER_ORCHESTRATOR_COMPOSE) down
+	docker --context $(ORACLE_CONTEXT) compose -f $(WATCHTOWER_ORACLE_COMPOSE) down
+	docker --context $(WORKER_5090_CONTEXT) compose -f $(WATCHTOWER_5090_COMPOSE) down
+	docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WATCHTOWER_3090TI_COMPOSE) down
+	docker --context $(WORKER_3060_CONTEXT) compose -f $(WATCHTOWER_3060_COMPOSE) down
+
+watchtower-status:
+	docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(WATCHTOWER_ORCHESTRATOR_COMPOSE) ps
+	docker --context $(ORACLE_CONTEXT) compose -f $(WATCHTOWER_ORACLE_COMPOSE) ps
+	docker --context $(WORKER_5090_CONTEXT) compose -f $(WATCHTOWER_5090_COMPOSE) ps
+	docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WATCHTOWER_3090TI_COMPOSE) ps
+	docker --context $(WORKER_3060_CONTEXT) compose -f $(WATCHTOWER_3060_COMPOSE) ps
 
 # --- ORACLE APP STACK TARGETS ---
 # Apps run on Oracle VPS. They use profile "apps" so they don't start

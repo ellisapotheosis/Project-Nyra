@@ -22,7 +22,7 @@ services:
   # Stopping this kills ALL public traffic to projectnyra.com.
   # Migration plan required before changes: docs/infra-reconciliation/rollback/cloudflare.md
   cloudflared:
-    image: cloudflare/cloudflared:2025.5.0
+    image: cloudflare/cloudflared:latest
     container_name: oracle-vps-cloudflared
     restart: always
     command: ["tunnel", "--no-autoupdate", "--protocol", "http2", "run"]
@@ -93,4 +93,4 @@ networks:
   # Set ORACLE_MAIN_NETWORK in .env if your main project uses a different name.
   nyra_net:
     external: true
-    name: ${ORACLE_MAIN_NETWORK:-nyra_nyra_net}
+    name: ${ORACLE_MAIN_NETWORK:-nyra-network_nyra_net}

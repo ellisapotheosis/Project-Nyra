@@ -1,0 +1,13 @@
+name: nyra-cloudflared-orchestrator
+
+# Standalone token-managed Cloudflare Tunnel for the orchestrator PC.
+# The token is supplied at deploy time from Infisical /external/cloudflare.
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-orchestrator}-cloudflared
+    restart: unless-stopped
+    command: ["tunnel", "--no-autoupdate", "run"]
+    environment:
+      TUNNEL_TOKEN: ${ORCHESTRATOR_TUNNEL_TOKEN:?ORCHESTRATOR_TUNNEL_TOKEN required}

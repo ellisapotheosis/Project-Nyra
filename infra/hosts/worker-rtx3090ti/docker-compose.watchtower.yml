@@ -1,0 +1,11 @@
+name: nyra-watchtower-worker-rtx3090ti
+
+# Host-wide updater for every container running on the worker Docker daemon.
+services:
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: nyra-watchtower-worker-rtx3090ti
+    restart: unless-stopped
+    command: ["--cleanup", "--interval", "300"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

@@ -1,0 +1,12 @@
+name: nyra-watchtower-oracle-vps
+
+# Host-wide updater for every container running on the Oracle Docker daemon,
+# including services started from any compose file in this folder.
+services:
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: nyra-watchtower-oracle-vps
+    restart: always
+    command: ["--cleanup", "--interval", "300"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
