@@ -52,6 +52,7 @@ ensure_env "$tmp_env" JWT_SECRET "$(openssl rand -hex 32)"
 ensure_env "$tmp_env" TWENTY_DB_PASSWORD "$(openssl rand -hex 16)"
 ensure_env "$tmp_env" PORTAINER_EDGE_ID ci-portainer-edge-id
 ensure_env "$tmp_env" PORTAINER_EDGE_KEY ci-portainer-edge-key
+ensure_env "$tmp_env" OPENCLAW_GATEWAY_TOKEN ci-openclaw-gateway-token
 ensure_env "$tmp_env" ORCHESTRATOR_TUNNEL_TOKEN ci-orchestrator-tunnel-token
 ensure_env "$tmp_env" FIRECRAWL_API_KEY ci-firecrawl-api-key
 ensure_env "$tmp_env" TAVILY_API_KEY ci-tavily-api-key
