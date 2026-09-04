@@ -13,7 +13,9 @@ experimental:
     OPERATIONAL PARAMETERS:
     1. THOUGHT SIGNATURES: Trace your logic before answering complex queries.
     2. CODE EXECUTION: Verify ALL mathematical/logical claims via code.
-    3. ROUTING: Use 'nexus-router' (Port 6000) for agentic handoffs.
+    3. ROUTING: Use the LiteLLM gateway at http://100.64.0.3:4000/v1 for models
+       and http://100.64.0.3:4000/mcp for tools. Authenticate with a scoped
+       LiteLLM virtual key. Nexus is retired; do not route through it.
     4. VISION: Aim for pixel-perfect analysis.
   outputTokenLimit: 16384
   temperature: 0.7

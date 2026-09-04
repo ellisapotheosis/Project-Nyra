@@ -218,6 +218,39 @@ mcp_servers:
     allow_all_keys: false
     available_on_public_internet: false
 
+  # --- Tailnet operations -----------------------------------------------------
+  # Harvested from the LIVE Grafbase Nexus config (`[mcp.servers.tailscale]`),
+  # which is the gateway that `mcp-gateway.projectnyra.com` actually reaches
+  # today. The listener was verified live: POST /mcp returns 200 to `initialize`
+  # and `ss -lntp` shows a node process on the Oracle host.
+  #
+  # BLOCKED ON A HOST REBIND. The process binds `127.0.0.1:3399` only, so no
+  # container can reach it. The legacy Nexus entry used a bare `127.0.0.1` URL
+  # that resolved to the Nexus container's OWN loopback and therefore could
+  # never have worked either - this server has been silently dead behind the
+  # portal. `host.docker.internal:host-gateway` was tested and also fails,
+  # because the target is loopback-bound.
+  #
+  # The URL below is the correct Tailnet address per the "internal traffic uses
+  # 100.64.0.0/10" rule. Rebind the process to 100.64.0.3:3399 to activate it;
+  # the exact command is in docs/refactor/NYRA_REFACTOR_FINAL_REPORT.md.
+  #
+  # The auth token is read from the environment. The live Nexus config had it
+  # hard-coded as a plaintext literal on the host; that is corrected here, and
+  # the token must be rotated.
+  nyra_tailscale:
+    transport: "http"
+    url: "http://100.64.0.3:3399/mcp"
+    description: >-
+      Tailscale tailnet administration. Inspect and modify devices, ACLs, DNS
+      and auth keys for the trex-fiordland tailnet. Mutating and
+      infrastructure-wide. Administrators only.
+    auth_type: "bearer_token"
+    auth_value: os.environ/TAILSCALE_MCP_AUTH_TOKEN
+    mcp_access_groups: ["nyra-admin"]
+    allow_all_keys: false
+    available_on_public_internet: false
+
   # --- Cloudflare estate ------------------------------------------------------
   # Unauthenticated documentation server: safe for the developer group.
   cloudflare_docs:

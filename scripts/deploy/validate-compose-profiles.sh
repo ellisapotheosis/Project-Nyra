@@ -10,7 +10,7 @@
 # Usage: ./scripts/deploy/validate-compose-profiles.sh
 set -uo pipefail
 
-cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)" || exit 1
 
 # Real pinned digests from .env.example.
 LITELLM_IMAGE="$(grep -E '^LITELLM_IMAGE=' .env.example | cut -d= -f2-)"
