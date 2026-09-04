@@ -35,27 +35,17 @@ pages:
   - hostname: projectnyra.com
     target: cloudflare_pages
     access: public
-    notes: Public landing page for projectnyra.com. Separate Pages project from app.projectnyra.com.
+    notes: Public landing page for projectnyra.com. Served via Cloudflare Pages, not tunnel.
   - hostname: www.projectnyra.com
     target: cloudflare_pages
     access: public
-    notes: www redirect alias for projectnyra.com landing page.
-  - hostname: nexus.projectnyra.com
+    notes: www redirect alias for projectnyra.com landing page. Served via Cloudflare Pages.
+  - hostname: app.projectnyra.com
     target: cloudflare_pages
     access: public_auth
-    notes: "Human UI for Nexus. Pages project: projectnyra-nexus."
+    notes: Broker/customer webapp served via Cloudflare Pages.
 
 routes:
-  - hostname: projectnyra.projectnyra.com
-    tunnel: oracle
-    origin: http://webapp:3001
-    exposure: public_auth
-    notes: Primary projectnyra app endpoint. Broker/customer webapp. Keep Access until Supabase/app auth is production-ready.
-  - hostname: app.projectnyra.com
-    tunnel: oracle
-    origin: http://webapp:3001
-    exposure: public_auth
-    notes: Broker/customer webapp. Keep Access until Supabase/app auth is production-ready.
   - hostname: api.projectnyra.com
     tunnel: oracle
     origin: http://supabase-kong:8000
@@ -66,72 +56,33 @@ routes:
     origin: http://n8n:5678
     exposure: public_service_token_or_signed_webhook
     notes: Prefer provider allowlists and signed webhook paths.
-  - hostname: twenty.projectnyra.com
-    tunnel: oracle
-    origin: http://twenty:3000
-    exposure: public_auth
-  - hostname: crm.projectnyra.com
-    tunnel: oracle
-    origin: http://twenty:3000
-    exposure: public_auth
-    notes: Alias for Twenty CRM.
   - hostname: n8n.projectnyra.com
     tunnel: oracle
     origin: http://n8n:5678
-    exposure: public_auth
-  - hostname: git.projectnyra.com
-    tunnel: oracle
-    origin: http://forgejo:3000
     exposure: public_auth
   - hostname: activepieces.projectnyra.com
     tunnel: oracle
     origin: http://activepieces:80
     exposure: public_auth
-  - hostname: grafana.projectnyra.com
-    tunnel: oracle
-    origin: http://grafana:3000
-    exposure: public_auth
-  - hostname: prometheus.projectnyra.com
-    tunnel: oracle
-    origin: http://prometheus:9090
-    exposure: owner_only_public_auth
-  - hostname: cadvisor.projectnyra.com
-    tunnel: oracle
-    origin: http://cadvisor:8080
-    exposure: owner_only_public_auth
-  - hostname: openwebui.projectnyra.com
-    tunnel: oracle
-    origin: http://openwebui:8080
-    exposure: public_auth
-  - hostname: nexus-router.projectnyra.com
-    tunnel: oracle
-    origin: http://nexus:3000
-    exposure: public_service_token
-    notes: Legacy machine/API entrypoint. Prefer mcp-gateway.projectnyra.com for new clients.
-  - hostname: litellm.projectnyra.com
-    tunnel: oracle
-    origin: http://litellm:4000
-    exposure: owner_only_public_auth
   - hostname: clawteam.projectnyra.com
     tunnel: oracle
     origin: http://clawteam:8080
     exposure: public_auth
     notes: Requires optional clawteam compose overlay to be running.
-  - hostname: agent-vault.projectnyra.com
+  - hostname: openwebui.projectnyra.com
     tunnel: oracle
-    origin: http://agent-vault:8080
+    origin: http://openwebui:8080
     exposure: public_auth
-    notes: Infisical self-hosted secret vault. Protect with Cloudflare Access.
-  - hostname: infisical.projectnyra.com
+  - hostname: litellm.projectnyra.com
     tunnel: oracle
-    origin: http://agent-vault:8080
-    exposure: public_auth
-    notes: Alias for agent-vault.projectnyra.com.
-  - hostname: letta.projectnyra.com
+    origin: http://litellm:4000
+    exposure: public_service_token
+    notes: LLM router accessed by Cloudflare MCP Portal via service token; new mcp-aggregator replacing nexus-router.
+  - hostname: nexus-router.projectnyra.com
     tunnel: oracle
-    origin: http://letta:8283
-    exposure: public_auth
-    notes: Letta long-term agent memory server. Requires nyra_net added to memory compose.
+    origin: http://nexus:3000
+    exposure: public_service_token
+    notes: Legacy/rollback only. Deprecated in favor of litellm-based mcp routing.
   - hostname: portainer-oracle.projectnyra.com
     tunnel: oracle
     origin: https://portainer:9443
@@ -204,32 +155,34 @@ mcp_policy:
       origin: http://docker-gateway-mcp:8788
 
 mcp_portals:
-  - name: MCP-Gateway
+  - name: MCP-Gateway (LiteLLM Router)
     hostname: mcp-gateway.projectnyra.com
     cloudflare_managed: true
     linked_server: nyra-bearer
-    linked_server_url: https://nexus-router.projectnyra.com/mcp
+    linked_server_url: https://litellm.projectnyra.com/mcp
     managed_oauth: true
     machine_access: service_token
     linked_server_on_behalf: false
     origin_identity_authority: cloudflare_access
-    upstream_credential: infisical:/hosts/shared/CF_PORTAL_NEXUS_UPSTREAM_BEARER
+    upstream_credential: infisical:/hosts/shared/CF_PORTAL_LITELLM_SERVICE_TOKEN
     oauth_redirect_uris:
       - https://chatgpt.com/connector/oauth/ScujoiRI23cB
     status: verified_access_and_mcp_initialize
-  - name: MCP-Gateway (legacy alias)
+    notes: Cloudflare-managed MCP portal connecting to litellm semantic router. Agents use service tokens; users use OAuth.
+  - name: MCP-Portal (User OAuth)
     hostname: mcp-portal.projectnyra.com
     cloudflare_managed: true
     linked_server: nyra-bearer
-    linked_server_url: https://nexus-router.projectnyra.com/mcp
+    linked_server_url: https://litellm.projectnyra.com/mcp
     managed_oauth: true
     oauth_redirect_uris:
       - https://chatgpt.com/connector/oauth/ScujoiRI23cB
     machine_access: service_token
     linked_server_on_behalf: false
     origin_identity_authority: cloudflare_access
-    upstream_credential: infisical:/hosts/shared/CF_PORTAL_NEXUS_UPSTREAM_BEARER
+    upstream_credential: infisical:/hosts/shared/CF_PORTAL_LITELLM_SERVICE_TOKEN
     status: verified_access_and_mcp_initialize
+    notes: Human OAuth access to MCP servers via Cloudflare portal. Internal semantic routing via litellm.
 
 not_tunneled:
   - postgres
@@ -253,6 +206,42 @@ tailscale_private:
     Split DNS setup: Tailscale admin → DNS → Add nameserver for projectnyra.com pointing
     to the orchestrator's internal CoreDNS/dnsmasq instance. See docs/network/TAILSCALE-SERVICES.md.
   services:
+    - name: grafana
+      magicdns: grafana.trex-fiordland.ts.net
+      split_dns: grafana.projectnyra.com
+      origin: http://grafana:3000
+      port: 3000
+      description: Grafana monitoring dashboard (internal operators only)
+    - name: prometheus
+      magicdns: prometheus.trex-fiordland.ts.net
+      split_dns: prometheus.projectnyra.com
+      origin: http://prometheus:9090
+      port: 9090
+      description: Prometheus metrics store (internal observability)
+    - name: cadvisor
+      magicdns: cadvisor.trex-fiordland.ts.net
+      split_dns: cadvisor.projectnyra.com
+      origin: http://cadvisor:8080
+      port: 8080
+      description: cAdvisor container metrics (internal observability)
+    - name: openlit
+      magicdns: openlit.trex-fiordland.ts.net
+      split_dns: openlit.projectnyra.com
+      origin: http://openlit:3000
+      port: 3000
+      description: OpenLIT LLM observability dashboard (internal observability)
+    - name: letta
+      magicdns: letta.trex-fiordland.ts.net
+      split_dns: letta.projectnyra.com
+      origin: http://letta:8283
+      port: 8283
+      description: Letta long-term memory server (internal agents only)
+    - name: agent-vault
+      magicdns: agent-vault.trex-fiordland.ts.net
+      split_dns: agent-vault.projectnyra.com
+      origin: http://agent-vault:8080
+      port: 8080
+      description: Infisical credential broker (internal agents only)
     - name: spline-mcp
       magicdns: spline-mcp.trex-fiordland.ts.net
       split_dns: spline-mcp.projectnyra.com
