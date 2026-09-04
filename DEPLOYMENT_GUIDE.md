@@ -1,5 +1,30 @@
 # Project Nyra — Full Stack Deployment Guide
 
+> ## SUPERSEDED FOR THE CONTROL PLANE
+>
+> **The canonical deployment procedure is now
+> [docs/operations/NYRA_DEPLOYMENT_RUNBOOK.md](./docs/operations/NYRA_DEPLOYMENT_RUNBOOK.md).**
+>
+> This guide predates the 2026-09-04 LiteLLM-native control-plane migration and
+> is retained for the application-service phases only. Everything below that
+> describes **Nexus Router** as the MCP aggregation layer is **obsolete**:
+>
+> * Nexus is retired. LiteLLM is the canonical model gateway *and* the canonical
+>   MCP aggregation layer. See
+>   [docs/architecture/NYRA_MCP_ARCHITECTURE.md](./docs/architecture/NYRA_MCP_ARCHITECTURE.md).
+> * MCP servers are registered declaratively in
+>   `infra/configs/litellm/config.yaml`, not "registered with Nexus Router" at
+>   runtime. Do not run the `nexus-router:7001` commands in Phase 3 — that
+>   endpoint does not exist in the current architecture.
+> * There are exactly **two** GPU workers; a third (an RTX 3060) was retired and
+>   sold.
+> * Deployment uses the root `compose.yaml` host profiles via
+>   `scripts/deploy/deploy-{oracle,worker-5090,worker-3090ti,all}.sh`.
+> * Internal traffic uses `100.64.0.0/10` Tailnet addresses, never public
+>   `projectnyra.com` hostnames.
+>
+> Where this guide and the runbook conflict, **the runbook wins**.
+
 ## Autonomous Execution Plan
 
 **Status:** Phase 0 (Audit) Complete  

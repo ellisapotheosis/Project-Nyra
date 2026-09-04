@@ -251,8 +251,14 @@ explicitly.
 ! git grep -nEi 'worker[-_]?rtx3060|worker3060|rtx[-_]?3060|100\.64\.0\.12' -- ':!docs/archive/**'
 ```
 
-Known classified exceptions: `.agent/memory/**` (episodic memory, which project
-policy forbids editing) and `docs/refactor/**` (the migration record itself).
+Known classified exceptions — each is a documented non-hit, not an oversight:
+
+| Path | Classification |
+|---|---|
+| `.agent/memory/**` | agent episodic/semantic memory. Project policy: *"Never delete episodic or semantic memory entries."* Historical record, not active configuration. |
+| `.omc/`, `.playwright-mcp/` | ignored operational session artifacts |
+| `docs/refactor/**` | the migration record, which must name what it removed |
+| this file, line ~251 | the gate command itself necessarily contains its own pattern |
 
 ## Step 24: full validation
 
