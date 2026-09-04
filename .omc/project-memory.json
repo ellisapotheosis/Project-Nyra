@@ -8,25 +8,19 @@
         "name": "JavaScript/TypeScript",
         "version": ">=20",
         "confidence": "high",
-        "markers": [
-          "package.json"
-        ]
+        "markers": ["package.json"]
       },
       {
         "name": "TypeScript",
         "version": null,
         "confidence": "high",
-        "markers": [
-          "tsconfig.json"
-        ]
+        "markers": ["tsconfig.json"]
       },
       {
         "name": "C/C++",
         "version": null,
         "confidence": "high",
-        "markers": [
-          "Makefile"
-        ]
+        "markers": ["Makefile"]
       }
     ],
     "frameworks": [
@@ -90,12 +84,7 @@
       "services/*/*",
       "packages/*"
     ],
-    "mainDirectories": [
-      "docs",
-      "scripts",
-      "src",
-      "tests"
-    ],
+    "mainDirectories": ["docs", "scripts", "src", "tests"],
     "gitBranches": {
       "defaultBranch": "main",
       "branchingStrategy": null
@@ -167,19 +156,14 @@
       "purpose": "Data files",
       "fileCount": 2,
       "lastAccessed": 1788086149683,
-      "keyFiles": [
-        "campaign-templates.json",
-        "seed-leads.json"
-      ]
+      "keyFiles": ["campaign-templates.json", "seed-leads.json"]
     },
     "development": {
       "path": "development",
       "purpose": null,
       "fileCount": 1,
       "lastAccessed": 1788086149684,
-      "keyFiles": [
-        "README.md"
-      ]
+      "keyFiles": ["README.md"]
     },
     "docs": {
       "path": "docs",
@@ -226,9 +210,7 @@
       "purpose": null,
       "fileCount": 1,
       "lastAccessed": 1788086149686,
-      "keyFiles": [
-        "CLAUDE.md"
-      ]
+      "keyFiles": ["CLAUDE.md"]
     },
     "scripts": {
       "path": "scripts",
@@ -255,9 +237,7 @@
       "purpose": "Business logic services",
       "fileCount": 1,
       "lastAccessed": 1788086149687,
-      "keyFiles": [
-        "CLAUDE.md"
-      ]
+      "keyFiles": ["CLAUDE.md"]
     },
     "skills": {
       "path": "skills",
@@ -271,9 +251,7 @@
       "purpose": "Source code",
       "fileCount": 1,
       "lastAccessed": 1788086149688,
-      "keyFiles": [
-        "CLAUDE.md"
-      ]
+      "keyFiles": ["CLAUDE.md"]
     },
     "tests": {
       "path": "tests",
@@ -300,9 +278,7 @@
       "purpose": "Documentation",
       "fileCount": 1,
       "lastAccessed": 1788086149692,
-      "keyFiles": [
-        "memory-integration.md"
-      ]
+      "keyFiles": ["memory-integration.md"]
     },
     "ops/scripts": {
       "path": "ops/scripts",
@@ -327,21 +303,14 @@
       "purpose": "Configuration files",
       "fileCount": 2,
       "lastAccessed": 1788086149697,
-      "keyFiles": [
-        "README.md",
-        "package.json"
-      ]
+      "keyFiles": ["README.md", "package.json"]
     },
     "tests/fixtures": {
       "path": "tests/fixtures",
       "purpose": "Test fixtures",
       "fileCount": 6,
       "lastAccessed": 1788086149699,
-      "keyFiles": [
-        "agents.json",
-        "leads.json",
-        "memory-patterns.json"
-      ]
+      "keyFiles": ["agents.json", "leads.json", "memory-patterns.json"]
     }
   },
   "hotPaths": [
@@ -454,12 +423,6 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.yml",
-      "accessCount": 8,
-      "lastAccessed": 1785020434742,
-      "type": "file"
-    },
-    {
       "path": "infra/hosts/orchestrator/cloudflared-config.yml",
       "accessCount": 8,
       "lastAccessed": 1787984320094,
@@ -469,12 +432,6 @@
       "path": "infra/hosts/host-layout.yaml",
       "accessCount": 7,
       "lastAccessed": 1785020130246,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.gpu.yml",
-      "accessCount": 6,
-      "lastAccessed": 1778312829834,
       "type": "file"
     },
     {
@@ -499,12 +456,6 @@
       "path": ".mcp.json",
       "accessCount": 6,
       "lastAccessed": 1787566859337,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.voice.yml",
-      "accessCount": 4,
-      "lastAccessed": 1778326742490,
       "type": "file"
     },
     {
@@ -553,12 +504,6 @@
       "path": "infra/hosts/orchestrator/docker-compose.bitnet.yml",
       "accessCount": 2,
       "lastAccessed": 1778281875198,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.worker.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281892347,
       "type": "file"
     },
     {
