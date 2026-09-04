@@ -38,6 +38,10 @@
     "shadcn": {
       "command": "npx",
       "args": ["shadcn@latest", "mcp"]
+    },
+    "aperture": {
+      "type": "http",
+      "url": "https://aperture.trex-fiordland.ts.net/v1/mcp"
     }
   },
   "disabledMcpServers": []

@@ -1,8 +1,13 @@
 # infra/hosts/oracle-vps/docker-compose.clawteam.yml
-# 🦞 Project Nyra - ClawTeam Primary Node Override for Oracle-VPS
+# 🦞 Project Nyra - Legacy Oracle ClawTeam definition
+#
+# The ClawTeam primary now belongs on orchestrator. Keep this file only as a
+# compatibility definition for migration/rollback; it is profile-gated so a
+# normal Oracle stack startup cannot create a second ClawTeam primary.
 
 services:
   clawteam:
+    profiles: ["legacy-oracle-primary"]
     build:
       context: ../../images/clawteam
       dockerfile: Dockerfile

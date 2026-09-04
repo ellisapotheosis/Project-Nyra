@@ -45,18 +45,18 @@ container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-ollama
 
 ## Oracle-VPS Overlay Files
 
-| File                                  | Purpose                                                   |
-| ------------------------------------- | --------------------------------------------------------- |
-| `docker-compose.memory.yml`           | Letta + mem0 + FalkorDB + Qdrant (canonical memory plane) |
-| `docker-compose.oracle.yml`           | Paperclip, SearXNG, Browserless                           |
-| `docker-compose.apps.yml`             | Next.js webapp + Nexus UI                                 |
-| `docker-compose.forgejo.yml`          | Forgejo + Forgejo DB                                      |
-| `docker-compose.letta-mcp.yml`        | Letta MCP bridge                                          |
-| `docker-compose.memory-extra.yml`     | Optional memory companions (memos, claudemem)             |
-| `docker-compose.clawteam.yml`         | ClawTeam primary node (oracle)                            |
-| `docker-compose.paperclip.yml`        | Paperclip MCP gateway (build from images/paperclip/)      |
-| `docker-compose.activepieces-mcp.yml` | ActivePieces MCP                                          |
-| `docker-compose.restoration.yml`      | Restoration services (llxprt-bridge, activepieces-mcp)    |
+| File                                  | Purpose                                                    |
+| ------------------------------------- | ---------------------------------------------------------- |
+| `docker-compose.memory.yml`           | Letta + mem0 + FalkorDB + Qdrant (canonical memory plane)  |
+| `docker-compose.oracle.yml`           | Paperclip, SearXNG, Browserless                            |
+| `docker-compose.apps.yml`             | Next.js webapp + Nexus UI                                  |
+| `docker-compose.forgejo.yml`          | Forgejo + Forgejo DB                                       |
+| `docker-compose.letta-mcp.yml`        | Letta MCP bridge                                           |
+| `docker-compose.memory-extra.yml`     | Optional memory companions (memos, claudemem)              |
+| `docker-compose.clawteam.yml`         | Legacy Oracle ClawTeam definition; primary is orchestrator |
+| `docker-compose.paperclip.yml`        | Paperclip MCP gateway (build from images/paperclip/)       |
+| `docker-compose.activepieces-mcp.yml` | ActivePieces MCP                                           |
+| `docker-compose.restoration.yml`      | Restoration services (llxprt-bridge, activepieces-mcp)     |
 
 ## Memory Stack (Oracle VPS — CRITICAL)
 

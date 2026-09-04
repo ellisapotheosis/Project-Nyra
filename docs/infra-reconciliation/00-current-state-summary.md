@@ -208,21 +208,21 @@ ratehunter.net, www.ratehunter.net, projectnyra.com, www.projectnyra.com, nexus.
 
 ## 10. Orchestration Tools Summary
 
-| Tool      | Role                                               | Access               | Host                |
-| --------- | -------------------------------------------------- | -------------------- | ------------------- |
-| Herdr     | CLI terminal multiplexer, operator cockpit         | Terminal/WSL2        | Operator machine    |
-| ORCA      | GUI worktree-native IDE & review surface           | Desktop app          | Operator machine    |
-| Omnigent  | Policy-aware dev orchestration harness             | Dev surface          | RTX 5090            |
-| OpenClaw  | Multi-channel gateway (Telegram/Discord/Slack)     | Mobile via chat apps | Orchestrator        |
-| OmniRoute | LLM provider router (private upstream for LiteLLM) | Internal only        | Oracle VPS          |
-| Nerve     | Agent UI                                           | Web                  | RTX 5090/3090Ti     |
-| ClawTeam  | Multi-agent coordination                           | API                  | Orchestrator/Oracle |
+| Tool      | Role                                               | Access                     | Host                   |
+| --------- | -------------------------------------------------- | -------------------------- | ---------------------- |
+| Herdr     | CLI terminal multiplexer, operator cockpit         | Terminal/WSL2              | Operator machine       |
+| ORCA      | GUI worktree-native IDE & review surface           | Desktop app                | Operator machine       |
+| Omnigent  | Policy-aware dev orchestration harness             | Dev surface                | RTX 5090               |
+| OpenClaw  | Worker-local assistant gateway                     | Nerve + local assistant UI | RTX 5090 worker        |
+| OmniRoute | LLM provider router (private upstream for LiteLLM) | Internal only              | Oracle VPS             |
+| Nerve     | Agent UI                                           | Web                        | RTX 5090/3090Ti        |
+| ClawTeam  | Multi-agent coordination                           | API                        | Orchestrator (primary) |
 
 ---
 
 ## 11. What Exists in Repo but Needs Verification
 
-- [ ] `docker-compose.clawteam.yml` on oracle — ClawTeam running?
+- [ ] Deploy and verify the orchestrator ClawTeam primary; Oracle definition is legacy/profile-gated
 - [ ] `docker-compose.memory.yml` — Letta+Mem0+FalkorDB+Qdrant status
 - [ ] Worker compose files — GPU inference status
 - [ ] Portainer agent connection status on all workers

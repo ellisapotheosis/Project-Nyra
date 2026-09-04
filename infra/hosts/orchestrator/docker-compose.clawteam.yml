@@ -11,13 +11,14 @@ services:
       - CLAWTEAM_MEMORY_LIMIT=5g
       - CLAWTEAM_FALLBACK_REPLICA=worker-rtx3060:9002
       - WORKER_NODES=["worker-rtx5090", "worker-rtx3090ti", "worker-rtx3060"]
-      - NERVE_UI_ENABLED=true
+      # Nerve remains colocated with OpenClaw on worker-rtx5090.
+      - NERVE_UI_ENABLED=false
       - LITELLM_API_URL=http://100.64.0.3:4000
-      - NEXUS_ROUTER_URL=http://localhost:7000
+      # Nexus runs on oracle-vps, not in the orchestrator Compose network.
+      - NEXUS_ROUTER_URL=http://100.64.0.3:7000
     ports:
       - "9001:9000"
-      - "18789:18789"
-    # NOTE: litellm runs on oracle-vps, reach it via Tailscale URL above.
+    # NOTE: LiteLLM and Nexus run on oracle-vps; reach them over Tailscale.
     networks:
       - nyra-network
     restart: unless-stopped

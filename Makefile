@@ -33,6 +33,7 @@ ORACLE_MEMORY_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory.yml
 ORACLE_LETTA_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.letta-mcp.yml
 ORACLE_MEMORY_EXTRA_COMPOSE := infra/hosts/oracle-vps/docker-compose.memory-extra.yml
 ORACLE_CLAWTEAM_COMPOSE := infra/hosts/oracle-vps/docker-compose.clawteam.yml
+ORCHESTRATOR_CLAWTEAM_COMPOSE := infra/hosts/orchestrator/docker-compose.clawteam.yml
 ORACLE_AGENT_VAULT_COMPOSE := infra/hosts/oracle-vps/docker-compose.agent-vault.yml
 ORACLE_UI_FACTORY_SERVICES := nyra-ui-engine magicui-mcp shadcn-mcp
 ORACLE_MCP_TOOL_SERVICES := llxprt-bridge-proxy activepieces-mcp litellm ha-mcp twenty-mcp git-mcp sequential-thinking-mcp playwright-mcp firecrawl-mcp magicui-mcp shadcn-mcp next-devtools-mcp tavily-mcp wcgw-mcp gitingest-mcp codebase-index-mcp nexus
@@ -655,37 +656,46 @@ orchestrator-status:
 	@echo ""
 
 # ════════════════════════════════════════════════════════════════════════════
-# 🦞 CLAWTEAM — Oracle-VPS Primary + RTX3060 Fallback
+# 🦞 CLAWTEAM — Orchestrator Primary + Worker Nodes
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: oracle-clawteam rtx3060-clawteam-fallback \
+.PHONY: oracle-clawteam orchestrator-clawteam-up orchestrator-clawteam-down rtx3060-clawteam-fallback \
   clawteam-all-deploy clawteam-monitor clawteam-failover-check
 
 oracle-clawteam:
-	@$(MAKE) oracle-clawteam-up
+	@$(MAKE) orchestrator-clawteam-up
+
+orchestrator-clawteam-up:
+	@echo "Starting ClawTeam primary on orchestrator..."
+	@docker --context $(ORCHESTRATOR_CONTEXT) compose \
+	  -f $(ORCHESTRATOR_COMPOSE) -f $(ORCHESTRATOR_CLAWTEAM_COMPOSE) up -d clawteam
+
+orchestrator-clawteam-down:
+	@docker --context $(ORCHESTRATOR_CONTEXT) compose \
+	  -f $(ORCHESTRATOR_COMPOSE) -f $(ORCHESTRATOR_CLAWTEAM_COMPOSE) stop clawteam
 
 rtx3060-clawteam-fallback:
 	@docker --context $(WORKER_3060_CONTEXT) compose \
 	  -f infra/hosts/worker-rtx3060/docker-compose.yml \
 	  -f infra/hosts/worker-rtx3060/docker-compose.clawteam.yml up -d clawteam
 
-clawteam-all-deploy: oracle-clawteam rtx3060-clawteam-fallback
-	@echo "✅ ClawTeam dual-deployment complete"
-	@echo "   Primary:  oracle-vps:9001"
+clawteam-all-deploy: orchestrator-clawteam-up rtx3060-clawteam-fallback
+	@echo "✅ ClawTeam primary + worker deployment complete"
+	@echo "   Primary:  orchestrator:9001"
 	@echo "   Fallback: worker-rtx3060:9002"
-	@docker --context $(ORACLE_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || true
+	@docker --context $(ORCHESTRATOR_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:9000/health 2>/dev/null | jq .status || true
 
 clawteam-monitor:
-	@echo "Monitoring ClawTeam on Oracle-VPS..."
-	@watch -n 5 "docker --context $(ORACLE_CONTEXT) stats nyra-clawteam-primary --no-stream"
+	@echo "Monitoring ClawTeam on orchestrator..."
+	@watch -n 5 "docker --context $(ORCHESTRATOR_CONTEXT) stats nyra-clawteam-primary --no-stream"
 
 clawteam-failover-check:
-	@echo "Checking ClawTeam health: Primary (Oracle) vs Fallback (RTX3060)..."
-	ORACLE_HEALTH=$$(docker --context $(ORACLE_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || echo "down") && \
+	@echo "Checking ClawTeam health: Primary (orchestrator) vs Fallback (RTX3060)..."
+	ORCHESTRATOR_HEALTH=$$(docker --context $(ORCHESTRATOR_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
 	RTX3060_HEALTH=$$(docker --context $(WORKER_3060_CONTEXT) exec worker-3060-clawteam-fallback curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
-	echo "Oracle-VPS ClawTeam: $$ORACLE_HEALTH" && \
+	echo "Orchestrator ClawTeam: $$ORCHESTRATOR_HEALTH" && \
 	echo "RTX3060 Fallback:    $$RTX3060_HEALTH" && \
-	if [ "$$ORACLE_HEALTH" != "healthy" ] && [ "$$RTX3060_HEALTH" = "healthy" ]; then \
+	if [ "$$ORCHESTRATOR_HEALTH" != "healthy" ] && [ "$$RTX3060_HEALTH" = "healthy" ]; then \
 		echo "⚠️  PRIMARY DOWN — Fallback to RTX3060 active"; \
 	fi
 
@@ -753,11 +763,7 @@ docker-push-clawteam:
 # ════════════════════════════════════════════════════════════════════════════
 
 oracle-clawteam-deploy:
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) build clawteam
-	@docker --context $(ORACLE_CONTEXT) compose -f $(ORACLE_COMPOSE) -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam
-	@sleep 3
-	@echo "✅ ClawTeam deployed to Oracle-VPS (port 8080)"
-	@docker --context $(ORACLE_CONTEXT) logs nyra-clawteam-primary --tail 20
+	@$(MAKE) orchestrator-clawteam-up
 
 # ============================================================================
 # Wave AI + Zellij persistent grid
@@ -881,11 +887,11 @@ oracle-webapp-twenty-down:
 	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_APPS_COMPOSE) down
 
 oracle-clawteam-up:
-	@echo "Starting ClawTeam on Oracle VPS..."
-	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_CLAWTEAM_COMPOSE) up -d clawteam
+	@echo "Oracle ClawTeam primary is retired; starting the orchestrator primary instead."
+	@$(MAKE) orchestrator-clawteam-up
 
 oracle-clawteam-down:
-	@$(ORACLE_COMPOSE_RUN) -f $(ORACLE_CLAWTEAM_COMPOSE) stop clawteam
+	@$(MAKE) orchestrator-clawteam-down
 
 oracle-agent-tools-up: oracle-clawteam-up
 
