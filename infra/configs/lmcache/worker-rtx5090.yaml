@@ -1,0 +1,20 @@
+# LMCache V1 configuration — worker-rtx5090 (100.64.0.11)
+#
+# Mounted read-only at /etc/lmcache/lmcache.yaml by the root compose
+# `worker-5090` profile, and selected via LMCACHE_CONFIG_FILE.
+#
+# This host also RUNS the LMCache Redis backend, so remote_url points at its own
+# Tailnet address. That is intentional: worker-rtx3090ti points at the same
+# address, giving both GPU hosts one shared KV-cache backend.
+#
+# LMCACHE_USE_EXPERIMENTAL=True must remain an ENVIRONMENT VARIABLE (set in the
+# compose service), not a key in this file. `LMCACHE_ENABLE` is not used - it is
+# not a documented activation mechanism.
+#
+# This Redis instance is deliberately SEPARATE from the Oracle litellm-redis
+# control cache. GPU KV tensors are high-volume, high-churn and regenerable;
+# mixing them into the gateway control cache evicts spend and routing state.
+
+chunk_size: 256
+remote_url: "redis://100.64.0.11:6379"
+remote_serde: "naive"

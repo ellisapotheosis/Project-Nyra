@@ -1,87 +1,170 @@
-# Project Nyra primary LiteLLM gateway.
-# Mounted by infra/hosts/oracle-vps/docker-compose.yml.
-# Keep this catalog deliberately small: Qwen3.8 local inference, the required
-# embedding model, OpenRouter free routes, and OmniRoute free routing only.
+# =============================================================================
+# Project-Nyra — canonical LiteLLM control plane
+# =============================================================================
+# Host:    oracle-vps (100.64.0.3, aarch64)
+# Image:   ghcr.io/berriai/litellm@sha256:a53a7d3ffebede1925bd3ee8a21e4a7b9b63e2e68ec883af136edcccb6eeb82c  (v1.99.1)
+# Mounted: read-only at /app/config.yaml by the root compose `oracle` profile.
+#
+# LiteLLM is the ONLY Nyra model gateway and the ONLY MCP aggregation layer.
+# Agents receive logical aliases and scoped virtual keys. They do not know about
+# individual vLLM hosts, OmniRoute, OpenRouter or provider fallback order.
+#
+# Every field below was validated against the pinned v1.99.1 image. Fields that
+# do not exist in v1.99.1 are documented in docs/refactor/LITELLM_ENDPOINTS.md
+# and are deliberately absent here.
+# =============================================================================
 
 model_list:
-  # RTX 5090: Qwen3.8-27B Q4_K_M through llama.cpp.
-  - model_name: local/qwen3.8-27b
+  # ---------------------------------------------------------------------------
+  # Local GPU inference — highest priority tier.
+  # Reached over Tailnet IPs. Never over public projectnyra.com hostnames.
+  # `--served-model-name` on each vLLM deployment is a Nyra naming contract:
+  #   worker-rtx5090   -> nyra-primary
+  #   worker-rtx3090ti -> nyra-secondary
+  # ---------------------------------------------------------------------------
+  - model_name: nyra-general
     litellm_params:
-      model: openai/Qwen3.8-27B
-      # Oracle reaches the always-on 5090 over its private Tailscale/DNS name.
-      # The public projectnyra hostname is not resolvable from the Oracle
-      # container network and would turn this into a DNS timeout.
-      api_base: http://worker-rtx5090:8000/v1
-      api_key: "not-needed"
+      model: openai/nyra-primary
+      api_base: http://100.64.0.11:8000/v1
+      api_key: "local-no-auth"
       timeout: 300
       stream_timeout: 420
+    model_info:
+      nyra_tier: local-gpu
+      nyra_host: worker-rtx5090
 
-  # RTX 3090 Ti: same Qwen3.8-27B Q4 deployment when that worker is online.
-  - model_name: local/qwen3.8-27b-3090ti
+  - model_name: nyra-general
     litellm_params:
-      model: openai/Qwen3.8-27B
-      api_base: http://worker-rtx3090ti.projectnyra.com:8000/v1
-      api_key: "not-needed"
+      model: openai/nyra-secondary
+      api_base: http://100.64.0.13:8000/v1
+      api_key: "local-no-auth"
       timeout: 300
       stream_timeout: 420
+    model_info:
+      nyra_tier: local-gpu
+      nyra_host: worker-rtx3090ti
 
-  # RTX 3060: small Qwen utility route. The embedding model is retained for
-  # the canonical Mem0/Qdrant memory path and is not a chat model.
-  - model_name: local/qwen3-4b-3060
+  - model_name: nyra-reasoning
     litellm_params:
-      model: ollama/qwen3:4b
-      api_base: http://worker-rtx3060.projectnyra.com:11434
+      model: openai/nyra-primary
+      api_base: http://100.64.0.11:8000/v1
+      api_key: "local-no-auth"
+      timeout: 420
+      stream_timeout: 600
+    model_info:
+      nyra_tier: local-gpu
+      nyra_host: worker-rtx5090
+
+  - model_name: nyra-coding
+    litellm_params:
+      model: openai/nyra-primary
+      api_base: http://100.64.0.11:8000/v1
+      api_key: "local-no-auth"
+      timeout: 300
+      stream_timeout: 420
+    model_info:
+      nyra_tier: local-gpu
+      nyra_host: worker-rtx5090
+
+  # Small/fast local lane. Backed by the worker-rtx5090 Ollama runtime, which
+  # already holds qwen3.5:latest (9.7B). This replaces the retired
+  # `local/qwen3-4b-3060` alias that pointed at the sold RTX 3060.
+  - model_name: nyra-fast
+    litellm_params:
+      model: ollama/qwen3.5:latest
+      api_base: http://100.64.0.11:11434
       timeout: 120
-      max_tokens: 4096
+    model_info:
+      nyra_tier: local-gpu
+      nyra_host: worker-rtx5090
 
-  - model_name: local/embeddings
+  # ---------------------------------------------------------------------------
+  # Embedding lane.
+  # Moved off the retired worker-rtx3060 onto worker-rtx5090 WITHOUT changing
+  # the model, so the existing 768-dimension Qdrant collections stay valid.
+  # nomic-embed-text is 137M params / 0.27 GB and does not materially reduce
+  # primary inference availability on a 24 GB GPU.
+  # ---------------------------------------------------------------------------
+  - model_name: nyra-embedding
     litellm_params:
       model: ollama/nomic-embed-text
-      api_base: http://worker-rtx3060.projectnyra.com:11434
+      api_base: http://100.64.0.11:11434
       timeout: 120
+    model_info:
+      nyra_tier: local-gpu
+      nyra_host: worker-rtx5090
+      output_vector_size: 768
 
-  # OmniRoute aliases. OmniRoute owns provider selection and is configured as
-  # the free route; do not add subscription/paid aliases here.
-  - model_name: omniroute/free
+  # ---------------------------------------------------------------------------
+  # OmniRoute — second tier. OmniRoute owns its own provider pool and
+  # credential logic internally. It sits BEHIND LiteLLM and is never the front
+  # door. Bound Tailnet-only on Oracle; port 20128 is never published publicly.
+  # ---------------------------------------------------------------------------
+  - model_name: omniroute-free
     litellm_params:
       model: openai/auto
       api_base: http://omniroute:20128/v1
       api_key: os.environ/OMNIROUTE_API_KEY
       timeout: 300
+    model_info:
+      nyra_tier: omniroute
 
-  - model_name: omniroute/free-fast
+  - model_name: omniroute-fast
     litellm_params:
       model: openai/auto/fast
       api_base: http://omniroute:20128/v1
       api_key: os.environ/OMNIROUTE_API_KEY
       timeout: 120
+    model_info:
+      nyra_tier: omniroute
 
-  - model_name: omniroute/free-coding
+  - model_name: omniroute-coding
     litellm_params:
       model: openai/auto/coding
       api_base: http://omniroute:20128/v1
       api_key: os.environ/OMNIROUTE_API_KEY
       timeout: 240
+    model_info:
+      nyra_tier: omniroute
 
-  # OpenRouter models selected from the currently advertised :free catalog.
-  - model_name: openrouter/free-gemma
+  # ---------------------------------------------------------------------------
+  # OpenRouter — third tier. Model ids below were re-verified against the LIVE
+  # https://openrouter.ai/api/v1/models catalog during this migration; all three
+  # are still present in the current 18-entry `:free` catalog.
+  # ---------------------------------------------------------------------------
+  - model_name: openrouter-gemma
     litellm_params:
       model: openrouter/google/gemma-4-26b-a4b-it:free
       api_key: os.environ/OPENROUTER_API_KEY
       timeout: 120
+    model_info:
+      nyra_tier: openrouter
 
-  - model_name: openrouter/free-nemotron
+  - model_name: openrouter-nemotron
     litellm_params:
       model: openrouter/nvidia/nemotron-3.5-lightning:free
       api_key: os.environ/OPENROUTER_API_KEY
       timeout: 120
+    model_info:
+      nyra_tier: openrouter
 
-  - model_name: openrouter/free-minimax
+  - model_name: openrouter-minimax
     litellm_params:
       model: openrouter/minimax/minimax-m3:free
       api_key: os.environ/OPENROUTER_API_KEY
-      timeout: 120
+      timeout: 180
+    model_info:
+      nyra_tier: openrouter
 
+  # No paid provider routes are declared. OPENAI_API_KEY / ANTHROPIC_API_KEY
+  # deployments are intentionally absent: declaring a provider that is not
+  # budget-authorized creates a meaningless blank dependency and a credential
+  # the gateway does not need to hold.
+
+# =============================================================================
+# Router — local GPU -> OmniRoute -> OpenRouter. Paid routes are not in the
+# chain because none are enabled.
+# =============================================================================
 router_settings:
   routing_strategy: usage-based-routing-v2
   num_retries: 2
@@ -89,83 +172,197 @@ router_settings:
   allowed_fails: 2
   cooldown_time: 30
   fallbacks:
-    - {
-        "local/qwen3.8-27b":
-          [
-            "local/qwen3.8-27b-3090ti",
-            "omniroute/free",
-            "openrouter/free-gemma",
-          ],
-      }
-    - {
-        "local/qwen3.8-27b-3090ti":
-          ["local/qwen3.8-27b", "omniroute/free", "openrouter/free-gemma"],
-      }
-    - {
-        "local/qwen3-4b-3060":
-          ["omniroute/free-fast", "openrouter/free-nemotron"],
-      }
-    - { "omniroute/free": ["omniroute/free-fast", "openrouter/free-gemma"] }
-    - {
-        "omniroute/free-fast":
-          ["openrouter/free-nemotron", "local/qwen3-4b-3060"],
-      }
-    - {
-        "omniroute/free-coding": ["local/qwen3.8-27b", "openrouter/free-gemma"],
-      }
+    - { "nyra-general": ["omniroute-free", "openrouter-gemma"] }
+    - { "nyra-reasoning": ["omniroute-free", "openrouter-minimax"] }
+    - { "nyra-coding": ["omniroute-coding", "openrouter-gemma"] }
+    - { "nyra-fast": ["omniroute-fast", "openrouter-nemotron"] }
+    - { "omniroute-free": ["openrouter-gemma"] }
+    - { "omniroute-fast": ["openrouter-nemotron"] }
+    - { "omniroute-coding": ["openrouter-gemma"] }
+
+# =============================================================================
+# MCP registry — DIRECT registrations only.
+#
+# There is deliberately NO nexus_router entry, and no entry pointing back at the
+# Cloudflare MCP Server Portal that fronts this proxy. Registering that portal
+# here would create a control-plane cycle:
+#   Portal -> LiteLLM -> Portal.
+# The Cloudflare entries below are Cloudflare's OWN product MCP endpoints, which
+# are not the Nyra portal.
+#
+# `allow_all_keys` is FALSE everywhere. Access is granted only through
+# mcp_access_groups, which are in turn granted per virtual key.
+# =============================================================================
+mcp_servers:
+  # --- Mortgage / CRM domain --------------------------------------------------
+  # Address verified live during migration: `oracle-vps-twenty-mcp` answers
+  # `initialize` on http://100.64.0.3:8400/mcp with protocolVersion 2025-06-18
+  # and serverInfo {"name":"twenty-mcp-server","version":"1.0.0"}.
+  #
+  # KNOWN UPSTREAM DEFECT (pre-existing, not introduced by this migration):
+  # the server issues an `mcp-session-id` on initialize but then rejects
+  # `notifications/initialized` with HTTP 400 and never leaves the
+  # uninitialized state, so `tools/list` returns
+  # {"code":-32000,"message":"Bad Request: Server not initialized"}.
+  # LiteLLM logs `Error listing tools from nyra_crm` and degrades gracefully.
+  # The registration is correct and is kept; the upstream handshake bug is a
+  # blocker for the mortgage acceptance tests and is tracked in
+  # docs/refactor/NYRA_REFACTOR_VALIDATION.md.
+  nyra_crm:
+    transport: "http"
+    url: "http://100.64.0.3:8400/mcp"
+    description: >-
+      TwentyCRM mortgage pipeline. Read and mutate mortgage leads, contacts,
+      pipeline stages and loan metadata. Contains borrower PII.
+    mcp_access_groups: ["nyra-mortgage"]
+    allow_all_keys: false
+    available_on_public_internet: false
+
+  # --- Cloudflare estate ------------------------------------------------------
+  # Unauthenticated documentation server: safe for the developer group.
+  cloudflare_docs:
+    transport: "http"
+    url: "https://docs.mcp.cloudflare.com/mcp"
+    description: >-
+      Read-only Cloudflare product documentation search. No account access, no
+      credentials, no mutation. Use when answering questions about Cloudflare
+      product behaviour or configuration syntax.
+    mcp_access_groups: ["nyra-dev"]
+    allow_all_keys: false
+
+  # Token-bearing Cloudflare servers. These drive real account mutation, so they
+  # are nyra-admin ONLY. Pre-migration these were all `allow_all_keys: true`,
+  # meaning every key in the fleet could administer the Cloudflare zone.
+  cloudflare_api:
+    transport: "http"
+    url: "https://mcp.cloudflare.com/mcp"
+    description: >-
+      Cloudflare account administration. Reads and mutates zone, DNS, Access and
+      tunnel configuration. Destructive and account-wide. Administrators only.
+    auth_type: "bearer_token"
+    auth_value: os.environ/CLOUDFLARE_API_TOKEN
+    mcp_access_groups: ["nyra-admin"]
+    allow_all_keys: false
+
+  cloudflare_bindings:
+    transport: "http"
+    url: "https://bindings.mcp.cloudflare.com/mcp"
+    description: >-
+      Cloudflare Workers bindings administration — KV, R2, D1, Durable Object
+      and queue bindings. Mutating. Administrators only.
+    auth_type: "bearer_token"
+    auth_value: os.environ/CLOUDFLARE_API_TOKEN
+    mcp_access_groups: ["nyra-admin"]
+    allow_all_keys: false
+
+  cloudflare_builds:
+    transport: "http"
+    url: "https://builds.mcp.cloudflare.com/mcp"
+    description: >-
+      Cloudflare Workers build and deployment history. Inspect and trigger
+      builds. Administrators only.
+    auth_type: "bearer_token"
+    auth_value: os.environ/CLOUDFLARE_API_TOKEN
+    mcp_access_groups: ["nyra-admin"]
+    allow_all_keys: false
+
+  cloudflare_observability:
+    transport: "http"
+    url: "https://observability.mcp.cloudflare.com/mcp"
+    description: >-
+      Cloudflare logs, analytics and Workers observability queries. Read-only
+      telemetry over the Cloudflare account.
+    auth_type: "bearer_token"
+    auth_value: os.environ/CLOUDFLARE_API_TOKEN
+    mcp_access_groups: ["nyra-admin", "nyra-observability"]
+    allow_all_keys: false
+
+  cloudflare_ai_gateway:
+    transport: "http"
+    url: "https://ai-gateway.mcp.cloudflare.com/mcp"
+    description: >-
+      Cloudflare AI Gateway configuration and request-log inspection.
+      Administrators only.
+    mcp_access_groups: ["nyra-admin"]
+    allow_all_keys: false
+
+# NOTE — servers deliberately NOT registered yet, and why. These are tracked in
+# docs/refactor/NYRA_REFACTOR_VALIDATION.md, not silently dropped:
+#   * nyra_memory (Letta MCP) — POST /mcp returns 200, but the container binds
+#     127.0.0.1:8284 only, so LiteLLM cannot reach it. Registration is blocked on
+#     rebinding it to the Tailnet address. Registering a dead origin would fail
+#     every discovery call.
+#   * gitingest (:8777), playwright (:8771), next-devtools (:8774) — probed at
+#     /mcp, /sse and /; all returned 404. Their real transport/path is unknown
+#     and is not guessed here.
+#   * sequential-thinking — no live listener found on oracle-vps.
+#   * Nexus's legacy github/git/docker/infisical MCP defaults — their listeners
+#     (:8813/:8812/:8811/:8815) are not running on any reachable host.
+#   * bitwarden, gemini — intentionally removed. See the capability matrix.
 
 litellm_settings:
   set_verbose: false
   drop_params: true
   request_timeout: 420
-  mcp_aliases:
-    cloudflare: cloudflare
-    cloudflare_api: cloudflare_api
-    cloudflare_docs: cloudflare_docs
-    cloudflare_bindings: cloudflare_bindings
-    cloudflare_builds: cloudflare_builds
-    cloudflare_observability: cloudflare_observability
-    cloudflare_ai_gateway: cloudflare_ai_gateway
 
-mcp_servers:
-  cloudflare:
-    url: "https://mcp.cloudflare.com/mcp"
-    transport: "http"
-    allow_all_keys: true
-    auth_type: "bearer_token"
-    auth_value: os.environ/CLOUDFLARE_API_TOKEN
-  cloudflare_api:
-    url: "https://mcp.cloudflare.com/mcp"
-    transport: "http"
-    allow_all_keys: true
-    auth_type: "bearer_token"
-    auth_value: os.environ/CLOUDFLARE_API_TOKEN
-  cloudflare_docs:
-    url: "https://docs.mcp.cloudflare.com/mcp"
-    transport: "http"
-    allow_all_keys: true
-  cloudflare_bindings:
-    url: "https://bindings.mcp.cloudflare.com/mcp"
-    transport: "http"
-    allow_all_keys: true
-    auth_type: "bearer_token"
-    auth_value: os.environ/CLOUDFLARE_API_TOKEN
-  cloudflare_builds:
-    url: "https://builds.mcp.cloudflare.com/mcp"
-    transport: "http"
-    allow_all_keys: true
-    auth_type: "bearer_token"
-    auth_value: os.environ/CLOUDFLARE_API_TOKEN
-  cloudflare_observability:
-    url: "https://observability.mcp.cloudflare.com/mcp"
-    transport: "http"
-    allow_all_keys: true
-    auth_type: "bearer_token"
-    auth_value: os.environ/CLOUDFLARE_API_TOKEN
-  cloudflare_ai_gateway:
-    url: "https://ai-gateway.mcp.cloudflare.com/mcp"
-    transport: "http"
-    allow_all_keys: true
+  # Gateway/control cache on the Oracle litellm-redis instance. This is NOT the
+  # LMCache KV backend, which is a separate Redis on worker-rtx5090.
+  cache: true
+  cache_params:
+    type: redis
+    host: litellm-redis
+    port: 6379
+    ttl: 3600
+    namespace: "litellm.control"
+
+  # ---------------------------------------------------------------------------
+  # Default permissions for newly generated keys.
+  #
+  # In v1.99.1, `mcp_tool_search_enabled` exists ONLY as a field of
+  # ObjectPermissionDict (litellm/types/object_permission.py). There is no
+  # top-level litellm_settings flag and no LITELLM_MCP_TOOL_SEARCH_ENABLED env
+  # var. Verified by grepping the pinned image.
+  #
+  # The default grant is deliberately the MINIMUM useful surface: Tool Search on,
+  # but only the developer access group and only the free/local model aliases.
+  # Mortgage, admin and Cloudflare-mutating servers are never granted by default;
+  # those keys are created explicitly with their own object_permission.
+  # ---------------------------------------------------------------------------
+  default_key_generate_params:
+    object_permission:
+      mcp_tool_search_enabled: true
+      mcp_access_groups:
+        - nyra-dev
+      models:
+        - nyra-general
+        - nyra-fast
+        - nyra-coding
+
+  # ---------------------------------------------------------------------------
+  # MCP semantic tool filter.
+  #
+  # Canonical v1.99.1 block name — confirmed present in the pinned image's own
+  # proxy_config.yaml and implemented at
+  # litellm/proxy/hooks/mcp_semantic_filter/hook.py.
+  # `enable_semantic_tool_filtering` does not exist in v1.99.1 and is not used.
+  #
+  # Shipped DISABLED on purpose. The embedding alias `nyra-embedding` resolves to
+  # the worker-rtx5090 Ollama runtime, which currently listens on 127.0.0.1 only
+  # and is therefore unreachable from Oracle. Enabling a semantic filter against
+  # an unreachable embedder would break every MCP-bearing completion.
+  #
+  # Flip `enabled` to true ONLY after this returns a 200 with a 768-length vector
+  # from the Oracle host:
+  #   curl -sS http://100.64.0.3:4000/v1/embeddings \
+  #     -H "Authorization: Bearer $NYRA_LITELLM_DEV_KEY" \
+  #     -H 'Content-Type: application/json' \
+  #     -d '{"model":"nyra-embedding","input":"mortgage lead lookup"}'
+  # ---------------------------------------------------------------------------
+  mcp_semantic_tool_filter:
+    enabled: false
+    embedding_model: "nyra-embedding"
+    top_k: 5
+    similarity_threshold: 0.30
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY

@@ -1,0 +1,20 @@
+# LMCache V1 configuration — worker-rtx3090ti (100.64.0.13)
+#
+# Mounted read-only at /etc/lmcache/lmcache.yaml by the root compose
+# `worker-3090ti` profile, and selected via LMCACHE_CONFIG_FILE.
+#
+# remote_url points at the LMCache Redis that RUNS ON worker-rtx5090, reached
+# over Tailscale. Cross-instance KV reuse between the two GPU hosts depends on
+# both pointing at this same backend with the same chunk_size and serde.
+#
+# UNVALIDATED AGAINST LIVE HARDWARE: worker-rtx3090ti has been offline for 39
+# days (tailscale reports "idle; offline, last seen 39d ago") and could not be
+# reached during this migration. chunk_size and remote_serde must be re-checked
+# against the LMCache version actually installed on that host before first use.
+#
+# LMCACHE_USE_EXPERIMENTAL=True must remain an ENVIRONMENT VARIABLE, not a key
+# in this file.
+
+chunk_size: 256
+remote_url: "redis://100.64.0.11:6379"
+remote_serde: "naive"

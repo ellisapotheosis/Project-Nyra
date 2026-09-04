@@ -1,0 +1,284 @@
+# =============================================================================
+# Project-Nyra — canonical root Compose
+# =============================================================================
+# Docker Compose does NOT orchestrate containers across three remote machines.
+# This file declares host profiles; the deploy scripts run the right profile ON
+# THE RIGHT HOST over SSH/Tailscale.
+#
+#   on oracle-vps        : docker compose --profile oracle up -d
+#   on worker-rtx5090    : docker compose --profile worker-5090 up -d
+#   on worker-rtx3090ti  : docker compose --profile worker-3090ti up -d
+#
+# Use scripts/deploy/deploy-{oracle,worker-5090,worker-3090ti,all}.sh.
+#
+# Every production image reference is an immutable digest supplied through
+# infra/env/<host>.env. No floating tags.
+# =============================================================================
+
+name: project-nyra
+
+x-common-logging: &common-logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+x-common-security: &common-security
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  # ===========================================================================
+  # ORACLE PROFILE — control plane
+  # ===========================================================================
+
+  litellm-redis:
+    profiles: ["oracle"]
+    image: ${REDIS_IMAGE:?REDIS_IMAGE must be an immutable redis:7-alpine digest reference}
+    container_name: nyra-litellm-redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --maxmemory
+      - "2gb"
+      - --maxmemory-policy
+      - allkeys-lru
+    volumes:
+      - litellm-redis-data:/data
+    networks:
+      - nyra-control
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *common-logging
+    <<: *common-security
+
+  litellm:
+    profiles: ["oracle"]
+    image: ${LITELLM_IMAGE:?LITELLM_IMAGE must be an immutable verified LiteLLM v1.99.1 image reference}
+    container_name: nyra-litellm
+    restart: unless-stopped
+    command:
+      - --config
+      - /app/config.yaml
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "4000"
+    env_file:
+      - ${NYRA_ORACLE_RUNTIME_ENV:?NYRA_ORACLE_RUNTIME_ENV must point to an Infisical-rendered runtime env file}
+    volumes:
+      - ./infra/configs/litellm/config.yaml:/app/config.yaml:ro
+    # Tailnet-only. Never 0.0.0.0 - oracle-vps is a public cloud VM.
+    # Cloudflare Access + cloudflared is the only public ingress.
+    ports:
+      - "100.64.0.3:4000:4000"
+    depends_on:
+      litellm-redis:
+        condition: service_healthy
+    networks:
+      - nyra-control
+    healthcheck:
+      # /health/readiness is unauthenticated. /health is NOT - it requires the
+      # master key and would make this healthcheck permanently unhealthy.
+      test:
+        [
+          "CMD-SHELL",
+          "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:4000/health/readiness', timeout=8)\"",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    logging: *common-logging
+    <<: *common-security
+
+  omniroute:
+    profiles: ["oracle"]
+    image: ${OMNIROUTE_IMAGE:?OMNIROUTE_IMAGE must be set to the pinned image/build produced from the currently adopted OmniRoute source}
+    container_name: nyra-omniroute
+    restart: unless-stopped
+    env_file:
+      - ${NYRA_ORACLE_RUNTIME_ENV:?NYRA_ORACLE_RUNTIME_ENV must be set}
+    volumes:
+      - omniroute-data:/data
+    # Only LiteLLM consumes OmniRoute, so loopback is sufficient and port 20128
+    # is never published publicly.
+    ports:
+      - "127.0.0.1:20128:20128"
+    networks:
+      - nyra-control
+    logging: *common-logging
+    <<: *common-security
+
+  # ===========================================================================
+  # WORKER-5090 PROFILE — primary inference + LMCache backend
+  # ===========================================================================
+
+  lmcache-redis:
+    profiles: ["worker-5090"]
+    image: ${REDIS_IMAGE:?REDIS_IMAGE must be an immutable redis:7-alpine digest reference}
+    container_name: nyra-lmcache-redis
+    restart: unless-stopped
+    # No persistence: KV tensors are regenerable and high-churn. This instance
+    # is deliberately SEPARATE from the Oracle litellm-redis control cache.
+    command:
+      - redis-server
+      - --appendonly
+      - "no"
+      - --save
+      - ""
+      - --maxmemory
+      - ${LMCACHE_REDIS_MAXMEMORY:?Set from measured worker-rtx5090 system RAM - do not guess}
+      - --maxmemory-policy
+      - allkeys-lru
+    ports:
+      - "100.64.0.11:6379:6379"
+    networks:
+      - lmcache-local
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *common-logging
+    <<: *common-security
+
+  vllm-5090:
+    profiles: ["worker-5090"]
+    image: ${VLLM_IMAGE:?VLLM_IMAGE must be pinned to the validated vLLM/LMCache-compatible release}
+    container_name: nyra-vllm-5090
+    restart: unless-stopped
+    network_mode: host
+    ipc: host
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
+      LMCACHE_USE_EXPERIMENTAL: "True"
+      LMCACHE_CONFIG_FILE: /etc/lmcache/lmcache.yaml
+    volumes:
+      - ${HF_CACHE_DIR:-${HOME}/.cache/huggingface}:/root/.cache/huggingface
+      - ./infra/configs/lmcache/worker-rtx5090.yaml:/etc/lmcache/lmcache.yaml:ro
+    command:
+      - ${VLLM_MODEL_5090:?Set to the verified locally deployed model}
+      - --host
+      - "100.64.0.11"
+      - --port
+      - "8000"
+      - --served-model-name
+      - ${VLLM_SERVED_NAME_5090:?Set to the stable LiteLLM-facing served name}
+      - --gpu-memory-utilization
+      - ${VLLM_GPU_MEMORY_UTILIZATION_5090:-0.88}
+      - --max-model-len
+      - ${VLLM_MAX_MODEL_LEN_5090:?Set after VRAM validation on the 24 GB device}
+      - --kv-transfer-config
+      - '{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}'
+    depends_on:
+      lmcache-redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ["gpu"]
+    logging: *common-logging
+    <<: *common-security
+
+  # ===========================================================================
+  # WORKER-3090TI PROFILE — secondary inference
+  # ===========================================================================
+
+  vllm-3090ti:
+    profiles: ["worker-3090ti"]
+    image: ${VLLM_IMAGE:?VLLM_IMAGE must be pinned}
+    container_name: nyra-vllm-3090ti
+    restart: unless-stopped
+    network_mode: host
+    ipc: host
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
+      LMCACHE_USE_EXPERIMENTAL: "True"
+      LMCACHE_CONFIG_FILE: /etc/lmcache/lmcache.yaml
+    volumes:
+      - ${HF_CACHE_DIR:-${HOME}/.cache/huggingface}:/root/.cache/huggingface
+      - ./infra/configs/lmcache/worker-rtx3090ti.yaml:/etc/lmcache/lmcache.yaml:ro
+    command:
+      - ${VLLM_MODEL_3090TI:?Set to the verified locally deployed model}
+      - --host
+      - "100.64.0.13"
+      - --port
+      - "8000"
+      - --served-model-name
+      - ${VLLM_SERVED_NAME_3090TI:?Set to the stable LiteLLM-facing served name}
+      - --gpu-memory-utilization
+      - ${VLLM_GPU_MEMORY_UTILIZATION_3090TI:-0.88}
+      - --max-model-len
+      - ${VLLM_MAX_MODEL_LEN_3090TI:?Set after VRAM validation}
+      - --kv-transfer-config
+      - '{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}'
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ["gpu"]
+    logging: *common-logging
+    <<: *common-security
+
+  # ===========================================================================
+  # AGENT-CONTAINERIZED PROFILE — reproducible CI / sandbox use ONLY
+  # ===========================================================================
+  # For interactive development on worker-rtx5090, prefer the officially
+  # supported HOST-NATIVE installation of ClawTeam and OpenHarness. They
+  # coordinate CLI agents and interactive auth; forcing Claude Code's
+  # OS/browser/keychain authentication into a container for architectural purity
+  # breaks it. These profiles exist for CI reproducibility, not daily driving.
+
+  clawteam:
+    profiles: ["agent-containerized"]
+    image: ${CLAWTEAM_IMAGE:?Only enable this profile after creating/pinning the verified ClawTeam runtime image}
+    container_name: nyra-clawteam
+    restart: "no"
+    network_mode: host
+    env_file:
+      - ${NYRA_AGENT_RUNTIME_ENV:?NYRA_AGENT_RUNTIME_ENV must be an Infisical-rendered scoped environment}
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    stdin_open: true
+    tty: true
+    logging: *common-logging
+    <<: *common-security
+
+  openharness:
+    profiles: ["agent-containerized"]
+    image: ${OPENHARNESS_IMAGE:?Only enable this profile after creating/pinning the verified OpenHarness runtime image}
+    container_name: nyra-openharness
+    restart: "no"
+    network_mode: host
+    env_file:
+      - ${NYRA_AGENT_RUNTIME_ENV:?NYRA_AGENT_RUNTIME_ENV must be an Infisical-rendered scoped environment}
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    stdin_open: true
+    tty: true
+    logging: *common-logging
+    <<: *common-security
+
+networks:
+  nyra-control:
+    driver: bridge
+
+  lmcache-local:
+    driver: bridge
+
+volumes:
+  litellm-redis-data:
+  omniroute-data:
