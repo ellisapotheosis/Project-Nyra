@@ -25,7 +25,7 @@ This integration provides secure, centralized management of Cloudflare tunnel to
 │  Paths:                                                      │
 │  /nyra/orchestrator     → Orchestrator tunnel token         │
 │  /nyra/worker-rtx5090   → Worker RTX 5090 tunnel token     │
-│  /nyra/worker-rtx3060   → Worker RTX 3060 tunnel token     │
+│ /nyra/ → Worker RTX 3060 tunnel token │
 │  /nyra/worker-rtx3090ti → Worker RTX 3090Ti tunnel token   │
 └──────────────────┬──────────────────────────────────────────┘
                    │
@@ -96,13 +96,13 @@ cloudflared login
 # Create tunnels
 cloudflared tunnel create nyra-orchestrator
 cloudflared tunnel create nyra-worker-rtx5090
-cloudflared tunnel create nyra-worker-rtx3060
+cloudflared tunnel create nyra-
 cloudflared tunnel create nyra-worker-rtx3090ti
 
 # Get tunnel tokens (these will be stored in Infisical)
 cloudflared tunnel token nyra-orchestrator
 cloudflared tunnel token nyra-worker-rtx5090
-cloudflared tunnel token nyra-worker-rtx3060
+cloudflared tunnel token nyra-
 cloudflared tunnel token nyra-worker-rtx3090ti
 ```
 
@@ -115,7 +115,6 @@ Create service accounts in Infisical for each service:
 3. Create service accounts:
    - `orchestrator-cloudflare`
    - `worker-rtx5090-cloudflare`
-   - `worker-rtx3060-cloudflare`
    - `worker-rtx3090ti-cloudflare`
 4. Save the Client ID and Client Secret for each
 
@@ -139,8 +138,6 @@ INFISICAL_CLIENT_ID_WORKER_RTX5090=your-worker-rtx5090-client-id
 INFISICAL_CLIENT_SECRET_WORKER_RTX5090=your-worker-rtx5090-client-secret
 
 # Worker RTX 3060 Infisical Credentials
-INFISICAL_CLIENT_ID_WORKER_RTX3060=your-worker-rtx3060-client-id
-INFISICAL_CLIENT_SECRET_WORKER_RTX3060=your-worker-rtx3060-client-secret
 
 # Worker RTX 3090Ti Infisical Credentials
 INFISICAL_CLIENT_ID_WORKER_RTX3090TI=your-worker-rtx3090ti-client-id
@@ -163,8 +160,6 @@ CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX5090=eyJhIjoiZGVm...
 CLOUDFLARE_TUNNEL_NAME_WORKER_RTX5090=nyra-worker-rtx5090
 
 # Worker RTX 3060
-CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3060=eyJhIjoiZ2hp...
-CLOUDFLARE_TUNNEL_NAME_WORKER_RTX3060=nyra-worker-rtx3060
 
 # Worker RTX 3090Ti
 CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3090TI=eyJhIjoiamts...
@@ -267,7 +262,7 @@ docker logs nyra-cloudflared-orchestrator
 
 # Check worker tunnels
 docker logs nyra-cloudflared-worker-rtx5090
-docker logs nyra-cloudflared-worker-rtx3060
+docker logs nyra-cloudflared-
 docker logs nyra-cloudflared-worker-rtx3090ti
 ```
 
@@ -382,7 +377,7 @@ Project-Nyra/
 │           ├── cloudflare-secrets-schema.json
 │           ├── agent-orchestrator.yaml
 │           ├── agent-worker-rtx5090.yaml
-│           ├── agent-worker-rtx3060.yaml
+│ ├── agent-
 │           └── agent-worker-rtx3090ti.yaml
 ├── scripts/
 │   └── infisical/

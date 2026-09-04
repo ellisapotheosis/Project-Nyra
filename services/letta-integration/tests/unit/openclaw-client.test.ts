@@ -95,11 +95,10 @@ describe("OpenClaw / PicoClaw Client & Mock Dispatcher", () => {
     const mockClient = new MockOpenClawClient();
     const result = await mockClient.dispatchTask({
       task: "Run local model inference",
-      worker: "worker-rtx3060",
     });
 
     expect(result.success).toBe(true);
-    expect(result.worker).toBe("worker-rtx3060");
+ expect(result.worker).toBe;
     expect(result.status).toBe("completed");
     expect(result.output).toContain("completed");
   });

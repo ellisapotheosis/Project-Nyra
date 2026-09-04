@@ -54,7 +54,6 @@
 | Node             | Tailscale IP    | Role                         | GPU                | Status   |
 | ---------------- | --------------- | ---------------------------- | ------------------ | -------- |
 | Orchestrator     | 100.87.235.78   | Control Plane + All Services | None               | ✅       |
-| worker-rtx3060   | 100.107.188.97  | Ollama + Local Models        | RTX 3060 (8GB)     | ⏳ SETUP |
 | worker-rtx5090   | 100.102.204.112 | vLLM + LMCache               | RTX 5090 (32GB)    | ⏳ SETUP |
 | worker-rtx3090ti | [GET IP]        | vLLM + LMCache               | RTX 3090 Ti (24GB) | ⏳ SETUP |
 
@@ -846,7 +845,7 @@ project-nyra/
 │   │   │   ├── docker-compose.nexus.yml
 │   │   │   └── .env.example
 │   │   │
-│   │   ├── worker-rtx3060/
+│ │ ├── /
 │   │   │   ├── docker-compose.yml          # Ollama + local models
 │   │   │   ├── .env.example
 │   │   │   ├── models/                     # Model configs
@@ -864,7 +863,7 @@ project-nyra/
 │   │
 │   ├── cloudflared/
 │   │   ├── orchestrator-config.yml
-│   │   ├── worker-rtx3060-config.yml
+│ │ ├── -config.yml
 │   │   ├── worker-rtx5090-config.yml
 │   │   └── worker-rtx3090ti-config.yml
 │   │
@@ -934,7 +933,7 @@ mv infra/*.bak _infra-archived/ 2>/dev/null || true
 mv infra/deprecated/* _infra-archived/ 2>/dev/null || true
 
 # Create new structure
-mkdir -p infra/docker/{orchestrator,worker-rtx3060,worker-rtx5090,worker-rtx3090ti}
+mkdir -p infra/docker/{orchestrator,worker-rtx5090,worker-rtx3090ti}
 mkdir -p infra/cloudflared
 mkdir -p infra/tailscale
 mkdir -p infra/scripts
@@ -944,7 +943,7 @@ mv *.yml infra/cloudflared/ 2>/dev/null || true
 mv cloudflared-configs/* infra/cloudflared/ 2>/dev/null || true
 
 # Create worker README files
-for worker in rtx3060 rtx5090 rtx3090ti; do
+for worker in rtx5090 rtx3090ti; do
   cat > infra/docker/worker-$worker/README.md << EOF
 # Worker: $worker
 
@@ -958,7 +957,7 @@ for worker in rtx3060 rtx5090 rtx3090ti; do
 3. Run: docker-compose up -d
 
 ## Models
-$(if [[ "$worker" == "rtx3060" ]]; then
+$(if [[ "$worker" == ]]; then
   echo "- Using Ollama for smaller models (8GB VRAM limit)"
 else
   echo "- Using vLLM + LMCache for larger models"
@@ -979,7 +978,6 @@ echo "✅ Cleanup complete"
 **Role:** Ollama + smaller models (≤7B parameters)
 
 ```yaml
-# infra/docker/worker-rtx3060/docker-compose.yml
 version: "3.8"
 
 services:
@@ -1009,7 +1007,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - WORKER_NAME=worker-rtx3060
       - WORKER_TYPE=ollama
       - ORCHESTRATOR_IP=100.87.235.78
       - OLLAMA_HOST=http://ollama:11434
@@ -1622,7 +1619,6 @@ Key features to replicate:
 
 ## Day 4: Worker Setup
 
-- [ ] Setup worker-rtx3060 with Ollama
 - [ ] Setup worker-rtx5090 with vLLM
 - [ ] Setup worker-rtx3090ti with vLLM
 - [ ] Test inference from orchestrator

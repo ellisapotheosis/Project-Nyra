@@ -37,7 +37,6 @@
 | -------------------------------- | ---------------- | ------- | ----------------- |
 | `litellm/nyra/local-interactive` | RTX5090 (24GB)   | 32K     | ✅ Configured     |
 | `litellm/nyra/local-stable`      | RTX3090Ti (24GB) | 24K     | ✅ Configured     |
-| `litellm/nyra/local-utility`     | RTX3060 (6GB)    | 8K      | ✅ Configured     |
 | `litellm/nyra/free`              | OmniRoute        | 32K     | ✅ Fallback ready |
 
 ---
@@ -127,8 +126,8 @@ Go to [tailscale.com/admin/dns](https://tailscale.com/admin/dns) → **Split DNS
 Add these entries:
 
 ```
-openclaw.projectnyra.com    → 100.64.0.12  (orchestrator)
-litellm.projectnyra.com     → 100.64.0.12  (orchestrator)
+openclaw.projectnyra.com → (orchestrator)
+litellm.projectnyra.com → (orchestrator)
 qdrant.projectnyra.com      → 100.64.0.3   (oracle-vps)
 mem0.projectnyra.com        → 100.64.0.3   (oracle-vps)
 ```
@@ -137,7 +136,6 @@ mem0.projectnyra.com        → 100.64.0.3   (oracle-vps)
 
 ```powershell
 nslookup openclaw.projectnyra.com
-# Should resolve to 100.64.0.12
 ```
 
 ### WSL2 Auto-Inherits
@@ -242,7 +240,7 @@ orchestrator:18789 (Gateway)
 LiteLLM:4000 ← Routes to GPUs
     ├─→ worker-rtx5090 (local-interactive, 24GB)
     ├─→ worker-rtx3090ti (local-stable, 24GB)
-    ├─→ worker-rtx3060 (local-utility, 6GB Ollama)
+ ├─→ (local-utility, 6GB Ollama)
     └─→ OmniRoute (free tier fallback)
 
 Memory Pipeline
@@ -273,7 +271,7 @@ Mem0 memory plugin
 
 1. **Fully functional OpenClaw Gateway** on orchestrator
 2. **4 production-ready agents** with distinct roles
-3. **Local GPU routing** via LiteLLM (RTX5090 → RTX3090Ti → RTX3060 → free)
+3. **Local GPU routing** via LiteLLM (RTX5090 → RTX3090Ti → → free)
 4. **Memory stack** (Mem0 + Qdrant + FalkorDB) for knowledge persistence
 5. **Infisical secret injection** for runtime security
 6. **Tailscale private networking** (no SSH tunnels needed)
@@ -333,12 +331,6 @@ ls -la ~/.openclaw/agents/main/agent/auth-profiles.json
 
 - [ ] Windows Tailscale running?
 - [ ] WSL2 using mirrored networking? (check `wsl --list --verbose`)
-- [ ] Fallback: use Tailscale IP directly (`100.64.0.12`)
-
----
-
-## 📞 Support
-
 - **OpenClaw docs:** https://docs.openclaw.ai/
 - **LiteLLM docs:** https://docs.litellm.ai/
 - **Tailscale docs:** https://tailscale.com/kb/

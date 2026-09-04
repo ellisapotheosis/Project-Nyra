@@ -25,9 +25,6 @@ $machines = @(
         Path = "/hosts/orchestrator"
     },
     @{
-        Name = "worker-rtx3060"
-        File = "worker-rtx3060.env"
-        Path = "/hosts/worker-rtx3060"
     },
     @{
         Name = "worker-rtx5090"

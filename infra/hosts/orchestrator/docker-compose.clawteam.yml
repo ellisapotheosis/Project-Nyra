@@ -9,9 +9,6 @@ services:
       - CLAWTEAM_ROLE=primary
       - CLAWTEAM_HOST=orchestrator
       - CLAWTEAM_MEMORY_LIMIT=5g
-      - CLAWTEAM_FALLBACK_REPLICA=worker-rtx3060:9002
-      - WORKER_NODES=["worker-rtx5090", "worker-rtx3090ti", "worker-rtx3060"]
-      # Nerve remains colocated with OpenClaw on worker-rtx5090.
       - NERVE_UI_ENABLED=false
       - LITELLM_API_URL=http://100.64.0.3:4000
       # Nexus runs on oracle-vps, not in the orchestrator Compose network.

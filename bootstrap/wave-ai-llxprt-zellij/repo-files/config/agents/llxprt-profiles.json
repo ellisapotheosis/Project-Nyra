@@ -102,12 +102,12 @@
     "nyra-worker-3060": {
       "provider": "openai-compatible",
       "model": "local-3060",
-      "baseUrl": "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1"
+ "baseUrl": "http:///v1"
     },
     "nyra-worker-3060-embeddings": {
       "provider": "openai-compatible",
       "model": "nomic-embed-text",
-      "baseUrl": "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1",
+ "baseUrl": "http:///v1",
       "notes": "Utility embedding/extraction lane. Keep 3060 as background memory/extraction worker by default; OpenClaw/PicoClaw is opt-in via make wave-stack-up-3060."
     }
   }

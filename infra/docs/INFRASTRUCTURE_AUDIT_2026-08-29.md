@@ -117,7 +117,6 @@
 | ------------------------------ | ----------- | -------------------------- |
 | `nerve-5090.projectnyra.com`   | 100.64.0.11 | NerveUI (worker-rtx5090)   |
 | `nerve-3090ti.projectnyra.com` | 100.64.0.13 | NerveUI (worker-rtx3090ti) |
-| `nerve-3060.projectnyra.com`   | 100.64.0.12 | NerveUI (worker-rtx3060)   |
 
 ---
 

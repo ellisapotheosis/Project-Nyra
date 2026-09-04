@@ -2,8 +2,6 @@
 
 ## Files
 
-- `infra/workers/worker-rtx3060/docker-compose.voice.yml`: base single-node Unmute runtime for Nerve UI.
-- `infra/workers/worker-rtx3060/docker-compose.kyutai-mesh.yml`: RTP/WebRTC ingress, jitter buffer, VAD, codec, fallback decode.
 - `infra/workers/worker-rtx3090ti/docker-compose.kyutai-mesh.yml`: streaming STT and LLM bridge.
 - `infra/workers/worker-rtx5090/docker-compose.kyutai-mesh.yml`: session coordinator, streaming TTS, outbound RTP mux.
 
@@ -12,7 +10,6 @@
 Set these on all three workers:
 
 ```bash
-RTX3060_LAN_IP=192.168.1.36
 RTX3090TI_LAN_IP=192.168.1.39
 RTX5090_LAN_IP=192.168.1.50
 VOICE_PTP_INTERFACE=eno1
@@ -23,13 +20,13 @@ MEMORY_BASE_URL=http://oracle-vps.lan:5000
 
 ## Media Route
 
-1. Phone/WebRTC audio lands on `worker-rtx3060:${VOICE_RTP_PORT_RANGE:-41000-41199}`.
+1. Phone/WebRTC audio lands on `:${VOICE_RTP_PORT_RANGE:-41000-41199}`.
 2. `voice-ingress` normalizes audio to 24 kHz mono PCM, slices 10 ms frames, applies jitter control, and posts voiced frames to `kyutai-vad-codec`.
 3. Voiced frames stream over LAN WebSocket to `worker-rtx3090ti:18200`.
 4. `kyutai-stt-stream` emits partial hypotheses every 80 ms to `voice-llm-bridge`.
 5. `voice-llm-bridge` sends partial and final turn context to the assistant gateway, then forwards response deltas to `worker-rtx5090:18300`.
 6. `kyutai-tts-stream` performs speculative low-latency synthesis and emits RTP chunks to the egress mux.
-7. `voice-egress-mux` sends the synchronized outbound audio route back through `voice-ingress` signaling on `worker-rtx3060:18080` so the original call session owns NAT, SSRC, and teardown.
+7. `voice-egress-mux` sends the synchronized outbound audio route back through `voice-ingress` signaling on `` so the original call session owns NAT, SSRC, and teardown.
 
 ## Sync Rules
 
@@ -41,8 +38,7 @@ MEMORY_BASE_URL=http://oracle-vps.lan:5000
 ## Startup
 
 ```bash
-# worker-rtx3060
-docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/workers/worker-rtx3060/docker-compose.kyutai-mesh.yml up -d
+docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/workers//docker-compose.kyutai-mesh.yml up -d
 
 # worker-rtx3090ti
 docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/workers/worker-rtx3090ti/docker-compose.kyutai-mesh.yml up -d
@@ -54,7 +50,7 @@ docker compose --env-file /srv/nyra/env/voice-mesh.env -f infra/workers/worker-r
 ## Smoke Checks
 
 ```bash
-curl -fsS http://${RTX3060_LAN_IP}:18100/health
+curl -fsS http://${}:18100/health
 curl -fsS http://${RTX3090TI_LAN_IP}:18250/health
 curl -fsS http://${RTX5090_LAN_IP}:18400/health
 ```

@@ -57,7 +57,6 @@
 | Node                 | Tailscale IP    | Hardware                         | Role           | Status     |
 | -------------------- | --------------- | -------------------------------- | -------------- | ---------- |
 | **Orchestrator**     | 100.87.235.78   | AMD Ryzen 7                      | Control Plane  | ✅ RUNNING |
-| **worker-rtx3060**   | 100.107.188.97  | Alienware M15R7, RTX 3060 8GB    | Ollama         | ⏳ SETUP   |
 | **worker-rtx5090**   | 100.102.204.112 | Alienware Area-51, RTX 5090 32GB | vLLM + LMCache | ⏳ SETUP   |
 | **worker-rtx3090ti** | [GET IP]        | Intel i7-12700, RTX 3090Ti 24GB  | vLLM + LMCache | ⏳ SETUP   |
 
@@ -254,7 +253,7 @@ project-nyra/
 │   │   │   ├── docker-compose.nexus.yml
 │   │   │   └── .env.example
 │   │   │
-│   │   ├── worker-rtx3060/           # Alienware M15R7 laptop
+│ │ ├── / # Alienware M15R7 laptop
 │   │   │   ├── docker-compose.yml    # Ollama
 │   │   │   ├── .env.example
 │   │   │   ├── models.txt            # Models to pull
@@ -272,7 +271,7 @@ project-nyra/
 │   │
 │   ├── cloudflared/
 │   │   ├── orchestrator-config.yml
-│   │   ├── worker-rtx3060-config.yml
+│ │ ├── -config.yml
 │   │   ├── worker-rtx5090-config.yml
 │   │   └── worker-rtx3090ti-config.yml
 │   │
@@ -354,7 +353,7 @@ find infra -maxdepth 2 -type f \( \
 \) -exec mv {} _infra-archived/old-configs/ \; 2>/dev/null
 
 # Create new structure
-mkdir -p infra/docker/{orchestrator,worker-rtx3060,worker-rtx5090,worker-rtx3090ti}
+mkdir -p infra/docker/{orchestrator,worker-rtx5090,worker-rtx3090ti}
 mkdir -p infra/cloudflared
 mkdir -p infra/tailscale
 mkdir -p infra/scripts
@@ -1295,7 +1294,6 @@ echo "✨ Memory verification complete!"
 **Role:** Ollama for smaller models
 
 ```yaml
-# infra/docker/worker-rtx3060/docker-compose.yml
 version: "3.8"
 
 services:
@@ -1324,7 +1322,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - WORKER_NAME=worker-rtx3060
       - WORKER_TYPE=ollama
       - OLLAMA_HOST=http://ollama:11434
       - ORCHESTRATOR_IP=100.87.235.78
@@ -1358,7 +1355,6 @@ volumes:
 **Models to pull (8GB VRAM limit):**
 
 ```bash
-# infra/docker/worker-rtx3060/models.txt
 llama3.2:3b          # Fast general purpose
 phi3:mini            # Microsoft's efficient model
 nomic-embed-text     # Embeddings

@@ -90,7 +90,7 @@ From orchestrator-mini or any PC in your Tailscale network:
 curl http://100.83.23.49:11434/api/tags
 
 # Via MagicDNS
-curl http://worker-rtx3060.tail558973.ts.net:11434/api/tags
+curl http:///api/tags
 
 # Generate code remotely
 curl http://100.83.23.49:11434/api/generate -d '{
@@ -158,7 +158,6 @@ WORKER_3060_URL=http://100.83.23.49:11434
 WORKER_3060_MODELS=qwen2.5-coder:7b,llama3.1:8b,nomic-embed-text
 
 # Or use MagicDNS
-WORKER_3060_URL=http://worker-rtx3060.tail558973.ts.net:11434
 ```
 
 Then test through Nexus Router:
@@ -178,10 +177,9 @@ curl http://localhost:6000/v1/chat/completions \
 
 To expose via the internet:
 
-1. **Configure tunnel** (~/.cloudflared/config-worker-rtx3060.yaml):
+1. **Configure tunnel** (~/.cloudflared/config-):
 
 ```yaml
-tunnel: worker-rtx3060
 credentials-file: ~/.cloudflared/33d0dc8b-4a1f-4f31-b482-5309171ffdf8.json
 
 ingress:
@@ -193,7 +191,7 @@ ingress:
 2. **Start tunnel**:
 
 ```bash
-cloudflared tunnel run --config ~/.cloudflared/config-worker-rtx3060.yaml worker-rtx3060
+cloudflared tunnel run --config ~/.cloudflared/config-
 ```
 
 3. **Test from anywhere**:
@@ -255,8 +253,6 @@ curl http://localhost:11434/api/generate -d '{"model": "llama3.1:8b", "keep_aliv
 
 ## 📖 More Documentation
 
-- **Detailed setup**: `WORKER-RTX3060-SETUP.md`
-- **Current status**: `WORKER-RTX3060-STATUS.md`
 - **Cluster overview**: `CLUSTER-SETUP-GUIDE.md`
 - **Project config**: `../../CLAUDE.md`
 

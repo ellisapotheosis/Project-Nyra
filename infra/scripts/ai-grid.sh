@@ -67,7 +67,6 @@ PANE_3_CMD="$(shell_fallback_cmd "codex" "${CODEX_CMD}" "codex")"
 PANE_4_CMD="$(shell_fallback_cmd "gemini" "${GEMINI_CMD}" "gemini")"
 PANE_5_CMD="$(remote_monitor_cmd "${HOST_5090}" "RTX 5090 vLLM" "worker-5090-vllm" "nyra-vllm-worker-rtx5090")"
 PANE_6_CMD="$(remote_monitor_cmd "${HOST_3090}" "RTX 3090 Ti vLLM" "worker-3090-vllm" "nyra-worker-rtx3090ti-vllm")"
-PANE_7_CMD="$(remote_monitor_cmd "${HOST_3060}" "RTX 3060 Ollama" "worker-3060-ollama" "nyra-worker-rtx3060-ollama")"
 
 tmux new-session -d -s "${SESSION_NAME}" -c "${PROJECT_ROOT}"
 tmux set-option -t "${SESSION_NAME}" remain-on-exit on

@@ -89,11 +89,7 @@ services:
     entrypoint: |
       /bin/sh -c '
       while true; do
-        if [ "$(echo $WORKER_NAME)" = "rtx-3060" ]; then
-          curl -f http://ollama:11434/api/tags || echo "Ollama health check failed"
-        else
-          curl -f http://vllm:8000/health || echo "vLLM health check failed"
-        fi
+        curl -f http://vllm:8000/health || echo "vLLM health check failed"
         sleep 60
       done
       '

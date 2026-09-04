@@ -80,7 +80,7 @@ model_list:
 
   # ---------------------------------------------------------------------------
   # Embedding lane.
-  # Moved off the retired worker-rtx3060 onto worker-rtx5090 WITHOUT changing
+  # Moved off the retired third GPU worker onto worker-rtx5090 WITHOUT changing
   # the model, so the existing 768-dimension Qdrant collections stay valid.
   # nomic-embed-text is 137M params / 0.27 GB and does not materially reduce
   # primary inference availability on a 24 GB GPU.

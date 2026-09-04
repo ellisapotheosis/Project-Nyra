@@ -59,7 +59,6 @@
 
 5. **Phase 5: Orchestrator configuration patches**
    - Test agent invocation (main → litellm/nyra/local-interactive)
-   - Verify model routing (RTX5090 → RTX3090Ti → RTX3060)
    - Test memory roundtrip (store fact → Mem0 → Qdrant)
    - Validate Infisical secret injection in agent context
 

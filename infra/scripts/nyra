@@ -16,7 +16,6 @@ BASE_COMPOSE="${INFRA_DIR}/docker-compose.yml"
 OVERRIDE_DIR="${INFRA_DIR}/compose/overrides"
 ENV_DIR="${INFRA_DIR}/env"
 
-VALID_NODES=("orchestrator" "worker-rtx3060" "worker-rtx5090" "worker-rtx3090ti")
 
 usage() {
   cat <<'EOF'
@@ -37,7 +36,7 @@ Commands:
   ports     Show all host port bindings (per node or all)
 
 Arguments:
-  node      orchestrator | worker-rtx3060 | worker-rtx5090 | worker-rtx3090ti
+ node orchestrator | | worker-rtx5090 | worker-rtx3090ti
   profiles  comma-separated compose profiles (optional)
   service   optional service name for logs/restart
 

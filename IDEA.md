@@ -1997,7 +1997,6 @@ Target responsibilities:
 
 Do not assume 32 GB or 48 GB VRAM. The known target is a 24 GB RTX 5090 unless actual hardware inspection proves otherwise.
 
-## 16.5 `worker-rtx3060`
 
 Utility GPU and memory-processing worker.
 
@@ -2086,7 +2085,7 @@ The following matrix describes the preferred target ownership. The repository an
 | Nexus Router | Orchestrator behind LiteLLM | Oracle legacy deployment | Private |
 | Hermes | `worker-rtx3090ti` | Central LiteLLM cloud/local fallback | A2A private |
 | Heavy coding/reasoning | `worker-rtx5090` | Cloud coding agents | Private |
-| Embeddings/extraction | `worker-rtx3060` | 3090 Ti when idle | Private |
+| Embeddings/extraction | `` | 3090 Ti when idle | Private |
 | Twenty CRM | Oracle durable plane or explicitly selected authoritative host | Orchestrator development instance | Access-gated |
 | Supabase | Oracle durable plane | Managed Supabase only by explicit decision | Public API with RLS; admin private |
 | CRM API | Oracle durable plane | Orchestrator development | Authenticated |
@@ -2300,7 +2299,7 @@ Project-Nyra/
 │   │   ├── oracle-vps/
 │   │   ├── worker-rtx5090/
 │   │   ├── worker-rtx3090ti/
-│   │   ├── worker-rtx3060/
+│ │ ├── /
 │   │   └── _templates/
 │   ├── configs/
 │   ├── images/
@@ -2536,7 +2535,7 @@ Example logical paths:
 /hosts/oracle-vps
 /hosts/worker-rtx5090
 /hosts/worker-rtx3090ti
-/hosts/worker-rtx3060
+/hosts/
 /apps/ratehunter
 /apps/projectnyra-landing
 /apps/projectnyra

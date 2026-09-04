@@ -91,7 +91,6 @@ Get-Content ..\..\..\.env | ForEach-Object {
 
 ### Worker Secrets
 
-- **PC2 RTX 3060** (/worker-rtx3060): Ollama configuration
 - **PC3 RTX 5090** (/worker-rtx5090): vLLM + LMCache settings
 - **PC4 RTX 3090 Ti** (/worker-rtx3090ti): vLLM + LMCache settings
 
@@ -126,7 +125,7 @@ infisical access grant admin@ratehunter.com --role admin --path /orchestrator
 infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/shared --path=/orchestrator -- docker-compose -f docker-compose.orchestrator.yml up -d
 
 # PC2 (RTX 3060)
-infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/shared --path=/worker-rtx3060 -- docker-compose -f docker-compose.worker-rtx3060.yml up -d
+infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/shared --path=/ -- docker-compose -f docker-compose. up -d
 
 # PC3 (RTX 5090)
 infisical run --token="$INFISICAL_TOKEN" --projectId="$INFISICAL_PROJECT_ID" --env=production --path=/shared --path=/worker-rtx5090 -- docker-compose -f docker-compose.worker-rtx5090.yml up -d

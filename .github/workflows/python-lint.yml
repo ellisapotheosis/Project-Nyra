@@ -14,7 +14,6 @@ env:
     services
     infra/ai-reviewer
     infra/github-sync
-    infra/hosts/worker-rtx3060/embedding-service
     tests/infra
   PYTHON_FORMAT_PATHS: >-
     services/nyra-mcp/server.py

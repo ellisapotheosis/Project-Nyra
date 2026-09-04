@@ -43,7 +43,6 @@ check_tcp() {
 ORCH="${NYRA_ORCH_HOST:-orchestrator.trex-fiordland.ts.net}"
 W5090="${NYRA_W5090_HOST:-worker-rtx5090.trex-fiordland.ts.net}"
 W3090="${NYRA_W3090_HOST:-worker-rtx3090ti.trex-fiordland.ts.net}"
-W3060="${NYRA_W3060_HOST:-worker-rtx3060.trex-fiordland.ts.net}"
 
 results=()
 results+=("$(check_http "nexus" "http://$ORCH:6000/health")")

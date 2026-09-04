@@ -86,4 +86,3 @@ archive/20260307/infra/
 ## Canonical topology retained
 - **Oracle VM:** data + workflow infra (Postgres/Ruvector/Twenty/Activepieces/n8n + service workloads).
 - **Orchestrator home control plane:** Nexus routing, secrets tooling, observability, operator interfaces.
-- **Workers (3 PCs):** `worker-rtx3060`, `worker-rtx3090ti`, `worker-rtx5090`.

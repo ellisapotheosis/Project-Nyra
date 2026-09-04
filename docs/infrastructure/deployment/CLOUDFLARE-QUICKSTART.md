@@ -33,7 +33,7 @@ cloudflared login
 # Create tunnels (adjust names as needed)
 cloudflared tunnel create nyra-orchestrator
 cloudflared tunnel create nyra-worker-rtx5090
-cloudflared tunnel create nyra-worker-rtx3060
+cloudflared tunnel create nyra-
 cloudflared tunnel create nyra-worker-rtx3090ti
 ```
 
@@ -44,7 +44,6 @@ cloudflared tunnel create nyra-worker-rtx3090ti
 3. Create 4 service accounts:
    - `orchestrator-cloudflare`
    - `worker-rtx5090-cloudflare`
-   - `worker-rtx3060-cloudflare`
    - `worker-rtx3090ti-cloudflare`
 4. Copy Client ID and Client Secret for each
 
@@ -189,7 +188,7 @@ infisical secrets get --env=production --path=/nyra/orchestrator CLOUDFLARE_TUNN
 │   ├── cloudflare-secrets-schema.json  # Secret structure definition
 │   ├── agent-orchestrator.yaml         # Orchestrator agent config
 │   ├── agent-worker-rtx5090.yaml       # Worker 1 agent config
-│   ├── agent-worker-rtx3060.yaml       # Worker 2 agent config
+│ ├── agent- # Worker 2 agent config
 │   └── agent-worker-rtx3090ti.yaml     # Worker 3 agent config
 ├── docker-compose.cloudflare.yml       # Tunnel services + agents
 └── .env.cloudflare.example             # Example configuration

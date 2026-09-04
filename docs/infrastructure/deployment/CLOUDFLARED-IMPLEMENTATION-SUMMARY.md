@@ -21,7 +21,7 @@ This document summarizes the implementation of Cloudflare Tunnel (cloudflared) c
      │             │              │              │
      ▼             ▼              ▼              ▼
 ┌─────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐
-│Orchestr.│  │RTX5090   │  │RTX3060   │  │RTX3090Ti  │
+│Orchestr.│ │RTX5090 │ │ │ │RTX3090Ti │
 │Mini     │  │Worker    │  │Worker    │  │Worker     │
 └─────────┘  └──────────┘  └──────────┘  └───────────┘
 ```
@@ -54,7 +54,7 @@ Each worker has a complete docker-compose.yml with cloudflared and development s
    - Development UI: port 8090
    - GPU Monitor: port 9835
 
-2. **RTX3060**: `bootstrap/worker-rtx3060/docker/docker-compose.yml`
+2. ****: `bootstrap//docker/docker-compose.yml`
    - Development UI: port 8091
    - GPU Monitor: port 9836
 
@@ -68,7 +68,6 @@ Optional YAML configurations for advanced ingress rules:
 
 - `bootstrap/orchestrator-mini/docker/configs/cloudflared/config.yml`
 - `bootstrap/worker-rtx5090/docker/configs/cloudflared/config.yml`
-- `bootstrap/worker-rtx3060/docker/configs/cloudflared/config.yml`
 - `bootstrap/worker-rtx3090ti/docker/configs/cloudflared/config.yml`
 
 **Note**: These are optional when using token-based tunnels (recommended approach).
@@ -79,13 +78,11 @@ Each PC has a `.env.example` file:
 
 - `bootstrap/orchestrator-mini/docker/.env.example`
 - `bootstrap/worker-rtx5090/docker/.env.example`
-- `bootstrap/worker-rtx3060/docker/.env.example`
 - `bootstrap/worker-rtx3090ti/docker/.env.example`
 
 **Required Variables**:
 - `CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR`
 - `CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX5090`
-- `CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3060`
 - `CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3090TI`
 
 ### 4. Documentation
@@ -108,7 +105,7 @@ Each PC has a `.env.example` file:
 ```bash
 ./bootstrap/scripts/setup-cloudflared.sh orchestrator-mini
 ./bootstrap/scripts/setup-cloudflared.sh worker-rtx5090
-./bootstrap/scripts/setup-cloudflared.sh worker-rtx3060
+./bootstrap/scripts/setup-cloudflared.sh
 ./bootstrap/scripts/setup-cloudflared.sh worker-rtx3090ti
 ```
 
@@ -164,7 +161,6 @@ Each worker uses isolated network:
 - `worker-network`: Internal worker services
 - Subnet assignments:
   - RTX5090: `172.21.0.0/16`
-  - RTX3060: `172.22.0.0/16`
   - RTX3090Ti: `172.23.0.0/16`
 
 ### Environment Variables
@@ -208,8 +204,6 @@ NVIDIA_VISIBLE_DEVICES=all
 |--------|---------|--------------|------------------|
 | RTX5090 | Dev UI | 8090 | rtx5090-dev.nyra.yourdomain.com |
 | RTX5090 | GPU Monitor | 9835 | rtx5090-gpu.nyra.yourdomain.com |
-| RTX3060 | Dev UI | 8091 | rtx3060-dev.nyra.yourdomain.com |
-| RTX3060 | GPU Monitor | 9836 | rtx3060-gpu.nyra.yourdomain.com |
 | RTX3090Ti | Dev UI | 8092 | rtx3090ti-dev.nyra.yourdomain.com |
 | RTX3090Ti | GPU Monitor | 9837 | rtx3090ti-gpu.nyra.yourdomain.com |
 
@@ -299,7 +293,6 @@ scrape_configs:
       - targets:
           - 'orchestrator-cloudflared:9126'
           - 'worker-rtx5090-cloudflared:9126'
-          - 'worker-rtx3060-cloudflared:9126'
           - 'worker-rtx3090ti-cloudflared:9126'
 ```
 

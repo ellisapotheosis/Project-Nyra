@@ -76,7 +76,7 @@ echo ""
 
 # Check critical directories
 echo "📁 Directory Structure:"
-for dir in infra/shared infra/orchestrator-mini infra/worker-rtx3060 infra/worker-rtx3090ti infra/worker-rtx5090; do
+for dir in infra/shared infra/orchestrator-mini infra/ infra/worker-rtx3090ti infra/worker-rtx5090; do
     if [ -d "$dir/scripts" ]; then
         echo -e "${GREEN}✓${NC} $dir/scripts exists"
     else

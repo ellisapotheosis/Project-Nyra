@@ -42,7 +42,6 @@ provider/OAuth broker   MCP aggregator
 - Run the LLxprt and OpenHarness A2A adapters.
 - Do not make the production chat surface depend on this laptop.
 
-### worker-rtx3060 — memory utility node
 
 - Embeddings, extraction, summarization, document preprocessing and small chat.
 - Do not add Hermes/OpenClaw until those utility jobs are stable and measured.

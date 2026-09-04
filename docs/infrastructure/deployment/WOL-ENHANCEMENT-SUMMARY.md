@@ -58,7 +58,6 @@ Successfully enhanced the Wake-on-LAN functionality for GPU workers with compreh
 
 Created 4 wrapper scripts:
 - ✅ `wake-all-workers.sh` - Wake all WoL-enabled workers
-- ✅ `wake-rtx3060.sh` - Wake RTX 3060 mobile worker
 - ✅ `wake-rtx5090.sh` - Wake RTX 5090 mobile worker
 - ✅ `wake-rtx3090ti.sh` - Check RTX 3090 Ti status (always-on)
 
@@ -74,7 +73,7 @@ All scripts are executable and properly documented.
   "workers": {
     "worker-rtx3090ti": { /* always-on primary */ },
     "worker-rtx5090": { /* mobile worker */ },
-    "worker-rtx3060": { /* mobile worker */ }
+ : { /* mobile worker */ }
   },
   "network": { /* subnet, broadcast, WoL port */ },
   "notifications": { /* notification settings */ },

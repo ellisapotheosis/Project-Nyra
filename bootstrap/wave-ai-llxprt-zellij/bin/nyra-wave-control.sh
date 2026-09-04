@@ -17,7 +17,7 @@ Usage:
   nyra-wave-control.sh profiles-load  Print profile matrix and check llxprt profile loading
   nyra-wave-control.sh blackbox       Create a redacted support archive
   nyra-wave-control.sh launch         Launch default Nyra Wave/Zellij cockpit
-  nyra-wave-control.sh launch-3060    Launch cockpit with worker-rtx3060 pane
+ nyra-wave-control.sh launch-3060 Launch cockpit with pane
 EOF
 }
 

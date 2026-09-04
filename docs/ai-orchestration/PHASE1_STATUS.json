@@ -3,7 +3,6 @@
   "status": "ready_for_deployment",
   "timestamp": "2026-08-24T00:00:00Z",
   "environment": "production",
-
   "infisical": {
     "status": "operational",
     "instance": "app.infisical.com (cloud)",
@@ -28,7 +27,6 @@
     },
     "total_secrets_available": 120
   },
-
   "hosts": {
     "orchestrator": {
       "status": "ready",
@@ -57,7 +55,10 @@
       "status": "ready",
       "role": "primary_inference",
       "hardware": "RTX5090, 24GB VRAM, 64GB RAM",
-      "docker_compose_files": ["docker-compose.yml", "docker-compose.gpu.yml"],
+      "docker_compose_files": [
+        "docker-compose.yml",
+        "docker-compose.gpu.yml"
+      ],
       "services_phase1": [
         "redis:6379",
         "vllm:8000",
@@ -83,10 +84,6 @@
       "status": "standby",
       "note": "Infrastructure ready, deployment deferred to Phase 2"
     },
-    "worker_rtx3060": {
-      "status": "standby",
-      "note": "Infrastructure ready, deployment deferred to Phase 2"
-    },
     "oracle_vps": {
       "status": "operational",
       "services_active": [
@@ -97,7 +94,6 @@
       "note": "Cloud backend, not modified in Phase 1"
     }
   },
-
   "services": {
     "litellm": {
       "status": "ready_to_deploy",
@@ -135,7 +131,6 @@
       "connection_target": "oracle-vps:9443"
     }
   },
-
   "networking": {
     "tailscale": {
       "status": "keys_ready",
@@ -161,7 +156,6 @@
       "orchestrator_exposure": "none (private only)"
     }
   },
-
   "model_routing": {
     "nyra_local_heavy": {
       "backend": "worker-rtx5090 vLLM",
@@ -169,7 +163,10 @@
       "status": "ready_phase1"
     },
     "nyra_free": {
-      "backends": ["OmniRoute free providers", "OpenRouter free tier"],
+      "backends": [
+        "OmniRoute free providers",
+        "OpenRouter free tier"
+      ],
       "status": "ready_phase1"
     },
     "omniroute_routes": {
@@ -182,7 +179,6 @@
       "free_models": 6
     }
   },
-
   "secrets_audit": {
     "generated_internally": {
       "LITELLM_MASTER_KEY": "sk-XyZ4mP9rT2qH7cWTonksafg5XECeFKe90PVo0zF0A0z7FJnVRjcrJrH+A0",
@@ -200,7 +196,6 @@
     "env_files_gitignored": true,
     "infisical_as_sot": "confirmed"
   },
-
   "deployment_readiness": {
     "bootstrap_env_files": {
       "orchestrator_.env": "✓ populated",
@@ -213,7 +208,6 @@
     "portainer_credentials": "✓ ready",
     "openclaw_token": "✓ ready"
   },
-
   "phase1_deliverables_complete": [
     "Infisical authentication validated (cloud instance)",
     "Infisical folder taxonomy documented (/hosts/shared, /hosts/{host}, canonical paths)",
@@ -230,9 +224,7 @@
     "Phase 1 deployment plan documented",
     "Security: zero secrets in git, gitignore verified"
   ],
-
   "phase1_blockers": [],
-
   "owner_actions_required": [
     {
       "action": "Execute docker compose up on orchestrator",
@@ -264,7 +256,6 @@
       "priority": "immediate"
     }
   ],
-
   "phase2_prerequisites": [
     "Phase 1 end-to-end test passing",
     "All three worker nodes online",
@@ -273,7 +264,6 @@
     "Scheduled task execution via OpenClaw",
     "Memory plane integration (Mem0 + FalkorDB)"
   ],
-
   "documentation": [
     "docs/ai-orchestration/PHASE1_DEPLOYMENT_PLAN.md — Step-by-step deployment",
     "docs/ai-orchestration/PHASE1_STATUS.json — This file (machine-readable state)",
@@ -282,7 +272,6 @@
     "infra/hosts/worker-rtx5090/.env.example — Worker config template",
     "infra/configs/litellm/config.yaml — Model routing config"
   ],
-
   "notes": [
     "Zero subscription usage in Phase 1 — only free OpenRouter tier + local inference",
     "OmniRoute subscription OAuth deferred pending owner validation",

@@ -64,7 +64,6 @@ infra/env/secrets/
 !infra/hosts/orchestrator/example.env
 !infra/hosts/oracle-vps/example.env
 !infra/hosts/worker-rtx3090ti/example.env
-!infra/hosts/worker-rtx3060/example.env
 !infra/hosts/worker-rtx5090/example.env
 !infra/hosts/hosts-shared.example.env
 !infra/shared-example.env

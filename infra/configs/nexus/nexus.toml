@@ -65,11 +65,9 @@ forward_token = false
 
 [llm.providers.litellm.models."*"]
 
-# UTILITY: worker-rtx3060 (laptop) — dedicated to embeddings, extraction, and background tasks
 [llm.providers.utility-3060]
 type = "openai"
 api_key = "dummy"
-base_url = "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1"
 forward_token = false
 
 [llm.providers.utility-3060.models."nomic-embed-text"]

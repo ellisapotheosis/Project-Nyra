@@ -54,7 +54,6 @@
 
 ## /hosts/shared population (per user direction — Option A)
 
-- [x] Discovered real `/hosts/` topology: 8 folders (homeassistant, iphone, oracle-vps, orchestrator, shared, worker-rtx3060, worker-rtx3090ti, worker-rtx5090) across dev, staging, prod.
 - [x] Corrected discovery bug: `infisical export --recursive` does NOT exist in CLI 0.43.114; used non-recursive per-folder export.
 - [x] Computed true >=3-host key intersection: ~292 keys per env, of which `/hosts/shared` already held 286 (dev/staging) / 288 (prod).
 - [x] **Merged 4 safe, consistent, non-credential keys into `/hosts/shared`** (all 3 envs): INFISICAL_PROJECT_ID, MEM0_API_URL, PORTAINER_EDGE_ID, PORTAINER_EDGE_KEY. All 12 sets succeeded.

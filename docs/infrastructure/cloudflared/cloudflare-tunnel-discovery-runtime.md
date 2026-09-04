@@ -22,7 +22,6 @@ Docker contexts found:
 - `oracle`
 - `oracle-vps-oci`
 - `orchestrator`
-- `worker-rtx3060`
 - `worker-rtx3090ti`
 - `worker-rtx5090`
 

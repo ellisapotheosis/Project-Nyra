@@ -3,7 +3,7 @@
 set -e
 
 echo "🚀 Starting RTX 3090Ti Worker (vLLM + LMCache)..."
-echo "Location: worker-rtx3090ti (100.64.0.12:8000)"
+echo "Location: worker-rtx3090ti "
 
 cd /home/ellisapotheosis/repos/project-nyra/infra/hosts/worker-rtx3090ti
 

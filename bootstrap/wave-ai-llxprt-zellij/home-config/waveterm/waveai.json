@@ -75,14 +75,18 @@
     "display:name": "OpenRouter Qwen Direct",
     "ai:provider": "openrouter",
     "ai:model": "qwen/qwen-2.5-coder-32b-instruct",
-    "ai:capabilities": ["tools"],
+    "ai:capabilities": [
+      "tools"
+    ],
     "description": "Direct Wave AI OpenRouter mode. Store the key as OPENROUTER_KEY in Wave secrets."
   },
   "groq-kimi-wave-direct": {
     "display:name": "Groq Kimi Direct",
     "ai:provider": "groq",
     "ai:model": "moonshotai/kimi-k2-instruct",
-    "ai:capabilities": ["tools"],
+    "ai:capabilities": [
+      "tools"
+    ],
     "description": "Direct Wave AI Groq mode for Kimi-family free/low-cost fallback when available. Store the key as GROQ_KEY in Wave secrets."
   },
   "nyra-local-nexus": {
@@ -111,14 +115,5 @@
     "ai:apitype": "openai-chat",
     "ai:apitokensecretname": "NYRA_WORKER_API_KEY",
     "description": "Direct Tailscale-only secondary worker lane."
-  },
-  "worker-3060": {
-    "display:name": "RTX3060 Ollama",
-    "ai:provider": "custom",
-    "ai:model": "local-3060",
-    "ai:endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:11434/v1/chat/completions",
-    "ai:apitype": "openai-chat",
-    "ai:apitokensecretname": "NYRA_WORKER_API_KEY",
-    "description": "Direct Tailscale-only utility worker lane."
   }
 }

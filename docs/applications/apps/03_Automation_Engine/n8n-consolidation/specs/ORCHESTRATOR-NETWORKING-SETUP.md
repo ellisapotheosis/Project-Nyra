@@ -496,7 +496,7 @@ This is normal! Windows and WSL are separate network stacks. Both need Tailscale
 
 After completing this setup:
 
-1. **Configure GPU Workers**: Repeat similar steps on Worker-RTX5090, RTX3060, RTX3090Ti
+1. **Configure GPU Workers**: Repeat similar steps on Worker-RTX5090, RTX3090Ti
 2. **Setup Wake-on-LAN**: Configure RTX3090Ti for on-demand wake (see `QUICK-REFERENCE-WOL.md`)
 3. **Configure Cloudflare Access**: Setup authentication for admin services
 4. **Setup Monitoring**: Import Grafana dashboards for Tailscale and Cloudflared metrics

@@ -43,7 +43,7 @@ fi
 
 echo ""
 echo "=== Summary ==="
-echo "Connected PCs: 2/4 (orchestrator-mini, worker-rtx3060)"
+echo "Connected PCs: 2/4 (orchestrator-mini, )"
 echo ""
 echo "Next Steps:"
 echo "  1. Install Tailscale on worker-5090 and worker-3090"

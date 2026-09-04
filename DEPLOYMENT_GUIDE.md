@@ -201,7 +201,7 @@ curl -X POST http://127.0.0.1:8888/register \
 
 ```bash
 # For each worker:
-for worker in "worker-rtx3060" "worker-rtx3090ti" "worker-rtx5090"; do
+for worker in "worker-rtx3090ti" "worker-rtx5090"; do
   ssh ${worker} "cd /infra/hosts/${worker} && docker compose up -d litellm"
 done
 
@@ -253,7 +253,7 @@ curl -s http://127.0.0.1:3002  # Uptime-kuma
 curl -s http://127.0.0.1:8080/healthz  # cAdvisor
 
 # Deploy monitoring agents on workers
-for worker in "worker-rtx3060" "worker-rtx3090ti" "worker-rtx5090"; do
+for worker in "worker-rtx3090ti" "worker-rtx5090"; do
   ssh ${worker} "docker run -d \
     --name=node-exporter \
     -p 9100:9100 \

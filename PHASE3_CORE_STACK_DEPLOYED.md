@@ -288,12 +288,6 @@ Agent Response
 - `local/qwen3.8-27b` — Primary, RTX5090 vLLM
 - `local/gemma-4` — RTX5090 vLLM
 - `local/qwen-coder-32b` — RTX3090Ti vLLM (future)
-- `local/qwen2.5-4b` — RTX3060 Ollama (future)
-- `local/llama3.2-3b` — RTX3060 Ollama (future)
-- `local/embeddings` — RTX3060 Ollama (future)
-
-**OpenClaw Agent Endpoints:**
-
 - `claw/openclaw-3090ti` — Worker-3090Ti (future)
 - `claw/openclaw-3060` — Worker-3060 (future)
 

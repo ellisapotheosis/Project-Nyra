@@ -71,7 +71,6 @@ Local working mirror (already exported, redacted-friendly): `development/infisic
 Top-level roots (live): `/databases /domains /external /hosts /infra /llm-providers /network /observability /router /security /services /shared`
 
 **`/domains`:** project-nyra, ratehunter, twenty-crm
-**`/hosts`:** homeassistant, iphone, oracle-vps, orchestrator, worker-rtx3060, worker-rtx3090ti, worker-rtx5090
 **`/databases`:** chromadb, falkordb, floccus, google-s3, linkwarden, minio, mongodb, neo4j, notion, nyra-ingestion, postgres, qdrant-cloud, qdrant-local, redis, supabase
 **`/observability`:** alertmanager, grafana, langfuse, loki, openlit, prometheus
 **`/router`:** adapters, litellm-proxy-client-local, litellm-proxy-client-remote, litellm-proxy-server

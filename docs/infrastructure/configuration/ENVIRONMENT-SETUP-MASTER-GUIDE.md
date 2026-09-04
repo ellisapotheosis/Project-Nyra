@@ -47,7 +47,7 @@ docs/configuration/infisical-secrets-management/
 ├── machines/
 │   ├── README.md             # Machine-specific configuration guide
 │   ├── orchestrator-mini.env # PC1 configuration
-│   ├── worker-rtx3060.env    # PC2 configuration (with actual values)
+│ ├── # PC2 configuration (with actual values)
 │   ├── worker-rtx5090.env    # PC3 configuration (placeholders)
 │   ├── worker-rtx3090ti.env  # PC4 configuration (placeholders)
 │   ├── upload-machines-to-infisical.ps1  # Upload script
@@ -140,8 +140,6 @@ cp docs/configuration/env-backups/root/.env.worker-3060 .env
 ```
 
 **Key Variables**:
-- `MACHINE_ROLE=worker-rtx3060`
-- `MACHINE_GPU_TYPE=rtx_3060`
 - `OLLAMA_MODELS=codellama:34b,qwen2.5:32b,gemma2:27b`
 - `WORKER_3060_SPECIALIZATION=code`
 
@@ -199,7 +197,6 @@ Located in: `docs/configuration/infisical-secrets-management/machines/`
 
 **Identity & Hardware**:
 - `MACHINE_HOSTNAME` - PC hostname
-- `MACHINE_ROLE` - orchestrator/worker-rtx3060/worker-rtx5090/worker-rtx3090ti
 - `MACHINE_CPU`, `MACHINE_RAM_GB` - Hardware specs
 - `MACHINE_GPU_TYPE`, `MACHINE_GPU_VRAM_GB` - GPU configuration
 
@@ -302,10 +299,10 @@ Use Infisical for team access control:
    ```bash
    # For each worker
    cd docs/configuration/infisical-secrets-management/machines
-   ./generate-combined-env.ps1 -MachineRole "worker-rtx3060" -OutputToFiles
+ ./generate-combined-env.ps1 -MachineRole -OutputToFiles
 
    # Deploy to PC2
-   cp combined/worker-rtx3060.env $PROJECT_ROOT/.env
+ cp combined/ $PROJECT_ROOT/.env
    docker-compose -f infra/cluster-setup/docker-compose.worker.yml up -d
    ```
 

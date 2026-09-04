@@ -8,7 +8,6 @@ Master script to upload all secrets to Infisical
 Uploads all Project Nyra secrets to Infisical in the correct hierarchy:
 - /shared - Shared across all PCs
 - /orchestrator/* - PC1 only
-- /worker-rtx3060/* - PC2 only
 - /worker-rtx5090/* - PC3 only
 - /worker-rtx3090ti/* - PC4 only
 
@@ -139,7 +138,7 @@ Write-Info "`nNext steps:"
 Write-Info "1. Verify secrets in Infisical dashboard"
 Write-Info "2. Set INFISICAL_TOKEN in each PC's environment:"
 Write-Info "   PC1: Set-Content .env.orchestrator 'INFISICAL_TOKEN=<token>'"
-Write-Info "   PC2: Set-Content .env.worker-rtx3060 'INFISICAL_TOKEN=<token>'"
+Write-Info " PC2: Set-Content .env. 'INFISICAL_TOKEN=<token>'"
 Write-Info "   PC3: Set-Content .env.worker-rtx5090 'INFISICAL_TOKEN=<token>'"
 Write-Info "   PC4: Set-Content .env.worker-rtx3090ti 'INFISICAL_TOKEN=<token>'"
 Write-Info "3. Test secret retrieval:"

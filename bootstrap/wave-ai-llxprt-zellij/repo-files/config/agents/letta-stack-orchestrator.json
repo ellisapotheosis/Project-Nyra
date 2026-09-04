@@ -14,8 +14,7 @@
   },
   "workers": [
     "worker-rtx5090.trex-fiordland.ts.net",
-    "worker-rtx3090ti.trex-fiordland.ts.net",
-    "worker-rtx3060.trex-fiordland.ts.net"
+    "worker-rtx3090ti.trex-fiordland.ts.net"
   ],
   "policy": {
     "publicWorkerInference": false,

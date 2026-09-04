@@ -153,7 +153,6 @@ Use these Infisical paths per machine profile.
 
 ---
 
-## `/hosts/worker-rtx3060`
 
 ### Required secrets
 

@@ -7,7 +7,6 @@
 
 ## Directory Structure
 - `infra/hosts/oracle-vps/`: Canonical configuration for the public cloud stack (twenty-crm, gitea, memory, apps, etc.).
-- `infra/hosts/worker-rtx3060/`: Canonical configuration for local STT/LLM inference.
 - `infra/hosts/worker-rtx3090ti/`: Canonical configuration for local TTS/LLM inference.
 - `infra/hosts/worker-rtx5090/`: Canonical configuration for local heavy LLM inference.
 - `infra/hosts/orchestrator/`: Canonical configuration for the control plane.

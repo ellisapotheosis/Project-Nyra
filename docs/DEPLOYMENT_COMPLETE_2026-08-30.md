@@ -62,14 +62,13 @@ letta.projectnyra.com         → Letta Memory (8283)
 
 ```bash
 # See: docs/PHASE_4_GPU_DEPLOYMENT.md for full runbook
-ssh worker-rtx3060
+ssh
 docker-compose -f docker-compose.yml -f docker-compose.litellm.yml up -d
 # Repeat for worker-rtx3090ti and worker-rtx5090
 ```
 
 | Worker           | GPU                | Inference      | LiteLLM Port |
 | ---------------- | ------------------ | -------------- | ------------ |
-| worker-rtx3060   | RTX 3060 (12GB)    | Ollama         | 4010         |
 | worker-rtx3090ti | RTX 3090 Ti (24GB) | vLLM           | 4010         |
 | worker-rtx5090   | RTX 5090 (32GB)    | vLLM (Primary) | 4010         |
 

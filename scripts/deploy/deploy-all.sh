@@ -10,7 +10,8 @@
 # deployments.
 #
 # SSH aliases come from ~/.ssh/config (oracle-vps, worker-rtx5090,
-# worker-rtx3090ti). worker-rtx3060 is RETIRED and is not a deployment target.
+# worker-rtx3090ti). The third GPU worker (RTX 3060) is RETIRED and is not a
+# deployment target.
 set -euo pipefail
 # shellcheck source=scripts/deploy/_common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"

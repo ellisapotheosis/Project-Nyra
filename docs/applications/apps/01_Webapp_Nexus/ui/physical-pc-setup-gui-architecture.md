@@ -54,7 +54,6 @@ This document defines the architecture for transforming the existing bootstrap/i
 | PC Type | Hardware | Role | Special Requirements |
 |---------|----------|------|---------------------|
 | **Orchestrator** | Minisforum UH680 (Ryzen 7 6800H, 16GB RAM) | Control plane | Gitea, All databases, No GPU |
-| **Worker RTX3060** | Alienware M15R7 (RTX 3060, 32GB RAM) | Compute node | NVIDIA drivers, CUDA |
 | **Worker RTX5090** | Alienware Area-51 (RTX 5090, 32GB RAM) | Compute node | NVIDIA drivers, CUDA |
 | **Worker RTX3090Ti** | Custom PC (RTX 3090Ti, 32GB RAM) | Compute node | NVIDIA drivers, CUDA |
 
@@ -725,7 +724,7 @@ export class HardwareDetector {
       g.model.includes('3090') || g.model.includes('5090')
     );
 
-    const hasRTX3060 = specs.gpu.some(g => g.model.includes('3060'));
+ const has = specs.gpu.some(g => g.model.includes('3060'));
     const ramGB = specs.ram.totalSize;
 
     if (hasHighEndGPU && ramGB >= 28) {
@@ -733,7 +732,7 @@ export class HardwareDetector {
       if (specs.gpu[0].model.includes('3090')) return 'worker-rtx3090ti';
     }
 
-    if (hasRTX3060 && ramGB >= 28) return 'worker-rtx3060';
+ if (has && ramGB >= 28) return '';
 
     if (specs.cpu.model.includes('6800H') || specs.cpu.model.includes('Ryzen 7')) {
       return 'orchestrator-mini';
@@ -1639,7 +1638,6 @@ export class ErrorRecovery {
 ### 11.3 E2E Tests
 - Test on each PC type:
   - Orchestrator (Minisforum)
-  - Worker RTX3060
   - Worker RTX5090
   - Worker RTX3090Ti
 

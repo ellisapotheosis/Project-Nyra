@@ -57,7 +57,6 @@ export const WorkerRoleSchema = z.enum([
   "ORCHESTRATOR",
   "RTX5090_BURST",
   "RTX3090TI_STEADY",
-  "RTX3060_LIGHTWEIGHT",
   "ORACLE_VPS",
   "HOME_ASSISTANT",
 ]);

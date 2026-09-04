@@ -69,7 +69,7 @@ echo -e "${YELLOW}[3/6] Creating new directory structure...${NC}"
 
 # Docker directories
 mkdir -p infra/docker/orchestrator
-mkdir -p infra/docker/worker-rtx3060
+mkdir -p infra/docker/
 mkdir -p infra/docker/worker-rtx5090
 mkdir -p infra/docker/worker-rtx3090ti
 
@@ -133,7 +133,7 @@ echo -e "${GREEN}  ✅ Cloudflared configs organized${NC}"
 echo -e "${YELLOW}[5/6] Creating worker documentation...${NC}"
 
 # RTX 3060 (Ollama)
-cat > infra/docker/worker-rtx3060/README.md << 'EOF'
+cat > infra/docker//README.md << 'EOF'
 # Worker: RTX 3060 (Alienware M15R7)
 
 ## Hardware
@@ -267,7 +267,6 @@ INFISICAL_PROJECT_ID=
 # === Tailscale ===
 TAILSCALE_API_KEY=tskey-api-xxx
 ORCHESTRATOR_IP=100.87.235.78
-WORKER_RTX3060_IP=100.107.188.97
 WORKER_RTX5090_IP=100.102.204.112
 WORKER_RTX3090TI_IP=
 
@@ -284,10 +283,9 @@ SENDGRID_API_KEY=
 EOF
 
 # .env.example for workers
-cat > infra/docker/worker-rtx3060/.env.example << 'EOF'
+cat > infra/docker//.env.example << 'EOF'
 # Worker RTX 3060 - Environment Variables
 
-WORKER_NAME=worker-rtx3060
 TAILSCALE_IP=100.107.188.97
 ORCHESTRATOR_IP=100.87.235.78
 INFISICAL_TOKEN=
@@ -380,7 +378,7 @@ echo ""
 echo "  infra/"
 echo "  ├── docker/"
 echo "  │   ├── orchestrator/     # Main Docker services"
-echo "  │   ├── worker-rtx3060/   # Ollama worker"
+echo " │ ├── / # Ollama worker"
 echo "  │   ├── worker-rtx5090/   # vLLM worker (32GB)"
 echo "  │   └── worker-rtx3090ti/ # vLLM worker (24GB)"
 echo "  ├── cloudflared/          # Tunnel configs"

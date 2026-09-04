@@ -104,12 +104,6 @@ curl -H "Authorization: Bearer $MASTER_KEY" http://localhost:4010/v1/chat/comple
 - `local/qwen3.8-27b` → RTX5090 vLLM ✓ (PRIMARY)
 - `local/gemma-4` → RTX5090 vLLM
 - `local/qwen-coder-32b` → RTX3090Ti vLLM (future)
-- `local/qwen2.5-4b` → RTX3060 Ollama (future)
-- `local/llama3.2-3b` → RTX3060 Ollama (future)
-- `local/embeddings` → RTX3060 Ollama (future)
-
-### OpenClaw Agent Endpoints
-
 - `claw/openclaw-3090ti` → worker-3090ti:8001/v1 (future)
 - `claw/openclaw-3060` → worker-3060:8003/v1 (future)
 

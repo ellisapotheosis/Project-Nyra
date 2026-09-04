@@ -21,7 +21,7 @@ bash infra/bootstrap/DEPLOY-ALL-NODES.sh --confirm
 
 ## What It Does
 
-Per each node (orchestrator, oracle-vps, worker-rtx5090, worker-rtx3090ti, worker-rtx3060):
+Per each node (orchestrator, oracle-vps, worker-rtx5090, worker-rtx3090ti, ):
 
 1. **Deploys .zsh configuration** via rsync
    - Copies entire `zsh-config/` directory to `~/bootstrap-zsh-config/`
@@ -49,7 +49,6 @@ Per each node (orchestrator, oracle-vps, worker-rtx5090, worker-rtx3090ti, worke
 | oracle-vps | oracle-vps.trex-fiordland.ts.net | 22 | Linux |
 | worker-rtx5090 | worker-rtx5090.trex-fiordland.ts.net | 2222 | WSL2 |
 | worker-rtx3090ti | worker-rtx3090ti.trex-fiordland.ts.net | 22 | Linux |
-| worker-rtx3060 | worker-rtx3060.trex-fiordland.ts.net | 2222 | WSL2 |
 
 SSH user: `edane` on all nodes
 
@@ -61,7 +60,7 @@ SSH user: `edane` on all nodes
    ssh oracle-vps
    ssh worker-rtx5090
    ssh worker-rtx3090ti
-   ssh worker-rtx3060
+ ssh
    ```
 
 2. **Add secrets to each node:**
@@ -116,7 +115,7 @@ SSH user: `edane` on all nodes
 
 Remove bootstrap files from all nodes:
 ```bash
-for node in orchestrator oracle-vps worker-rtx5090 worker-rtx3090ti worker-rtx3060; do
+for node in orchestrator oracle-vps worker-rtx5090 worker-rtx3090ti ; do
   ssh $node "rm -rf ~/bootstrap-zsh-config && rm ~/.zshrc"
 done
 ```

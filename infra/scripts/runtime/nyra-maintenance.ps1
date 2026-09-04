@@ -56,7 +56,7 @@ Write-Host "→ Verifying directory structure..." -ForegroundColor Yellow
 $dirs = @(
     "infra\shared\scripts",
     "infra\orchestrator-mini\scripts",
-    "infra\worker-rtx3060\scripts",
+ "infra\\scripts",
     "infra\worker-rtx3090ti\scripts",
     "infra\worker-rtx5090\scripts"
 )

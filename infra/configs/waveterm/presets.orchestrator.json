@@ -86,7 +86,7 @@
           {
             "type": "terminal",
             "name": "GPU Workers Mesh",
-            "cmd": "while true; do clear; echo '=== GPU WORKERS ==='; for ctx in worker-rtx5090 worker-rtx3090ti worker-rtx3060; do echo \"[$ctx]\"; docker --context $ctx ps -q | wc -l | xargs -I {} echo \"  {} containers running\"; done; sleep 5; done"
+ "cmd": "while true; do clear; echo '=== GPU WORKERS ==='; for ctx in worker-rtx5090 worker-rtx3090ti ; do echo \"[$ctx]\"; docker --context $ctx ps -q | wc -l | xargs -I {} echo \" {} containers running\"; done; sleep 5; done"
           },
           {
             "type": "terminal",
@@ -161,8 +161,8 @@
           "cols": 40
         },
         {
-          "title": "RTX3060 OpenClaw (Cron/Testing)",
-          "cmd": "watch -n 5 'curl -s http://worker-rtx3060:8003/health 2>/dev/null | jq . || echo Offline'",
+ "title": OpenClaw (Cron/Testing)",
+ "cmd": "watch -n 5 'curl -s http:///health 2>/dev/null | jq . | | echo Offline'",
           "rows": 12,
           "cols": 40
         },
@@ -179,8 +179,8 @@
           "cols": 80
         },
         {
-          "title": "NerveUI Cron Interface (RTX3060)",
-          "cmd": "curl -s http://worker-rtx3060:6008/cron 2>/dev/null || echo 'Connecting to Cron Interface...'",
+ "title": "NerveUI Cron Interface ",
+ "cmd": "curl -s http:///cron 2>/dev/null | | echo 'Connecting to Cron Interface...'",
           "rows": 16,
           "cols": 80
         }

@@ -23,7 +23,7 @@
 local/qwen3.8-27b (primary)        → RTX5090 vLLM
 local/gemma-4                      → RTX5090 vLLM
 local/qwen-coder-32b               → RTX3090Ti (future)
-local/embeddings                   → RTX3060 (future)
+local/embeddings → (future)
 omniroute/auto, /coding, /fast     → Subscription providers
 openrouter/gemini-flash, etc       → Free tier
 claw/openclaw-*                    → Agent gateways

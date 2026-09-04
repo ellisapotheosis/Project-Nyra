@@ -11,7 +11,6 @@ NYRA_ORCHESTRATOR_HOST=orchestrator.trex-fiordland.ts.net
 NYRA_ORACLE_HOST=oracle-vps.trex-fiordland.ts.net
 NYRA_WORKER_5090_HOST=worker-rtx5090.trex-fiordland.ts.net
 NYRA_WORKER_3090TI_HOST=worker-rtx3090ti.trex-fiordland.ts.net
-NYRA_WORKER_3060_HOST=worker-rtx3060.trex-fiordland.ts.net
 
 # Router/orchestrator endpoints.
 NYRA_NEXUS_BASE_URL=http://orchestrator.trex-fiordland.ts.net:6000/v1

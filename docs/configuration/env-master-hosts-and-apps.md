@@ -593,7 +593,6 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 | `REVIEW_MAX_CHARS` | No | 2 | not specified |
 | `REVIEW_MODEL` | No | 2 | not specified |
 | `REVIEW_POST_AS_REVIEW` | No | 2 | not specified |
-| `RTX3060_LAN_IP` | No | 1 | not specified |
 | `RTX3090TI_LAN_IP` | No | 1 | not specified |
 | `RTX5090_LAN_IP` | No | 1 | not specified |
 | `RUVECTOR_HOST` | No | 1 | not specified |
@@ -1317,7 +1316,6 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `REVIEW_MAX_CHARS`
 - `REVIEW_MODEL`
 - `REVIEW_POST_AS_REVIEW`
-- `RTX3060_LAN_IP`
 - `RTX3090TI_LAN_IP`
 - `RTX5090_LAN_IP`
 - `RUVECTOR_HOST`
@@ -1615,7 +1613,6 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `TWENTY_SERVER_URL`
 - `WEBHOOK_URL` (secret)
 
-### worker-rtx3060
 - `ARCHON_SERVER_URL`
 - `GPU_MODEL`
 - `GPU_VRAM`
@@ -1634,7 +1631,6 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `OLLAMA_PORT`
 - `ORCHESTRATOR_TAILSCALE_IP`
 - `POSTGRES_URL`
-- `RTX3060_LAN_IP`
 - `TAILSCALE_AUTHKEY` (secret)
 - `TAILSCALE_IP`
 - `WORKER_3060_API_KEY` (secret)

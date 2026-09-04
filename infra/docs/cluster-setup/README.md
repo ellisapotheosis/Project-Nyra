@@ -55,9 +55,6 @@ Follow Phase 3-5 in the [CLUSTER-SETUP-GUIDE.md](./CLUSTER-SETUP-GUIDE.md).
 
 ✅ **Connected (2/4)**:
 - `orchestrator-mini` (100.115.69.115)
-- `worker-rtx3060` (100.83.23.49) - Current PC (AlienApotheosis)
-
-❓ **Not Connected (2/4)**:
 - `worker-5090` (RTX 5090, 48GB VRAM)
 - `worker-3090` (RTX 3090 Ti, 24GB VRAM)
 

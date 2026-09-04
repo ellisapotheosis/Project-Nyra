@@ -61,7 +61,7 @@ This document is **NOT A SUGGESTION**. Every statement herein is a deterministic
 - **Infisical Agent sidecars are NOT needed** on orchestrator (cloud Infisical + Agent Vault sufficient).
 
 ### 0.4 Core Management Protection Group (IMMUTABLE)
-On **EVERY host** (`oracle-vps`, `orchestrator`, `worker-rtx5090`, `worker-rtx3090ti`, `worker-rtx3060`, `homeassistant`):
+On **EVERY host** (`oracle-vps`, `orchestrator`, `worker-rtx5090`, `worker-rtx3090ti`, ``, `homeassistant`):
 
 Create a protected Docker Compose stack / network named **`core-mgmt-protected`** containing:
 - **Portainer** (SE/CD Server on oracle-vps; Agent on all others)
@@ -86,7 +86,6 @@ Execute **COMPLETE REMOVAL** from all `/infra/hosts/*/` compose files and Cloudf
 - All Gitea references (`gitea`, `gitea-mcp`, `gitea-ssh`)
 - `infisical-postgres.yml`, `infisical-redis.yml` (Cloud Infisical + Agent Vault sufficient)
 - `docker-compose.superset.yml` (Deprecated analytics)
-- All Picoclaw instances (esp. worker-rtx3060)
 - All Kyutai Unmute / voice containers (complete removal across all hosts)
 - `gastown` (entire stack purge)
 - Generic/ambiguous subdomains like `webapp` (specify exact purpose or delete)
@@ -105,7 +104,6 @@ Execute **COMPLETE REMOVAL** from all `/infra/hosts/*/` compose files and Cloudf
 |----------|------------------------|------|------|----------------|-----------|
 | `vllm-3090ti` | `vllm-rtx3090ti.projectnyra.com` | worker-rtx3090ti | 8000 | Yes | Gated |
 | `vllm-5090` | `vllm-rtx5090.projectnyra.com` | worker-rtx5090 | 8000 | Yes | Gated |
-| N/A | `ollama-rtx3060.projectnyra.com` | worker-rtx3060 | 11434 | Yes | Gated |
 | N/A | `lmcache-rtx3090ti.projectnyra.com` | worker-rtx3090ti | [LMCache port] | Yes | No |
 | N/A | `lmcache-rtx5090.projectnyra.com` | worker-rtx5090 | [LMCache port] | Yes | No |
 | N/A | `redis-kv-rtx3090ti.projectnyra.com` | worker-rtx3090ti | 6379 | Yes | No |
@@ -113,7 +111,6 @@ Execute **COMPLETE REMOVAL** from all `/infra/hosts/*/` compose files and Cloudf
 
 ### 2.2 LiteLLM Consolidation
 - **Primary endpoint:** `litellm.projectnyra.com` → Orchestrator (100.64.0.10:4000)
-- **Fallback endpoint:** `litellm-rtx3060.projectnyra.com` → worker-rtx3060 (lightweight tasks only)
 - **Access rule:** Gated (Service Token via MCP Gateway for agents; OTP for users)
 
 ### 2.3 Nerve Unification
@@ -162,7 +159,6 @@ Stand up + expose:
 - **Orchestrator:** `portainer-orch.projectnyra.com` (Portainer Agent)
 - **worker-rtx5090:** `portainer-5090.projectnyra.com` (Portainer Agent)
 - **worker-rtx3090ti:** `portainer-3090ti.projectnyra.com` (Portainer Agent)
-- **worker-rtx3060:** `portainer-3060.projectnyra.com` (Portainer Agent)
 - **Home Assistant:** `portainer-ha.projectnyra.com` (Portainer Agent)
 
 ### 3.2 Access & Networking
@@ -181,7 +177,6 @@ Stand up + expose:
 | orchestrator | YES | Bidirectional | Secondary |
 | worker-rtx5090 | YES | **SEND-ONLY** | **YES (PRIMARY)** |
 | worker-rtx3090ti | YES | Bidirectional | Secondary |
-| worker-rtx3060 | YES | Bidirectional | Secondary |
 | homeassistant | YES | Bidirectional | Secondary |
 
 ### 4.2 Configuration Rules (HARD)
@@ -207,20 +202,17 @@ Stand up + expose:
 | `portainer-orch.projectnyra.com` | 100.64.0.10:9000 | Yes | Admin (Service Token) | Yes |
 | `portainer-5090.projectnyra.com` | worker-rtx5090:9000 | No | Tailscale-only | Yes |
 | `portainer-3090ti.projectnyra.com` | worker-rtx3090ti:9000 | No | Tailscale-only | Yes |
-| `portainer-3060.projectnyra.com` | worker-rtx3060:9000 | No | Tailscale-only | Yes |
 | `portainer-ha.projectnyra.com` | 100.64.0.2:9000 | No | Tailscale-only | Yes |
 | `linkwarden.projectnyra.com` | 100.64.0.2:3000 | Yes | Public (OTP optional) | Yes |
 | `syncthing.projectnyra.com` | Various | No | Tailscale-only | No |
 | `nexus-router.projectnyra.com` | 100.64.0.10:3000 | Yes | Service Token Only | Yes |
 | `mcp-gateway.projectnyra.com` | CF Gateway | Yes | User Auth (GitHub SSO + OTP) | Yes |
 | `litellm.projectnyra.com` | 100.64.0.10:4000 | Yes | Service Token / OTP | Yes |
-| `litellm-rtx3060.projectnyra.com` | worker-rtx3060:4000 | No | Tailscale-only | Yes |
 | `git.projectnyra.com` | 100.64.0.10:3000 | Yes | GitHub SSO + OTP | Yes |
 | `forgejo.projectnyra.com` | 100.64.0.10:3000 | Yes | GitHub SSO + OTP | Yes |
 | `nerve.projectnyra.com` | 100.64.0.10:PORT | Yes | Service Token / OTP | Yes |
 | `vllm-rtx3090ti.projectnyra.com` | worker-rtx3090ti:8000 | No | Tailscale-only | Yes |
 | `vllm-rtx5090.projectnyra.com` | worker-rtx5090:8000 | No | Tailscale-only | Yes |
-| `ollama-rtx3060.projectnyra.com` | worker-rtx3060:11434 | No | Tailscale-only | Yes |
 | `lmcache-rtx3090ti.projectnyra.com` | worker-rtx3090ti:8001 | No | Tailscale-only | Yes |
 | `lmcache-rtx5090.projectnyra.com` | worker-rtx5090:8001 | No | Tailscale-only | Yes |
 | `redis-kv-rtx3090ti.projectnyra.com` | worker-rtx3090ti:6379 | No | Tailscale-only | Yes |
@@ -231,7 +223,6 @@ Stand up + expose:
 | `hermes-gateway.projectnyra.com` | 100.64.0.10:PORT | Yes | Service Token / OTP | Yes |
 | `worker-rtx5090.projectnyra.com` | worker-rtx5090 (Node) | No | Tailscale-only | Yes |
 | `worker-rtx3090ti.projectnyra.com` | worker-rtx3090ti (Node) | No | Tailscale-only | Yes |
-| `worker-rtx3060.projectnyra.com` | worker-rtx3060 (Node) | No | Tailscale-only | Yes |
 | `orchestrator.projectnyra.com` | 100.64.0.10 (Node) | No | Tailscale-only | Yes |
 | `oracle-vps.projectnyra.com` | 100.64.0.3 (Node) | No | Tailscale-only | Yes |
 
@@ -324,7 +315,6 @@ All compose files live in `/infra/hosts/<hostname>/`:
 - `/infra/hosts/orchestrator/docker-compose.yml` (primary)
 - `/infra/hosts/worker-rtx5090/docker-compose.yml` (primary)
 - `/infra/hosts/worker-rtx3090ti/docker-compose.yml` (primary)
-- `/infra/hosts/worker-rtx3060/docker-compose.yml` (primary)
 - `/infra/hosts/homeassistant/docker-compose.yml` (primary)
 - `/infra/hosts/_templates/docker-compose.infisical-secrets-agent.yml` (worker overlay — NOT used on orchestrator)
 
@@ -360,7 +350,6 @@ For EVERY compose file, verify:
 - [ ] No Gastown entries
 - [ ] Portainer + Syncthing in `core-mgmt-protected` (all non-VPS hosts)
 - [ ] Syncthing on worker-rtx5090 is "send-only"
-- [ ] Inference services renamed correctly (`vllm-rtx3090ti`, `vllm-rtx5090`, `ollama-rtx3060`)
 - [ ] LiteLLM consolidated to single primary endpoint
 - [ ] OpenClaw, Hermes, Clawteam deployed
 - [ ] No `infisical-postgres` or `infisical-redis` (cloud Infisical sufficient)

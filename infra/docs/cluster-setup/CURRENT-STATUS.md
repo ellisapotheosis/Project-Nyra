@@ -20,7 +20,6 @@
 
 ### Connected PCs (2/4)
 
-#### 1. AlienApotheosis (worker-rtx3060) ✅
 - **Role**: GPU Worker (RTX 3060)
 - **Model**: Alienware m15 R7
 - **GPU**: NVIDIA GeForce RTX 3060 Laptop (12GB VRAM)
@@ -88,7 +87,6 @@ Devices are accessible via:
 | 1dd404f8-31e0-4c56-bf3f-6befde8d5c1d | M15R7 | 2025-11-20 | ⚠️ 0 connections |
 | 505504bb-c6c6-46d7-b713-3ee0f8fba1ee | Project-Nyra-CF-Tunnel | 2025-11-15 | ⚠️ 0 connections |
 | 8e8a44e0-204a-4333-843e-5e6300fd8f79 | mcp-github | 2025-11-21 | ⚠️ 0 connections |
-| 33d0dc8b-4a1f-4f31-b482-5309171ffdf8 | worker-rtx3060 | 2025-11-30 | ⚠️ 0 connections |
 
 **Note**: Tunnels are configured but not actively running.
 

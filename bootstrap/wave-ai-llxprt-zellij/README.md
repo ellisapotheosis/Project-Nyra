@@ -1,5 +1,22 @@
 # Wave AI + Zellij + LLxprt + Letta Bootstrap Package
 
+> **HISTORICAL SNAPSHOT — NOT CURRENT OPERATIONAL CONFIGURATION.**
+>
+> This tree is a frozen copy of the WaveTerm/LLxprt operator stack as it existed
+> before the 2026-09-04 LiteLLM-native control-plane migration. It predates:
+>
+> * the retirement of the third GPU worker (RTX 3060),
+> * the retirement of Nexus (both the bespoke `nexus-router` and Grafbase Nexus),
+> * the single-LiteLLM-gateway control plane,
+> * the root `compose.yaml` host-profile deployment model.
+>
+> Explicit references to the retired GPU worker have been removed, but residual
+> loose mentions of legacy hostnames, ports and worker lanes may remain in this
+> snapshot. **Do not copy deployment commands out of this tree.** The current
+> architecture is described in `docs/architecture/NYRA_CONTROL_PLANE.md` and the
+> current deployment procedure in
+> `docs/operations/NYRA_DEPLOYMENT_RUNBOOK.md`.
+
 This is the copy-based recovery and portability package for the Project Nyra
 WaveTerm/Wave AI, Zellij, LLxprt Code, LLxprt Jefe, and Letta operator stack.
 Use it to bootstrap another coding PC without re-discovering all of the local
@@ -33,15 +50,8 @@ Available commands:
 - `profiles-load`: print the matrix and verify `llxprt --profile-load` can load each profile.
 - `blackbox`: create a redacted timestamped support archive.
 - `launch`: launch the default Wave/Zellij cockpit.
-- `launch-3060`: launch with the worker-rtx3060 pane included.
-
-## Bootstrap A New Coding PC
-
-Prerequisites:
-
 - The Project Nyra repo is cloned to `~/repos/project-nyra`.
 - `zsh`, `rsync`, `node`, `docker`, `docker compose`, `zellij`, and WaveTerm are installed.
-- Tailscale is logged in and MagicDNS can resolve `orchestrator.trex-fiordland.ts.net`, `worker-rtx5090.trex-fiordland.ts.net`, `worker-rtx3090ti.trex-fiordland.ts.net`, and `worker-rtx3060.trex-fiordland.ts.net`.
 - Infisical CLI is logged in or the required `INFISICAL_TOKEN` / project env vars are exported in the shell that will run Docker Compose.
 - Provider CLIs or OAuth flows are available for Codex CLI, Claude Code, Gemini CLI, and any free LLxprt-compatible providers you want to activate.
 
@@ -120,7 +130,7 @@ Launch the default durable cockpit:
 make wave-only
 ```
 
-Launch with the optional RTX3060 lane:
+Launch with the optional lane:
 
 ```bash
 make wave-only-3060

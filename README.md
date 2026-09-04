@@ -17,10 +17,6 @@ Project Nyra is an intelligent mortgage automation platform designed to ingest m
 
 - **worker-rtx5090** — Primary vLLM node.
 - **worker-rtx3090ti** — Secondary vLLM node.
-- **worker-rtx3060** — Ollama for utility models.
-
-### Networking
-
 - Private traffic over **Tailscale** (MagicDNS).
 - Public ingress via **Cloudflare Tunnel** (orchestrator and oracle-vps).
 

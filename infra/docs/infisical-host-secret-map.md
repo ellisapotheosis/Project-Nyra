@@ -226,9 +226,7 @@ These are oracle-vps-local values with no external canonical source yet:
 
 ---
 
-## HOST: worker-rtx3060
 
-**Infisical path:** `/hosts/worker-rtx3060`
 
 ### References
 
@@ -248,7 +246,7 @@ These are oracle-vps-local values with no external canonical source yet:
 
 ### Host-specific (canonical here)
 
-`COMPOSE_PROJECT_NAME=worker-rtx3060`, `OLLAMA_HOST`, `OLLAMA_MODELS`,
+`COMPOSE_PROJECT_NAME=`, `OLLAMA_HOST`, `OLLAMA_MODELS`,
 `OLLAMA_PORT=11434`, `LOKI_URL`, `NEXUS_ROUTER_URL`, `QUOTE_ENGINE_URL`,
 `WORKER_ID`
 

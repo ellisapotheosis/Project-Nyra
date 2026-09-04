@@ -441,7 +441,7 @@ Each profile in `~/.llxprt/profiles/` is a JSON file:
       "maxConcurrent": 3
     },
     {
-      "host": "worker-rtx3060",
+ "host":,
       "model": "mistral-7b",
       "backend": "ollama",
       "maxConcurrent": 2

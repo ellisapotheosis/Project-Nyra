@@ -239,7 +239,6 @@ None if volume mount auto-resolves.
 | Orchestrator     | Online      | 24/7, running services               |
 | Worker-RTX5090   | Online      | Development laptop, services running |
 | Worker-RTX3090Ti | Standby     | Ready for Phase 2                    |
-| Worker-RTX3060   | Standby     | Ready for Phase 2                    |
 | Oracle-VPS       | Online      | Supporting infrastructure            |
 | Infisical        | Operational | Cloud, 120+ secrets                  |
 | Tailscale        | Operational | Private mesh network                 |

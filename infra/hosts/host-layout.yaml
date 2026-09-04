@@ -69,16 +69,6 @@ hosts:
           - infra/hosts/worker-rtx3090ti/docker-compose.clawteam.yml
           - infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
           - infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
-      worker-rtx3060:
-        vram_gb: 12
-        role: ollama-inference
-        compose_files:
-          - infra/hosts/worker-rtx3060/docker-compose.yml
-          - infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
-          - infra/hosts/worker-rtx3060/docker-compose.gpu.yml
-          - infra/hosts/worker-rtx3060/docker-compose.clawteam.yml
-          - infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
-
   oracle-vps:
     owner: cloud
     compose_files:

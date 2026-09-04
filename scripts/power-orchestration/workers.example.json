@@ -3,19 +3,6 @@
   "wolPort": 9,
   "workers": [
     {
-      "id": "worker-rtx3060",
-      "name": "Worker RTX 3060",
-      "host": "worker-rtx3060",
-      "ip": "192.168.1.101",
-      "mac": "REPLACE_ME_MAC_3060",
-      "healthUrl": "http://worker-rtx3060:8080/health",
-      "shutdown": {
-        "method": "ssh",
-        "user": "REPLACE_ME_SSH_USER",
-        "command": "sudo shutdown -h now"
-      }
-    },
-    {
       "id": "worker-rtx3090ti",
       "name": "Worker RTX 3090 Ti",
       "host": "worker-rtx3090ti",

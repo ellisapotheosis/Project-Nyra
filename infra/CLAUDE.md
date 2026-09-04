@@ -30,18 +30,30 @@ without touching compose files and prevents collisions between stacks.
 Worker-scoped containers may append the worker identity after the prefix:
 
 ```yaml
-container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3060-ollama
+container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-vllm
 ```
 
 ## Host Inventory
 
-| Host             | Role                                                       | Primary Compose                             |
-| ---------------- | ---------------------------------------------------------- | ------------------------------------------- |
-| oracle-vps       | Cloud backend — CRM, DB, memory plane, public ingress      | `hosts/oracle-vps/docker-compose.yml`       |
-| orchestrator     | Control plane — LiteLLM, Nexus router, observability       | `hosts/orchestrator/docker-compose.yml`     |
-| worker-rtx3060   | Ollama inference (12 GB VRAM), distributed-voice STT       | `hosts/worker-rtx3060/docker-compose.yml`   |
-| worker-rtx3090ti | vLLM inference (24 GB VRAM), distributed-voice TTS         | `hosts/worker-rtx3090ti/docker-compose.yml` |
-| worker-rtx5090   | Primary vLLM inference (32 GB VRAM), distributed-voice LLM | `hosts/worker-rtx5090/docker-compose.yml`   |
+There are exactly **two** active GPU workers. The third GPU worker
+(an RTX 3060, tailnet address `.12`) has been **retired and sold**. It is not a standby, a
+fallback, a Wake-on-LAN target, an embedding host, or a deployment target. Do
+not reintroduce it.
+
+| Host             | Tailnet IP    | Role                                                                | Canonical Compose                          |
+| ---------------- | ------------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| oracle-vps       | `100.64.0.3`  | Control plane — LiteLLM gateway, OmniRoute, CRM, DB, memory plane, cloudflared ingress. **aarch64.** | root `compose.yaml` profile `oracle`       |
+| worker-rtx5090   | `100.64.0.11` | Primary vLLM inference (**24 GB VRAM, measured**) + LMCache Redis + embedding endpoint | root `compose.yaml` profile `worker-5090`  |
+| worker-rtx3090ti | `100.64.0.13` | Secondary vLLM inference (24 GB VRAM). Offline since ~2026-07-27.   | root `compose.yaml` profile `worker-3090ti`|
+
+The canonical deployment surface is the **root `compose.yaml`** with host
+profiles, driven by `scripts/deploy/deploy-{oracle,worker-5090,worker-3090ti,all}.sh`.
+The per-host overlay files under `hosts/` are being reconciled into it and are
+no longer the source of truth for the control plane.
+
+> The 5090 was previously documented here as 32 GB and elsewhere as 48 GB. Both
+> were wrong. `nvidia-smi` reports **24463 MiB** (RTX 5090 Laptop GPU). Size all
+> inference for 24 GB.
 
 ## Oracle-VPS Overlay Files
 

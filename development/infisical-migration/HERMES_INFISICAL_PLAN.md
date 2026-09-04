@@ -23,7 +23,6 @@
 | /hosts/oracle-vps         | 336                 |                                                                                                               |
 | /hosts/worker-rtx5090     | 303                 |                                                                                                               |
 | /hosts/worker-rtx3090ti   | 302                 |                                                                                                               |
-| /hosts/worker-rtx3060     | 302                 |                                                                                                               |
 | /hosts/orchestrator       | 325                 |                                                                                                               |
 
 NOTE: earlier scan3.json referenced /providers/litellm, /clients - those paths NO LONGER EXIST.

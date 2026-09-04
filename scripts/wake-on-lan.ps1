@@ -3,7 +3,7 @@
 
 [CmdletBinding()]
 param(
-    [ValidateSet('worker-rtx3060', 'worker-rtx3090ti', 'worker-rtx5090', 'worker1', 'worker2', 'worker3', 'all')]
+ [ValidateSet('', 'worker-rtx3090ti', 'worker-rtx5090', 'worker1', 'worker2', 'worker3', 'all')]
     [string]$Target = 'all',
 
     [ValidateSet('wake', 'status', 'shutdown', 'sleep', 'deploy')]
@@ -16,7 +16,7 @@ param(
 
 # Support legacy worker IDs and deploy action
 $workerMapping = @{
-    'worker1'   = 'worker-rtx3060'
+ 'worker1' = ''
     'worker2'   = 'worker-rtx5090'
     'worker3'   = 'worker-rtx3090ti'
 }

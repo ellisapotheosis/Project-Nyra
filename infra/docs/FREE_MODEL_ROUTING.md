@@ -113,8 +113,6 @@ Fallback when APIs unavailable or for privacy-critical tasks.
 | `local/qwen3.8-27b`    | worker-rtx5090 (32GB)   | Free       |
 | `local/gemma-4`        | worker-rtx5090          | Free       |
 | `local/qwen-coder-32b` | worker-rtx3090ti (24GB) | Free       |
-| `local/qwen2.5-4b`     | worker-rtx3060 (12GB)   | Free       |
-| `local/llama3.2-3b`    | worker-rtx3060          | Free       |
 
 ---
 

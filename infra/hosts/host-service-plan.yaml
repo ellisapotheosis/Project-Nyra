@@ -304,62 +304,6 @@ hosts:
             - _disabled
             ports: []
             category: service
-      worker-rtx3060:
-        compose_files:
-        - infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
-        - infra/compose/overrides/docker-compose.worker-rtx3060.override.yml
-        env_files:
-        - infra/env/.env.worker-rtx3060
-        services:
-          worker-rtx3060:
-            profiles: []
-            ports: []
-            category: service
-          postgres:
-            profiles: []
-            ports:
-            - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
-            category: data
-          redis:
-            profiles: []
-            ports:
-            - 127.0.0.1:${REDIS_PORT:-6379}:6379
-            category: data
-          mongo:
-            profiles: []
-            ports:
-            - 127.0.0.1:${MONGO_PORT:-27017}:27017
-            category: data
-          n8n:
-            profiles: []
-            ports:
-            - 127.0.0.1:${N8N_PORT:-5678}:5678
-            category: platform
-          grafana:
-            profiles: []
-            ports:
-            - 127.0.0.1:${GRAFANA_PORT:-3003}:3000
-            category: observability
-          prometheus:
-            profiles: []
-            ports:
-            - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
-            category: observability
-          loki:
-            profiles: []
-            ports:
-            - 127.0.0.1:${LOKI_PORT:-3100}:3100
-            category: observability
-          cadvisor:
-            profiles: []
-            ports:
-            - 127.0.0.1:${CADVISOR_PORT:-8081}:8080
-            category: service
-          cloudflared:
-            profiles:
-            - _disabled
-            ports: []
-            category: service
   oracle-vps:
     compose_files:
     - infra/oracle/docker-compose.oracle.yml
@@ -603,32 +547,20 @@ recommended_placement:
     node: worker-rtx3090ti
     reason: GPU-bound inference workload
   - service: cadvisor
-    node: worker-rtx3060
     reason: GPU-bound inference workload
   - service: cloudflared
-    node: worker-rtx3060
     reason: GPU-bound inference workload
   - service: grafana
-    node: worker-rtx3060
     reason: GPU-bound inference workload
   - service: loki
-    node: worker-rtx3060
     reason: GPU-bound inference workload
   - service: mongo
-    node: worker-rtx3060
     reason: GPU-bound inference workload
   - service: n8n
-    node: worker-rtx3060
     reason: GPU-bound inference workload
   - service: postgres
-    node: worker-rtx3060
     reason: GPU-bound inference workload
   - service: prometheus
-    node: worker-rtx3060
     reason: GPU-bound inference workload
   - service: redis
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: worker-rtx3060
-    node: worker-rtx3060
     reason: GPU-bound inference workload

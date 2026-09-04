@@ -151,13 +151,11 @@ The correct active paths are:
 
 I incorrectly created these top-level worker folders during the first pass:
 
-- `/worker-rtx3060`
 - `/worker-rtx3090ti`
 - `/worker-rtx5090`
 
 Cleanup status:
 
-- `/worker-rtx3060` was deleted.
 - `/worker-rtx3090ti` was deleted.
 - `/worker-rtx5090` was deleted.
 
@@ -175,12 +173,6 @@ I added or confirmed these direct `/base` keys in all three environments: `dev`,
 - `ORCHESTRATOR_HOSTNAME`
 - `ORCHESTRATOR_MAGICDNS`
 - `ORCHESTRATOR_TAILSCALE_MAGICDNS`
-- `WORKER_RTX3060_IP`
-- `WORKER_RTX3060_LAN_IP`
-- `WORKER_RTX3060_TAILSCALE_IP`
-- `WORKER_RTX3060_HOSTNAME`
-- `WORKER_RTX3060_MAGICDNS`
-- `WORKER_RTX3060_TAILSCALE_MAGICDNS`
 - `WORKER_RTX3090TI_IP`
 - `WORKER_RTX3090TI_LAN_IP`
 - `WORKER_RTX3090TI_TAILSCALE_IP`
@@ -193,7 +185,6 @@ I added or confirmed these direct `/base` keys in all three environments: `dev`,
 - `WORKER_RTX5090_HOSTNAME`
 - `WORKER_RTX5090_MAGICDNS`
 - `WORKER_RTX5090_TAILSCALE_MAGICDNS`
-- `RTX3060_LAN_IP`
 - `RTX3090TI_LAN_IP`
 - `RTX5090_LAN_IP`
 - `LAN_GATEWAY`
@@ -213,7 +204,6 @@ I then removed the duplicated direct copies of those network identity keys from:
 
 - `/hosts/orchestrator`
 - `/hosts/oracle-vps`
-- `/hosts/worker-rtx3060`
 - `/hosts/worker-rtx3090ti`
 - `/hosts/worker-rtx5090`
 

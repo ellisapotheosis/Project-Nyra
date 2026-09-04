@@ -26,10 +26,7 @@
 - **Services**: Prometheus, Grafana, Loki, cAdvisor, Node-Exporter
 - **Status**: ✓ Complete
 
-### 4. **Added Missing Observability Stack to worker-rtx3060** ✅
 
-- **Issue**: worker-rtx3060 was missing monitoring setup that other workers have
-- **Created**: `infra/hosts/worker-rtx3060/docker-compose.observability.yml`
 - **Services**: Prometheus, Grafana, Loki (local-only, port-bound to 127.0.0.1)
 - **Status**: ✓ Complete
 
@@ -39,44 +36,44 @@
 
 ### Multi-Host Containers (Shared Infrastructure)
 
-| Service                  | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
-| ------------------------ | :----------: | :------------: | :--------------: | :------------: | :--------: |
-| **portainer**            |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
-| **infisical-agent**      |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
-| **secrets-init**         |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
-| **portainer-edge-agent** |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
-| **prometheus**           |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
-| **grafana**              |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
-| **loki**                 |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
+| Service                  | orchestrator | worker-rtx5090 | worker-rtx3090ti | oracle-vps |
+| ------------------------ | :----------: | :------------: | :--------------: | :--------: |
+| **portainer**            |      ✅      |       ✅       |        ✅        |     ✅     |
+| **infisical-agent**      |      ✅      |       ✅       |        ✅        |     ✅     |
+| **secrets-init**         |      ✅      |       ✅       |        ✅        |     ✅     |
+| **portainer-edge-agent** |      ✅      |       ✅       |        ✅        |     ✅     |
+| **prometheus**           |      ✅      |       ✅       |        ✅        |     ✅     |
+| **grafana**              |      ✅      |       ✅       |        ✅        |     ✅     |
+| **loki**                 |      ✅      |       ✅       |        ✅        |     ✅     |
 
 ### GPU Worker Stack
 
-| Service           | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
-| ----------------- | :----------: | :------------: | :--------------: | :------------: | :--------: |
-| **vllm**          |      -       |       ✅       |        ✅        |       -        |     -      |
-| **vllm-server**   |      -       |       ✅       |        ✅        |       -        |     -      |
-| **ollama**        |      -       |       -        |        -         |       ✅       |     -      |
-| **ollama-server** |      -       |       -        |        -         |       ✅       |     -      |
-| **node-exporter** |      ✅      |       ✅       |        ✅        |       ✅       |     -      |
-| **gpu-exporter**  |      -       |       ✅       |        ✅        |       ✅       |     -      |
-| **cadvisor**      |      ✅      |       ✅       |        ✅        |       -        |     ✅     |
+| Service           | orchestrator | worker-rtx5090 | worker-rtx3090ti | oracle-vps |
+| ----------------- | :----------: | :------------: | :--------------: | :--------: |
+| **vllm**          |      -       |       ✅       |        ✅        |     -      |
+| **vllm-server**   |      -       |       ✅       |        ✅        |     -      |
+| **ollama**        |      -       |       -        |        -         |     -      |
+| **ollama-server** |      -       |       -        |        -         |     -      |
+| **node-exporter** |      ✅      |       ✅       |        ✅        |     -      |
+| **gpu-exporter**  |      -       |       ✅       |        ✅        |     -      |
+| **cadvisor**      |      ✅      |       ✅       |        ✅        |     ✅     |
 
 ### Databases & State (Per-Host or Shared)
 
-| Service         | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
-| --------------- | :----------: | :------------: | :--------------: | :------------: | :--------: |
-| **postgres**    |      -       |       ✅       |        ✅        |       -        |     ✅     |
-| **redis**       |      ✅      |       ✅       |        ✅        |       ✅       |     ✅     |
-| **mongo**       |      -       |       ✅       |        ✅        |       -        |     -      |
-| **redis-cache** |      -       |       ✅       |        ✅        |       -        |     ✅     |
+| Service         | orchestrator | worker-rtx5090 | worker-rtx3090ti | oracle-vps |
+| --------------- | :----------: | :------------: | :--------------: | :--------: |
+| **postgres**    |      -       |       ✅       |        ✅        |     ✅     |
+| **redis**       |      ✅      |       ✅       |        ✅        |     ✅     |
+| **mongo**       |      -       |       ✅       |        ✅        |     -      |
+| **redis-cache** |      -       |       ✅       |        ✅        |     ✅     |
 
 ### Observability & Logging
 
-| Service            | orchestrator | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060 | oracle-vps |
-| ------------------ | :----------: | :------------: | :--------------: | :------------: | :--------: |
-| **promtail**       |      -       |       ✅       |        ✅        |       ✅       |     -      |
-| **health-monitor** |      -       |       ✅       |        ✅        |       ✅       |     -      |
-| **model-switcher** |      -       |       ✅       |        ✅        |       ✅       |     -      |
+| Service            | orchestrator | worker-rtx5090 | worker-rtx3090ti | oracle-vps |
+| ------------------ | :----------: | :------------: | :--------------: | :--------: |
+| **promtail**       |      -       |       ✅       |        ✅        |     -      |
+| **health-monitor** |      -       |       ✅       |        ✅        |     -      |
+| **model-switcher** |      -       |       ✅       |        ✅        |     -      |
 
 ### Orchestrator-Specific Services
 
@@ -109,7 +106,6 @@
 | -------------------- | ------------------ | -------------------------- | --------------------------- |
 | **worker-rtx5090**   | RTX 5090 (48GB)    | Large models, reasoning    | vLLM, DeepSeek              |
 | **worker-rtx3090ti** | RTX 3090 Ti (24GB) | General purpose, assistant | vLLM, OpenClaw, Nerve UI    |
-| **worker-rtx3060**   | RTX 3060 (12GB)    | Smaller models, processing | Ollama, document processing |
 
 ---
 
@@ -153,10 +149,9 @@ infra/hosts/worker-rtx3090ti/
 └── promtail-config.yml                   (log shipping config)
 ```
 
-### Worker RTX3060
 
 ```
-infra/hosts/worker-rtx3060/
+infra/hosts//
 ├── docker-compose.yml                    (main: portainer, infisical, ollama, litellm)
 ├── docker-compose.worker-3060.yml        (ollama, model-preloader, redis, health-monitor)
 ├── docker-compose.worker.yml             (port overrides)

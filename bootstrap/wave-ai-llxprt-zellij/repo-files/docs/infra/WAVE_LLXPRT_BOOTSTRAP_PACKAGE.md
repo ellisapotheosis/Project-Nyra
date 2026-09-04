@@ -125,7 +125,6 @@ Then save provider profiles with those bucket labels if you want account-by-acco
 Installed presets:
 
 - `nyra-mission-control`: default Jefe + LLxprt HA + Zellij + bridge health.
-- `nyra-mission-control-3060`: includes the optional RTX3060 lane.
 - `nyra-provider-auth`: interactive LLxprt OAuth/keyring setup.
 - `nyra-openclaw-topology`: worker OpenClaw/PicoClaw logs.
 - `nyra-cluster-health`: Docker context, Nexus, and GPU status.
@@ -133,7 +132,6 @@ Installed presets:
 Keybindings:
 
 - `Cmd+Shift+C`: mission control.
-- `Cmd+Shift+6`: mission control with RTX3060.
 - `Cmd+Shift+D`: provider auth.
 - `Cmd+Shift+L`: OpenClaw topology.
 - `Cmd+Shift+M`: cluster health.

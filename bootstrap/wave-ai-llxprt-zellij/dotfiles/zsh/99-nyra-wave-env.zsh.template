@@ -7,7 +7,6 @@ export NYRA_ORCHESTRATOR_HOST="${NYRA_ORCHESTRATOR_HOST:-orchestrator.trex-fiord
 export NYRA_ORACLE_HOST="${NYRA_ORACLE_HOST:-oracle-vps.trex-fiordland.ts.net}"
 export NYRA_WORKER_5090_HOST="${NYRA_WORKER_5090_HOST:-worker-rtx5090.trex-fiordland.ts.net}"
 export NYRA_WORKER_3090TI_HOST="${NYRA_WORKER_3090TI_HOST:-worker-rtx3090ti.trex-fiordland.ts.net}"
-export NYRA_WORKER_3060_HOST="${NYRA_WORKER_3060_HOST:-worker-rtx3060.trex-fiordland.ts.net}"
 
 # Nexus / LiteLLM / Letta / bridge endpoints.
 export NYRA_NEXUS_BASE_URL="${NYRA_NEXUS_BASE_URL:-http://${NYRA_ORCHESTRATOR_HOST}:6000/v1}"

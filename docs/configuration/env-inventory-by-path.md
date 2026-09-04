@@ -323,7 +323,6 @@ Generated from every file whose filename contains `.env` in the repo root, `infr
 | `WORKER_5090_MODEL` | No |
 | `WORKER_5090_VLLM_PORT` | No |
 
-## `infra/env/.env.worker-rtx3060.example`
 
 | Variable | Sensitive? |
 |---|---|
@@ -741,7 +740,6 @@ Generated from every file whose filename contains `.env` in the repo root, `infr
 | `NYRA_VOICE_EDGE_IMAGE` | No |
 | `NYRA_VOICE_EGRESS_IMAGE` | No |
 | `NYRA_VOICE_LLM_BRIDGE_IMAGE` | No |
-| `RTX3060_LAN_IP` | No |
 | `RTX3090TI_LAN_IP` | No |
 | `RTX5090_LAN_IP` | No |
 | `STT_PRECISION` | No |
@@ -1119,7 +1117,6 @@ Generated from every file whose filename contains `.env` in the repo root, `infr
 | `PORTAINER_PORT` | No |
 | `PORTAINER_PUBLIC_URL` | No |
 
-## `infra/hosts/worker-rtx3060/.env.example`
 
 | Variable | Sensitive? |
 |---|---|

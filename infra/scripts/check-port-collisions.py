@@ -12,7 +12,6 @@ import yaml
 BASE = Path("infra/docker-compose.yml")
 STACKS = {
     "orchestrator": [Path("infra/compose/overrides/docker-compose.orchestrator.override.yml")],
-    "worker-rtx3060": [Path("infra/compose/overrides/docker-compose.worker-rtx3060.override.yml")],
     "worker-rtx3090ti": [Path("infra/compose/overrides/docker-compose.worker-rtx3090ti.override.yml")],
     "worker-rtx5090": [Path("infra/compose/overrides/docker-compose.worker-rtx5090.override.yml")],
     "oracle": [Path("infra/compose/overrides/docker-compose.oracle.override.yml")],

@@ -177,7 +177,7 @@ project-nyra/
         ├── oracle/
         ├── orchestrator/
         ├── local-dev/
-        ├── worker-rtx3060/
+ ├── /
         ├── worker-rtx3090ti/
         └── worker-rtx5090/
 ```

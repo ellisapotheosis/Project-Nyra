@@ -4,7 +4,6 @@
 # Sets up development tunnel on worker PCs
 #
 # Usage: sudo ./setup-worker-tunnel.sh <worker-id>
-#        worker-id: rtx5090 | rtx3060 | rtx3090ti
 #
 
 set -euo pipefail
@@ -48,7 +47,7 @@ log_warning() {
 # Validate worker ID
 if [[ -z "$WORKER_ID" ]]; then
     log_error "Usage: sudo $0 <worker-id>"
-    log_error "worker-id: rtx5090 | rtx3060 | rtx3090ti"
+ log_error "worker-id: rtx5090 | | rtx3090ti"
     exit 1
 fi
 
@@ -57,8 +56,6 @@ case "$WORKER_ID" in
         TUNNEL_NAME="nyra-dev-worker-rtx5090"
         WORKER_IP="10.0.0.2"
         ;;
-    rtx3060)
-        TUNNEL_NAME="nyra-dev-worker-rtx3060"
         WORKER_IP="10.0.0.3"
         ;;
     rtx3090ti)
@@ -67,7 +64,7 @@ case "$WORKER_ID" in
         ;;
     *)
         log_error "Invalid worker ID: $WORKER_ID"
-        log_error "Valid options: rtx5090, rtx3060, rtx3090ti"
+ log_error "Valid options: rtx5090, rtx3090ti"
         exit 1
         ;;
 esac
@@ -176,7 +173,6 @@ ingress:
   - service: http_status:404
 EOF
 else
-    # RTX5090 / RTX3060 - Development workers
     cat > "$CONFIG_DIR/config-$WORKER_ID.yml" << EOF
 tunnel: $TUNNEL_ID
 credentials-file: $CONFIG_DIR/$TUNNEL_ID.json

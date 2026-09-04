@@ -30,7 +30,6 @@
       },
       "litellm/nyra/local-utility": {
         "status": "configured",
-        "hardware": "RTX3060 Ollama",
         "context_window": 8192
       },
       "litellm/nyra/free": {
@@ -100,7 +99,9 @@
   "plugins": {
     "status": "yellow",
     "installed": [],
-    "configured_but_not_installed": ["@mem0/openclaw-mem0"],
+    "configured_but_not_installed": [
+      "@mem0/openclaw-mem0"
+    ],
     "warnings": [
       "exa-plugin requires API >=2026.7.2-beta.7",
       "firecrawl-plugin requires API >=2026.7.2-beta.7",
