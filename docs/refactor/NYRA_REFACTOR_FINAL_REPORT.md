@@ -49,37 +49,37 @@ Full evidence: `NYRA_REFACTOR_VALIDATION.md`.
 
 ## Exact live topology
 
-| Host | Tailnet IP | Arch | OS | Docker | Compose |
-|---|---|---|---|---|---|
-| `oracle-vps` (`nyra-oracle-vnic`) | `100.64.0.3` | **aarch64** | Linux | 29.7.2 | v5.5.0 |
-| `worker-rtx5090` (`AlienApoth51`) | `100.64.0.11` | x86_64 | WSL2 6.18.33.2 | 29.7.2 | v5.5.0 |
-| `worker-rtx3090ti` | `100.64.0.13` | — | — | — | — (offline 39 days) |
+| Host                              | Tailnet IP    | Arch        | OS             | Docker | Compose             |
+| --------------------------------- | ------------- | ----------- | -------------- | ------ | ------------------- |
+| `oracle-vps` (`nyra-oracle-vnic`) | `100.64.0.3`  | **aarch64** | Linux          | 29.7.2 | v5.5.0              |
+| `worker-rtx5090` (`AlienApoth51`) | `100.64.0.11` | x86_64      | WSL2 6.18.33.2 | 29.7.2 | v5.5.0              |
+| `worker-rtx3090ti`                | `100.64.0.13` | —           | —              | —      | — (offline 39 days) |
 
 Tailnet `trex-fiordland.ts.net`. Repo-asserted IPs matched live exactly; no
 correction required.
 
-| GPU | Measured |
-|---|---|
-| `worker-rtx5090` | **NVIDIA GeForce RTX 5090 Laptop GPU, 24463 MiB, driver 616.64** |
-| `worker-rtx3090ti` | not measurable — host offline |
+| GPU                | Measured                                                         |
+| ------------------ | ---------------------------------------------------------------- |
+| `worker-rtx5090`   | **NVIDIA GeForce RTX 5090 Laptop GPU, 24463 MiB, driver 616.64** |
+| `worker-rtx3090ti` | not measurable — host offline                                    |
 
 The repository claimed 48 GB (`nexus-router/src/config.ts`) and 32 GB
 (`infra/CLAUDE.md`). Both were wrong. Everything is sized for **24 GB**.
 
 ### Versions
 
-| Component | Before | After |
-|---|---|---|
-| LiteLLM (Oracle) | `:v1.92.0` | `@sha256:a53a7d3f…eeb82c` (**v1.99.1**) |
-| LiteLLM (5090) | `:main-latest` | **retired** — single gateway |
-| Redis | `:7-alpine` | `@sha256:ff02b58f…28eadf` |
-| vLLM | **not deployed** | `lmcache/vllm-openai@sha256:cb0a7630…fb8999` (authored) |
-| LMCache | **not deployed** | authored |
-| Grafbase Nexus | `:0.6.0` | pending deletion |
-| Nexus Router | `projectnyra/nexus-router:arm64` | pending deletion |
-| cloudflared | `:2026.7.1` | unchanged |
-| Tailscale | `1.102.3` | unchanged |
-| OmniRoute | local build, no upstream tag | unchanged, needs a digest |
+| Component        | Before                           | After                                                   |
+| ---------------- | -------------------------------- | ------------------------------------------------------- |
+| LiteLLM (Oracle) | `:v1.92.0`                       | `@sha256:a53a7d3f…eeb82c` (**v1.99.1**)                 |
+| LiteLLM (5090)   | `:main-latest`                   | **retired** — single gateway                            |
+| Redis            | `:7-alpine`                      | `@sha256:ff02b58f…28eadf`                               |
+| vLLM             | **not deployed**                 | `lmcache/vllm-openai@sha256:cb0a7630…fb8999` (authored) |
+| LMCache          | **not deployed**                 | authored                                                |
+| Grafbase Nexus   | `:0.6.0`                         | pending deletion                                        |
+| Nexus Router     | `projectnyra/nexus-router:arm64` | pending deletion                                        |
+| cloudflared      | `:2026.7.1`                      | unchanged                                               |
+| Tailscale        | `1.102.3`                        | unchanged                                               |
+| OmniRoute        | local build, no upstream tag     | unchanged, needs a digest                               |
 
 `v1.99.1` was confirmed to publish a `linux/arm64` manifest **before** pinning —
 without it the whole upgrade would have been impossible on aarch64 Oracle.
@@ -91,24 +91,24 @@ without it the whole upgrade would have been impossible on aarch64 Oracle.
 39-row capability matrix: `NEXUS_CAPABILITY_MIGRATION_MATRIX.md`.
 Architectural archive: `../archive/nexus-router-retired.md`.
 
-| Old responsibility | Replacement |
-|---|---|
-| MCP server registration (2 conflicting registries) | LiteLLM `mcp_servers` — one declarative registry |
-| `GET /mcp/tools/search` (Fuse.js lexical) | LiteLLM Virtual Tool Search + `mcp_semantic_tool_filter` (embedding-based) |
-| Tool namespacing | LiteLLM MCP server-name namespacing + `mcp_tool_permissions` |
-| Server `enabled` / `priority` | `mcp_access_groups`; `priority` removed — it fights relevance ranking |
-| `getAuthHeaders` per-server auth | `auth_type`/`auth_value` from Infisical; Agent Proxy where an agent must not hold the credential |
-| `middleware/oauth2.ts` (376 lines) | Cloudflare Access + service tokens + LiteLLM virtual keys |
-| Redis rate limiting | LiteLLM key `rpm_limit`/`tpm_limit`/`max_budget` + Cloudflare edge |
-| helmet/CORS/express hardening | not needed — the origin is no longer publicly exposed |
-| `parseLocalWorkers`, `worker-manager` (771 lines) | `model_list` + `router_settings` |
-| `routing.strategy`/`preferLocal`/`fallbackCloud` | ordered `router_settings.fallbacks` |
-| `provider-manager` (526), `model-discovery`, `cloud-provider-adapters` | **deleted** — re-implemented LiteLLM in front of LiteLLM |
-| `integrations/litellm-client.ts` (273) | **deleted** — the hop is removed |
-| metrics collector / tracker / request logger | LiteLLM native logging + existing Prometheus/Grafana/OpenLIT |
-| `/api/quote`, `/api/twenty/*` routes | **stayed application-side.** LiteLLM is a gateway, not the new monolith. Agent access is via a first-party MCP server with a read/write split, not an unauthenticated path wildcard carrying mutating verbs. |
-| Grafbase Nexus MCP aggregation | LiteLLM `mcp_servers` (registry harvested from its live `nexus.toml`) |
-| Cloudflare portal → Nexus | portal → LiteLLM `/mcp`; **boundary preserved, origin changed** |
+| Old responsibility                                                     | Replacement                                                                                                                                                                                                  |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| MCP server registration (2 conflicting registries)                     | LiteLLM `mcp_servers` — one declarative registry                                                                                                                                                             |
+| `GET /mcp/tools/search` (Fuse.js lexical)                              | LiteLLM Virtual Tool Search + `mcp_semantic_tool_filter` (embedding-based)                                                                                                                                   |
+| Tool namespacing                                                       | LiteLLM MCP server-name namespacing + `mcp_tool_permissions`                                                                                                                                                 |
+| Server `enabled` / `priority`                                          | `mcp_access_groups`; `priority` removed — it fights relevance ranking                                                                                                                                        |
+| `getAuthHeaders` per-server auth                                       | `auth_type`/`auth_value` from Infisical; Agent Proxy where an agent must not hold the credential                                                                                                             |
+| `middleware/oauth2.ts` (376 lines)                                     | Cloudflare Access + service tokens + LiteLLM virtual keys                                                                                                                                                    |
+| Redis rate limiting                                                    | LiteLLM key `rpm_limit`/`tpm_limit`/`max_budget` + Cloudflare edge                                                                                                                                           |
+| helmet/CORS/express hardening                                          | not needed — the origin is no longer publicly exposed                                                                                                                                                        |
+| `parseLocalWorkers`, `worker-manager` (771 lines)                      | `model_list` + `router_settings`                                                                                                                                                                             |
+| `routing.strategy`/`preferLocal`/`fallbackCloud`                       | ordered `router_settings.fallbacks`                                                                                                                                                                          |
+| `provider-manager` (526), `model-discovery`, `cloud-provider-adapters` | **deleted** — re-implemented LiteLLM in front of LiteLLM                                                                                                                                                     |
+| `integrations/litellm-client.ts` (273)                                 | **deleted** — the hop is removed                                                                                                                                                                             |
+| metrics collector / tracker / request logger                           | LiteLLM native logging + existing Prometheus/Grafana/OpenLIT                                                                                                                                                 |
+| `/api/quote`, `/api/twenty/*` routes                                   | **stayed application-side.** LiteLLM is a gateway, not the new monolith. Agent access is via a first-party MCP server with a read/write split, not an unauthenticated path wildcard carrying mutating verbs. |
+| Grafbase Nexus MCP aggregation                                         | LiteLLM `mcp_servers` (registry harvested from its live `nexus.toml`)                                                                                                                                        |
+| Cloudflare portal → Nexus                                              | portal → LiteLLM `/mcp`; **boundary preserved, origin changed**                                                                                                                                              |
 
 **Deliberately not reproduced:** Bitwarden MCP (Infisical is the secret
 authority), Gemini MCP (providers belong in `model_list`), `search-terms` route
@@ -123,23 +123,23 @@ authority), Gemini MCP (providers belong in `model_list`), `search-terms` route
 Every category the directive lists, removed from active source, deployment,
 docs and configuration. **Git history untouched.**
 
-| Category | Action |
-|---|---|
-| Host directory | `infra/hosts/worker-rtx3060/` — **54 files deleted** (compose overlays, embedding-service, health-monitor, model-switcher, promtail, PS1 lifecycle scripts) |
-| Deployment target | removed from `deploy-all.sh`, `DEPLOY-ALL-NODES.sh`, `node-up.sh`, `node-down.sh`, `nyra` CLI |
-| Makefile | 55 lines: targets, variables, docker contexts, host lists. `make -n` parses clean |
-| Worker lane / fallback | removed from LiteLLM `model_list` and every fallback chain |
-| Embedding host | **workload moved, not dropped** — see below |
-| Ollama worker | removed |
-| Wake-on-LAN | removed from `wake-on-lan.ps1`, `power-orchestration/workers.example.json` |
-| ClawTeam node | removed from oracle + orchestrator ClawTeam compose |
-| Infisical path | removed from `phase1-infisical-setup.sh`, `upload-worker-secrets.ps1`, secret maps |
-| CI | `.github/workflows/python-lint.yml` lint path removed |
-| Health checks / observability | `health-check.sh`, `nyra-doctor`, `nyra-maintenance`, `validate-agent-infra.sh`, waveterm/zellij dashboards |
-| llxprt profiles | 7 profile JSONs deleted |
-| Docs | host matrices, cluster-setup guides, network maps, `infra/CLAUDE.md` inventory |
-| Env templates | `infra/env/.env.worker-rtx3060.example` deleted |
-| Tests | `services/mem0/tests/test_config.py` repointed to the 5090 |
+| Category                      | Action                                                                                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Host directory                | `infra/hosts/worker-rtx3060/` — **54 files deleted** (compose overlays, embedding-service, health-monitor, model-switcher, promtail, PS1 lifecycle scripts) |
+| Deployment target             | removed from `deploy-all.sh`, `DEPLOY-ALL-NODES.sh`, `node-up.sh`, `node-down.sh`, `nyra` CLI                                                               |
+| Makefile                      | 55 lines: targets, variables, docker contexts, host lists. `make -n` parses clean                                                                           |
+| Worker lane / fallback        | removed from LiteLLM `model_list` and every fallback chain                                                                                                  |
+| Embedding host                | **workload moved, not dropped** — see below                                                                                                                 |
+| Ollama worker                 | removed                                                                                                                                                     |
+| Wake-on-LAN                   | removed from `wake-on-lan.ps1`, `power-orchestration/workers.example.json`                                                                                  |
+| ClawTeam node                 | removed from oracle + orchestrator ClawTeam compose                                                                                                         |
+| Infisical path                | removed from `phase1-infisical-setup.sh`, `upload-worker-secrets.ps1`, secret maps                                                                          |
+| CI                            | `.github/workflows/python-lint.yml` lint path removed                                                                                                       |
+| Health checks / observability | `health-check.sh`, `nyra-doctor`, `nyra-maintenance`, `validate-agent-infra.sh`, waveterm/zellij dashboards                                                 |
+| llxprt profiles               | 7 profile JSONs deleted                                                                                                                                     |
+| Docs                          | host matrices, cluster-setup guides, network maps, `infra/CLAUDE.md` inventory                                                                              |
+| Env templates                 | `infra/env/.env.worker-rtx3060.example` deleted                                                                                                             |
+| Tests                         | `services/mem0/tests/test_config.py` repointed to the 5090                                                                                                  |
 
 **Total: 227 files changed, 13,694 deletions.**
 
@@ -174,13 +174,14 @@ genuine residual security item.
 
 ### Model groups and routing
 
-| Alias | Backing |
-|---|---|
-| `nyra-general` | vLLM on both workers |
-| `nyra-fast` | Ollama `qwen3.5:latest` (5090) |
-| `nyra-reasoning` | vLLM (5090), extended timeouts |
-| `nyra-coding` | vLLM (5090) |
-| `nyra-embedding` | Ollama `nomic-embed-text` (5090), 768 dims |
+| Alias            | Backing                                                             |
+| ---------------- | ------------------------------------------------------------------- |
+| `nyra-general`   | vLLM on both workers                                                |
+| `nyra-fast`      | Ollama `qwen3.5:latest` (5090)                                      |
+| `nyra-reasoning` | vLLM (5090), extended timeouts                                      |
+| `nyra-coding`    | vLLM (5090)                                                         |
+| `nyra-embedding` | llama.cpp `nomic-embed-text-v1.5` (**orchestrator, CPU**), 768 dims |
+| `nyra-memory`    | bitnet.cpp `BitNet b1.58 2B-4T` (**orchestrator, CPU**)             |
 
 ```
 local GPU -> OmniRoute -> OpenRouter -> paid (NONE enabled)
@@ -200,13 +201,13 @@ blank dependencies.
 
 ### MCP registrations
 
-| Server | Group | Status |
-|---|---|---|
-| `nyra_crm` | `nyra-mortgage` | reachable; **upstream handshake bug** |
-| `nyra_tailscale` | `nyra-admin` | **blocked on host rebind** |
-| `cloudflare_docs` | `nyra-dev` | working |
-| `cloudflare_api` / `_bindings` / `_builds` / `_ai_gateway` | `nyra-admin` | working with a token |
-| `cloudflare_observability` | `nyra-admin`, `nyra-observability` | working with a token |
+| Server                                                     | Group                              | Status                                |
+| ---------------------------------------------------------- | ---------------------------------- | ------------------------------------- |
+| `nyra_crm`                                                 | `nyra-mortgage`                    | reachable; **upstream handshake bug** |
+| `nyra_tailscale`                                           | `nyra-admin`                       | **blocked on host rebind**            |
+| `cloudflare_docs`                                          | `nyra-dev`                         | working                               |
+| `cloudflare_api` / `_bindings` / `_builds` / `_ai_gateway` | `nyra-admin`                       | working with a token                  |
+| `cloudflare_observability`                                 | `nyra-admin`, `nyra-observability` | working with a token                  |
 
 `allow_all_keys: false` everywhere.
 
@@ -240,7 +241,7 @@ a one-line flip once `/v1/embeddings` returns a 768-vector.
 ### A2A and Skills
 
 `agent_search` **does not exist in v1.99.1** — the directive's conditional is
-unmet, so no `agent_search` config was written. The A2A endpoints that *do*
+unmet, so no `agent_search` config was written. The A2A endpoints that _do_
 exist are documented. No agents registered yet; only stable capabilities with
 genuine persistent endpoints should be, never transient ClawTeam subagents.
 
@@ -318,6 +319,133 @@ No dynamic secrets were implemented.
 
 ---
 
+## Addendum — orchestrator becomes the memory-manager host
+
+Added after the sections below were written; those sections describe the state
+immediately after the LiteLLM-native migration, this describes what changed
+next.
+
+### Corrected environment fact
+
+All three Windows hosts run WSL2 in **mirrored networking mode**. The Tailscale
+interface is visible _inside_ the guest as a real interface — `ip addr show` on
+`worker-rtx5090` shows `100.64.0.11/32` on `eth1`, and `ssh`/`curl`/`ping` to
+tailnet addresses work natively from WSL2 bash. The claim elsewhere in this
+report's lineage that "WSL2 is not itself a tailnet peer" is **wrong**. The only
+thing that needs the Windows detour is the `tailscale` CLI binary itself.
+
+Separately: inbound SSH to `orchestrator` lands in a Windows shell, so remote
+deployment must be re-entered into the `Ubuntu-24.04` WSL distro.
+
+### Fourth host, four roles
+
+| Host                             | Role                                                          |
+| -------------------------------- | ------------------------------------------------------------- |
+| `oracle-vps` `100.64.0.3`        | the only gateway                                              |
+| `orchestrator` `100.64.0.10`     | memory manager — embeddings + consolidation LLM, **CPU only** |
+| `worker-rtx5090` `100.64.0.11`   | pure inference                                                |
+| `worker-rtx3090ti` `100.64.0.13` | pure inference (still offline — ping fails)                   |
+
+`orchestrator` measured 2026-09-04: Ryzen 7 6800H, 8C/16T, 15.2 GB RAM, Docker
+Desktop on a WSL2 backend whose VM reports 7 GB. No discrete GPU.
+
+### The embedding workload moved again, invariant preserved
+
+Retired RTX 3060 Ollama → `worker-rtx5090` Ollama → `orchestrator` llama.cpp.
+Third move, same invariant: **same model family, same 768 dimensions, zero
+re-embedding.**
+
+This time it was measured rather than argued. Same input through both endpoints:
+
+|               | worker-rtx5090 Ollama   | orchestrator llama.cpp                          |
+| ------------- | ----------------------- | ----------------------------------------------- |
+| dimensions    | 768                     | 768                                             |
+| L2 norm       | 1.0                     | 1.0                                             |
+| self-reported | `nomic-bert`, 137M, F16 | `n_embd=768`, `n_params=136727040`, `ftype=F16` |
+
+Cosine similarity **0.999999581**, max elementwise delta **9.9e-05**. The GGUF
+is `nomic-ai/nomic-embed-text-v1.5-GGUF` / `nomic-embed-text-v1.5.f16.gguf`.
+
+Both GPU workers are now pure inference. The freed VRAM allowance stays as
+headroom — `gpu_memory_utilization` was **not** raised on the strength of this,
+because it has not been re-measured under load.
+
+### Memory manager
+
+`nyra-memory` backs the `.agent/` episodic → semantic consolidation lane.
+bitnet.cpp is a fork of llama.cpp's `llama-server`, so LiteLLM reaches it with
+the `openai/` provider. It is absent from every fallback chain in both
+directions.
+
+**Finding: the dream cycle does not call a model, and should not.**
+`.agent/memory/auto_dream.py`, `promote.py` and `cluster.py` are mechanical by
+design — clustering, salience thresholds, lifecycle bookkeeping — and their own
+docstrings assign subjective validation to the host agent via
+`graduate.py`/`reject.py`. `LESSONS.md` is rendered, never model-written. The
+genuine model seam is `.agent/harness/llm.py`, used by `conductor.py`, and that
+is what was wired: it gained `AGENT_BASE_URL`/`AGENT_API_KEY` so a lane can
+target LiteLLM without setting `OPENAI_*` globally (which would break Claude
+Code/Codex native auth). Config: `infra/env/agent-memory.env.example`.
+
+### Two stale things reconciled
+
+- **`infra/hosts/orchestrator/bitnet/`** — reused, not duplicated. Fixed: pinned
+  the `git clone` to `microsoft/BitNet @ 0b341e58`, pinned weights to
+  `microsoft/bitnet-b1.58-2B-4T-gguf @ a1f2f1c7` on the canonical lowercase repo
+  id, made the `ggml-bitnet-mad.cpp` patch idempotent, cut `mem_limit` 10g→3g
+  and threads 10→6 to fit the measured host, and narrowed the host bind from
+  `0.0.0.0` to the tailnet address. `docker-compose.bitnet.yml` was removed as
+  superseded by the root profile. The live `orchestrator-bitnet` container has
+  been stopped since 2026-06-14 (exit 137, **not** OOM-killed).
+- **`infra/hosts/orchestrator/litellm/`** — **deleted**, along with
+  `docker-compose.litellm.yml`. It was a second, dead LiteLLM control plane: not
+  running, self-described as the "PRIMARY LiteLLM instance", pinned to the
+  superseded `:v1.92.0`, binding `0.0.0.0:4010`, routing to the retired RTX 3060
+  and the retired llxprt bridge, and addressing workers by `*.projectnyra.com`
+  hostnames that do not resolve from container networks. **It also carried a
+  hardcoded llxprt bridge API key as a compose default** — add that credential
+  to the rotation list below.
+
+### Verified in this pass
+
+| Check                                                            | Result                                                                           |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| llama.cpp CPU embedding vs 5090 Ollama, same input               | **768 dims both, cosine 0.999999581**                                            |
+| `--hf-repo`/`--hf-file` auto-download path used by compose       | **works**, cached to the volume, identical vectors                               |
+| Pinned LiteLLM v1.99.1 boot against the new config               | **readiness 200, 12 model groups**, no schema errors                             |
+| `POST /v1/embeddings {"model":"nyra-embedding"}` through LiteLLM | **200, 768-element vector**                                                      |
+| `mcp_semantic_tool_filter.enabled: true` boot                    | **readiness 200**, semantic router indexed against `nyra-embedding`              |
+| All five compose profiles render                                 | **PASS** (oracle, orchestrator, worker-5090, worker-3090ti, agent-containerized) |
+| No `0.0.0.0` bind in any profile                                 | **PASS**                                                                         |
+| Docker on orchestrator publishes on the tailnet IP               | **PASS** — live TCP connect from `100.64.0.11` to `100.64.0.10:8081`             |
+| `shellcheck -S warning scripts/deploy/*.sh`                      | **PASS**                                                                         |
+| `.agent/harness/llm.py` base-URL routing                         | **PASS** (stubbed SDK — `openai` is not installed here)                          |
+
+### Still blocked, with the exact commands
+
+1. **The `orchestrator` profile is not deployed**, so neither origin answers.
+   ```bash
+   ssh orchestrator 'wsl -d Ubuntu-24.04 -e bash -lc \
+     "cd ~/project-nyra && ./scripts/deploy/deploy-orchestrator.sh"'
+   ```
+2. **`mcp_semantic_tool_filter` stays `enabled: false`** until that origin
+   answers. The blocker is no longer the 5090 Ollama bind — that dependency is
+   gone. Flip it after:
+   ```bash
+   curl -sS http://100.64.0.3:4000/v1/embeddings \
+     -H "Authorization: Bearer $NYRA_LITELLM_DEV_KEY" \
+     -H 'Content-Type: application/json' \
+     -d '{"model":"nyra-embedding","input":"mortgage lead lookup"}'
+   ```
+3. **`AGENT_API_KEY` for the memory lane does not exist yet** — it needs a
+   scoped virtual key including `nyra-memory`, minted with the master key on
+   `oracle-vps` and stored in Infisical.
+4. **`worker-rtx3090ti` is still unreachable** (`ping 100.64.0.13` fails).
+5. **Rotate the llxprt bridge API key** that was hardcoded in the deleted
+   `infra/hosts/orchestrator/docker-compose.litellm.yml`.
+
+---
+
 ## Inference
 
 **vLLM and LMCache were not deployed anywhere before this migration** — this is
@@ -337,10 +465,10 @@ boundary, and the 3090 Ti has been offline 39 days.
 
 Two Redis instances, never shared:
 
-| Host | Service | Purpose | Persistence |
-|---|---|---|---|
-| `oracle-vps` | `litellm-redis` | gateway cache/control | `appendonly yes`, 2 GB, `allkeys-lru` |
-| `worker-rtx5090` | `lmcache-redis` | GPU KV backend, `redis://100.64.0.11:6379` | `appendonly no`, `save ""` |
+| Host             | Service         | Purpose                                    | Persistence                           |
+| ---------------- | --------------- | ------------------------------------------ | ------------------------------------- |
+| `oracle-vps`     | `litellm-redis` | gateway cache/control                      | `appendonly yes`, 2 GB, `allkeys-lru` |
+| `worker-rtx5090` | `lmcache-redis` | GPU KV backend, `redis://100.64.0.11:6379` | `appendonly no`, `save ""`            |
 
 `LMCACHE_USE_EXPERIMENTAL=True` remains an environment variable.
 `LMCACHE_ENABLE` is not used. `LMCACHE_REDIS_MAXMEMORY` has no default — it must
@@ -354,18 +482,18 @@ session; the 3090 Ti is offline.
 
 ## Tests
 
-| Command | Result |
-|---|---|
-| `docker compose --profile {oracle,worker-5090,worker-3090ti,agent-containerized} config` | **PASS** (4/4) |
-| `./scripts/deploy/validate-compose-profiles.sh` | **PASS** — no unresolved `${VAR:?}` |
-| `shellcheck -S warning scripts/deploy/*.sh` | **PASS** — clean |
-| `make -n help` | **PASS** — exit 0 |
-| YAML/JSON/Python parse, whole repo | **PASS** — 0 regressions (2 pre-existing failures) |
-| Boot v1.99.1 against the new config | **PASS** — readiness 200, 12 model groups, no schema errors |
-| `pytest tests/integration/mcp` | 1 passed, 28 skipped |
-| **Nexus deletion gate** | **0/22 exercised — NOT MET** |
-| `git grep` retired-worker gate | **PASS** |
-| `git grep` Nexus gate | **not run** — Nexus not deleted |
+| Command                                                                                  | Result                                                      |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `docker compose --profile {oracle,worker-5090,worker-3090ti,agent-containerized} config` | **PASS** (4/4)                                              |
+| `./scripts/deploy/validate-compose-profiles.sh`                                          | **PASS** — no unresolved `${VAR:?}`                         |
+| `shellcheck -S warning scripts/deploy/*.sh`                                              | **PASS** — clean                                            |
+| `make -n help`                                                                           | **PASS** — exit 0                                           |
+| YAML/JSON/Python parse, whole repo                                                       | **PASS** — 0 regressions (2 pre-existing failures)          |
+| Boot v1.99.1 against the new config                                                      | **PASS** — readiness 200, 12 model groups, no schema errors |
+| `pytest tests/integration/mcp`                                                           | 1 passed, 28 skipped                                        |
+| **Nexus deletion gate**                                                                  | **0/22 exercised — NOT MET**                                |
+| `git grep` retired-worker gate                                                           | **PASS**                                                    |
+| `git grep` Nexus gate                                                                    | **not run** — Nexus not deleted                             |
 
 Not run, with reasons in `NYRA_REFACTOR_VALIDATION.md` §8: model-plane
 acceptance, MCP-plane acceptance, Cloudflare acceptance, LMCache acceptance,
@@ -398,11 +526,11 @@ partitioned by construction.
 
 ### Exposure matrix (`ss -lntup` on `oracle-vps`)
 
-| Bind | Ports | Verdict |
-|---|---|---|
-| `0.0.0.0` | 6379 (Redis), 7000 (nexus-router), 5678, 8400, 8777, 8771, 8774, 4001, 8000, 8020, 8050, 8081, 8085, 8089, 7070, 54322, 111, 23 | **HIGH — internet-facing on a public cloud VM.** Pre-existing. |
-| `100.64.0.3` | 53, 80, 443, 3000, 3001, 3004, 4000, 5001, 6000, 20128 | correct |
-| `127.0.0.1` | 3399, 8283, 8284, 8765, 8769, 9090, 4010 | correct |
+| Bind         | Ports                                                                                                                           | Verdict                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `0.0.0.0`    | 6379 (Redis), 7000 (nexus-router), 5678, 8400, 8777, 8771, 8774, 4001, 8000, 8020, 8050, 8081, 8085, 8089, 7070, 54322, 111, 23 | **HIGH — internet-facing on a public cloud VM.** Pre-existing. |
+| `100.64.0.3` | 53, 80, 443, 3000, 3001, 3004, 4000, 5001, 6000, 20128                                                                          | correct                                                        |
+| `127.0.0.1`  | 3399, 8283, 8284, 8765, 8769, 9090, 4010                                                                                        | correct                                                        |
 
 Services introduced by this migration bind Tailnet-only or loopback-only:
 LiteLLM `100.64.0.3:4000`, LMCache Redis `100.64.0.11:6379`, OmniRoute
@@ -414,13 +542,13 @@ has an unmeasured blast radius.
 
 ### Auth matrix
 
-| Actor | Ingress | Model/tool | Secrets |
-|---|---|---|---|
-| Developer agent (internal) | Tailnet | scoped LiteLLM key | Infisical agent identity |
-| Developer agent (external) | Cloudflare human OAuth | scoped LiteLLM key | Agent Proxy |
-| Claude Code / Codex | native subscription auth | native | native |
-| Unattended agent | CF Access **service token** | scoped service key | agent identity, minimum permission |
-| Oracle control plane | n/a | master key (local only) | Oracle service identity |
+| Actor                      | Ingress                     | Model/tool              | Secrets                            |
+| -------------------------- | --------------------------- | ----------------------- | ---------------------------------- |
+| Developer agent (internal) | Tailnet                     | scoped LiteLLM key      | Infisical agent identity           |
+| Developer agent (external) | Cloudflare human OAuth      | scoped LiteLLM key      | Agent Proxy                        |
+| Claude Code / Codex        | native subscription auth    | native                  | native                             |
+| Unattended agent           | CF Access **service token** | scoped service key      | agent identity, minimum permission |
+| Oracle control plane       | n/a                         | master key (local only) | Oracle service identity            |
 
 ### Secret scan
 
@@ -434,7 +562,10 @@ No secret value was committed. `.gitleaks.toml` is configured; run
 
 1. **`TAILSCALE_MCP_AUTH_TOKEN`** — was a plaintext literal in the Oracle host's
    `nexus.toml`.
-2. **Everything in `.agent/memory/episodic/AGENT_LEARNINGS.jsonl`** — verbatim
+2. **The llxprt bridge API key** hardcoded as a compose default in the deleted
+   `infra/hosts/orchestrator/docker-compose.litellm.yml`. Deleting the file does
+   not rotate the credential, and it remains in git history.
+3. **Everything in `.agent/memory/episodic/AGENT_LEARNINGS.jsonl`** — verbatim
    tool output captured what appear to be a LiteLLM master key, an Infisical
    service token, an llxprt bridge API key and Grafana admin settings. Project
    policy forbids deleting episodic memory, so these were not removed. Treat all
@@ -444,15 +575,15 @@ No secret value was committed. `.gitleaks.toml` is configured; run
 
 ## Deleted components
 
-| Path | Files |
-|---|---|
-| `infra/hosts/worker-rtx3060/` | 54 |
-| `infra/env/.env.worker-rtx3060.example` | 1 |
-| `infra/docs/cluster-setup/WORKER-RTX3060-{SETUP,STATUS}.md`, `start-ollama-worker-rtx3060.ps1` | 3 |
-| `infra/scripts/workers/setup-worker-3060.ps1`, `scripts/workers/start-rtx3060.sh` | 2 |
-| `infra/configs/zellij/nyra-wave-ai-3060.kdl` | 1 |
-| `development/llxprt/profiles/nyra-{3060-utility,local-3060-utility,worker-3060}.json` | 3 |
-| `bootstrap/**/llxprt-profiles/nyra-worker-3060*.json`, `nyra-wave-ai-3060.kdl` | 5 |
+| Path                                                                                           | Files |
+| ---------------------------------------------------------------------------------------------- | ----- |
+| `infra/hosts/worker-rtx3060/`                                                                  | 54    |
+| `infra/env/.env.worker-rtx3060.example`                                                        | 1     |
+| `infra/docs/cluster-setup/WORKER-RTX3060-{SETUP,STATUS}.md`, `start-ollama-worker-rtx3060.ps1` | 3     |
+| `infra/scripts/workers/setup-worker-3060.ps1`, `scripts/workers/start-rtx3060.sh`              | 2     |
+| `infra/configs/zellij/nyra-wave-ai-3060.kdl`                                                   | 1     |
+| `development/llxprt/profiles/nyra-{3060-utility,local-3060-utility,worker-3060}.json`          | 3     |
+| `bootstrap/**/llxprt-profiles/nyra-worker-3060*.json`, `nyra-wave-ai-3060.kdl`                 | 5     |
 
 **Not deleted, deliberately:** `services/nexus-router/` (parity gate not met),
 `infra/hosts/oracle-vps/nexus.toml` and `infra/configs/nexus/nexus.toml` (still
@@ -468,71 +599,71 @@ Genuine residual issues only.
 
 ### Blocking production cutover
 
-| # | Item | Action |
-|---|---|---|
-| 1 | No scoped LiteLLM keys exist | mint them; parity gate is 0/22 until then |
-| 2 | Nexus not deleted | delete only when the gate reads `GATE: MET` |
-| 3 | Cloudflare portal origin still points at Grafbase Nexus | dashboard action |
-| 4 | vLLM/LMCache not deployed | needs GPU passthrough |
-| 5 | `vllm serve --help` not validated | run on the GPU host before first start |
+| #   | Item                                                    | Action                                      |
+| --- | ------------------------------------------------------- | ------------------------------------------- |
+| 1   | No scoped LiteLLM keys exist                            | mint them; parity gate is 0/22 until then   |
+| 2   | Nexus not deleted                                       | delete only when the gate reads `GATE: MET` |
+| 3   | Cloudflare portal origin still points at Grafbase Nexus | dashboard action                            |
+| 4   | vLLM/LMCache not deployed                               | needs GPU passthrough                       |
+| 5   | `vllm serve --help` not validated                       | run on the GPU host before first start      |
 
 ### Live defects
 
-| # | Item | Severity |
-|---|---|---|
-| 6 | `tailscale serve` forward occupies `100.64.0.3:4000` and points nowhere | HIGH — will collide with the `oracle` profile; `deploy-oracle.sh` refuses to run |
-| 7 | `nyra_crm` upstream rejects `notifications/initialized` with 400 | HIGH — blocks mortgage acceptance |
-| 8 | `nyra_tailscale` binds `127.0.0.1:3399` | MEDIUM — silently dead behind the portal |
-| 9 | Ollama binds `127.0.0.1:11434` | MEDIUM — blocks `nyra-embedding` and semantic filtering |
-| 10 | Memory/Letta MCP binds `127.0.0.1:8284` | MEDIUM — not registerable |
-| 11 | gitingest/playwright/next-devtools MCP: 404 at `/mcp`, `/sse`, `/` | LOW — transport unknown, not guessed |
-| 12 | `oracle-vps-redis` on `0.0.0.0:6379`, public VM | **HIGH** |
-| 13 | 15+ other `0.0.0.0` binds on the public VM | HIGH |
-| 14 | Retired machine still an active tailnet node | HIGH — needs admin console |
-| 15 | `watchtower` auto-updating floating `:latest` tags | MEDIUM — unreviewed production mutation |
-| 16 | `OMNIROUTE_IMAGE` is a local build with no digest | MEDIUM — not reproducible |
-| 17 | `cosign` unavailable; signature unverified | LOW — digest pin holds |
-| 18 | `worker-rtx3090ti` offline 39 days; config unvalidated | MEDIUM |
-| 19 | Secrets in episodic memory | HIGH — rotate |
-| 20 | 87 legacy compose files not yet reconciled into the root profiles | MEDIUM |
-| 21 | Host boundaries not enforced at runtime (three hosts' containers on one machine) | MEDIUM — fixed by design, not yet by deployment |
+| #   | Item                                                                             | Severity                                                                                                                                          |
+| --- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6   | `tailscale serve` forward occupies `100.64.0.3:4000` and points nowhere          | HIGH — will collide with the `oracle` profile; `deploy-oracle.sh` refuses to run                                                                  |
+| 7   | `nyra_crm` upstream rejects `notifications/initialized` with 400                 | HIGH — blocks mortgage acceptance                                                                                                                 |
+| 8   | `nyra_tailscale` binds `127.0.0.1:3399`                                          | MEDIUM — silently dead behind the portal                                                                                                          |
+| 9   | Ollama binds `127.0.0.1:11434`                                                   | MEDIUM — **downgraded.** No longer blocks `nyra-embedding` or semantic filtering (both moved to orchestrator). Still blocks the `nyra-fast` lane. |
+| 10  | Memory/Letta MCP binds `127.0.0.1:8284`                                          | MEDIUM — not registerable                                                                                                                         |
+| 11  | gitingest/playwright/next-devtools MCP: 404 at `/mcp`, `/sse`, `/`               | LOW — transport unknown, not guessed                                                                                                              |
+| 12  | `oracle-vps-redis` on `0.0.0.0:6379`, public VM                                  | **HIGH**                                                                                                                                          |
+| 13  | 15+ other `0.0.0.0` binds on the public VM                                       | HIGH                                                                                                                                              |
+| 14  | Retired machine still an active tailnet node                                     | HIGH — needs admin console                                                                                                                        |
+| 15  | `watchtower` auto-updating floating `:latest` tags                               | MEDIUM — unreviewed production mutation                                                                                                           |
+| 16  | `OMNIROUTE_IMAGE` is a local build with no digest                                | MEDIUM — not reproducible                                                                                                                         |
+| 17  | `cosign` unavailable; signature unverified                                       | LOW — digest pin holds                                                                                                                            |
+| 18  | `worker-rtx3090ti` offline 39 days; config unvalidated                           | MEDIUM                                                                                                                                            |
+| 19  | Secrets in episodic memory                                                       | HIGH — rotate                                                                                                                                     |
+| 20  | 87 legacy compose files not yet reconciled into the root profiles                | MEDIUM                                                                                                                                            |
+| 21  | Host boundaries not enforced at runtime (three hosts' containers on one machine) | MEDIUM — fixed by design, not yet by deployment                                                                                                   |
 
 ---
 
 ## Final architectural invariants
 
-| Invariant | State |
-|---|---|
-| Exactly two active GPU workers | **TRUE** |
-| Retired worker absent from active configuration | **TRUE** (gate passes) |
-| Nexus absent from the runtime architecture | **FALSE — not yet deleted** |
-| No client requires Nexus | **TRUE** (repo-side clients migrated) |
-| Cloudflare protects external MCP ingress | **TRUE** |
-| Cloudflare does not redundantly wrap Tool Search | **TRUE** (`code_mode = off`) |
-| LiteLLM is the canonical model gateway | **TRUE in config**, pending deploy |
-| LiteLLM is the canonical MCP aggregation layer | **TRUE in config**, pending deploy |
-| Virtual Tool Search is permission-gated | **TRUE** |
-| Semantic filtering uses `mcp_semantic_tool_filter` | **TRUE** (shipped disabled) |
-| `enable_semantic_tool_filtering` absent | **TRUE** |
-| `LITELLM_USE_KEYCHAIN` absent | **TRUE** |
-| Admin credentials absent from agent runtimes | **TRUE** |
-| OmniRoute behind LiteLLM | **TRUE** |
-| OpenRouter behind LiteLLM | **TRUE** |
-| Local vLLMs behind LiteLLM | **TRUE in config** |
-| GPU traffic uses Tailscale | **TRUE** |
-| vLLM not exposed publicly | **TRUE** |
-| Redis not exposed publicly | **FALSE — pre-existing `0.0.0.0:6379`** |
-| LMCache Redis separate from control Redis | **TRUE** |
-| Infisical is the secret source of truth | **TRUE** |
-| Untrusted agents do not receive brokerable secrets | **TRUE by design**, proxy not yet deployed |
-| Subscription credentials not relayed as provider keys | **TRUE** |
-| ClawTeam is orchestration, not a gateway | **TRUE** |
-| OpenHarness is a harness, not a gateway | **TRUE** |
-| Root Compose profiles reflect host boundaries | **TRUE in config**, not yet at runtime |
-| Every production image pinned | **TRUE except `OMNIROUTE_IMAGE`** |
-| All tests pass | **static: TRUE. Acceptance: NOT RUN** |
-| Negative searches pass | **retired worker: TRUE. Nexus: N/A** |
-| Documentation describes what actually runs | **TRUE**, including what does not yet run |
+| Invariant                                             | State                                      |
+| ----------------------------------------------------- | ------------------------------------------ |
+| Exactly two active GPU workers                        | **TRUE**                                   |
+| Retired worker absent from active configuration       | **TRUE** (gate passes)                     |
+| Nexus absent from the runtime architecture            | **FALSE — not yet deleted**                |
+| No client requires Nexus                              | **TRUE** (repo-side clients migrated)      |
+| Cloudflare protects external MCP ingress              | **TRUE**                                   |
+| Cloudflare does not redundantly wrap Tool Search      | **TRUE** (`code_mode = off`)               |
+| LiteLLM is the canonical model gateway                | **TRUE in config**, pending deploy         |
+| LiteLLM is the canonical MCP aggregation layer        | **TRUE in config**, pending deploy         |
+| Virtual Tool Search is permission-gated               | **TRUE**                                   |
+| Semantic filtering uses `mcp_semantic_tool_filter`    | **TRUE** (shipped disabled)                |
+| `enable_semantic_tool_filtering` absent               | **TRUE**                                   |
+| `LITELLM_USE_KEYCHAIN` absent                         | **TRUE**                                   |
+| Admin credentials absent from agent runtimes          | **TRUE**                                   |
+| OmniRoute behind LiteLLM                              | **TRUE**                                   |
+| OpenRouter behind LiteLLM                             | **TRUE**                                   |
+| Local vLLMs behind LiteLLM                            | **TRUE in config**                         |
+| GPU traffic uses Tailscale                            | **TRUE**                                   |
+| vLLM not exposed publicly                             | **TRUE**                                   |
+| Redis not exposed publicly                            | **FALSE — pre-existing `0.0.0.0:6379`**    |
+| LMCache Redis separate from control Redis             | **TRUE**                                   |
+| Infisical is the secret source of truth               | **TRUE**                                   |
+| Untrusted agents do not receive brokerable secrets    | **TRUE by design**, proxy not yet deployed |
+| Subscription credentials not relayed as provider keys | **TRUE**                                   |
+| ClawTeam is orchestration, not a gateway              | **TRUE**                                   |
+| OpenHarness is a harness, not a gateway               | **TRUE**                                   |
+| Root Compose profiles reflect host boundaries         | **TRUE in config**, not yet at runtime     |
+| Every production image pinned                         | **TRUE except `OMNIROUTE_IMAGE`**          |
+| All tests pass                                        | **static: TRUE. Acceptance: NOT RUN**      |
+| Negative searches pass                                | **retired worker: TRUE. Nexus: N/A**       |
+| Documentation describes what actually runs            | **TRUE**, including what does not yet run  |
 
 **The migration is repo-complete and deployment-ready. It is not deployed, and
 Nexus is not deleted.** Both statements are deliberate: the directive forbids

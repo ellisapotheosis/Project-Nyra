@@ -40,11 +40,12 @@ There are exactly **two** active GPU workers. The third GPU worker
 fallback, a Wake-on-LAN target, an embedding host, or a deployment target. Do
 not reintroduce it.
 
-| Host             | Tailnet IP    | Role                                                                | Canonical Compose                          |
-| ---------------- | ------------- | ------------------------------------------------------------------- | ------------------------------------------ |
-| oracle-vps       | `100.64.0.3`  | Control plane — LiteLLM gateway, OmniRoute, CRM, DB, memory plane, cloudflared ingress. **aarch64.** | root `compose.yaml` profile `oracle`       |
-| worker-rtx5090   | `100.64.0.11` | Primary vLLM inference (**24 GB VRAM, measured**) + LMCache Redis + embedding endpoint | root `compose.yaml` profile `worker-5090`  |
-| worker-rtx3090ti | `100.64.0.13` | Secondary vLLM inference (24 GB VRAM). Offline since ~2026-07-27.   | root `compose.yaml` profile `worker-3090ti`|
+| Host             | Tailnet IP    | Role                                                                                                                                    | Canonical Compose                           |
+| ---------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| oracle-vps       | `100.64.0.3`  | Control plane — LiteLLM gateway, OmniRoute, CRM, DB, memory plane, cloudflared ingress. **aarch64.**                                    | root `compose.yaml` profile `oracle`        |
+| orchestrator     | `100.64.0.10` | Memory manager — embeddings (llama.cpp) + consolidation LLM (bitnet.cpp). **CPU only, Ryzen 7 6800H / 8C16T / 15.2 GB.** Not a gateway. | root `compose.yaml` profile `orchestrator`  |
+| worker-rtx5090   | `100.64.0.11` | Primary vLLM inference (**24 GB VRAM, measured**) + LMCache Redis. Pure inference — embeddings moved off.                               | root `compose.yaml` profile `worker-5090`   |
+| worker-rtx3090ti | `100.64.0.13` | Secondary vLLM inference (24 GB VRAM). Offline since ~2026-07-27.                                                                       | root `compose.yaml` profile `worker-3090ti` |
 
 The canonical deployment surface is the **root `compose.yaml`** with host
 profiles, driven by `scripts/deploy/deploy-{oracle,worker-5090,worker-3090ti,all}.sh`.

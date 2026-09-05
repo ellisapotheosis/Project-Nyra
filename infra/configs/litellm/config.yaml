@@ -79,21 +79,71 @@ model_list:
       nyra_host: worker-rtx5090
 
   # ---------------------------------------------------------------------------
-  # Embedding lane.
-  # Moved off the retired third GPU worker onto worker-rtx5090 WITHOUT changing
-  # the model, so the existing 768-dimension Qdrant collections stay valid.
-  # nomic-embed-text is 137M params / 0.27 GB and does not materially reduce
-  # primary inference availability on a 24 GB GPU.
+  # Embedding lane — orchestrator CPU (llama.cpp), NOT a GPU worker.
+  #
+  # History: retired RTX 3060 Ollama -> worker-rtx5090 Ollama -> here. The model
+  # family and dimension count are invariant across all three moves, so the
+  # existing Qdrant collections and MEM0_EMBEDDING_DIMS=768 remain valid and
+  # nothing is re-embedded.
+  #
+  # Equivalence was MEASURED, not assumed. Same prompt through the
+  # worker-rtx5090 Ollama endpoint and through llama.cpp serving
+  # nomic-embed-text-v1.5.f16.gguf:
+  #   dims 768 vs 768, both L2-normalised, cosine similarity 0.999999581,
+  #   max elementwise delta 9.9e-05 (float rounding).
+  # llama.cpp /v1/models reports n_embd=768, n_params=136727040, ftype=F16 —
+  # the same artifact Ollama reports for nomic-embed-text:latest.
+  #
+  # Why it moved off the GPU: embedding is memory-bandwidth-bound on a 137M
+  # model and does not need VRAM. Hosting it on orchestrator returns the
+  # resident-embedder allowance to vLLM on both 24 GB workers and removes the
+  # 5090 Ollama runtime from the critical path of semantic tool filtering.
   # ---------------------------------------------------------------------------
   - model_name: nyra-embedding
     litellm_params:
-      model: ollama/nomic-embed-text
-      api_base: http://100.64.0.11:11434
+      model: openai/nomic-embed-text
+      api_base: http://100.64.0.10:8081/v1
+      api_key: "local-no-auth"
       timeout: 120
     model_info:
-      nyra_tier: local-gpu
-      nyra_host: worker-rtx5090
+      nyra_tier: local-cpu
+      nyra_host: orchestrator
+      mode: embedding
       output_vector_size: 768
+
+  # ---------------------------------------------------------------------------
+  # Memory-manager lane — orchestrator CPU (bitnet.cpp).
+  #
+  # Backs the `.agent/` episodic -> semantic consolidation work (summarisation
+  # and reflection over AGENT_LEARNINGS.jsonl). That workload is small-context,
+  # latency-tolerant and constant, which is exactly the workload that should not
+  # be competing with interactive inference on worker-rtx5090/worker-rtx3090ti.
+  #
+  # BitNet b1.58 2B-4T at i2_s runs entirely on CPU. bitnet.cpp exposes
+  # llama.cpp's server API, so the `openai/` provider is the correct transport.
+  #
+  # Deliberately NOT in any fallback chain, in either direction: this is a
+  # dedicated background lane, and silently spilling reflection work onto a paid
+  # or GPU route (or spilling interactive work onto a 2B CPU model) would be
+  # wrong in both directions.
+  #
+  # NAME COLLISION, on purpose and harmless: `nyra-memory` is also the name of
+  # an mcp_access_group. LiteLLM keeps model aliases and MCP access groups in
+  # separate namespaces (`models` vs `mcp_access_groups` on object_permission),
+  # so there is no functional conflict — but read `nyra-memory` in an
+  # `mcp_access_groups:` list as the MCP group, and in a `models:` list as this
+  # model alias.
+  # ---------------------------------------------------------------------------
+  - model_name: nyra-memory
+    litellm_params:
+      model: openai/bitnet-b1.58-2b-4t
+      api_base: http://100.64.0.10:8087/v1
+      api_key: "local-no-auth"
+      timeout: 600
+      stream_timeout: 600
+    model_info:
+      nyra_tier: local-cpu
+      nyra_host: orchestrator
 
   # ---------------------------------------------------------------------------
   # OmniRoute — second tier. OmniRoute owns its own provider pool and
@@ -379,10 +429,15 @@ litellm_settings:
   # litellm/proxy/hooks/mcp_semantic_filter/hook.py.
   # `enable_semantic_tool_filtering` does not exist in v1.99.1 and is not used.
   #
-  # Shipped DISABLED on purpose. The embedding alias `nyra-embedding` resolves to
-  # the worker-rtx5090 Ollama runtime, which currently listens on 127.0.0.1 only
-  # and is therefore unreachable from Oracle. Enabling a semantic filter against
-  # an unreachable embedder would break every MCP-bearing completion.
+  # Shipped DISABLED on purpose — but the REASON changed.
+  #
+  # It is no longer blocked on rebinding the worker-rtx5090 Ollama listener.
+  # That dependency is gone: `nyra-embedding` now resolves to the orchestrator
+  # llama.cpp service, which binds 100.64.0.10:8081 (Tailnet) by construction in
+  # the root compose `orchestrator` profile. The remaining blocker is simply
+  # that the profile has not been deployed yet, so the origin does not answer.
+  # Enabling a semantic filter against an origin that does not answer would
+  # break every MCP-bearing completion.
   #
   # Flip `enabled` to true ONLY after this returns a 200 with a 768-length vector
   # from the Oracle host:

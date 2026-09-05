@@ -28,4 +28,25 @@ Current Nexus/LiteLLM placement:
 infra/hosts/oracle-vps/docker-compose.yml
 ```
 
-The orchestrator may run `docker-compose.bitnet.yml` for CPU BitNet testing, but that does not make orchestrator the canonical Nexus or LiteLLM host.
+## orchestrator is the memory-manager host, not a control plane
+
+BitNet is no longer a side experiment. orchestrator (`100.64.0.10`) now serves
+two production CPU workloads out of the **root `compose.yaml` `orchestrator`
+profile**:
+
+```text
+embeddings      llama.cpp, nomic-embed-text-v1.5, 768 dims   100.64.0.10:8081
+memory-manager  bitnet.cpp, BitNet b1.58 2B-4T               100.64.0.10:8087
+```
+
+`infra/hosts/orchestrator/docker-compose.bitnet.yml` has been **removed** — it
+was superseded by that profile, and two deployment surfaces for one service is
+the defect this file exists to prevent. The build context it used,
+`infra/hosts/orchestrator/bitnet/`, is retained and is what the profile builds.
+
+This still does **not** make orchestrator the canonical Nexus or LiteLLM host.
+Both services are unauthenticated Tailnet-only origins that the canonical
+oracle-vps LiteLLM consumes as ordinary `model_list` entries, exactly like the
+vLLM workers. `infra/hosts/orchestrator/docker-compose.litellm.yml` and
+`infra/hosts/orchestrator/litellm/config.yaml` — a second, dead LiteLLM control
+plane that declared itself "PRIMARY" — have been deleted.

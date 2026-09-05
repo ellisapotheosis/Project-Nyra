@@ -7,10 +7,10 @@ documentation.
 
 ## Two paths, related but different
 
-| Path | Mechanism | Who sees it | Config |
-|---|---|---|---|
-| An MCP **client** connects to LiteLLM's MCP endpoint | **Virtual Tool Search** — a constant-size discovery surface | agents, via a prompt contract | per-key `object_permission.mcp_tool_search_enabled` |
-| A **completion / Responses** request arrives carrying an MCP tool set | **`mcp_semantic_tool_filter`** — embedding-ranked pre-call filter | the model, transparently | `litellm_settings.mcp_semantic_tool_filter` |
+| Path                                                                  | Mechanism                                                         | Who sees it                   | Config                                              |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------- | --------------------------------------------------- |
+| An MCP **client** connects to LiteLLM's MCP endpoint                  | **Virtual Tool Search** — a constant-size discovery surface       | agents, via a prompt contract | per-key `object_permission.mcp_tool_search_enabled` |
+| A **completion / Responses** request arrives carrying an MCP tool set | **`mcp_semantic_tool_filter`** — embedding-ranked pre-call filter | the model, transparently      | `litellm_settings.mcp_semantic_tool_filter`         |
 
 Do not conflate them. An agent on the second path needs no prompt changes.
 
@@ -60,30 +60,30 @@ administer the Cloudflare zone.
 
 ### Access groups
 
-| Group | Grants | Intended holder |
-|---|---|---|
-| `nyra-dev` | `cloudflare_docs` | developer agents, Claude Code, Codex |
-| `nyra-admin` | `cloudflare_api`, `cloudflare_bindings`, `cloudflare_builds`, `cloudflare_observability`, `cloudflare_ai_gateway`, `nyra_tailscale` | human-supervised administration only |
-| `nyra-mortgage` | `nyra_crm` | mortgage/CRM agents |
-| `nyra-memory` | memory-plane MCP (pending, see below) | memory agents |
-| `nyra-automation` | n8n / Activepieces MCP (pending) | automation agents |
-| `nyra-observability` | `cloudflare_observability` | telemetry, read-only |
+| Group                | Grants                                                                                                                              | Intended holder                      |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `nyra-dev`           | `cloudflare_docs`                                                                                                                   | developer agents, Claude Code, Codex |
+| `nyra-admin`         | `cloudflare_api`, `cloudflare_bindings`, `cloudflare_builds`, `cloudflare_observability`, `cloudflare_ai_gateway`, `nyra_tailscale` | human-supervised administration only |
+| `nyra-mortgage`      | `nyra_crm`                                                                                                                          | mortgage/CRM agents                  |
+| `nyra-memory`        | memory-plane MCP (pending, see below)                                                                                               | memory agents                        |
+| `nyra-automation`    | n8n / Activepieces MCP (pending)                                                                                                    | automation agents                    |
+| `nyra-observability` | `cloudflare_observability`                                                                                                          | telemetry, read-only                 |
 
 ## Registered MCP servers
 
 `infra/configs/litellm/config.yaml`, `mcp_servers:` block. `allow_all_keys` is
 **false everywhere**.
 
-| Name | Upstream | Group | Live status |
-|---|---|---|---|
-| `nyra_crm` | `http://100.64.0.3:8400/mcp` | `nyra-mortgage` | reachable; **upstream handshake bug** — see below |
-| `nyra_tailscale` | `http://100.64.0.3:3399/mcp` | `nyra-admin` | **blocked on a host rebind** — see below |
-| `cloudflare_docs` | `https://docs.mcp.cloudflare.com/mcp` | `nyra-dev` | working, unauthenticated |
-| `cloudflare_api` | `https://mcp.cloudflare.com/mcp` | `nyra-admin` | working with a valid token |
-| `cloudflare_bindings` | `https://bindings.mcp.cloudflare.com/mcp` | `nyra-admin` | working with a valid token |
-| `cloudflare_builds` | `https://builds.mcp.cloudflare.com/mcp` | `nyra-admin` | working with a valid token |
-| `cloudflare_observability` | `https://observability.mcp.cloudflare.com/mcp` | `nyra-admin`, `nyra-observability` | working with a valid token |
-| `cloudflare_ai_gateway` | `https://ai-gateway.mcp.cloudflare.com/mcp` | `nyra-admin` | working |
+| Name                       | Upstream                                       | Group                              | Live status                                       |
+| -------------------------- | ---------------------------------------------- | ---------------------------------- | ------------------------------------------------- |
+| `nyra_crm`                 | `http://100.64.0.3:8400/mcp`                   | `nyra-mortgage`                    | reachable; **upstream handshake bug** — see below |
+| `nyra_tailscale`           | `http://100.64.0.3:3399/mcp`                   | `nyra-admin`                       | **blocked on a host rebind** — see below          |
+| `cloudflare_docs`          | `https://docs.mcp.cloudflare.com/mcp`          | `nyra-dev`                         | working, unauthenticated                          |
+| `cloudflare_api`           | `https://mcp.cloudflare.com/mcp`               | `nyra-admin`                       | working with a valid token                        |
+| `cloudflare_bindings`      | `https://bindings.mcp.cloudflare.com/mcp`      | `nyra-admin`                       | working with a valid token                        |
+| `cloudflare_builds`        | `https://builds.mcp.cloudflare.com/mcp`        | `nyra-admin`                       | working with a valid token                        |
+| `cloudflare_observability` | `https://observability.mcp.cloudflare.com/mcp` | `nyra-admin`, `nyra-observability` | working with a valid token                        |
+| `cloudflare_ai_gateway`    | `https://ai-gateway.mcp.cloudflare.com/mcp`    | `nyra-admin`                       | working                                           |
 
 ### The largest authorization defect this migration fixed
 
@@ -113,21 +113,21 @@ fails. Fix: rebind the process to `100.64.0.3:3399`.
 
 Recorded so the absence is auditable rather than accidental.
 
-| Server | Why |
-|---|---|
-| memory / Letta MCP | answers `/mcp` with 200 but binds `127.0.0.1:8284` only — unreachable from LiteLLM. Registering a dead origin fails every discovery call. Pending a Tailnet rebind. |
-| gitingest `:8777`, playwright `:8771`, next-devtools `:8774` | probed at `/mcp`, `/sse` and `/`; all returned 404. Their real transport and path are unknown and are **not guessed**. |
-| `sequential-thinking` | no live listener found on `oracle-vps`. |
-| Nexus defaults `github`/`git`/`docker`/`infisical` (`:8813`/`:8812`/`:8811`/`:8815`) | listeners are not running on any reachable host. |
-| `bitwarden` | Infisical is the declared secret authority. Two secret backends reachable by agents is the defect, not a feature. |
-| `gemini` | model providers belong in `model_list`, not `mcp_servers`. |
+| Server                                                                               | Why                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| memory / Letta MCP                                                                   | answers `/mcp` with 200 but binds `127.0.0.1:8284` only — unreachable from LiteLLM. Registering a dead origin fails every discovery call. Pending a Tailnet rebind. |
+| gitingest `:8777`, playwright `:8771`, next-devtools `:8774`                         | probed at `/mcp`, `/sse` and `/`; all returned 404. Their real transport and path are unknown and are **not guessed**.                                              |
+| `sequential-thinking`                                                                | no live listener found on `oracle-vps`.                                                                                                                             |
+| Nexus defaults `github`/`git`/`docker`/`infisical` (`:8813`/`:8812`/`:8811`/`:8815`) | listeners are not running on any reachable host.                                                                                                                    |
+| `bitwarden`                                                                          | Infisical is the declared secret authority. Two secret backends reachable by agents is the defect, not a feature.                                                   |
+| `gemini`                                                                             | model providers belong in `model_list`, not `mcp_servers`.                                                                                                          |
 
 ## Semantic tool filter
 
 ```yaml
 litellm_settings:
   mcp_semantic_tool_filter:
-    enabled: false          # see below
+    enabled: false # see below
     embedding_model: "nyra-embedding"
     top_k: 5
     similarity_threshold: 0.30
@@ -139,11 +139,22 @@ own `proxy_config.yaml` and implemented at
 **`enable_semantic_tool_filtering` does not exist in v1.99.1** and must never
 appear in production config.
 
-**Shipped disabled on purpose.** The `nyra-embedding` alias resolves to the
-`worker-rtx5090` Ollama runtime, which currently listens on `127.0.0.1` only and
-is unreachable from Oracle. Enabling a semantic filter against an unreachable
-embedder breaks every MCP-bearing completion. Enable it only after this returns
-a 200 with a 768-length vector:
+**Shipped disabled on purpose — but the reason has changed.**
+
+It is no longer blocked on rebinding the `worker-rtx5090` Ollama listener. That
+dependency is gone: `nyra-embedding` now resolves to the `orchestrator`
+llama.cpp service, which binds `100.64.0.10:8081` (Tailnet) by construction in
+the root compose `orchestrator` profile. The only remaining blocker is that the
+profile has not been deployed, so the origin does not answer yet. Enabling a
+semantic filter against an origin that does not answer breaks every MCP-bearing
+completion.
+
+`enabled: true` has been booted against the pinned v1.99.1 image with a live
+embedding origin: readiness returned 200 and the semantic router built its index
+against `nyra-embedding` (`semantic_router ... Using default LocalIndex`). The
+flip is safe once the origin is live.
+
+Enable it only after this returns a 200 with a 768-length vector:
 
 ```bash
 curl -sS http://100.64.0.3:4000/v1/embeddings \
@@ -177,7 +188,7 @@ Bad:
 Good:
 
 > `Read a TwentyCRM mortgage lead by lead UUID. Use for retrieving an existing
-> lead's contact, pipeline and loan metadata. Read-only.`
+lead's contact, pipeline and loan metadata. Read-only.`
 
 Do not put giant examples in descriptions — they are paid for on every
 discovery call.
@@ -229,9 +240,9 @@ of them:
 
 Concretely enforced and tested:
 
-* a `nyra-dev` key **cannot** reach `nyra_crm` — no borrower PII, no CRM
+- a `nyra-dev` key **cannot** reach `nyra_crm` — no borrower PII, no CRM
   mutation, no document generation, no production DB writes;
-* a `nyra-mortgage` key **cannot** reach `nyra_tailscale`, `nyra_docker`,
+- a `nyra-mortgage` key **cannot** reach `nyra_tailscale`, `nyra_docker`,
   `nyra_secrets` or any Cloudflare-mutating server.
 
 ## A2A

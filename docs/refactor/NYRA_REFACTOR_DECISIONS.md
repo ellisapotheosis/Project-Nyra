@@ -66,7 +66,7 @@ does not exist in the image at all.
 **Why.** Both were grepped for in the pinned image's site-packages and **found
 absent**. The directive's `agent_search` instruction was explicitly
 conditional on the installed release exposing it; the condition is unmet. A2A
-discovery therefore uses the endpoints that *do* exist
+discovery therefore uses the endpoints that _do_ exist
 (`/a2a/{agent_id}/.well-known/agent-card.json`).
 
 ---
@@ -88,13 +88,13 @@ unjustified risk.
 
 **Evidence.** The retired 3060 is load-bearing today:
 
-* `infra/configs/litellm/config.yaml` defines `local/embeddings` →
+- `infra/configs/litellm/config.yaml` defines `local/embeddings` →
   `ollama/nomic-embed-text` at `http://worker-rtx3060.projectnyra.com:11434`.
-* The live Oracle `mem0` container depends on it:
+- The live Oracle `mem0` container depends on it:
   `MEM0_EMBEDDER_MODEL=local/embeddings`,
   `MEM0_EMBEDDER_BASE_URL=http://litellm:4000/v1`,
   `MEM0_EMBEDDING_DIMS=768`.
-* It also defines `local/qwen3-4b-3060` → `ollama/qwen3:4b` on the same dead
+- It also defines `local/qwen3-4b-3060` → `ollama/qwen3:4b` on the same dead
   host, consumed as `MEM0_LLM_MODEL`.
 
 **Decision.** `worker-rtx5090` hosts the embedding endpoint.
@@ -153,7 +153,7 @@ inventing a model identifier and a provider dependency.
 **Decision.** Both surviving workers are sized as **24 GB**.
 
 **Why.** `services/nexus-router/src/config.ts:74` comments the 5090 as
-*"48GB VRAM"*. Measurement says **24463 MiB** — an RTX 5090 **Laptop** GPU.
+_"48GB VRAM"_. Measurement says **24463 MiB** — an RTX 5090 **Laptop** GPU.
 The repository was wrong; the user-stated 24 GB budget is right.
 
 **`gpu_memory_utilization`.** Default `0.88`, **not** `0.95`. On 24 GB, 0.88
@@ -171,9 +171,9 @@ deployment, and guessing it is the single most common cause of OOM at load.
 
 **Decision.** Two Redis responsibilities, never shared:
 
-| Host | Service | Purpose | Persistence |
-|---|---|---|---|
-| `oracle-vps` | `litellm-redis` | gateway cache / control | `appendonly yes`, 2 GB, `allkeys-lru` |
+| Host             | Service         | Purpose                                                   | Persistence                                             |
+| ---------------- | --------------- | --------------------------------------------------------- | ------------------------------------------------------- |
+| `oracle-vps`     | `litellm-redis` | gateway cache / control                                   | `appendonly yes`, 2 GB, `allkeys-lru`                   |
 | `worker-rtx5090` | `lmcache-redis` | GPU KV-cache remote backend at `redis://100.64.0.11:6379` | `appendonly no`, `save ""` (KV tensors are regenerable) |
 
 **Why.** KV-tensor traffic is high-volume, high-churn and worthless after a
@@ -227,7 +227,7 @@ forbidden.
 
 ---
 
-## D-12 — OmniRoute and OpenRouter sit *behind* LiteLLM; OmniRoute stays off the public internet
+## D-12 — OmniRoute and OpenRouter sit _behind_ LiteLLM; OmniRoute stays off the public internet
 
 **Decision.** Agent → LiteLLM → OmniRoute → provider pool. OmniRoute keeps its
 own internal provider/credential logic.
@@ -257,7 +257,7 @@ gain. A separate `nyra-mcp-cf-canary` portal is the only place
 
 **Control-plane cycle prohibition.** LiteLLM's `mcp_servers` must never contain
 the Cloudflare portal that fronts LiteLLM. The registered Cloudflare MCP
-servers are Cloudflare's *own* product endpoints (`mcp.cloudflare.com`,
+servers are Cloudflare's _own_ product endpoints (`mcp.cloudflare.com`,
 `docs.`, `bindings.`, …), which are not the Nyra portal — verified against the
 live config.
 
@@ -272,7 +272,7 @@ servers (`cloudflare`, `cloudflare_api`, `cloudflare_bindings`,
 **`nyra-admin` only**.
 
 **Why.** This is the single largest live authorization defect found. Today
-*every* LiteLLM key can drive Cloudflare zone/bindings/builds administration
+_every_ LiteLLM key can drive Cloudflare zone/bindings/builds administration
 using the account's API token. A mortgage agent must not be able to modify DNS.
 
 ---
@@ -377,3 +377,132 @@ reported as findings with remediation commands.
 on, in the same pass as a control-plane migration, risks an outage whose blast
 radius was not measured. It is raised as a high-severity finding with an exact
 fix, not bundled into an unrelated cutover.
+
+---
+
+## D-22 — The embedding endpoint moves to orchestrator CPU (llama.cpp), not a GPU
+
+**Supersedes D-06's host choice. The invariant D-06 established is preserved.**
+
+**Decision.** `nyra-embedding` is served by `llama.cpp` on `orchestrator`
+(`100.64.0.10:8081`), from
+`nomic-ai/nomic-embed-text-v1.5-GGUF/nomic-embed-text-v1.5.f16.gguf`.
+
+**Why the CPU.** `nomic-embed-text-v1.5` is 137 M parameters, 274 MB at F16.
+Serving it is memory-bandwidth-bound, not compute-bound, and it needs no VRAM.
+Keeping it resident on a 24 GB card consumed inference headroom and put the 5090
+Ollama runtime on the critical path of semantic tool filtering for no throughput
+benefit. D-06 correctly judged 0.27 GB to be affordable; it is still strictly
+better to spend zero.
+
+**Why the same model — verified, not asserted.** D-06 argued from model names.
+This decision measured. Same input through both endpoints:
+
+|               | worker-rtx5090 Ollama   | orchestrator llama.cpp                          |
+| ------------- | ----------------------- | ----------------------------------------------- |
+| dimensions    | 768                     | 768                                             |
+| L2 norm       | 1.0                     | 1.0                                             |
+| self-reported | `nomic-bert`, 137M, F16 | `n_embd=768`, `n_params=136727040`, `ftype=F16` |
+
+Cosine similarity **0.999999581**, max elementwise delta **9.9e-05** — float
+rounding. `MEM0_EMBEDDING_DIMS=768` and the existing Qdrant collections stay
+valid; **nothing is re-embedded**, for the third host move in a row.
+
+**Rejected.** Ollama on orchestrator — the user asked for llama.cpp
+specifically, and a bare `llama-server --embeddings` is a smaller surface than a
+model-management daemon for a single fixed model. Also rejected: a hosted
+embedding provider, unchanged from D-06.
+
+**Consequence for D-08.** `gpu_memory_utilization` stays at **0.88**. The freed
+embedder allowance becomes headroom. Raising it requires re-measurement under
+load, which this pass did not do.
+
+---
+
+## D-23 — orchestrator hosts a BitNet memory manager; it does not become a gateway
+
+**Decision.** `orchestrator` runs `bitnet.cpp` serving BitNet b1.58 2B-4T
+(`i2_s`) at `100.64.0.10:8087`, registered on the canonical oracle-vps LiteLLM
+as the `nyra-memory` alias.
+
+**Why.** The `.agent/` consolidation lane is small-context, latency-tolerant and
+constant — the exact profile that should not compete with interactive inference
+on a GPU. A 1-bit 2 B model on 16 CPU threads is adequate for summarisation and
+costs no VRAM. bitnet.cpp is a fork of llama.cpp's `llama-server`, so it speaks
+OpenAI-compatible `/v1/chat/completions` and needs no bespoke adapter.
+
+**Not a second control plane.** `infra/COMPOSE_SOURCE_OF_TRUTH.md`'s constraint
+holds: orchestrator runs no LiteLLM and no Nexus. Both services are
+unauthenticated Tailnet-only origins consumed as ordinary `model_list` entries,
+exactly like the vLLM workers. Consumers address the alias through the gateway,
+never `100.64.0.10:8087` directly, so routing, budget and key scoping still
+apply.
+
+**No fallbacks, in either direction.** Spilling background reflection onto a GPU
+or paid route wastes capacity; spilling interactive work onto a 2 B CPU model
+silently destroys answer quality. Both are wrong, so `nyra-memory` appears in no
+fallback chain.
+
+**Reused, not rebuilt.** `infra/hosts/orchestrator/bitnet/` already existed and
+is the build context. It was corrected rather than duplicated: unpinned
+`git clone` → pinned commit, unpinned weights → pinned revision on the canonical
+lowercase repo id, non-idempotent source patch → idempotent, `mem_limit: 10g` on
+a 7 GB WSL2 VM → 3g, `0.0.0.0` host bind → tailnet bind.
+`docker-compose.bitnet.yml` was removed as superseded by the root profile —
+two deployment surfaces for one service is the defect
+`COMPOSE_SOURCE_OF_TRUTH.md` exists to prevent.
+
+---
+
+## D-24 — Delete the orchestrator LiteLLM overlay; it fails no parity test because it runs nothing
+
+**Decision.** `infra/hosts/orchestrator/docker-compose.litellm.yml` and
+`infra/hosts/orchestrator/litellm/config.yaml` are deleted.
+
+**Why this is not a D-19/D-15 violation.** Those decisions forbid deleting a
+_working_ subsystem before its replacement passes parity. This one is not
+working: `docker ps -a` on orchestrator shows no litellm container, and the last
+recorded run predates the llxprt retirement. There is no live behaviour to reach
+parity with.
+
+**Why it had to go rather than sit there.** It declared itself the "PRIMARY
+LiteLLM instance", in direct contradiction of the single-gateway invariant this
+migration exists to establish. Leaving a file that says that is an active hazard
+for the next agent. It was also stale in every other dimension: pinned to the
+superseded `:v1.92.0`, binding `0.0.0.0:4010` in violation of the Tailnet-only
+rule, routing to the retired RTX 3060 and the retired llxprt bridge, and
+addressing workers by `*.projectnyra.com` hostnames the migration proved do not
+resolve from container networks.
+
+**Security finding.** It carried a **hardcoded llxprt bridge API key** as a
+compose default (`${LLXPRT_BRIDGE_API_KEY:-llxprt_...}`). Deleting the file does
+not rotate the credential and it remains in git history. Added to the rotation
+list in the final report.
+
+**Nothing depended on it** except its own `Makefile` targets, which are replaced
+by `memory-{up,down,health}` pointing at the root compose `orchestrator`
+profile.
+
+---
+
+## D-25 — The dream cycle is not wired to a model, deliberately
+
+**Decision.** `nyra-memory` is wired into `.agent/harness/llm.py` (used by
+`conductor.py`) via `AGENT_BASE_URL`/`AGENT_API_KEY`, and configured by
+`infra/env/agent-memory.env.example`. It is **not** wired into
+`memory/auto_dream.py`.
+
+**Why not.** The consolidation pipeline is mechanical by design — similarity
+clustering, salience thresholds, lifecycle bookkeeping — and `auto_dream.py`'s
+own docstring lists "subjective validation" and "promotion to LESSONS.md" under
+**Never**. Promotion is `graduate.py`, driven by the host agent, and the project
+rule is "never hand-edit `LESSONS.md`". Injecting a model there would let a
+model promote its own lessons with no review. That is a worse system, not a more
+automated one.
+
+**Why `AGENT_BASE_URL` rather than `OPENAI_BASE_URL`.** D-16 prohibits setting
+`OPENAI_BASE_URL`/`OPENAI_API_KEY` globally because it breaks native
+subscription auth for Claude Code and Codex. The previous `openai` branch of
+`llm.py` relied on the SDK's own environment lookup, so pointing the harness at
+LiteLLM required exactly that global export. The explicit variables make the
+lane scopeable.
