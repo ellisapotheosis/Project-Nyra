@@ -17,7 +17,7 @@ for file in \
   infra/hosts/oracle-vps/docker-compose.yml \
   infra/hosts/oracle-vps/docker-compose.forgejo.yml \
   infra/hosts/orchestrator/docker-compose.yml \
- infra/hosts//docker-compose.yml \
+  infra/hosts/orchestrator/docker-compose.yml \
   infra/hosts/worker-rtx3090ti/docker-compose.yml \
   infra/hosts/worker-rtx5090/docker-compose.yml \
   scripts/infra/assert-compose-source-of-truth.sh \
@@ -83,7 +83,7 @@ for compose_file in \
   infra/hosts/oracle-vps/docker-compose.yml \
   infra/hosts/oracle-vps/docker-compose.forgejo.yml \
   infra/hosts/orchestrator/docker-compose.yml \
- infra/hosts//docker-compose.yml \
+  infra/hosts/orchestrator/docker-compose.yml \
   infra/hosts/worker-rtx3090ti/docker-compose.yml \
   infra/hosts/worker-rtx5090/docker-compose.yml
 do
