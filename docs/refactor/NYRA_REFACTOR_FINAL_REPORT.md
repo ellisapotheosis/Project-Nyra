@@ -346,8 +346,67 @@ deployment must be re-entered into the `Ubuntu-24.04` WSL distro.
 | `worker-rtx5090` `100.64.0.11`   | pure inference                                                |
 | `worker-rtx3090ti` `100.64.0.13` | pure inference (still offline — ping fails)                   |
 
-`orchestrator` measured 2026-09-04: Ryzen 7 6800H, 8C/16T, 15.2 GB RAM, Docker
-Desktop on a WSL2 backend whose VM reports 7 GB. No discrete GPU.
+`orchestrator` measured 2026-09-04: Windows host `MiniApotheosis`, Ryzen 7
+6800H, 8C/16T, 15.2 GB RAM, Docker 29.7.2 / Compose v5.5.1 under Docker Desktop
+on a WSL2 backend (`Ubuntu-24.04`) whose VM reports 7 GB. No discrete GPU. The
+"Exact live topology" table earlier in this report predates this host being in
+scope and lists only three machines.
+
+### The memory plane was still pointing at aliases that no longer exist
+
+Found while tracing consumers of the embedding endpoint.
+`infra/hosts/oracle-vps/docker-compose.memory.yml` still defaulted
+`MEM0_LLM_MODEL=local/qwen3-4b-3060` and
+`MEM0_EMBEDDER_MODEL=local/embeddings` — both backed by the retired RTX 3060 and
+both absent from the canonical config since the migration. D-06 stated that
+`MEM0_LLM_MODEL` was repointed at `nyra-fast`; the file was never actually
+changed. It is now `nyra-fast` / `nyra-embedding`.
+
+Two further live defects surfaced in the same trace:
+
+- `mem0`'s `MEM0_EMBEDDER_BASE_URL` defaulted to `http://orchestrator:11435/v1`
+  — a host/port that resolves to nothing from that container network, and which
+  disagreed with the `letta` service in the same file. Both now use the gateway.
+- `services/openclaw/openclaw.json.template` had **`http:///v1`** — an empty
+  host — as the default for both `MEM0_EMBEDDER_BASE_URL` and
+  `MEM0_LLM_BASE_URL`, left behind by the RTX 3060 purge.
+
+`services/mem0/tests/test_config.py` asserted the canonical route by naming a
+host (`http://100.64.0.11:11434/v1`). That encodes the coupling the gateway
+exists to remove and would need editing on every host move; it now asserts the
+gateway + alias route, keeping 768 as the load-bearing assertion.
+
+`infra/hosts/host-layout.yaml` also listed three compose files that no longer
+exist (`cloudflared`, `llxprt`, `bitnet`); it now records orchestrator's role as
+`memory-manager` with `root_compose_profile: orchestrator`.
+
+### NEW HIGH-SEVERITY FINDING — a live master key is committed in plaintext
+
+`infra/hosts/oracle-vps/.env` is **tracked in git** and contains a live
+`LITELLM_MASTER_KEY=sk-…` in plaintext. This directly violates D-17
+("`LITELLM_MASTER_KEY` appears only in the Oracle runtime environment, never in
+an agent runtime, never in an acceptance test") and is a separate incident from
+the episodic-memory leak already recorded below.
+
+**It was not blanked in this pass.** The live oracle-vps deployment currently
+reads that file, so emptying the value would take the gateway down, and
+removing it from `HEAD` does not remove it from history — rotation is the only
+real remediation and it is a deliberate operator action. A prominent warning
+comment was added in place instead, and it is escalated here.
+
+```bash
+# 1. mint a replacement and put it in Infisical, not in a file
+# 2. restart the oracle profile against the Infisical-rendered runtime env
+# 3. confirm nothing still reads the tracked .env
+git grep -n 'LITELLM_MASTER_KEY' -- infra/hosts/oracle-vps/
+# 4. consider purging the blob from history (coordinate first - it rewrites refs)
+gitleaks detect --source . --redact
+```
+
+The same file also routed the memory stack at
+`http://litellm.projectnyra.com/v1` — a public hostname that does not resolve
+from the Oracle container network, the same defect class the migration found in
+the pre-migration worker routes. Corrected to `http://litellm:4000/v1`.
 
 ### The embedding workload moved again, invariant preserved
 
@@ -443,6 +502,8 @@ Code/Codex native auth). Config: `infra/env/agent-memory.env.example`.
 4. **`worker-rtx3090ti` is still unreachable** (`ping 100.64.0.13` fails).
 5. **Rotate the llxprt bridge API key** that was hardcoded in the deleted
    `infra/hosts/orchestrator/docker-compose.litellm.yml`.
+6. **Rotate `LITELLM_MASTER_KEY`** — committed in plaintext in the tracked
+   `infra/hosts/oracle-vps/.env`. See the finding above.
 
 ---
 

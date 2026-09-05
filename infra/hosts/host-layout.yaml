@@ -34,17 +34,23 @@ host_constraints:
 
 hosts:
   orchestrator:
-    owner: control-plane
+    # Memory-manager host, not a control plane. The embeddings and BitNet
+    # memory-manager services live in the ROOT compose.yaml `orchestrator`
+    # profile, not in a file under this directory.
+    owner: memory-manager
+    root_compose_profile: orchestrator
     compose_files:
       - infra/hosts/orchestrator/docker-compose.yml
-      - infra/hosts/orchestrator/docker-compose.cloudflared.yml
       - infra/hosts/orchestrator/docker-compose.observability.yml
       - infra/hosts/orchestrator/docker-compose.clawteam.yml
-      - infra/hosts/orchestrator/docker-compose.llxprt.yml
-      - infra/hosts/orchestrator/docker-compose.bitnet.yml
       - infra/hosts/orchestrator/portainer-mesh/docker-compose.portainer.orchestrator.yml
     env_files:
       - .env
+    # Removed because the files no longer exist:
+    #   docker-compose.cloudflared.yml  - only a .bak remains
+    #   docker-compose.llxprt.yml       - llxprt stack retired
+    #   docker-compose.bitnet.yml       - superseded by the root profile
+    #   docker-compose.litellm.yml      - dead second control plane, deleted
 
   worker-hosts:
     owner: gpu-workers
