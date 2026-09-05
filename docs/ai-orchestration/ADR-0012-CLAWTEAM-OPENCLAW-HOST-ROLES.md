@@ -5,11 +5,11 @@
 
 ## Decision
 
-- `orchestrator` runs the single ClawTeam primary.
+- `worker-rtx5090` runs the single ClawTeam primary.
 - `orchestrator` remains an active execution node for Codex CLI, Claude Code,
   agent adapters, worktrees, queues, and coordination services.
-- `worker-rtx5090` runs OpenClaw and Nerve together as the local assistant/GPU
-  node.
+- `worker-rtx5090` runs ClawTeam, OpenClaw, and Nerve together as the local
+  assistant/GPU node.
 - `oracle-vps` remains the shared platform plane for MCP aggregation, memory,
   databases, LiteLLM/OmniRoute, applications, and public/private ingress.
 - Oracle must not run a second ClawTeam primary. Its legacy ClawTeam compose
@@ -24,16 +24,17 @@ co-location on the GPU worker because their UI and gateway traffic remain
 local. Oracle already carries the shared data and ingress blast radius; adding
 the coordinator there would couple coordination failure to the platform plane.
 
-The orchestrator's 16 GB RAM is acceptable for coordination and CLI agents as
-long as it does not also run a local inference model. Keep ClawTeam bounded to
-its configured 5 GB limit, reserve host memory, and cap concurrent CLI/build
-work until live memory measurements justify increasing concurrency.
+The worker's Docker engine reports approximately 48 GiB, while the
+orchestrator's engine reports approximately 7.75 GiB. ClawTeam is therefore
+bounded to 4 GB with a 2 GB reservation on the worker. The environment value
+is an application hint; the Compose `deploy.resources` limit is the actual
+container memory guard.
 
 ## Routing contract
 
 ```text
-Nerve/OpenClaw on worker-rtx5090
-  -> ClawTeam primary on orchestrator for team tasks
+Nerve/OpenClaw/ClawTeam on worker-rtx5090
+  -> orchestrator for Codex/Claude execution nodes and callbacks
   -> LiteLLM and MCP services on oracle-vps over Tailscale
   -> GPU workers, OmniRoute, or OpenRouter according to LiteLLM policy
 ```
