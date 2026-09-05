@@ -133,7 +133,7 @@ help:
 	@echo "make wave-stack-up        Start orchestrator + 5090/3090 AI grid and attach Wave/Zellij"
 	@echo "make wave-stack-status    Show AI grid container status through Docker contexts"
 	@echo "make wave-only            Attach the persistent Wave/Zellij cockpit only"
-	@echo "make oracle-clawteam-up   Start ClawTeam on Oracle VPS"
+	@echo "make oracle-clawteam-up   Start ClawTeam on the orchestrator"
 	@echo "make oracle-ui-factory-up Start UI Factory MCP/tooling containers"
 	@echo "make oracle-mcp-tools-up  Start Oracle MCP containers and Nexus aggregator"
 	@echo "make oracle-portainer-up  Start Oracle Portainer CE + local agent"
@@ -665,16 +665,17 @@ orchestrator-clawteam-down:
 clawteam-all-deploy: worker-5090-clawteam-up
 	@echo "✅ ClawTeam primary deployment complete"
 	@echo "   Primary: worker-rtx5090:9001"
-	@docker --context $(WORKER_5090_CONTEXT) exec nyra-worker-5090-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || true
+	@docker --context $(WORKER_5090_CONTEXT) compose \
+	  -f $(WORKER_5090_COMPOSE) -f infra/hosts/worker-rtx5090/docker-compose.clawteam.yml exec -T clawteam curl -s http://localhost:8080/health 2>/dev/null | jq -r .status || true
 
 clawteam-monitor:
 	@echo "Monitoring ClawTeam on worker-rtx5090..."
-	@watch -n 5 "docker --context $(WORKER_5090_CONTEXT) stats nyra-worker-5090-clawteam-primary --no-stream"
+	@watch -n 5 "docker --context $(WORKER_5090_CONTEXT) compose -f $(WORKER_5090_COMPOSE) -f infra/hosts/worker-rtx5090/docker-compose.clawteam.yml stats clawteam --no-stream"
 
 clawteam-failover-check:
 	@echo "Checking ClawTeam health: Primary (worker-rtx5090) vs Legacy (orchestrator, rollback profile)..."
-	RTX5090_HEALTH=$$(docker --context $(WORKER_5090_CONTEXT) exec nyra-worker-5090-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || echo "down") && \
-	ORCHESTRATOR_HEALTH=$$(docker --context $(ORCHESTRATOR_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
+	RTX5090_HEALTH=$$(docker --context $(WORKER_5090_CONTEXT) compose -f $(WORKER_5090_COMPOSE) -f infra/hosts/worker-rtx5090/docker-compose.clawteam.yml exec -T clawteam curl -s http://localhost:8080/health 2>/dev/null | jq -r .status || echo "down") && \
+	ORCHESTRATOR_HEALTH=$$(docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) -f $(ORCHESTRATOR_CLAWTEAM_COMPOSE) --profile legacy-orchestrator-primary exec -T clawteam curl -s http://localhost:9000/health 2>/dev/null | jq -r .status || echo "down") && \
 	echo "worker-rtx5090 ClawTeam: $$RTX5090_HEALTH" && \
 	echo "orchestrator (legacy):   $$ORCHESTRATOR_HEALTH" && \
 	if [ "$$RTX5090_HEALTH" != "healthy" ] && [ "$$ORCHESTRATOR_HEALTH" = "healthy" ]; then \
