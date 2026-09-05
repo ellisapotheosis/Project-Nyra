@@ -656,19 +656,29 @@ orchestrator-status:
 	@echo ""
 
 # ════════════════════════════════════════════════════════════════════════════
-# 🦞 CLAWTEAM — Orchestrator Primary + Worker Nodes
+# 🦞 CLAWTEAM — RTX 5090 Primary + Orchestrator Execution Node
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: oracle-clawteam orchestrator-clawteam-up orchestrator-clawteam-down rtx3060-clawteam-fallback \
+.PHONY: oracle-clawteam worker-5090-clawteam-up worker-5090-clawteam-down \
+  orchestrator-clawteam-up orchestrator-clawteam-down rtx3060-clawteam-fallback \
   clawteam-all-deploy clawteam-monitor clawteam-failover-check
 
 oracle-clawteam:
-	@$(MAKE) orchestrator-clawteam-up
+	@$(MAKE) worker-5090-clawteam-up
+
+worker-5090-clawteam-up:
+	@echo "Starting ClawTeam primary on worker-rtx5090..."
+	@docker --context $(WORKER_5090_CONTEXT) compose \
+	  -f $(WORKER_5090_COMPOSE) -f infra/hosts/worker-rtx5090/docker-compose.clawteam.yml up -d clawteam
+
+worker-5090-clawteam-down:
+	@docker --context $(WORKER_5090_CONTEXT) compose \
+	  -f $(WORKER_5090_COMPOSE) -f infra/hosts/worker-rtx5090/docker-compose.clawteam.yml stop clawteam
 
 orchestrator-clawteam-up:
-	@echo "Starting ClawTeam primary on orchestrator..."
+	@echo "Starting legacy ClawTeam primary on orchestrator (explicit rollback profile)..."
 	@docker --context $(ORCHESTRATOR_CONTEXT) compose \
-	  -f $(ORCHESTRATOR_COMPOSE) -f $(ORCHESTRATOR_CLAWTEAM_COMPOSE) up -d clawteam
+	  -f $(ORCHESTRATOR_COMPOSE) -f $(ORCHESTRATOR_CLAWTEAM_COMPOSE) --profile legacy-orchestrator-primary up -d clawteam
 
 orchestrator-clawteam-down:
 	@docker --context $(ORCHESTRATOR_CONTEXT) compose \
@@ -679,23 +689,23 @@ rtx3060-clawteam-fallback:
 	  -f infra/hosts/worker-rtx3060/docker-compose.yml \
 	  -f infra/hosts/worker-rtx3060/docker-compose.clawteam.yml up -d clawteam
 
-clawteam-all-deploy: orchestrator-clawteam-up rtx3060-clawteam-fallback
+clawteam-all-deploy: worker-5090-clawteam-up rtx3060-clawteam-fallback
 	@echo "✅ ClawTeam primary + worker deployment complete"
-	@echo "   Primary:  orchestrator:9001"
+	@echo "   Primary:  worker-rtx5090:9001"
 	@echo "   Fallback: worker-rtx3060:9002"
-	@docker --context $(ORCHESTRATOR_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:9000/health 2>/dev/null | jq .status || true
+	@docker --context $(WORKER_5090_CONTEXT) exec nyra-worker-5090-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || true
 
 clawteam-monitor:
-	@echo "Monitoring ClawTeam on orchestrator..."
-	@watch -n 5 "docker --context $(ORCHESTRATOR_CONTEXT) stats nyra-clawteam-primary --no-stream"
+	@echo "Monitoring ClawTeam on worker-rtx5090..."
+	@watch -n 5 "docker --context $(WORKER_5090_CONTEXT) stats nyra-worker-5090-clawteam-primary --no-stream"
 
 clawteam-failover-check:
-	@echo "Checking ClawTeam health: Primary (orchestrator) vs Fallback (RTX3060)..."
-	ORCHESTRATOR_HEALTH=$$(docker --context $(ORCHESTRATOR_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
+	@echo "Checking ClawTeam health: Primary (RTX5090) vs Fallback (RTX3060)..."
+	RTX5090_HEALTH=$$(docker --context $(WORKER_5090_CONTEXT) exec nyra-worker-5090-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || echo "down") && \
 	RTX3060_HEALTH=$$(docker --context $(WORKER_3060_CONTEXT) exec worker-3060-clawteam-fallback curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
-	echo "Orchestrator ClawTeam: $$ORCHESTRATOR_HEALTH" && \
+	echo "RTX5090 ClawTeam:      $$RTX5090_HEALTH" && \
 	echo "RTX3060 Fallback:    $$RTX3060_HEALTH" && \
-	if [ "$$ORCHESTRATOR_HEALTH" != "healthy" ] && [ "$$RTX3060_HEALTH" = "healthy" ]; then \
+	if [ "$$RTX5090_HEALTH" != "healthy" ] && [ "$$RTX3060_HEALTH" = "healthy" ]; then \
 		echo "⚠️  PRIMARY DOWN — Fallback to RTX3060 active"; \
 	fi
 

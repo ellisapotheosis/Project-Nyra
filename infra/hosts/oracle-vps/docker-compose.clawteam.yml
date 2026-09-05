@@ -1,7 +1,7 @@
 # infra/hosts/oracle-vps/docker-compose.clawteam.yml
 # 🦞 Project Nyra - Legacy Oracle ClawTeam definition
 #
-# The ClawTeam primary now belongs on orchestrator. Keep this file only as a
+# The ClawTeam primary now belongs on worker-rtx5090. Keep this file only as a
 # compatibility definition for migration/rollback; it is profile-gated so a
 # normal Oracle stack startup cannot create a second ClawTeam primary.
 

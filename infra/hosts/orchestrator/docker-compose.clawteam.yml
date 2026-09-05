@@ -1,14 +1,20 @@
 # infra/hosts/orchestrator/docker-compose.clawteam.yml
-# 🦞 Project Nyra - ClawTeam Primary Node Override for Orchestrator
+# 🦞 Project Nyra - Legacy ClawTeam Primary Definition for Orchestrator
+#
+# The active primary is now on worker-rtx5090. This definition remains only
+# for rollback and is intentionally profile-gated to prevent two primaries.
 
 services:
   clawteam:
+    profiles: ["legacy-orchestrator-primary"]
     image: ghcr.io/claw-ai/clawteam:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-clawteam-primary
     environment:
       - CLAWTEAM_ROLE=primary
       - CLAWTEAM_HOST=orchestrator
-      - CLAWTEAM_MEMORY_LIMIT=5g
+      # The current Docker engine reports ~7.75 GiB total memory. Keep the
+      # coordinator bounded until the host/engine memory allocation is raised.
+      - CLAWTEAM_MEMORY_LIMIT=2g
       - CLAWTEAM_FALLBACK_REPLICA=worker-rtx3060:9002
       - WORKER_NODES=["worker-rtx5090", "worker-rtx3090ti", "worker-rtx3060"]
       # Nerve remains colocated with OpenClaw on worker-rtx5090.
@@ -30,10 +36,6 @@ services:
     deploy:
       resources:
         limits:
-          memory: 5g
+          memory: 2g
         reservations:
-          memory: 3g
-
-networks:
-  nyra-network:
-    external: true
+          memory: 1g
