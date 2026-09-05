@@ -19,50 +19,51 @@ Infisical Project: apotheosis (8374cea9-e5e8-4050-bda4-b91f25ab30ef)
 
 ### Machine Roles
 
-| Machine | Hostname          | Role             | Specialization | GPU         | VRAM | Status       |
-| ------- | ----------------- | ---------------- | -------------- | ----------- | ---- | ------------ |
-| **PC1** | orchestrator-mini | orchestrator     | coordination   | None        | 0GB  | ✅ Connected |
-| **PC3** | TO_BE_COLLECTED   | worker-rtx5090   | reasoning      | RTX 5090    | 32GB | ⏳ Pending   |
-| **PC4** | TO_BE_COLLECTED   | worker-rtx3090ti | analysis       | RTX 3090 Ti | 24GB | ⏳ Pending   |
+|Machine|Hostname|Role|Specialization|GPU|VRAM|Status|
+|-|-|-|-|-|-|-|
+|**PC1**|orchestrator-mini|orchestrator|coordination|None|0GB|✅ Connected|
+|**PC3**|TO\_BE\_COLLECTED|worker-rtx5090|reasoning|RTX 5090|32GB|⏳ Pending|
+|**PC4**|TO\_BE\_COLLECTED|worker-rtx3090ti|analysis|RTX 3090 Ti|24GB|⏳ Pending|
 
 ## 📁 Files in This Directory
 
 ### Machine-Specific .env Files
 
-- **`orchestrator-mini.env`** - Orchestrator PC configuration
-  - Network bindings (Postgres, Redis, Nexus Router)
-  - Worker connection URLs
-  - Service coordination settings
-  - RuVector leader configuration
+* **`orchestrator-mini.env`** - Orchestrator PC configuration
 
-- **`worker-rtx5090.env`** - RTX 5090 worker (Primary GPU) ⏳ PLACEHOLDERS
-  - 32GB VRAM configuration
-  - Large model settings (DeepSeek-R1, Qwen 72B)
-  - vLLM production inference config
-  - TO_BE_COLLECTED network values
+  * Network bindings (Postgres, Redis, Nexus Router)
+  * Worker connection URLs
+  * Service coordination settings
+  * RuVector leader configuration
+* **`worker-rtx5090.env`** - RTX 5090 worker (Primary GPU) ⏳ PLACEHOLDERS
 
-- **`worker-rtx3090ti.env`** - RTX 3090 Ti worker (Secondary GPU) ⏳ PLACEHOLDERS
-  - 24GB VRAM configuration
-  - Analysis models (Llama 70B, Mistral Large)
-  - TO_BE_COLLECTED network values
+  * 24GB VRAM configuration
+  * Large model settings (DeepSeek-R1, Qwen 72B)
+  * vLLM production inference config
+  * TO\_BE\_COLLECTED network values
+* **`worker-rtx3090ti.env`** - RTX 3090 Ti worker (Secondary GPU) ⏳ PLACEHOLDERS
+
+  * 24GB VRAM configuration
+  * Analysis models (Llama 70B, Mistral Large)
+  * TO\_BE\_COLLECTED network values
 
 ### Automation Scripts
 
-- **`upload-machines-to-infisical.ps1`** - Upload machine configs to Infisical
-- **`generate-combined-env.ps1`** - Generate combined .env files (shared + machine-specific)
+* **`upload-machines-to-infisical.ps1`** - Upload machine configs to Infisical
+* **`generate-combined-env.ps1`** - Generate combined .env files (shared + machine-specific)
 
 ## 🚀 Quick Start
 
-### 1. Upload Machine Configurations to Infisical
+### 1\. Upload Machine Configurations to Infisical
 
-First, ensure you have `INFISICAL_ACCESS_TOKEN` set in your environment:
+First, ensure you have `INFISICAL\_ACCESS\_TOKEN` set in your environment:
 
 ```powershell
 # Check if token is set
-$env:INFISICAL_ACCESS_TOKEN
+$env:INFISICAL\_ACCESS\_TOKEN
 
 # If not set, export from Infisical /shared first
-cd C:\Dev\Projects\Repos\Project-Nyra\infisical-path-plan-kit
+cd C:\\Dev\\Projects\\Repos\\Project-Nyra\\infisical-path-plan-kit
 infisical export --path="/shared" --format=dotenv-export | Invoke-Expression
 ```
 
@@ -72,34 +73,34 @@ Then upload all machine configurations:
 cd machines
 
 # Dry run first (recommended)
-.\upload-machines-to-infisical.ps1 -DryRun -Verbose
+.\\upload-machines-to-infisical.ps1 -DryRun -Verbose
 
 # Upload for real
-.\upload-machines-to-infisical.ps1 -Verbose
+.\\upload-machines-to-infisical.ps1 -Verbose
 ```
 
-### 2. Generate Combined .env Files
+### 2\. Generate Combined .env Files
 
 After uploading, generate combined .env files that merge `/shared` + `/hosts/<pc>`:
 
 ```powershell
 # Generate all combined files
-.\generate-combined-env.ps1 -OutputToFiles
+.\\generate-combined-env.ps1 -OutputToFiles
 
 # Preview a specific machine (no file output)
-.\generate-combined-env.ps1 -MachineRole "orchestrator-mini"
+.\\generate-combined-env.ps1 -MachineRole "orchestrator-mini"
 
 # Generate only for specific machine
-.\generate-combined-env.ps1 -MachineRole -OutputToFiles
+.\\generate-combined-env.ps1 -MachineRole -OutputToFiles
 ```
 
 This creates files in `combined/`:
 
-- `combined/orchestrator-mini.env`
-- `combined/worker-rtx5090.env`
-- `combined/worker-rtx3090ti.env`
+* `combined/orchestrator-mini.env`
+* `combined/worker-rtx5090.env`
+* `combined/worker-rtx3090ti.env`
 
-### 3. Deploy to Each PC
+### 3\. Deploy to Each PC
 
 Copy the generated combined .env file to each machine:
 
@@ -107,7 +108,7 @@ Copy the generated combined .env file to each machine:
 
 ```powershell
 # Copy combined .env
-Copy-Item combined/orchestrator-mini.env $env:PROJECT_ROOT\.env
+Copy-Item combined/orchestrator-mini.env $env:PROJECT\_ROOT\\.env
 
 # Start services
 docker compose -f infra/cluster-setup/docker-compose.orchestrator.yml up -d
@@ -115,7 +116,7 @@ docker compose -f infra/cluster-setup/docker-compose.orchestrator.yml up -d
 
 ```powershell
 # Copy combined .env
-Copy-Item combined/ $env:PROJECT_ROOT\.env
+Copy-Item combined/ $env:PROJECT\_ROOT\\.env
 
 # Start services
 docker compose -f infra/cluster-setup/docker-compose.worker.yml up -d
@@ -133,29 +134,29 @@ docker compose -f infra/cluster-setup/docker-compose.worker.yml up -d
 
 These override shared variables and are unique per machine:
 
-- **Identity**: `MACHINE_HOSTNAME`, `MACHINE_ROLE`, `MACHINE_PURPOSE`
-- **Hardware**: `MACHINE_CPU`, `MACHINE_RAM_GB`, `MACHINE_GPU_*`
-- **Networking**: `MACHINE_IP_*`, `MACHINE_MAC_*`, `TAILSCALE_*`
-- **GPU Config**: `NVIDIA_VISIBLE_DEVICES`, GPU memory settings
-- **Service Bindings**: `OLLAMA_BIND`, `VLLM_BIND`, port assignments
-- **Ollama**: `OLLAMA_MODELS`, `OLLAMA_GPU_LAYERS`, model-specific settings
-- **Worker Endpoints**: `WORKER_*_URL`, `WORKER_*_MODELS`
-- **Orchestrator**: `NEXUS_ROUTER_URL`, `ORCHESTRATOR_URL` (connections to coordinator)
-- **RuVector**: `RUVECTOR_MODE`, `RUVECTOR_PEER_ID`, `RUVECTOR_LEADER`
-- **Cloudflare Tunnels**: `CLOUDFLARE_TUNNEL_TOKEN_*` (PC-specific tokens)
-- **Docker**: `DOCKER_SUBNET_*` (unique subnet per machine)
-- **Dev Ports**: Machine-specific UI and monitoring ports
+* **Identity**: `MACHINE\_HOSTNAME`, `MACHINE\_ROLE`, `MACHINE\_PURPOSE`
+* **Hardware**: `MACHINE\_CPU`, `MACHINE\_RAM\_GB`, `MACHINE\_GPU\_\*`
+* **Networking**: `MACHINE\_IP\_\*`, `MACHINE\_MAC\_\*`, `TAILSCALE\_\*`
+* **GPU Config**: `NVIDIA\_VISIBLE\_DEVICES`, GPU memory settings
+* **Service Bindings**: `OLLAMA\_BIND`, `VLLM\_BIND`, port assignments
+* **Ollama**: `OLLAMA\_MODELS`, `OLLAMA\_GPU\_LAYERS`, model-specific settings
+* **Worker Endpoints**: `WORKER\_\*\_URL`, `WORKER\_\*\_MODELS`
+* **Orchestrator**: `NEXUS\_ROUTER\_URL`, `ORCHESTRATOR\_URL` (connections to coordinator)
+* **RuVector**: `RUVECTOR\_MODE`, `RUVECTOR\_PEER\_ID`, `RUVECTOR\_LEADER`
+* **Cloudflare Tunnels**: `CLOUDFLARE\_TUNNEL\_TOKEN\_\*` (PC-specific tokens)
+* **Docker**: `DOCKER\_SUBNET\_\*` (unique subnet per machine)
+* **Dev Ports**: Machine-specific UI and monitoring ports
 
 ### Shared Variables (in /shared)
 
 Common across all machines:
 
-- **API Keys**: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_API_KEY`
-- **Database**: `POSTGRES_PASSWORD`, `POSTGRES_USER`, `POSTGRES_DB`
-- **Redis**: `REDIS_PASSWORD`
-- **Auth**: `JWT_SECRET`, `CLERK_SECRET_KEY`
-- **External Services**: Supabase, Stripe, GitHub, n8n credentials
-- **Project Info**: `PROJECT_ID`, `PROJECT_NAME`, `ENV`
+* **API Keys**: `ANTHROPIC\_API\_KEY`, `OPENAI\_API\_KEY`, `GOOGLE\_API\_KEY`
+* **Database**: `POSTGRES\_PASSWORD`, `POSTGRES\_USER`, `POSTGRES\_DB`
+* **Redis**: `REDIS\_PASSWORD`
+* **Auth**: `JWT\_SECRET`, `CLERK\_SECRET\_KEY`
+* **External Services**: Supabase, Stripe, GitHub, n8n credentials
+* **Project Info**: `PROJECT\_ID`, `PROJECT\_NAME`, `ENV`
 
 ## 🔄 Workflow Diagrams
 
@@ -169,10 +170,10 @@ orchestrator-mini.env  →  /hosts/orchestrator
 worker-rtx5090.env     →  /hosts/worker-rtx5090
 worker-rtx3090ti.env   →  /hosts/worker-rtx3090ti
 
-[upload-machines-to-infisical.ps1]
+\[upload-machines-to-infisical.ps1]
 ```
 
-### Download & Merge Workflow
+### Download \& Merge Workflow
 
 ```
 Infisical Paths              Combined Output
@@ -185,7 +186,7 @@ Infisical Paths              Combined Output
  ├─ merge → combined/
 /machines/worker-3060┘
 
-[generate-combined-env.ps1]
+\[generate-combined-env.ps1]
 ```
 
 ## 🔧 Collecting Missing Values
@@ -207,10 +208,10 @@ tailscale up
 ### Step 2: Run PC Info Collector
 
 ```powershell
-cd C:\Dev\Projects\Repos\Project-Nyra\infra\machines
+cd C:\\Dev\\Projects\\Repos\\Project-Nyra\\infra\\machines
 
 # Run collector script
-.\PC-INFO-COLLECTOR.ps1
+.\\PC-INFO-COLLECTOR.ps1
 
 # This generates machine-info.json with:
 # - Hostname
@@ -224,14 +225,14 @@ cd C:\Dev\Projects\Repos\Project-Nyra\infra\machines
 
 Take the values from `machine-info.json` and replace placeholders in:
 
-- `worker-rtx5090.env` - Replace all `TO_BE_COLLECTED` values
-- `worker-rtx3090ti.env` - Replace all `TO_BE_COLLECTED` values
+* `worker-rtx5090.env` - Replace all `TO\_BE\_COLLECTED` values
+* `worker-rtx3090ti.env` - Replace all `TO\_BE\_COLLECTED` values
 
 ### Step 4: Re-upload to Infisical
 
 ```powershell
 # Re-run upload script
-.\upload-machines-to-infisical.ps1 -Verbose
+.\\upload-machines-to-infisical.ps1 -Verbose
 ```
 
 ## 🛠️ Script Reference
@@ -242,20 +243,20 @@ Take the values from `machine-info.json` and replace placeholders in:
 
 **Parameters**:
 
-- `-DryRun` - Preview what would be uploaded without making changes
-- `-Verbose` - Show detailed output for each variable
+* `-DryRun` - Preview what would be uploaded without making changes
+* `-Verbose` - Show detailed output for each variable
 
 **Usage Examples**:
 
 ```powershell
 # Test run (no uploads)
-.\upload-machines-to-infisical.ps1 -DryRun
+.\\upload-machines-to-infisical.ps1 -DryRun
 
 # Upload with detailed logging
-.\upload-machines-to-infisical.ps1 -Verbose
+.\\upload-machines-to-infisical.ps1 -Verbose
 
 # Production upload
-.\upload-machines-to-infisical.ps1
+.\\upload-machines-to-infisical.ps1
 ```
 
 **What it does**:
@@ -264,15 +265,15 @@ Take the values from `machine-info.json` and replace placeholders in:
 2. Parses variables (skips comments and empty lines)
 3. Uploads to `/hosts/<pc-name>` path in Infisical
 4. Reports success/failure counts
-5. Skips `TO_BE_*` placeholders in dry-run mode
+5. Skips `TO\_BE\_\*` placeholders in dry-run mode
 
 **Output**:
 
 ```
 📁 Uploading orchestrator-mini (orchestrator-mini.env)
    Found 67 variables
-   Setting MACHINE_HOSTNAME... ✓
-   Setting MACHINE_ROLE... ✓
+   Setting MACHINE\_HOSTNAME... ✓
+   Setting MACHINE\_ROLE... ✓
    ...
 ========================================
 Total:    268
@@ -287,19 +288,19 @@ Skipped:  0
 
 **Parameters**:
 
-- `-MachineRole <name>` - Generate only for specific machine
-- `-OutputToFiles` - Write to `combined/` directory (otherwise just preview)
+* `-MachineRole <name>` - Generate only for specific machine
+* `-OutputToFiles` - Write to `combined/` directory (otherwise just preview)
 
 **Usage Examples**:
 
 ```powershell
 # Preview orchestrator config (first 10 lines)
-.\generate-combined-env.ps1 -MachineRole "orchestrator-mini"
+.\\generate-combined-env.ps1 -MachineRole "orchestrator-mini"
 
 # Generate all combined files
-.\generate-combined-env.ps1 -OutputToFiles
+.\\generate-combined-env.ps1 -OutputToFiles
 
-.\generate-combined-env.ps1 -MachineRole -OutputToFiles
+.\\generate-combined-env.ps1 -MachineRole -OutputToFiles
 ```
 
 **What it does**:
@@ -326,8 +327,8 @@ Skipped:  0
 # SHARED VARIABLES (from /shared)
 # ==============================================================================
 
-ANTHROPIC_API_KEY=sk-ant-...
-POSTGRES_PASSWORD=...
+ANTHROPIC\_API\_KEY=sk-ant-...
+POSTGRES\_PASSWORD=...
 ...
 
 # ==============================================================================
@@ -335,26 +336,26 @@ POSTGRES_PASSWORD=...
 # ==============================================================================
 # These override shared variables if there are conflicts
 
-MACHINE_HOSTNAME=orchestrator-mini
-MACHINE_ROLE=orchestrator
-NEXUS_ROUTER_BIND=0.0.0.0:7000
+MACHINE\_HOSTNAME=orchestrator-mini
+MACHINE\_ROLE=orchestrator
+NEXUS\_ROUTER\_BIND=0.0.0.0:7000
 ...
 ```
 
 ## 🐛 Troubleshooting
 
-### Issue: "INFISICAL_ACCESS_TOKEN not set"
+### Issue: "INFISICAL\_ACCESS\_TOKEN not set"
 
 **Solution**: Export token from Infisical `/shared`:
 
 ```powershell
-cd C:\Dev\Projects\Repos\Project-Nyra\infisical-path-plan-kit
+cd C:\\Dev\\Projects\\Repos\\Project-Nyra\\infisical-path-plan-kit
 infisical export --path="/shared" --format=dotenv-export | Invoke-Expression
 ```
 
 ### Issue: "Invalid secret path" errors
 
-**Cause**: Git Bash path translation (converts `/shared` to `C:\Program Files\Git\shared`)
+**Cause**: Git Bash path translation (converts `/shared` to `C:\\Program Files\\Git\\shared`)
 
 **Solution**: Use PowerShell instead of Git Bash, or CD to project directory first:
 
@@ -376,13 +377,13 @@ infisical secrets list --path="/shared" --env=dev --projectId="8374cea9-e5e8-405
 2. **Test uploading single variable**:
 
 ```powershell
-infisical secrets set "TEST_VAR" "test_value" --path="/hosts/orchestrator" --env=dev --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
+infisical secrets set "TEST\_VAR" "test\_value" --path="/hosts/orchestrator" --env=dev --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
 ```
 
 3. **Run upload script with verbose**:
 
 ```powershell
-.\upload-machines-to-infisical.ps1 -Verbose
+.\\upload-machines-to-infisical.ps1 -Verbose
 ```
 
 ### Issue: Combined .env missing variables
@@ -392,13 +393,13 @@ infisical secrets set "TEST_VAR" "test_value" --path="/hosts/orchestrator" --env
 **Solution**: Run upload script first:
 
 ```powershell
-.\upload-machines-to-infisical.ps1
-.\generate-combined-env.ps1 -OutputToFiles
+.\\upload-machines-to-infisical.ps1
+.\\generate-combined-env.ps1 -OutputToFiles
 ```
 
 ### Issue: Placeholders in production
 
-**Cause**: PC3/PC4 not connected yet, still have `TO_BE_COLLECTED` values
+**Cause**: PC3/PC4 not connected yet, still have `TO\_BE\_COLLECTED` values
 
 **Solution**:
 
@@ -409,55 +410,57 @@ infisical secrets set "TEST_VAR" "test_value" --path="/hosts/orchestrator" --env
 
 ## 📋 Deployment Checklist
 
-- [ ] Export `INFISICAL_ACCESS_TOKEN` from `/shared`
-- [ ] Review machine-specific .env files for accuracy
-- [ ] Run upload script with `-DryRun` to preview
-- [ ] Upload machine configs to Infisical
-- [ ] Generate combined .env files
-- [ ] Copy combined .env to orchestrator-mini
-- [ ] Test orchestrator services start correctly
-- [ ] Test worker services start correctly
-- [ ] Verify Tailscale connectivity between PCs
-- [ ] Connect worker-rtx5090 to Tailscale (PC3)
-- [ ] Connect worker-rtx3090ti to Tailscale (PC4)
-- [ ] Collect actual values for PC3 and PC4
-- [ ] Update .env files with actual values
-- [ ] Re-upload machine configs for PC3/PC4
-- [ ] Deploy combined .env to PC3/PC4
-- [ ] Verify full cluster connectivity
+* \[ ] Export `INFISICAL\_ACCESS\_TOKEN` from `/shared`
+* \[ ] Review machine-specific .env files for accuracy
+* \[ ] Run upload script with `-DryRun` to preview
+* \[ ] Upload machine configs to Infisical
+* \[ ] Generate combined .env files
+* \[ ] Copy combined .env to orchestrator-mini
+* \[ ] Test orchestrator services start correctly
+* \[ ] Test worker services start correctly
+* \[ ] Verify Tailscale connectivity between PCs
+* \[ ] Connect worker-rtx5090 to Tailscale (PC3)
+* \[ ] Connect worker-rtx3090ti to Tailscale (PC4)
+* \[ ] Collect actual values for PC3 and PC4
+* \[ ] Update .env files with actual values
+* \[ ] Re-upload machine configs for PC3/PC4
+* \[ ] Deploy combined .env to PC3/PC4
+* \[ ] Verify full cluster connectivity
 
 ## 🔐 Security Notes
 
 1. **Never commit combined .env files** - They contain actual secrets
 2. **Use `-DryRun` first** - Always preview before uploading
 3. **Rotate Cloudflare tunnel tokens** - Set unique token per machine
-4. **Keep Infisical token secure** - Never commit `INFISICAL_ACCESS_TOKEN`
+4. **Keep Infisical token secure** - Never commit `INFISICAL\_ACCESS\_TOKEN`
 5. **Review before deployment** - Check combined .env files for sensitive data
 
 ## 📚 Related Documentation
 
-- **`../README.md`** - Parent directory overview and migration guide
-- **`../../infra/machines/MACHINE-ENV-STRATEGY.md`** - Variable separation strategy
-- **`../../infra/machines/README.md`** - Machine infrastructure documentation
-- **`../../infra/cluster-setup/CURRENT-STATUS.md`** - Current cluster status
-- **`../../configs/env/ENV-CONSOLIDATION-SUMMARY.md`** - Full environment variable catalog
+* **`../README.md`** - Parent directory overview and migration guide
+* **`../../infra/machines/MACHINE-ENV-STRATEGY.md`** - Variable separation strategy
+* **`../../infra/machines/README.md`** - Machine infrastructure documentation
+* **`../../infra/cluster-setup/CURRENT-STATUS.md`** - Current cluster status
+* **`../../configs/env/ENV-CONSOLIDATION-SUMMARY.md`** - Full environment variable catalog
 
 ## 🎯 Next Steps
 
-1. **For PC1 & PC2 (Already Connected)**:
-   - Upload configs: `.\upload-machines-to-infisical.ps1`
-   - Generate combined: `.\generate-combined-env.ps1 -OutputToFiles`
-   - Deploy to machines
-   - Test services
+1. **For PC1 \& PC2 (Already Connected)**:
 
-2. **For PC3 & PC4 (Pending Connection)**:
-   - Connect to Tailscale
-   - Run `PC-INFO-COLLECTOR.ps1`
-   - Update .env files with actual values
-   - Re-upload to Infisical
-   - Deploy to machines
+   * Upload configs: `.\\upload-machines-to-infisical.ps1`
+   * Generate combined: `.\\generate-combined-env.ps1 -OutputToFiles`
+   * Deploy to machines
+   * Test services
+2. **For PC3 \& PC4 (Pending Connection)**:
 
+   * Connect to Tailscale
+   * Run `PC-INFO-COLLECTOR.ps1`
+   * Update .env files with actual values
+   * Re-upload to Infisical
+   * Deploy to machines
 3. **Ongoing**:
-   - Monitor service health across cluster
-   - Update secrets in Infisical (auto-propagates to combined .env)
-   - Add new machines by creating new .env file and adding to scripts
+
+   * Monitor service health across cluster
+   * Update secrets in Infisical (auto-propagates to combined .env)
+   * Add new machines by creating new .env file and adding to scripts
+
