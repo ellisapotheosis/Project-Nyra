@@ -1,7 +1,7 @@
 {
   "version": 1,
   "name": "pico-utility",
-  "description": "Tiny worker on worker-rtx3060 (qwen2.5:1.5b). Classify, extract, render JSON — that's it.",
+  "description": "Tiny worker on (qwen2.5:1.5b). Classify, extract, render JSON — that's it.",
   "profile": "nyra-local-3060-utility",
   "mode": "manual",
   "model": "local/picoclaw",

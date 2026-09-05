@@ -181,7 +181,6 @@ views:
       - type: markdown
         title: Worker RTX 3060 (Always-On)
         content: |
-          **Tailscale**: `worker-rtx3060.trex-fiordland.ts.net`
           **VRAM**: 5 GB usable | **Role**: Embeddings (nomic-embed-text) + STT
           Always running: `nomic-embed-text` (274 MB) + `llama3.2:3b` (2 GB)
       - type: horizontal-stack

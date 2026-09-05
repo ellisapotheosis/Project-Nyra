@@ -51,7 +51,6 @@ ingress:
 
   # Worker RTX 3060 utility gateway. Keep Ollama itself private.
   - hostname: litellm-3060.projectnyra.com
-    service: http://worker-rtx3060.trex-fiordland.ts.net:4000
 
   # Catch-all. Required by cloudflared.
   - service: http_status:404

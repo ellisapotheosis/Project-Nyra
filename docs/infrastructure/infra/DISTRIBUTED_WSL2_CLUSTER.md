@@ -3,10 +3,10 @@
 ## Scope
 
 Canonical deployment guidance for:
+
 - Orchestrator control plane
 - Oracle VM services
 - Worker RTX5090 + RTX3090Ti (vLLM + LMCache + Redis)
-- Worker RTX3060 (Ollama lightweight models)
 - Home Assistant + Portainer operational dashboards
 
 ## Hard Constraints
@@ -22,46 +22,6 @@ Canonical deployment guidance for:
 - **Orchestrator**: Nexus router, UI/control-plane, memory integrations.
 - **Worker RTX5090**: vLLM + LMCache + Redis.
 - **Worker RTX3090Ti**: vLLM + LMCache + Redis.
-- **Worker RTX3060**: Ollama (Gemma smaller variants).
-
-## Env vars (replace)
-
-```bash
-REPLACE_ME_OPENAI_API_KEY=
-REPLACE_ME_ANTHROPIC_API_KEY=
-REPLACE_ME_GOOGLE_API_KEY=
-REPLACE_ME_HF_TOKEN=
-REPLACE_ME_VLLM_API_KEY=
-REPLACE_ME_TUNNEL_TOKEN=
-REPLACE_ME_PORTAINER_ADMIN_PASSWORD=
-REPLACE_ME_PORTAINER_AGENT_SECRET=
-REPLACE_ME_FALKORDB_PASSWORD=
-```
-
-## WSL2 baseline (`.wslconfig`)
-
-Use current key names only (not legacy aliases):
-
-```ini
-[wsl2]
-networkingMode=mirrored
-dnsTunneling=true
-firewall=true
-autoProxy=true
-vmIdleTimeout=600000
-kernelCommandLine=vsyscall=emulate
-
-[experimental]
-autoMemoryReclaim=gradual
-sparseVhd=true
-hostAddressLoopback=true
-bestEffortDnsParsing=true
-```
-
-Tune per host memory/CPU/swap based on local workload.
-
-## Storage strategy
-
 - Keep model caches and Docker volumes inside Linux filesystem (for WSL perf).
 - Prefer moving WSL distro and Docker disk image to secondary NVMe.
 - Recommended base path in WSL:
@@ -80,10 +40,6 @@ Tune per host memory/CPU/swap based on local workload.
 
 - RTX5090/3090Ti: keep both large models on disk; run one “big” model per GPU at a time.
 - Start with conservative context windows (`--max-model-len 32768`) and scale only after headroom checks.
-- RTX3060: use Ollama + Gemma lighter variants only.
-
-## Nexus routing policy
-
 - Single OpenAI-compatible endpoint for web clients and tool runners.
 - Route to worker backends via internal hostnames/Tailscale.
 - Keep admin UIs behind Access or tailnet-only exposure.

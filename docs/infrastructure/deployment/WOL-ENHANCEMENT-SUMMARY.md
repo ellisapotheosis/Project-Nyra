@@ -17,6 +17,7 @@ Successfully enhanced the Wake-on-LAN functionality for GPU workers with compreh
 **File**: `scripts/orchestrator/wake-gpu-worker.sh` (422 lines)
 
 **Features Implemented**:
+
 - ✅ Auto-detect MAC addresses from `hardware-detection.json`
 - ✅ Multi-worker support with parallel execution
 - ✅ Boot progress monitoring (configurable 120s timeout)
@@ -27,6 +28,7 @@ Successfully enhanced the Wake-on-LAN functionality for GPU workers with compreh
 - ✅ Automatic dependency installation (wakeonlan, jq)
 
 **New Commands**:
+
 ```bash
 ./wake-gpu-worker.sh worker-rtx5090  # Wake specific worker
 ./wake-gpu-worker.sh --all           # Wake all WoL-enabled workers
@@ -39,6 +41,7 @@ Successfully enhanced the Wake-on-LAN functionality for GPU workers with compreh
 **File**: `bootstrap/orchestrator-mini/scripts/sleep-gpu-worker.sh` (300 lines)
 
 **Features**:
+
 - ✅ SSH-based graceful shutdown (Windows PowerShell + Linux)
 - ✅ Confirmation prompts for always-on workers
 - ✅ Safety checks for disconnectable workers
@@ -47,6 +50,7 @@ Successfully enhanced the Wake-on-LAN functionality for GPU workers with compreh
 - ✅ Supports individual and bulk shutdown
 
 **Commands**:
+
 ```bash
 ./sleep-gpu-worker.sh worker-rtx5090  # Shutdown specific worker
 ./sleep-gpu-worker.sh --all           # Shutdown all disconnectable workers
@@ -57,8 +61,8 @@ Successfully enhanced the Wake-on-LAN functionality for GPU workers with compreh
 **Location**: `bootstrap/orchestrator-mini/scripts/`
 
 Created 4 wrapper scripts:
+
 - ✅ `wake-all-workers.sh` - Wake all WoL-enabled workers
-- ✅ `wake-rtx3060.sh` - Wake RTX 3060 mobile worker
 - ✅ `wake-rtx5090.sh` - Wake RTX 5090 mobile worker
 - ✅ `wake-rtx3090ti.sh` - Check RTX 3090 Ti status (always-on)
 
@@ -69,12 +73,13 @@ All scripts are executable and properly documented.
 **File**: `bootstrap/configs/hardware-detection.json`
 
 **Structure**:
+
 ```json
 {
   "workers": {
     "worker-rtx3090ti": { /* always-on primary */ },
     "worker-rtx5090": { /* mobile worker */ },
-    "worker-rtx3060": { /* mobile worker */ }
+ : { /* mobile worker */ }
   },
   "network": { /* subnet, broadcast, WoL port */ },
   "notifications": { /* notification settings */ },
@@ -87,6 +92,7 @@ All scripts are executable and properly documented.
 **File**: `bootstrap/installer/src/components/GPUWorkersPanel.tsx` (700+ lines)
 
 **Features**:
+
 - ✅ Real-time worker status (online/offline/waking/sleeping)
 - ✅ GPU utilization monitoring (usage, memory, temperature)
 - ✅ Visual progress bars for GPU metrics
@@ -99,6 +105,7 @@ All scripts are executable and properly documented.
 - ✅ Responsive grid layout (1/2/3 columns)
 
 **UI Components**:
+
 - Worker cards with color-coded status indicators
 - GPU utilization charts with dynamic color coding
 - Action buttons with loading states
@@ -110,6 +117,7 @@ All scripts are executable and properly documented.
 **File**: `bootstrap/installer/src/types/gpu-worker.ts` (100 lines)
 
 **Types Defined**:
+
 - `GPUInfo` - GPU hardware specifications
 - `GPUWorker` - Complete worker configuration
 - `WorkerStatus` - Status enum (online/offline/waking/sleeping/error)
@@ -126,6 +134,7 @@ All scripts are executable and properly documented.
 **Class**: `GPUWorkerService`
 
 **Methods**:
+
 - `loadWorkers()` - Load worker config from JSON
 - `checkWorkerStatus(name)` - Ping test for status
 - `wakeWorker(name)` - Execute wake script
@@ -136,6 +145,7 @@ All scripts are executable and properly documented.
 - `stopStatusMonitoring()` - Cleanup interval
 
 **Integration**:
+
 - Exported via `bootstrap/installer/src/services/index.ts`
 - Singleton instance: `gpuWorkerService`
 - Ready for GUI and CLI usage
@@ -145,6 +155,7 @@ All scripts are executable and properly documented.
 **File**: `docs/operations/WAKE-ON-LAN-GUIDE.md` (500+ lines)
 
 **Sections**:
+
 - Overview and features
 - Configuration guide
   - Hardware detection config
@@ -163,6 +174,7 @@ All scripts are executable and properly documented.
 - FAQ
 
 **Additional Docs**:
+
 - `bootstrap/orchestrator-mini/scripts/README.md` - Quick reference
 - `docs/deployment/WOL-ENHANCEMENT-SUMMARY.md` - This file
 
@@ -232,18 +244,21 @@ graph TD
 ## 🎯 Features by Category
 
 ### Auto-Detection
+
 - ✅ MAC addresses from `hardware-detection.json`
 - ✅ Worker configurations (IP, GPU, WoL status)
 - ✅ Network settings (broadcast, subnet)
 - ✅ Monitoring parameters (timeouts, intervals)
 
 ### Multi-Worker Support
+
 - ✅ Parallel wake using background processes
 - ✅ Wake all WoL-enabled workers with one command
 - ✅ Individual worker scripts for convenience
 - ✅ Bulk shutdown for disconnectable workers
 
 ### Monitoring
+
 - ✅ Boot progress with configurable timeout (120s default)
 - ✅ Ping interval checks (5s default)
 - ✅ SSH connection verification
@@ -251,12 +266,14 @@ graph TD
 - ✅ Boot time tracking
 
 ### GPU Verification
+
 - ✅ nvidia-smi integration
 - ✅ GPU name, utilization, memory, temperature
 - ✅ Automatic retry on SSH failure
 - ✅ Graceful degradation if unavailable
 
 ### Notifications
+
 - ✅ Desktop notifications (notify-send)
 - ✅ Log file notifications (`logs/wol-notifications.log`)
 - ✅ GUI in-app notifications
@@ -264,6 +281,7 @@ graph TD
 - ✅ Notification types: info, success, warning, error
 
 ### GUI Panel
+
 - ✅ Worker status indicators (color-coded)
 - ✅ GPU utilization charts (real-time)
 - ✅ Wake/Sleep buttons with loading states
@@ -278,27 +296,27 @@ graph TD
 
 ### Code Metrics
 
-| Component | Lines | Language | Status |
-|-----------|-------|----------|--------|
-| wake-gpu-worker.sh | 422 | Bash | ✅ Complete |
-| sleep-gpu-worker.sh | 300 | Bash | ✅ Complete |
-| Convenience scripts (4x) | 80 | Bash | ✅ Complete |
-| GPUWorkersPanel.tsx | 700+ | TypeScript/React | ✅ Complete |
-| gpu-worker.ts | 100 | TypeScript | ✅ Complete |
-| gpuWorkerService.ts | 400+ | TypeScript | ✅ Complete |
-| hardware-detection.json | 80 | JSON | ✅ Complete |
-| WAKE-ON-LAN-GUIDE.md | 500+ | Markdown | ✅ Complete |
-| **Total** | **2,582+** | **Mixed** | **✅ Complete** |
+| Component                | Lines      | Language         | Status          |
+| ------------------------ | ---------- | ---------------- | --------------- |
+| wake-gpu-worker.sh       | 422        | Bash             | ✅ Complete     |
+| sleep-gpu-worker.sh      | 300        | Bash             | ✅ Complete     |
+| Convenience scripts (4x) | 80         | Bash             | ✅ Complete     |
+| GPUWorkersPanel.tsx      | 700+       | TypeScript/React | ✅ Complete     |
+| gpu-worker.ts            | 100        | TypeScript       | ✅ Complete     |
+| gpuWorkerService.ts      | 400+       | TypeScript       | ✅ Complete     |
+| hardware-detection.json  | 80         | JSON             | ✅ Complete     |
+| WAKE-ON-LAN-GUIDE.md     | 500+       | Markdown         | ✅ Complete     |
+| **Total**                | **2,582+** | **Mixed**        | **✅ Complete** |
 
 ### Test Coverage
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Script execution | ⏳ Pending | Requires worker PCs |
-| GUI panel | ⏳ Pending | Needs integration with installer |
-| MAC detection | ⏳ Pending | Requires actual MAC addresses |
-| GPU verification | ⏳ Pending | Requires nvidia-smi access |
-| Notifications | ⏳ Pending | Requires desktop environment |
+| Component        | Status     | Notes                            |
+| ---------------- | ---------- | -------------------------------- |
+| Script execution | ⏳ Pending | Requires worker PCs              |
+| GUI panel        | ⏳ Pending | Needs integration with installer |
+| MAC detection    | ⏳ Pending | Requires actual MAC addresses    |
+| GPU verification | ⏳ Pending | Requires nvidia-smi access       |
+| Notifications    | ⏳ Pending | Requires desktop environment     |
 
 ---
 
@@ -362,6 +380,7 @@ graph TD
 ## ✅ Completion Checklist
 
 ### Implementation
+
 - ✅ Enhanced wake-gpu-worker.sh
 - ✅ Created sleep-gpu-worker.sh
 - ✅ Created convenience wrapper scripts
@@ -374,6 +393,7 @@ graph TD
 - ✅ Stored patterns in memory
 
 ### Testing (Pending)
+
 - ⏳ Test single worker wake
 - ⏳ Test multi-worker wake
 - ⏳ Test graceful shutdown
@@ -383,6 +403,7 @@ graph TD
 - ⏳ Test notification system
 
 ### Documentation
+
 - ✅ WAKE-ON-LAN-GUIDE.md (operations)
 - ✅ WOL-ENHANCEMENT-SUMMARY.md (deployment)
 - ✅ README.md (orchestrator-mini/scripts)
@@ -404,6 +425,7 @@ Before using the enhanced WoL system, configure the following:
    - Disable Fast Boot (optional)
 
 3. **Windows Settings** (REQUIRED)
+
    ```powershell
    # Enable WoL on network adapter
    Set-NetAdapterPowerManagement -Name 'Ethernet' -WakeOnMagicPacket Enabled
@@ -427,6 +449,7 @@ Before using the enhanced WoL system, configure the following:
 ## 📞 Support
 
 For issues or questions:
+
 - See [WAKE-ON-LAN-GUIDE.md](../operations/WAKE-ON-LAN-GUIDE.md) for detailed setup
 - Check logs: `logs/wol-notifications.log`
 - Review script output for error messages

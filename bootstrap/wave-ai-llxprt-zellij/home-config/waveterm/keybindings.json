@@ -2,32 +2,39 @@
   {
     "keys": ["Cmd:Shift:D"],
     "command": "app:newTab",
-    "args": { "preset": "nyra-provider-auth" },
+    "args": {
+      "preset": "nyra-provider-auth"
+    },
     "info": "Open LLxprt provider auth cockpit"
   },
   {
     "keys": ["Cmd:Shift:C"],
     "command": "app:newTab",
-    "args": { "preset": "nyra-mission-control" },
+    "args": {
+      "preset": "nyra-mission-control"
+    },
     "info": "Launch Nyra mission control"
   },
   {
     "keys": ["Cmd:Shift:M"],
     "command": "app:newTab",
-    "args": { "preset": "nyra-cluster-health" },
+    "args": {
+      "preset": "nyra-cluster-health"
+    },
     "info": "Cluster Health Monitor (Orch + Oracle + Workers)"
   },
   {
     "keys": ["Cmd:Shift:L"],
     "command": "app:newTab",
-    "args": { "preset": "nyra-openclaw-topology" },
+    "args": {
+      "preset": "nyra-openclaw-topology"
+    },
     "info": "OpenClaw worker topology"
   },
   {
     "keys": ["Cmd:Shift:6"],
     "command": "app:newTab",
-    "args": { "preset": "nyra-mission-control-3060" },
-    "info": "Launch Nyra mission control with RTX3060"
+    "args": {}
   },
   {
     "keys": ["Cmd:Shift:E"],
@@ -57,13 +64,17 @@
   {
     "keys": ["Cmd:Shift:N"],
     "command": "pane:new",
-    "args": { "direction": "right" },
+    "args": {
+      "direction": "right"
+    },
     "info": "New Pane (Split Right)"
   },
   {
     "keys": ["Cmd:Shift:V"],
     "command": "pane:new",
-    "args": { "direction": "down" },
+    "args": {
+      "direction": "down"
+    },
     "info": "New Pane (Split Down)"
   },
   {
@@ -99,25 +110,33 @@
   {
     "keys": ["Cmd:1"],
     "command": "tab:select",
-    "args": { "index": 0 },
+    "args": {
+      "index": 0
+    },
     "info": "Go to Tab 1"
   },
   {
     "keys": ["Cmd:2"],
     "command": "tab:select",
-    "args": { "index": 1 },
+    "args": {
+      "index": 1
+    },
     "info": "Go to Tab 2"
   },
   {
     "keys": ["Cmd:3"],
     "command": "tab:select",
-    "args": { "index": 2 },
+    "args": {
+      "index": 2
+    },
     "info": "Go to Tab 3"
   },
   {
     "keys": ["Cmd:4"],
     "command": "tab:select",
-    "args": { "index": 3 },
+    "args": {
+      "index": 3
+    },
     "info": "Go to Tab 4"
   },
   {

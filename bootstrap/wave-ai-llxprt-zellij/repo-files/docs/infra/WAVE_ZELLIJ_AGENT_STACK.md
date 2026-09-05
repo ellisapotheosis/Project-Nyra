@@ -14,7 +14,7 @@ make wave-stack-status
 
 `wave-stack-up` starts the default orchestrator, RTX5090, RTX3090Ti, Oracle
 memory, Twenty/webapp, Portainer, MCP tools, and a persistent Zellij cockpit.
-`wave-stack-up-3060` adds the RTX3060 OpenClaw/Ollama lane.
+`wave-stack-up-3060` adds the OpenClaw/Ollama lane.
 
 `wave-only` and `wave-only-3060` do not start containers. They only install the
 Wave/LLxprt config files and attach to the persistent local Zellij cockpit.
@@ -37,7 +37,7 @@ Wave/Zellij panes
   -> llxprt-bridge at http://127.0.0.1:8090/v1 for subscription-backed capacity
   -> Nexus/LiteLLM on orchestrator for local model/tool routing
   -> OpenClaw/NerveUI on worker-rtx5090 and worker-rtx3090ti
-  -> worker-rtx3060 for Ollama embeddings, extraction, summarization, and optional OpenClaw
+ -> for Ollama embeddings, extraction, summarization, and optional OpenClaw
 ```
 
 LiteLLM can route to LLxprt only through the `llxprt-bridge` OpenAI-compatible
@@ -116,7 +116,7 @@ private local routing: http://orchestrator.trex-fiordland.ts.net:6000/v1 model=n
 worker direct diagnostics: worker profiles only over Tailscale MagicDNS
 ```
 
-RTX3060 should stay a utility/background lane by default: Ollama embeddings,
+should stay a utility/background lane by default: Ollama embeddings,
 memory extraction, summarization, and routing support. The `make
 wave-stack-up-3060` target enables its optional OpenClaw/NerveUI tab.
 

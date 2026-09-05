@@ -235,7 +235,6 @@ model_list:
   - model_name: local/qwen-2.5-7b
     litellm_params:
       model: ollama/qwen2.5:7b
-      api_base: http://worker-rtx3060.projectnyra.com:11434
       timeout: 120
     model_info:
       mode: "chat"
@@ -248,7 +247,6 @@ model_list:
   - model_name: local/llama3.2-8b
     litellm_params:
       model: ollama/llama3.2:8b
-      api_base: http://worker-rtx3060.projectnyra.com:11434
       timeout: 120
     model_info:
       mode: "chat"
@@ -261,7 +259,6 @@ model_list:
   - model_name: local/embeddings
     litellm_params:
       model: ollama/nomic-embed-text
-      api_base: http://worker-rtx3060.projectnyra.com:11434
     model_info:
       mode: "embeddings"
       input_cost_per_token: 0.0

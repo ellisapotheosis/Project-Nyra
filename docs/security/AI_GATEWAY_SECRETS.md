@@ -7,7 +7,7 @@ Recommended paths:
 /project-nyra/machines/orchestrator
 /project-nyra/machines/worker-rtx5090
 /project-nyra/machines/worker-rtx3090ti
-/project-nyra/machines/worker-rtx3060
+/project-nyra/machines/
 /project-nyra/agents/hermes-product
 /project-nyra/agents/llxprt-dev
 /project-nyra/agents/openharness-dev

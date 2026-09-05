@@ -2,7 +2,6 @@
 
 This package bootstraps a Portainer control-plane on the orchestrator and edge agents on:
 
-- worker-rtx3060
 - worker-rtx3090ti
 - worker-rtx5090
 - homeassistant-green
@@ -42,7 +41,6 @@ docker compose --env-file .env.portainer.edge -f docker-compose.portainer.edge-a
 ## Suggested tags
 
 - orchestrator: `nyra,orchestrator,control-plane`
-- worker-rtx3060: `nyra,worker,rtx3060,llm`
 - worker-rtx3090ti: `nyra,worker,rtx3090ti,llm`
 - worker-rtx5090: `nyra,worker,rtx5090,llm`
 - homeassistant-green: `nyra,homeassistant,dashboard`

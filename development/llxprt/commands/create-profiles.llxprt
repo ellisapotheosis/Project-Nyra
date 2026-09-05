@@ -62,14 +62,12 @@
 /model local/qwen3-27b-5090
 /profile save model nyra-local-5090-coder
 
-# PicoClaw qwen2.5:1.5b on worker-rtx3060 (utility only)
 /provider openai
 /baseurl http://127.0.0.1:4000/v1
 /key load litellm
 /model local/picoclaw
 /profile save model nyra-local-3060-utility
 
-# Background memory llama3.2:3b on worker-rtx3060
 /provider openai
 /baseurl http://127.0.0.1:4000/v1
 /key load litellm

@@ -34,12 +34,6 @@ Project Nyra is an AI-powered mortgage lead automation platform with a strict se
 
 - **worker-rtx5090**: Primary vLLM node.
 - **worker-rtx3090ti**: Secondary vLLM node.
-- **worker-rtx3060**: Ollama utility node (summarization, extraction, small models).
-
-## 4. Control Plane Services
-
-These live on the **Orchestrator**:
-
 - Nexus Router
 - LiteLLM
 - Langfuse

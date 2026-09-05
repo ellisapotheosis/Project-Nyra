@@ -8,7 +8,6 @@
 # - oracle-vps (Linux, port 22)
 # - worker-rtx5090 (WSL2, port 2222)
 # - worker-rtx3090ti (Linux, port 22)
-# - worker-rtx3060 (WSL2, port 2222)
 #
 # Usage:
 #   bash infra/bootstrap/DEPLOY-ALL-NODES.sh [--confirm]
@@ -30,7 +29,7 @@ declare -A NODES=(
   [oracle-vps]="oracle-vps.trex-fiordland.ts.net:22"
   [worker-rtx5090]="worker-rtx5090.trex-fiordland.ts.net:2222"
   [worker-rtx3090ti]="worker-rtx3090ti.trex-fiordland.ts.net:22"
-  [worker-rtx3060]="worker-rtx3060.trex-fiordland.ts.net:2222"
+ []=
 )
 
 CONFIRM_FLAG="${1:-}"
@@ -207,7 +206,7 @@ main() {
   fi
   echo
 
-  for node_name in orchestrator oracle-vps worker-rtx5090 worker-rtx3090ti worker-rtx3060; do
+ for node_name in orchestrator oracle-vps worker-rtx5090 worker-rtx3090ti ; do
     echo
     log_info "╔═══════════════════════════════════════════════════════════════╗"
     log_info "║  Deploying to: $node_name"

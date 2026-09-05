@@ -26,8 +26,6 @@ Local ignored export artifacts:
 
 Correction: `/shared` is link-only and should not store secrets. `/shared/composio` was deleted after the mistake was caught. `/shared/providers` was not present at cleanup time.
 
-Correction: top-level `/worker-rtx3060`, `/worker-rtx3090ti`, and `/worker-rtx5090` folders were also wrong and were deleted. Host-specific values belong directly under `/hosts/<host-name>`, with no nested folders.
-
 ## Generated and Stored
 
 These did not already exist elsewhere in the export, so local cryptographic values were generated and pushed:

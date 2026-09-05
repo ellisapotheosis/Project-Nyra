@@ -18,13 +18,11 @@ ARCHON_ENV_FILE ?= external/archon/nyra-configs/env/archon.env
 # Host Specific Compose Files
 ORCHESTRATOR_LLXPRT_COMPOSE := infra/hosts/orchestrator/docker-compose.llxprt.yml
 ORCHESTRATOR_PORTAINER_EDGE_COMPOSE := infra/hosts/orchestrator/portainer-mesh/docker-compose.portainer.edge-agent.yml
-WORKER_3060_LLXPRT_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.llxprt.yml
 WORKER_3090TI_LLXPRT_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.llxprt.yml
 WORKER_5090_LLXPRT_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.llxprt.yml
 ORACLE_ACTIVEPIECES_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.activepieces-mcp.yml
 
 # Canonical Host Composes
-WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.yml
 WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.yml
 WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.yml
 ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.yml
@@ -42,29 +40,24 @@ WORKER_AI_COMMON_COMPOSE := infra/hosts/_templates/docker-compose.worker-ai-comm
 WORKER_5090_NERVE_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.nerve.yml
 WORKER_5090_MODEL_SWITCHER_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.model-switcher.yml
 WORKER_3090TI_NERVE_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.nerve.yml
-WORKER_3060_OPENCLAW_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.openclaw.yml
 AGENT_INFRA_ENV ?= prod
 INFISICAL_PROJECT_ID ?= 8374cea9-e5e8-4050-bda4-b91f25ab30ef
 ORCHESTRATOR_CONTEXT ?= orchestrator
 ORACLE_CONTEXT ?= oracle
 WORKER_5090_CONTEXT ?= worker-rtx5090
 WORKER_3090TI_CONTEXT ?= worker-rtx3090ti
-WORKER_3060_CONTEXT ?= worker-rtx3060
-FLEET_SSH_TARGETS ?= orchestrator worker-rtx5090 worker-rtx3090ti worker-rtx3060 oracle
-FLEET_DOCKER_CONTEXTS ?= default worker-rtx5090 worker-rtx3090ti worker-rtx3060 orchestrator oracle oracle-vps-oci
+ ?=
+FLEET_SSH_TARGETS ?= orchestrator worker-rtx5090 worker-rtx3090ti oracle
+FLEET_DOCKER_CONTEXTS ?= default worker-rtx5090 worker-rtx3090ti orchestrator oracle oracle-vps-oci
 
 # Voice Setup Compose Files
-VOICE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
 VOICE_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.voice.yml
 VOICE_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.voice.yml
 VOICE_ORCHESTRATOR_COMPOSE := infra/hosts/orchestrator/docker-compose.voice.yml
 
 # Distributed Voice Compose Files
-DIST_VOICE_3060 := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
 DIST_VOICE_5090 := infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
 DIST_VOICE_3090TI := infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
-KYUTAI_BASE_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.voice.yml
-KYUTAI_MESH_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.distributed-voice.yml
 KYUTAI_MESH_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.distributed-voice.yml
 KYUTAI_MESH_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.distributed-voice.yml
 
@@ -178,7 +171,7 @@ cluster-status:
 	@echo -e "\n=== [WORKER-3090TI] ==="
 	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) ps
 	@echo -e "\n=== [WORKER-3060] ==="
-	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) ps
+	@docker --context compose -f $ ps
 
 fleet-check: fleet-ssh-check fleet-docker-check
 
@@ -216,7 +209,7 @@ down-all: down
 	docker --context oracle compose -f $(ORACLE_COMPOSE) -f $(ORACLE_APPS_COMPOSE) --profile apps down
 	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) down
 	docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) down
-	docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) down
+	docker --context compose -f $ down
 
 verify-paths:
 	@test -f $(COMPOSE_FILE) || (echo "Missing $(COMPOSE_FILE)" && exit 1)
@@ -275,7 +268,7 @@ grid-kill:
 	tmux kill-session -t nyra-grid 2>/dev/null || true
 
 up-workers:
-	docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
+	docker --context compose -f $ up -d
 	docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d
 	docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
 
@@ -341,9 +334,9 @@ deploy:
 	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) up -d
 	@echo "✅ RTX3090Ti worker deployed"
 	@echo ""
-	@echo "[5/5] Deploying to RTX3060 Worker..."
-	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
-	@echo "✅ RTX3060 worker deployed"
+	@echo "[5/5] Deploying to Worker..."
+	@docker --context compose -f $ up -d
+	@echo "✅ worker deployed"
 	@echo ""
 	@echo "🎉 All services deployed across the cluster."
 
@@ -359,14 +352,14 @@ logs:
 		echo ""; \
 		echo "=== [WORKER-3090TI] ===" && docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) logs --tail=50 --timestamps 2>/dev/null || echo "Worker-3090Ti logs unavailable"; \
 		echo ""; \
-		echo "=== [WORKER-3060] ===" && docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) logs --tail=50 --timestamps 2>/dev/null || echo "Worker-3060 logs unavailable"; \
+ echo "=== [] ===" && docker --context compose -f $ logs --tail=50 --timestamps 2>/dev/null | | echo logs unavailable"; \
 	else \
 		echo "📜 Viewing logs for service: $(SERVICE)"; \
 		docker --context $(ORCHESTRATOR_CONTEXT) compose -f $(ORCHESTRATOR_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
 		docker --context oracle compose -f $(ORACLE_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
 		docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
 		docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
-		docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) logs -f --tail=100 $(SERVICE) 2>/dev/null || \
+ docker --context compose -f $ logs -f --tail=100 $(SERVICE) 2>/dev/null | | \
 		(echo "Service '$(SERVICE)' not found on any host" && exit 1); \
 	fi
 
@@ -383,7 +376,7 @@ clean:
 	@echo "  - Oracle VPS:" && docker --context oracle volume prune -f || true
 	@echo "  - RTX5090:" && docker --context worker-rtx5090 volume prune -f || true
 	@echo "  - RTX3090Ti:" && docker --context worker-rtx3090ti volume prune -f || true
-	@echo "  - RTX3060:" && docker --context worker-rtx3060 volume prune -f || true
+	@echo " - :" && docker --context volume prune -f | | true
 	@echo ""
 	@echo "✅ Cleaned up unused volumes across all hosts"
 	@echo ""
@@ -411,7 +404,7 @@ check-host:
 # --- VOICE TARGETS ---
 
 voice-3060:
-	docker --context worker-rtx3060 compose -f $(VOICE_3060_COMPOSE) up -d
+	docker --context compose -f $(VOICE_3060_COMPOSE) up -d
 
 voice-5090:
 	docker --context worker-rtx5090 compose -f $(VOICE_5090_COMPOSE) up -d
@@ -423,7 +416,7 @@ voice-orch:
 	docker compose -f $(VOICE_ORCHESTRATOR_COMPOSE) up -d
 
 voice-distributed:
-	docker --context worker-rtx3060 compose -f $(DIST_VOICE_3060) up -d
+	docker --context compose -f $(DIST_VOICE_3060) up -d
 	docker --context worker-rtx5090 compose -f $(DIST_VOICE_5090) up -d
 	docker --context worker-rtx3090ti compose -f $(DIST_VOICE_3090TI) up -d
 
@@ -482,15 +475,15 @@ oracle-memory-down:
 	docker --context oracle compose -f $(ORACLE_MEMORY_COMPOSE) down
 
 kyutai-base-3060-up:
-	docker --context worker-rtx3060 compose -f $(KYUTAI_BASE_3060_COMPOSE) up -d
+	docker --context compose -f $(KYUTAI_BASE_3060_COMPOSE) up -d
 
 kyutai-mesh-up:
-	docker --context worker-rtx3060 compose -f $(KYUTAI_MESH_3060_COMPOSE) up -d
+	docker --context compose -f $(KYUTAI_MESH_3060_COMPOSE) up -d
 	docker --context worker-rtx3090ti compose -f $(KYUTAI_MESH_3090TI_COMPOSE) up -d
 	docker --context worker-rtx5090 compose -f $(KYUTAI_MESH_5090_COMPOSE) up -d
 
 kyutai-mesh-down:
-	docker --context worker-rtx3060 compose -f $(KYUTAI_MESH_3060_COMPOSE) down
+	docker --context compose -f $(KYUTAI_MESH_3060_COMPOSE) down
 	docker --context worker-rtx3090ti compose -f $(KYUTAI_MESH_3090TI_COMPOSE) down
 	docker --context worker-rtx5090 compose -f $(KYUTAI_MESH_5090_COMPOSE) down
 
@@ -558,7 +551,7 @@ swarm-oracle:
 
 swarm-utility:
 	@echo "🛠️  Deploying Utility Node to RTX 3060..."
-	@docker --context worker-rtx3060 compose -f infra/hosts/worker-rtx3060/docker-compose.utility.yml up -d
+	@docker --context compose -f infra/hosts//docker-compose.utility.yml up -d
 	@echo "✅ Utility Stack (Embeddings, TTS Voice) is LIVE."
 
 swarm-down:
@@ -566,7 +559,7 @@ swarm-down:
 	@zellij kill-session nyra-swarm 2>/dev/null || echo "Local swarm already down."
 	@echo "🛑 Terminating remote stacks..."
 	@docker --context oracle compose -f infra/hosts/oracle-vps/docker-compose.oracle.yml down
-	@docker --context worker-rtx3060 compose -f infra/hosts/worker-rtx3060/docker-compose.utility.yml down
+	@docker --context compose -f infra/hosts//docker-compose.utility.yml down
 	@rm -f .env.swarm
 	@echo "✅ Entire Swarm (Local + Oracle + Utility) terminated."
 
@@ -616,8 +609,8 @@ dev-status:
 	@docker --context worker-rtx3090ti ps 2>/dev/null | grep -E "vllm|openclaw" || echo "     ℹ Not running (use 'make up-workers')"
 	@echo "  [4] RTX5090 (claude-code + qwen3.6):"
 	@docker --context worker-rtx5090 ps 2>/dev/null | grep vllm || echo "     ℹ Not running (use 'make up-workers')"
-	@echo "  [5] RTX3060 (embeddings + lightweight LLM + voice):"
-	@docker --context worker-rtx3060 ps 2>/dev/null | grep -E "embed|voice|inference" || echo "     ℹ Not running (use 'make up-workers')"
+	@echo " [5] (embeddings + lightweight LLM + voice):"
+	@docker --context ps 2>/dev/null | grep -E "embed|voice|inference" | | echo " ℹ Not running (use 'make up-workers')"
 	@echo ""
 	@echo "🗄️ GASTOWN (Oracle VPS):"
 	@docker compose -f $(ORACLE_COMPOSE) ps 2>/dev/null | grep gastown || echo "     ℹ Not running (use 'make oracle-apps-up')"
@@ -663,8 +656,8 @@ up-worker-5090:
 	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) up -d
 
 up-worker-3060:
-	@echo "Starting RTX3060 (embeddings + LLM + voice)..."
-	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) up -d
+	@echo "Starting (embeddings + LLM + voice)..."
+	@docker --context compose -f $ up -d
 
 up-all-workers: up-worker-3090ti up-worker-5090 up-worker-3060
 	@echo "All workers started"
@@ -672,7 +665,7 @@ up-all-workers: up-worker-3090ti up-worker-5090 up-worker-3060
 down-all-workers:
 	@docker --context worker-rtx3090ti compose -f $(WORKER_3090TI_COMPOSE) down
 	@docker --context worker-rtx5090 compose -f $(WORKER_5090_COMPOSE) down
-	@docker --context worker-rtx3060 compose -f $(WORKER_3060_COMPOSE) down
+	@docker --context compose -f $ down
 
 # GASTOWN (Oracle VPS)
 .PHONY: gastown-up gastown-down gastown-logs gastown-status
@@ -801,7 +794,7 @@ orchestrator-status:
 	@pgrep -f "letta-mcp-server" >/dev/null && echo "  ✅ letta-mcp-server running (PID: $(pgrep -f 'letta-mcp-server'))" || echo "  ❌ letta-mcp-server down"
 	@echo ""
 	@echo "[WORKERS] GPU Cluster:"
-	@for ctx in worker-rtx5090 worker-rtx3090ti worker-rtx3060; do \
+	@for ctx in worker-rtx5090 worker-rtx3090ti ; do \
 		docker --context $$ctx ps --format '{{.Names}}:{{.Status}}' 2>/dev/null | wc -l && echo "  [$$ctx]: $$(docker --context $$ctx ps -q | wc -l) containers"; \
 	done
 	@echo ""
@@ -810,10 +803,9 @@ orchestrator-status:
 	@echo ""
 
 # ════════════════════════════════════════════════════════════════════════════
-# 📎 GASTOWN + 🦞 CLAWTEAM — Oracle-VPS Primary + RTX3060 Fallback
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: oracle-gastown oracle-clawteam rtx3060-clawteam-fallback \
+.PHONY: oracle-gastown oracle-clawteam \
   clawteam-all-deploy clawteam-monitor clawteam-failover-check
 
 oracle-gastown:
@@ -822,15 +814,10 @@ oracle-gastown:
 oracle-clawteam:
 	@$(MAKE) oracle-clawteam-up
 
-rtx3060-clawteam-fallback:
-	@docker --context $(WORKER_3060_CONTEXT) compose \
-	  -f infra/hosts/worker-rtx3060/docker-compose.yml \
-	  -f infra/hosts/worker-rtx3060/docker-compose.clawteam.yml up -d clawteam
-
-clawteam-all-deploy: oracle-clawteam rtx3060-clawteam-fallback
+clawteam-all-deploy: oracle-clawteam
 	@echo "✅ ClawTeam dual-deployment complete"
 	@echo "   Primary:  oracle-vps:9001"
-	@echo "   Fallback: worker-rtx3060:9002"
+	@echo " Fallback:
 	@docker --context $(ORACLE_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || true
 
 clawteam-monitor:
@@ -838,13 +825,12 @@ clawteam-monitor:
 	@watch -n 5 "docker --context $(ORACLE_CONTEXT) stats nyra-clawteam-primary --no-stream"
 
 clawteam-failover-check:
-	@echo "Checking ClawTeam health: Primary (Oracle) vs Fallback (RTX3060)..."
+	@echo "Checking ClawTeam health: Primary (Oracle) vs Fallback ..."
 	ORACLE_HEALTH=$$(docker --context $(ORACLE_CONTEXT) exec nyra-clawteam-primary curl -s http://localhost:8080/health 2>/dev/null | jq .status || echo "down") && \
-	RTX3060_HEALTH=$$(docker --context $(WORKER_3060_CONTEXT) exec worker-3060-clawteam-fallback curl -s http://localhost:9000/health 2>/dev/null | jq .status || echo "down") && \
 	echo "Oracle-VPS ClawTeam: $$ORACLE_HEALTH" && \
-	echo "RTX3060 Fallback:    $$RTX3060_HEALTH" && \
-	if [ "$$ORACLE_HEALTH" != "healthy" ] && [ "$$RTX3060_HEALTH" = "healthy" ]; then \
-		echo "⚠️  PRIMARY DOWN — Fallback to RTX3060 active"; \
+	echo Fallback: $$ && \
+	if [ "$$ORACLE_HEALTH" != "healthy" ] && [ "$$ = "healthy" ]; then \
+ echo "⚠️ PRIMARY DOWN — Fallback to active"; \
 	fi
 
 gastown-oracle: oracle-gastown
@@ -852,18 +838,10 @@ gastown-oracle: oracle-gastown
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# 🦞 RTX3060 OPENCLAW — Cron Jobs + Rate Quoting + Activepieces Testing
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: rtx3060-openclaw rtx3060-openclaw-health openclaw-all-workers \
+.PHONY: openclaw-all-workers \
   openclaw-status-dashboard
-
-rtx3060-openclaw:
-	@$(MAKE) worker-3060-ai-up
-
-rtx3060-openclaw-health:
-	@echo "=== RTX3060 OpenClaw Health ==="
-	@docker --context $(WORKER_3060_CONTEXT) ps --filter "name=worker-3060" --format "table {{.Names}}\t{{.Status}}"
 
 openclaw-all-workers:
 	@$(MAKE) worker-5090-ai-up
@@ -883,9 +861,9 @@ openclaw-status-dashboard:
 	@echo "   OpenClaw: worker-rtx3090ti:8002 | NerveUI: worker-rtx3090ti:6007"
 	@docker --context $(WORKER_3090TI_CONTEXT) exec $(COMPOSE_PROJECT_NAME:-nyra)-worker-rtx3090ti-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
 	@echo ""
-	@echo "🟡 RTX3060 (Cron/Testing)"
-	@echo "   OpenClaw: worker-rtx3060:8003 | NerveUI: worker-rtx3060:6008"
-	@docker --context $(WORKER_3060_CONTEXT) exec $(COMPOSE_PROJECT_NAME:-nyra)-worker-rtx3060-openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status || echo "   Status: offline"
+	@echo "🟡 (Cron/Testing)"
+	@echo " OpenClaw: | NerveUI:
+	@docker --context $ exec $(COMPOSE_PROJECT_NAME:-nyra)--openclaw curl -s http://localhost:8001/health 2>/dev/null | jq .status | | echo " Status: offline"
 	@echo ""
 	@echo "════════════════════════════════════════════════════════════"
 
@@ -1029,8 +1007,8 @@ worker-3090ti-ai-up:
 	  portainer-edge-agent redis vllm litellm model-switcher promtail node-exporter gpu-exporter health-monitor grafana openclaw nerve-ui infisical-agent infisical-sidecar llxprt-code llxprt-bridge
 
 worker-3060-ai-up:
-	@echo "Starting RTX3060 Ollama + LiteLLM + optional OpenClaw + NerveUI..."
-	@NYRA_INFISICAL_PATH=/machines/worker-rtx3060 WORKER_GRAFANA_PORT=3007 \
+	@echo "Starting Ollama + LiteLLM + optional OpenClaw + NerveUI..."
+	@NYRA_INFISICAL_PATH=/machines/ WORKER_GRAFANA_PORT=3007 \
 	  docker --context $(WORKER_3060_CONTEXT) compose --env-file /dev/null \
 	  -f $(WORKER_3060_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
@@ -1059,7 +1037,7 @@ worker-3090ti-ai-down:
 	  -f $(WORKER_3090TI_NERVE_COMPOSE) down
 
 worker-3060-ai-down:
-	@NYRA_INFISICAL_PATH=/machines/worker-rtx3060 WORKER_GRAFANA_PORT=3007 \
+	@NYRA_INFISICAL_PATH=/machines/ WORKER_GRAFANA_PORT=3007 \
 	  docker --context $(WORKER_3060_CONTEXT) compose --env-file /dev/null \
 	  -f $(WORKER_3060_COMPOSE) \
 	  -f $(INFISICAL_RUNTIME_COMPOSE) \
@@ -1190,7 +1168,7 @@ wave-stack-status:
 	@echo "=== WORKER RTX3090TI ==="
 	@docker --context $(WORKER_3090TI_CONTEXT) compose -f $(WORKER_3090TI_COMPOSE) -f $(WORKER_3090TI_NERVE_COMPOSE) ps || true
 	@echo
-	@echo "=== WORKER RTX3060 ==="
+	@echo "=== WORKER ==="
 	@docker --context $(WORKER_3060_CONTEXT) compose -f $(WORKER_3060_COMPOSE) -f $(WORKER_3060_OPENCLAW_COMPOSE) ps || true
 	@echo
 	@echo "=== ORACLE MEMORY ==="

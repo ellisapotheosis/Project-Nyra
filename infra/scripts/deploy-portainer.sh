@@ -6,7 +6,6 @@
 # Usage:
 #   ./deploy-portainer.sh --node <target> --role <server|agent>
 #
-# Nodes:   orch | worker-rtx5090 | worker-rtx3090ti | worker-rtx3060
 # Roles:   server  → Portainer CE on :9443 (orchestrator only)
 #          agent   → Portainer Agent on :9001 (worker nodes)
 #

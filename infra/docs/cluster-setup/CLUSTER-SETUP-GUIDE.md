@@ -23,7 +23,7 @@ Based on CLAUDE.md specifications:
 
 **Connected PCs (2/4)**:
 
-1. ✅ **AlienApotheosis** (worker-rtx3060)
+1. ✅ **AlienApotheosis**
    - Hostname: `AlienApotheosis`
    - Model: Alienware m15 R7
    - GPU: RTX 3060 Laptop (12GB VRAM)
@@ -65,26 +65,6 @@ Each PC gets:
 - `M15R7` (ID: 1dd404f8-31e0-4c56-bf3f-6befde8d5c1d)
 - `Project-Nyra-CF-Tunnel` (ID: 505504bb-c6c6-46d7-b713-3ee0f8fba1ee)
 - `mcp-github` (ID: 8e8a44e0-204a-4333-843e-5e6300fd8f79)
-- `worker-rtx3060` (ID: 33d0dc8b-4a1f-4f31-b482-5309171ffdf8)
-
-**Note**: None of these tunnels are currently active (0 connections)
-
-## Step-by-Step Setup
-
-### Phase 1: Information Gathering
-
-**Run on each PC** to collect network information:
-
-```powershell
-# Navigate to the cluster setup directory
-cd C:\Dev\Projects\Repos\Project-Nyra\infra\cluster-setup
-
-# Run the info collector (saves output to file)
-.\PC-INFO-COLLECTOR.ps1
-```
-
-This creates a file `PC-INFO-<hostname>-<timestamp>.txt` with:
-
 - Hostname and user
 - GPU information
 - Network interfaces (IP, MAC addresses)
@@ -135,7 +115,6 @@ tailscale status
 # 100.x.x.x  orchestrator-mini   ...
 # 100.x.x.x  worker-5090         ...
 # 100.x.x.x  worker-3090         ...
-# 100.x.x.x  worker-rtx3060      ...
 ```
 
 ### Phase 3: Cloudflared Setup

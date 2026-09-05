@@ -164,12 +164,12 @@ stateDiagram-v2
     CollectNetwork --> ScorePCType
 
     ScorePCType --> Orchestrator: Ryzen 7 6800H<br/>16GB RAM<br/>No GPU
-    ScorePCType --> WorkerRTX3060: RTX 3060<br/>32GB RAM
+ ScorePCType --> : RTX 3060<br/>32GB RAM
     ScorePCType --> WorkerRTX5090: RTX 5090<br/>32GB RAM
     ScorePCType --> WorkerRTX3090Ti: RTX 3090Ti<br/>32GB RAM
 
     Orchestrator --> ValidateCompat
-    WorkerRTX3060 --> ValidateCompat
+ --> ValidateCompat
     WorkerRTX5090 --> ValidateCompat
     WorkerRTX3090Ti --> ValidateCompat
 

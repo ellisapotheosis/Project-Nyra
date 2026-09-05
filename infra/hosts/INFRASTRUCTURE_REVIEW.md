@@ -128,8 +128,6 @@
 
 ---
 
-### 🎮 WORKER-RTX3060 (6GB VRAM — Lightweight Inference)
-
 **Role:** Ollama inference, distributed STT role  
 **Hardware:** RTX 3060 (6GB VRAM, Laptop)  
 **Primary Compose:** `docker-compose.yml`  

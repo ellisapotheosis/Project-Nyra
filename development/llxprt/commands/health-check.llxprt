@@ -16,7 +16,7 @@ echo "=== Local workers ==="
 for endpoint in \
   "worker-rtx5090:8000/v1/models" \
   "worker-rtx3090ti:8000/v1/models" \
-  "worker-rtx3060:11434/api/tags" ; do
+ /api/tags" ; do
   echo "-- $endpoint"
   curl -fsS --max-time 5 "http://$endpoint" | head -c 200 || echo "DOWN"
   echo

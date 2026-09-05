@@ -147,7 +147,7 @@ for env in "${ENVIRONMENTS[@]}"; do
   printf 'environment=%s\n' "$env"
   destination_list="$tmpdir/destinations-${env}.txt"
   {
-    printf '%s\n' /hosts/orchestrator /hosts/oracle-vps /hosts/worker-rtx3060 \
+ printf '%s\n' /hosts/orchestrator /hosts/oracle-vps /hosts/ \
       /hosts/worker-rtx3090ti /hosts/worker-rtx5090 /hosts/homeassistant \
       /apps/projectnyra /apps/ratehunter /apps/projectnyra-landing \
       /clients/letta

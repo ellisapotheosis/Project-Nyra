@@ -38,7 +38,6 @@ tailnet and must return private addresses for service names such as:
 - `letta.projectnyra.com` and `mem0.projectnyra.com` → the private memory host
 - `nerve-5090.projectnyra.com` → the RTX5090 worker
 - `nerve-3090.projectnyra.com` → the RTX3090Ti worker
-- `nerve-3060.projectnyra.com` → the RTX3060 worker
 - `portainer-oracle.projectnyra.com` → the Oracle Portainer host
 
 Raw Postgres, Redis, FalkorDB, Qdrant, and Docker socket endpoints remain

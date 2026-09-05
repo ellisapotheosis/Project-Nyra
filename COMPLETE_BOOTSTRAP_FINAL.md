@@ -39,14 +39,6 @@
 - main: RTX5090 (32K context)
 - researcher: RTX5090 (web research)
 - reviewer: RTX3090Ti (code review)
-- memory-worker: RTX3060 (memory ops)
-
----
-
-### Worker-RTX5090 (Your Gaming PC WSL2)
-
-✅ **OpenClaw Remote Client (Compute Node)**
-
 - Status: Configured
 - Gateway: http://orchestrator.trex-fiordland.ts.net:18789
 - Mode: Remote (not another gateway)
@@ -123,7 +115,7 @@ ORCHESTRATOR (Your PC - WSL2)
 │   ├── LiteLLM Router (port 4000)
 │   │   ├── Model: litellm/nyra/local-interactive (RTX5090)
 │   │   ├── Model: litellm/nyra/local-stable (RTX3090Ti)
-│   │   ├── Model: litellm/nyra/local-utility (RTX3060)
+│ │ ├── Model: litellm/nyra/local-utility
 │   │   └── Model: litellm/nyra/free (OmniRoute)
 │   └── Mem0 Memory Plugin
 │       ├── Qdrant Vector DB (oracle-vps)
@@ -317,7 +309,7 @@ Latency: ~2-4s
 
 ```
 User: @memory-worker: "Consolidate what you know about Project Nyra"
-Memory-Worker: [Uses RTX3060, queries Qdrant, builds graph in FalkorDB]
+Memory-Worker: [Uses, queries Qdrant, builds graph in FalkorDB]
 Latency: ~1-3s
 ```
 

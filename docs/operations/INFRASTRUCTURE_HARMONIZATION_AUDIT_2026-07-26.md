@@ -16,7 +16,6 @@ That legacy Nabu Casa record explains why the requested private route is not rea
 
 - Canonical source inspected: `infra/hosts/<hostname>/`.
 - All compose-like YAML files under `infra/hosts/` were parsed for declared services, container names, `ports`, and `expose` fields.
-- The four active host families were inspected: `oracle-vps`, `orchestrator`, `worker-rtx3060`, `worker-rtx3090ti` and `worker-rtx5090`.
 - `worker-rtx5090` Tailscale was not restarted or reconfigured.
 - Existing unrelated worktree changes were preserved; this report is the only task artifact added.
 
@@ -28,7 +27,6 @@ These are **declared service-entry counts**, not proof that every entry is runni
 | ------------------ | ----------------------: | -----------------------: | ------------------------------------------------------------------------- |
 | `oracle-vps`       |                      28 |                      120 | Docker context `oracle` reachable; active stack observed                  |
 | `orchestrator`     |                      14 |                       34 | Docker SSH handshake timed out                                            |
-| `worker-rtx3060`   |                      10 |                       31 | Docker SSH handshake timed out                                            |
 | `worker-rtx3090ti` |                      10 |                       41 | Docker SSH handshake timed out                                            |
 | `worker-rtx5090`   |                      10 |                       40 | Docker Desktop context available in agent lane; no Tailscale changes made |
 | `homeassistant`    | 0 runtime compose files |                        0 | Only `.env.homeassistant-stack.example`; no canonical stack present       |

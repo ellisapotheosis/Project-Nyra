@@ -27,7 +27,6 @@ class CloudflareLoadBalancer {
   getWorkerConfigs() {
     return [
       {
-        name: "worker1-rtx3060",
         address: "worker1.projectnyra.com",
         weight: 0.7, // Lower weight for RTX 3060
         enabled: true,

@@ -37,7 +37,7 @@
     "defaultMode": "bypassPermissions"
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["nexus-router", "serena"],
+  "enabledMcpjsonServers": ["nyra-litellm-mcp", "serena"],
   "outputStyle": "Explanatory",
   "bypassPermissionsModeAccepted": true,
   "experimental": {

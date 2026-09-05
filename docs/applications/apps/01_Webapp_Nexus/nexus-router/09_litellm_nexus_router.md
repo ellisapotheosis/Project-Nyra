@@ -4,13 +4,12 @@ Updated: 2026-04-27
 
 ## Active services
 
-| Host | Service | Compose | Port(s) |
-|---|---|---|---:|
-| `orchestrator` | `litellm` | `infra/hosts/orchestrator/docker-compose.yml` | `4000` |
-| `oracle-vps` | `nexus` | `infra/hosts/oracle-vps/docker-compose.yml` | `6000 -> 3000` |
-| `worker-rtx3060` | `litellm` | `infra/hosts/worker-rtx3060/docker-compose.yml` | `4000` |
-| `worker-rtx3090ti` | `litellm` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` | `4000` |
-| `worker-rtx5090` | `litellm` | `infra/hosts/worker-rtx5090/docker-compose.yml` | `4000` |
+| Host               | Service   | Compose                                           |        Port(s) |
+| ------------------ | --------- | ------------------------------------------------- | -------------: |
+| `orchestrator`     | `litellm` | `infra/hosts/orchestrator/docker-compose.yml`     |         `4000` |
+| `oracle-vps`       | `nexus`   | `infra/hosts/oracle-vps/docker-compose.yml`       | `6000 -> 3000` |
+| `worker-rtx3090ti` | `litellm` | `infra/hosts/worker-rtx3090ti/docker-compose.yml` |         `4000` |
+| `worker-rtx5090`   | `litellm` | `infra/hosts/worker-rtx5090/docker-compose.yml`   |         `4000` |
 
 ## Current topology
 
@@ -21,12 +20,12 @@ Updated: 2026-04-27
 
 ## Health targets
 
-| Service | Probe |
-|---|---|
-| Orchestrator LiteLLM | `http://127.0.0.1:4000/health` |
-| Oracle Nexus | `http://oracle:6000/health` or host-local equivalent |
-| Worker LiteLLM | `http://<worker>:4000/health` |
-| vLLM workers | `http://<worker>:8000/v1/models` |
+| Service              | Probe                                                |
+| -------------------- | ---------------------------------------------------- |
+| Orchestrator LiteLLM | `http://127.0.0.1:4000/health`                       |
+| Oracle Nexus         | `http://oracle:6000/health` or host-local equivalent |
+| Worker LiteLLM       | `http://<worker>:4000/health`                        |
+| vLLM workers         | `http://<worker>:8000/v1/models`                     |
 
 ## Exposure policy
 
@@ -41,7 +40,7 @@ Updated: 2026-04-27
 infra/hosts/orchestrator/docker-compose.yml
 infra/hosts/oracle-vps/docker-compose.yml
 infra/hosts/oracle-vps/nexus.toml
-infra/hosts/worker-rtx3060/docker-compose.yml
+infra/hosts//docker-compose.yml
 infra/hosts/worker-rtx3090ti/docker-compose.yml
 infra/hosts/worker-rtx5090/docker-compose.yml
 ```

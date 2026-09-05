@@ -25,7 +25,7 @@ This integration provides secure, centralized management of Cloudflare tunnel to
 │  Paths:                                                      │
 │  /nyra/orchestrator     → Orchestrator tunnel token         │
 │  /nyra/worker-rtx5090   → Worker RTX 5090 tunnel token     │
-│  /nyra/worker-rtx3060   → Worker RTX 3060 tunnel token     │
+│ /nyra/ → Worker RTX 3060 tunnel token │
 │  /nyra/worker-rtx3090ti → Worker RTX 3090Ti tunnel token   │
 └──────────────────┬──────────────────────────────────────────┘
                    │
@@ -69,17 +69,20 @@ curl http://localhost:8080/api/status
 Install the Infisical CLI:
 
 **macOS:**
+
 ```bash
 brew install infisical/get-cli/infisical
 ```
 
 **Linux:**
+
 ```bash
 curl -1sLf https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh | sudo -E bash
 sudo apt-get install infisical
 ```
 
 **Windows:**
+
 ```powershell
 scoop bucket add infisical https://github.com/Infisical/scoop-infisical.git
 scoop install infisical
@@ -96,13 +99,13 @@ cloudflared login
 # Create tunnels
 cloudflared tunnel create nyra-orchestrator
 cloudflared tunnel create nyra-worker-rtx5090
-cloudflared tunnel create nyra-worker-rtx3060
+cloudflared tunnel create nyra-
 cloudflared tunnel create nyra-worker-rtx3090ti
 
 # Get tunnel tokens (these will be stored in Infisical)
 cloudflared tunnel token nyra-orchestrator
 cloudflared tunnel token nyra-worker-rtx5090
-cloudflared tunnel token nyra-worker-rtx3060
+cloudflared tunnel token nyra-
 cloudflared tunnel token nyra-worker-rtx3090ti
 ```
 
@@ -115,7 +118,6 @@ Create service accounts in Infisical for each service:
 3. Create service accounts:
    - `orchestrator-cloudflare`
    - `worker-rtx5090-cloudflare`
-   - `worker-rtx3060-cloudflare`
    - `worker-rtx3090ti-cloudflare`
 4. Save the Client ID and Client Secret for each
 
@@ -139,8 +141,6 @@ INFISICAL_CLIENT_ID_WORKER_RTX5090=your-worker-rtx5090-client-id
 INFISICAL_CLIENT_SECRET_WORKER_RTX5090=your-worker-rtx5090-client-secret
 
 # Worker RTX 3060 Infisical Credentials
-INFISICAL_CLIENT_ID_WORKER_RTX3060=your-worker-rtx3060-client-id
-INFISICAL_CLIENT_SECRET_WORKER_RTX3060=your-worker-rtx3060-client-secret
 
 # Worker RTX 3090Ti Infisical Credentials
 INFISICAL_CLIENT_ID_WORKER_RTX3090TI=your-worker-rtx3090ti-client-id
@@ -163,8 +163,6 @@ CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX5090=eyJhIjoiZGVm...
 CLOUDFLARE_TUNNEL_NAME_WORKER_RTX5090=nyra-worker-rtx5090
 
 # Worker RTX 3060
-CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3060=eyJhIjoiZ2hp...
-CLOUDFLARE_TUNNEL_NAME_WORKER_RTX3060=nyra-worker-rtx3060
 
 # Worker RTX 3090Ti
 CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3090TI=eyJhIjoiamts...
@@ -201,6 +199,7 @@ Verify tokens are properly stored and accessible:
 ```
 
 Expected output:
+
 ```
 ╔═══════════════════════════════════════════════════════════════════════╗
 ║   Project Nyra - Cloudflare Tunnel Token Validation                  ║
@@ -267,11 +266,12 @@ docker logs nyra-cloudflared-orchestrator
 
 # Check worker tunnels
 docker logs nyra-cloudflared-worker-rtx5090
-docker logs nyra-cloudflared-worker-rtx3060
+docker logs nyra-cloudflared-
 docker logs nyra-cloudflared-worker-rtx3090ti
 ```
 
 Look for messages like:
+
 ```
 INF Connection established connIndex=0
 INF Registered tunnel connection
@@ -311,10 +311,12 @@ The schema includes rotation policies. To enable automated rotation:
 ### Issue: Tunnel Fails to Connect
 
 **Symptoms:**
+
 - Cloudflared container keeps restarting
 - Logs show "authentication failed"
 
 **Solutions:**
+
 1. Verify token format:
    ```bash
    ./scripts/infisical/validate-cloudflare-tokens.sh production
@@ -331,10 +333,12 @@ The schema includes rotation policies. To enable automated rotation:
 ### Issue: Infisical Agent Not Injecting Secrets
 
 **Symptoms:**
+
 - `/secrets/cloudflare.env` file not created
 - Cloudflared logs show "missing token"
 
 **Solutions:**
+
 1. Check agent configuration:
    ```bash
    cat bootstrap/configs/infisical/agent-orchestrator.yaml
@@ -351,9 +355,11 @@ The schema includes rotation policies. To enable automated rotation:
 ### Issue: Token Format Validation Fails
 
 **Symptoms:**
+
 - Validation script reports "Token format may be invalid"
 
 **Solutions:**
+
 1. Ensure token is base64-encoded
 2. Check for extra whitespace or newlines
 3. Regenerate token from Cloudflare:
@@ -382,7 +388,7 @@ Project-Nyra/
 │           ├── cloudflare-secrets-schema.json
 │           ├── agent-orchestrator.yaml
 │           ├── agent-worker-rtx5090.yaml
-│           ├── agent-worker-rtx3060.yaml
+│ ├── agent-
 │           └── agent-worker-rtx3090ti.yaml
 ├── scripts/
 │   └── infisical/
@@ -395,17 +401,17 @@ Project-Nyra/
 
 ## Environment Variable Reference
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `INFISICAL_PROJECT_ID` | Infisical project UUID | Yes |
-| `INFISICAL_ENV` | Environment (production/development) | Yes |
-| `INFISICAL_CLIENT_ID_*` | Service account client ID | Yes |
-| `INFISICAL_CLIENT_SECRET_*` | Service account client secret | Yes |
-| `CLOUDFLARE_TUNNEL_TOKEN_*` | Cloudflare tunnel token (stored in Infisical) | Yes |
-| `CLOUDFLARE_TUNNEL_NAME_*` | Tunnel name | No |
-| `CLOUDFLARE_TUNNEL_ID_*` | Tunnel UUID | No |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID | No |
-| `CLOUDFLARE_ZONE_ID` | Cloudflare zone ID | No |
+| Variable                    | Description                                   | Required |
+| --------------------------- | --------------------------------------------- | -------- |
+| `INFISICAL_PROJECT_ID`      | Infisical project UUID                        | Yes      |
+| `INFISICAL_ENV`             | Environment (production/development)          | Yes      |
+| `INFISICAL_CLIENT_ID_*`     | Service account client ID                     | Yes      |
+| `INFISICAL_CLIENT_SECRET_*` | Service account client secret                 | Yes      |
+| `CLOUDFLARE_TUNNEL_TOKEN_*` | Cloudflare tunnel token (stored in Infisical) | Yes      |
+| `CLOUDFLARE_TUNNEL_NAME_*`  | Tunnel name                                   | No       |
+| `CLOUDFLARE_TUNNEL_ID_*`    | Tunnel UUID                                   | No       |
+| `CLOUDFLARE_ACCOUNT_ID`     | Cloudflare account ID                         | No       |
+| `CLOUDFLARE_ZONE_ID`        | Cloudflare zone ID                            | No       |
 
 ## API Endpoints
 
@@ -457,6 +463,7 @@ docker-compose logs -f agent-cloudflare-orchestrator
 ## Support
 
 For issues or questions:
+
 1. Check troubleshooting section above
 2. Review Infisical server logs
 3. Check Cloudflare tunnel dashboard

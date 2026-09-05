@@ -34,35 +34,6 @@
       }
     ]
   },
-  "nyra-mission-control-3060": {
-    "display:name": "Nyra Mission Control + RTX3060",
-    "description": "Full Wave/Zellij cockpit with the optional RTX3060 OpenClaw/Ollama lane.",
-    "tabs": [
-      {
-        "name": "CONTROL-3060",
-        "blocks": [
-          {
-            "type": "terminal",
-            "name": "Zellij Durable Cockpit",
-            "cwd": "~/repos/project-nyra",
-            "cmd": "NYRA_INCLUDE_3060=1 scripts/nyra-wave-zellij.sh"
-          },
-          {
-            "type": "terminal",
-            "name": "LLxprt Spread",
-            "cwd": "~/repos/project-nyra",
-            "cmd": "scripts/run-llxprt-code.sh --profile-load nyra-subscription-spread"
-          },
-          {
-            "type": "terminal",
-            "name": "Worker 3060",
-            "cwd": "~/repos/project-nyra",
-            "cmd": "ssh -A -t -o ConnectTimeout=5 worker-rtx3060.trex-fiordland.ts.net 'docker ps --format \"table {{.Names}}\\t{{.Status}}\"; echo; curl -fsS http://127.0.0.1:11434/api/tags || true' || bash"
-          }
-        ]
-      }
-    ]
-  },
   "nyra-provider-auth": {
     "display:name": "LLxprt Provider Auth",
     "description": "Interactive OAuth/keyring setup for subscription-backed LLxprt lanes.",
@@ -82,7 +53,6 @@
   },
   "nyra-openclaw-topology": {
     "display:name": "OpenClaw Topology",
-    "description": "Logs and health checks for 5090, 3090Ti, and optional 3060 OpenClaw/PicoClaw lanes.",
     "tabs": [
       {
         "name": "OPENCLAW",
@@ -98,12 +68,6 @@
             "name": "RTX3090Ti OpenClaw",
             "cwd": "~/repos/project-nyra",
             "cmd": "ssh -A -t -o ConnectTimeout=5 worker-rtx3090ti.trex-fiordland.ts.net 'docker logs -f worker-3090-openclaw' || bash"
-          },
-          {
-            "type": "terminal",
-            "name": "RTX3060 OpenClaw/PicoClaw",
-            "cwd": "~/repos/project-nyra",
-            "cmd": "ssh -A -t -o ConnectTimeout=5 worker-rtx3060.trex-fiordland.ts.net 'docker logs -f worker-3060-openclaw || docker logs -f picoclaw' || bash"
           }
         ]
       }
@@ -131,8 +95,7 @@
           {
             "type": "terminal",
             "name": "GPU Mesh",
-            "cwd": "~/repos/project-nyra",
-            "cmd": "while true; do clear; for host in worker-rtx5090 worker-rtx3090ti worker-rtx3060; do echo \"[$host]\"; ssh -o ConnectTimeout=5 ${host}.trex-fiordland.ts.net 'nvidia-smi --query-gpu=name,utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits' 2>/dev/null || echo offline; echo; done; sleep 5; done"
+            "cwd": "~/repos/project-nyra"
           }
         ]
       }

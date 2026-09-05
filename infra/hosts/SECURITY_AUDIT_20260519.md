@@ -13,7 +13,6 @@
 - **Environment Variables**: Primary configuration is driven by `.env` files which are correctly ignored by git.
 - **Hardcoded Secrets**: No actual production secrets were found in the codebase.
 - **Insecure Defaults**: Some compose files used insecure default values for passwords and API keys (`paperclip`, Grafana `admin`, OpenLIT `OPENLIT`, `dummy`).
-  - _Status_: Fixed for the active Paperclip stack, Paperclip MCP API key, orchestrator observability stack, Oracle OpenLIT stack, worker-rtx3060 observability stack, and shared worker observability template. Runtime validation is available through `scripts/infra/audit-runtime-security.sh`.
 
 ### 2. **Port Exposure**
 
@@ -35,7 +34,6 @@
 
 - [x] Refactor `docker-compose.paperclip.yml` to remove default `PAPERCLIP_DB_PASSWORD`.
 - [x] Refactor orchestrator `docker-compose.observability.yml` to remove default `GRAFANA_ADMIN_PASSWORD`.
-- [x] Refactor worker-rtx3060 `docker-compose.observability.yml` to remove default `GRAFANA_ADMIN_PASSWORD`.
 - [x] Refactor `_templates/docker-compose.worker-ai-common.yml` to remove default `GRAFANA_ADMIN_PASSWORD`.
 - [x] Refactor Oracle OpenLIT and Paperclip MCP secrets to fail closed when missing.
 - [x] Add required secret placeholders to host `.env.example` files.

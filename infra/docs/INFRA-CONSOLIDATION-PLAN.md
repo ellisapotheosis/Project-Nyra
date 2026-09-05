@@ -21,7 +21,6 @@ Consolidate host-specific Compose stacks, env files, and run scripts into a sing
 - `infra/hosts/oracle-vps/docker-compose.oracle.yml`
 - `infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml`
 - `infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml` (historical filename retained for the RTX 3090 Ti host)
-- `infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml`
 - `infra/hosts/homeassistant/docker-compose.homeassistant-dashboard.yml`
 
 ## Consolidation Actions Completed (this pass)

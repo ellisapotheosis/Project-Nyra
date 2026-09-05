@@ -27,7 +27,7 @@ log_info "Environment: $ENVIRONMENT"
 
 log_info "Creating host folders..."
 
-for host in orchestrator worker-rtx5090 worker-rtx3090ti worker-rtx3060; do
+for host in orchestrator worker-rtx5090 worker-rtx3090ti ; do
     path="/hosts/$host"
     log_info "Checking path: $path"
 

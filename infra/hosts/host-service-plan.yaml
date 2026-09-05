@@ -2,118 +2,118 @@ generated_from: infra/hosts/host-layout.yaml
 hosts:
   orchestrator:
     compose_files:
-    - infra/docker-compose.yml
-    - infra/compose/overrides/docker-compose.orchestrator.override.yml
+      - infra/docker-compose.yml
+      - infra/compose/overrides/docker-compose.orchestrator.override.yml
     env_files:
-    - infra/env/.env.orchestrator
+      - infra/env/.env.orchestrator
     services:
       postgres:
         profiles: []
         ports:
-        - 0.0.0.0:${POSTGRES_PORT:-5432}:5432
+          - 0.0.0.0:${POSTGRES_PORT:-5432}:5432
         category: data
       redis:
         profiles: []
         ports:
-        - 0.0.0.0:${REDIS_PORT:-6379}:6379
+          - 0.0.0.0:${REDIS_PORT:-6379}:6379
         category: data
       mongo:
         profiles: []
         ports:
-        - 0.0.0.0:${MONGO_PORT:-27017}:27017
+          - 0.0.0.0:${MONGO_PORT:-27017}:27017
         category: data
       litellm:
         profiles:
-        - gateway
-        - orchestrator
-        - all
+          - gateway
+          - orchestrator
+          - all
         ports:
-        - ${LITELLM_PORT:-4000}:4000
+          - ${LITELLM_PORT:-4000}:4000
         category: platform
       nexus-router:
         profiles:
-        - gateway
-        - orchestrator
-        - all
+          - gateway
+          - orchestrator
+          - all
         ports:
-        - ${NEXUS_ROUTER_PORT:-7000}:7000
-        - ${NEXUS_MCP_PORT:-8080}:8080
-        - ${NEXUS_METRICS_PORT:-9091}:9091
+          - ${NEXUS_ROUTER_PORT:-7000}:7000
+          - ${NEXUS_MCP_PORT:-8080}:8080
+          - ${NEXUS_METRICS_PORT:-9091}:9091
         category: platform
       nyra-mcp:
         profiles:
-        - mcp
-        - orchestrator
-        - all
+          - mcp
+          - orchestrator
+          - all
         ports:
-        - ${NYRA_MCP_PORT:-3333}:8081
+          - ${NYRA_MCP_PORT:-3333}:8081
         category: mcp-server
       n8n:
         profiles: []
         ports:
-        - 0.0.0.0:${N8N_PORT:-5678}:5678
+          - 0.0.0.0:${N8N_PORT:-5678}:5678
         category: platform
       activepieces:
         profiles: []
         ports:
-        - 0.0.0.0:${ACTIVEPIECES_PORT:-8082}:80
+          - 0.0.0.0:${ACTIVEPIECES_PORT:-8082}:80
         category: platform
       twenty-postgres:
         profiles:
-        - crm
-        - orchestrator
-        - oracle
-        - all
+          - crm
+          - orchestrator
+          - oracle
+          - all
         ports: []
         category: data
       twentycrm:
         profiles:
-        - crm
-        - orchestrator
-        - oracle
-        - all
+          - crm
+          - orchestrator
+          - oracle
+          - all
         ports:
-        - ${TWENTYCRM_PORT:-3000}:3000
+          - ${TWENTYCRM_PORT:-3000}:3000
         category: app-ui
       twentycrm-mcp:
         profiles:
-        - crm
-        - orchestrator
-        - oracle
-        - all
+          - crm
+          - orchestrator
+          - oracle
+          - all
         ports:
-        - ${TWENTYCRM_MCP_PORT:-8182}:8082
+          - ${TWENTYCRM_MCP_PORT:-8182}:8082
         category: mcp-server
       moltbot-web:
         profiles:
-        - apps
-        - oracle
-        - all
+          - apps
+          - oracle
+          - all
         ports:
-        - ${MOLTBOT_WEB_PORT:-3030}:3030
+          - ${MOLTBOT_WEB_PORT:-3030}:3030
         category: app-ui
       openwebui:
         profiles:
-        - apps
-        - oracle
-        - all
+          - apps
+          - oracle
+          - all
         ports:
-        - ${OPENWEBUI_PORT:-8088}:8080
+          - ${OPENWEBUI_PORT:-8088}:8080
         category: app-ui
       prometheus:
         profiles: []
         ports:
-        - 0.0.0.0:${PROMETHEUS_PORT:-9090}:9090
+          - 0.0.0.0:${PROMETHEUS_PORT:-9090}:9090
         category: observability
       loki:
         profiles: []
         ports:
-        - 0.0.0.0:${LOKI_PORT:-3100}:3100
+          - 0.0.0.0:${LOKI_PORT:-3100}:3100
         category: observability
       grafana:
         profiles: []
         ports:
-        - 0.0.0.0:${GRAFANA_PORT:-3003}:3000
+          - 0.0.0.0:${GRAFANA_PORT:-3003}:3000
         category: observability
       cloudflared:
         profiles: []
@@ -121,248 +121,192 @@ hosts:
         category: service
       infisical-agent:
         profiles:
-        - secrets
-        - oracle
-        - all
+          - secrets
+          - oracle
+          - all
         ports: []
         category: service
       infisical-cli:
         profiles:
-        - secrets
-        - all
+          - secrets
+          - all
         ports: []
         category: service
       infisical:
         profiles: []
         ports:
-        - 0.0.0.0:${INFISICAL_PORT:-8086}:8080
+          - 0.0.0.0:${INFISICAL_PORT:-8086}:8080
         category: service
       docker-mcp-toolkit:
         profiles:
-        - mcp
-        - devtools
-        - all
+          - mcp
+          - devtools
+          - all
         ports:
-        - ${DOCKER_MCP_PORT:-8811}:8811
+          - ${DOCKER_MCP_PORT:-8811}:8811
         category: mcp-server
       git-mcp:
         profiles:
-        - mcp
-        - devtools
-        - all
+          - mcp
+          - devtools
+          - all
         ports:
-        - ${GIT_MCP_PORT:-8812}:8812
+          - ${GIT_MCP_PORT:-8812}:8812
         category: mcp-server
       github-mcp:
         profiles:
-        - mcp
-        - devtools
-        - all
+          - mcp
+          - devtools
+          - all
         ports:
-        - ${GITHUB_MCP_PORT:-8813}:8813
+          - ${GITHUB_MCP_PORT:-8813}:8813
         category: mcp-server
       bitwarden-mcp:
         profiles:
-        - mcp
-        - secrets
-        - all
+          - mcp
+          - secrets
+          - all
         ports:
-        - ${BITWARDEN_MCP_PORT:-8814}:8814
+          - ${BITWARDEN_MCP_PORT:-8814}:8814
         category: mcp-server
       infisical-mcp:
         profiles:
-        - mcp
-        - secrets
-        - all
+          - mcp
+          - secrets
+          - all
         ports:
-        - ${INFISICAL_MCP_PORT:-8815}:8815
+          - ${INFISICAL_MCP_PORT:-8815}:8815
         category: mcp-server
       cadvisor:
         profiles: []
         ports:
-        - 0.0.0.0:${CADVISOR_PORT:-8081}:8080
+          - 0.0.0.0:${CADVISOR_PORT:-8081}:8080
         category: service
       worker-3060-ollama:
         profiles:
-        - worker-3060
+          - worker-3060
         ports:
-        - ${WORKER_3060_OLLAMA_PORT:-11434}:11434
+          - ${WORKER_3060_OLLAMA_PORT:-11434}:11434
         category: service
       worker-3090ti-vllm:
         profiles:
-        - worker-3090ti
+          - worker-3090ti
         ports:
-        - ${WORKER_3090TI_VLLM_PORT:-8000}:8000
+          - ${WORKER_3090TI_VLLM_PORT:-8000}:8000
         category: service
       worker-5090-vllm:
         profiles:
-        - worker-5090
+          - worker-5090
         ports:
-        - ${WORKER_5090_VLLM_PORT:-8001}:8000
+          - ${WORKER_5090_VLLM_PORT:-8001}:8000
         category: service
   worker-hosts:
     nodes:
       worker-rtx5090:
         compose_files:
-        - infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
+          - infra/hosts/worker-rtx5090/docker-compose.worker-5090.yml
         env_files:
-        - infra/env/.env.worker-rtx5090
+          - infra/env/.env.worker-rtx5090
         services:
           postgres:
             profiles: []
             ports:
-            - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
+              - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
             category: data
           redis:
             profiles: []
             ports:
-            - 127.0.0.1:${REDIS_PORT:-6379}:6379
+              - 127.0.0.1:${REDIS_PORT:-6379}:6379
             category: data
           mongo:
             profiles: []
             ports:
-            - 127.0.0.1:${MONGO_PORT:-27017}:27017
+              - 127.0.0.1:${MONGO_PORT:-27017}:27017
             category: data
           n8n:
             profiles: []
             ports:
-            - 127.0.0.1:${N8N_PORT:-5678}:5678
+              - 127.0.0.1:${N8N_PORT:-5678}:5678
             category: platform
           grafana:
             profiles: []
             ports:
-            - 127.0.0.1:${GRAFANA_PORT:-3003}:3000
+              - 127.0.0.1:${GRAFANA_PORT:-3003}:3000
             category: observability
           prometheus:
             profiles: []
             ports:
-            - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
+              - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
             category: observability
           loki:
             profiles: []
             ports:
-            - 127.0.0.1:${LOKI_PORT:-3100}:3100
+              - 127.0.0.1:${LOKI_PORT:-3100}:3100
             category: observability
           cadvisor:
             profiles: []
             ports:
-            - 127.0.0.1:${CADVISOR_PORT:-8081}:8080
+              - 127.0.0.1:${CADVISOR_PORT:-8081}:8080
             category: service
           cloudflared:
             profiles:
-            - _disabled
+              - _disabled
             ports: []
             category: service
       worker-rtx3090ti:
         compose_files:
-        - infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
+          - infra/hosts/worker-rtx3090ti/docker-compose.worker-3090.yml
         env_files:
-        - infra/env/.env.worker-rtx3090ti
+          - infra/env/.env.worker-rtx3090ti
         services:
           postgres:
             profiles: []
             ports:
-            - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
+              - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
             category: data
           redis:
             profiles: []
             ports:
-            - 127.0.0.1:${REDIS_PORT:-6379}:6379
+              - 127.0.0.1:${REDIS_PORT:-6379}:6379
             category: data
           mongo:
             profiles: []
             ports:
-            - 127.0.0.1:${MONGO_PORT:-27017}:27017
+              - 127.0.0.1:${MONGO_PORT:-27017}:27017
             category: data
           n8n:
             profiles: []
             ports:
-            - 127.0.0.1:${N8N_PORT:-5678}:5678
+              - 127.0.0.1:${N8N_PORT:-5678}:5678
             category: platform
           grafana:
             profiles: []
             ports:
-            - 127.0.0.1:${GRAFANA_PORT:-3003}:3000
+              - 127.0.0.1:${GRAFANA_PORT:-3003}:3000
             category: observability
           prometheus:
             profiles: []
             ports:
-            - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
+              - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
             category: observability
           loki:
             profiles: []
             ports:
-            - 127.0.0.1:${LOKI_PORT:-3100}:3100
+              - 127.0.0.1:${LOKI_PORT:-3100}:3100
             category: observability
           cadvisor:
             profiles: []
             ports:
-            - 127.0.0.1:${CADVISOR_PORT:-8081}:8080
+              - 127.0.0.1:${CADVISOR_PORT:-8081}:8080
             category: service
           cloudflared:
             profiles:
-            - _disabled
-            ports: []
-            category: service
-      worker-rtx3060:
-        compose_files:
-        - infra/hosts/worker-rtx3060/docker-compose.worker-3060.yml
-        - infra/compose/overrides/docker-compose.worker-rtx3060.override.yml
-        env_files:
-        - infra/env/.env.worker-rtx3060
-        services:
-          worker-rtx3060:
-            profiles: []
-            ports: []
-            category: service
-          postgres:
-            profiles: []
-            ports:
-            - 127.0.0.1:${POSTGRES_PORT:-5432}:5432
-            category: data
-          redis:
-            profiles: []
-            ports:
-            - 127.0.0.1:${REDIS_PORT:-6379}:6379
-            category: data
-          mongo:
-            profiles: []
-            ports:
-            - 127.0.0.1:${MONGO_PORT:-27017}:27017
-            category: data
-          n8n:
-            profiles: []
-            ports:
-            - 127.0.0.1:${N8N_PORT:-5678}:5678
-            category: platform
-          grafana:
-            profiles: []
-            ports:
-            - 127.0.0.1:${GRAFANA_PORT:-3003}:3000
-            category: observability
-          prometheus:
-            profiles: []
-            ports:
-            - 127.0.0.1:${PROMETHEUS_PORT:-9090}:9090
-            category: observability
-          loki:
-            profiles: []
-            ports:
-            - 127.0.0.1:${LOKI_PORT:-3100}:3100
-            category: observability
-          cadvisor:
-            profiles: []
-            ports:
-            - 127.0.0.1:${CADVISOR_PORT:-8081}:8080
-            category: service
-          cloudflared:
-            profiles:
-            - _disabled
+              - _disabled
             ports: []
             category: service
   oracle-vps:
     compose_files:
-    - infra/oracle/docker-compose.oracle.yml
+      - infra/oracle/docker-compose.oracle.yml
     env_files: []
     services:
       postgres:
@@ -384,32 +328,32 @@ hosts:
       twenty:
         profiles: []
         ports:
-        - 3000:3000
+          - 3000:3000
         category: app-ui
       activepieces:
         profiles: []
         ports:
-        - 8080:80
+          - 8080:80
         category: platform
       n8n:
         profiles: []
         ports:
-        - 5678:5678
+          - 5678:5678
         category: platform
       moltbot:
         profiles: []
         ports:
-        - 18789:18789
-        - 18790:18790
+          - 18789:18789
+          - 18790:18790
         category: service
       quote-api:
         profiles: []
         ports:
-        - 7070:7070
+          - 7070:7070
         category: service
       cloudflared:
         profiles:
-        - cloudflared
+          - cloudflared
         ports: []
         category: service
   homeassistant:
@@ -429,206 +373,194 @@ capacity:
     notes: Cloud host for internet-facing and durable/stateful services.
 recommended_placement:
   orchestrator:
-  - service: activepieces
-    recommended_host: orchestrator
-    category: platform
-  - service: bitwarden-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: cadvisor
-    recommended_host: orchestrator
-    category: service
-  - service: cloudflared
-    recommended_host: orchestrator
-    category: service
-  - service: docker-mcp-toolkit
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: git-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: github-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: grafana
-    recommended_host: orchestrator
-    category: observability
-  - service: infisical
-    recommended_host: orchestrator
-    category: service
-  - service: infisical-agent
-    recommended_host: orchestrator
-    category: service
-  - service: infisical-cli
-    recommended_host: orchestrator
-    category: service
-  - service: infisical-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: litellm
-    recommended_host: orchestrator
-    category: platform
-  - service: loki
-    recommended_host: orchestrator
-    category: observability
-  - service: moltbot-web
-    recommended_host: orchestrator
-    category: app-ui
-  - service: mongo
-    recommended_host: orchestrator
-    category: data
-  - service: n8n
-    recommended_host: orchestrator
-    category: platform
-  - service: nexus-router
-    recommended_host: orchestrator
-    category: platform
-  - service: nyra-mcp
-    recommended_host: orchestrator
-    category: mcp-server
-  - service: openwebui
-    recommended_host: orchestrator
-    category: app-ui
-  - service: prometheus
-    recommended_host: orchestrator
-    category: observability
-  - service: redis
-    recommended_host: orchestrator
-    category: data
-  - service: worker-3060-ollama
-    recommended_host: orchestrator
-    category: service
-  - service: worker-3090ti-vllm
-    recommended_host: orchestrator
-    category: service
-  - service: worker-5090-vllm
-    recommended_host: orchestrator
-    category: service
+    - service: activepieces
+      recommended_host: orchestrator
+      category: platform
+    - service: bitwarden-mcp
+      recommended_host: orchestrator
+      category: mcp-server
+    - service: cadvisor
+      recommended_host: orchestrator
+      category: service
+    - service: cloudflared
+      recommended_host: orchestrator
+      category: service
+    - service: docker-mcp-toolkit
+      recommended_host: orchestrator
+      category: mcp-server
+    - service: git-mcp
+      recommended_host: orchestrator
+      category: mcp-server
+    - service: github-mcp
+      recommended_host: orchestrator
+      category: mcp-server
+    - service: grafana
+      recommended_host: orchestrator
+      category: observability
+    - service: infisical
+      recommended_host: orchestrator
+      category: service
+    - service: infisical-agent
+      recommended_host: orchestrator
+      category: service
+    - service: infisical-cli
+      recommended_host: orchestrator
+      category: service
+    - service: infisical-mcp
+      recommended_host: orchestrator
+      category: mcp-server
+    - service: litellm
+      recommended_host: orchestrator
+      category: platform
+    - service: loki
+      recommended_host: orchestrator
+      category: observability
+    - service: moltbot-web
+      recommended_host: orchestrator
+      category: app-ui
+    - service: mongo
+      recommended_host: orchestrator
+      category: data
+    - service: n8n
+      recommended_host: orchestrator
+      category: platform
+    - service: nexus-router
+      recommended_host: orchestrator
+      category: platform
+    - service: nyra-mcp
+      recommended_host: orchestrator
+      category: mcp-server
+    - service: openwebui
+      recommended_host: orchestrator
+      category: app-ui
+    - service: prometheus
+      recommended_host: orchestrator
+      category: observability
+    - service: redis
+      recommended_host: orchestrator
+      category: data
+    - service: worker-3060-ollama
+      recommended_host: orchestrator
+      category: service
+    - service: worker-3090ti-vllm
+      recommended_host: orchestrator
+      category: service
+    - service: worker-5090-vllm
+      recommended_host: orchestrator
+      category: service
   oracle-vps:
-  - service: postgres
-    recommended_host: oracle-vps
-    category: data
-  - service: twenty-postgres
-    recommended_host: oracle-vps
-    category: data
-  - service: twentycrm
-    recommended_host: oracle-vps
-    category: app-ui
-  - service: twentycrm-mcp
-    recommended_host: oracle-vps
-    category: mcp-server
-  - service: activepieces
-    recommended_host: oracle-vps
-    category: platform
-  - service: cloudflared
-    recommended_host: oracle-vps
-    category: service
-  - service: falkordb
-    recommended_host: oracle-vps
-    category: data
-  - service: letta-mcp
-    recommended_host: oracle-vps
-    category: mcp-server
-  - service: moltbot
-    recommended_host: oracle-vps
-    category: service
-  - service: n8n
-    recommended_host: oracle-vps
-    category: platform
-  - service: postgres
-    recommended_host: oracle-vps
-    category: data
-  - service: quote-api
-    recommended_host: oracle-vps
-    category: service
-  - service: redis-cache
-    recommended_host: oracle-vps
-    category: data
-  - service: twenty
-    recommended_host: oracle-vps
-    category: app-ui
+    - service: postgres
+      recommended_host: oracle-vps
+      category: data
+    - service: twenty-postgres
+      recommended_host: oracle-vps
+      category: data
+    - service: twentycrm
+      recommended_host: oracle-vps
+      category: app-ui
+    - service: twentycrm-mcp
+      recommended_host: oracle-vps
+      category: mcp-server
+    - service: activepieces
+      recommended_host: oracle-vps
+      category: platform
+    - service: cloudflared
+      recommended_host: oracle-vps
+      category: service
+    - service: falkordb
+      recommended_host: oracle-vps
+      category: data
+    - service: letta-mcp
+      recommended_host: oracle-vps
+      category: mcp-server
+    - service: moltbot
+      recommended_host: oracle-vps
+      category: service
+    - service: n8n
+      recommended_host: oracle-vps
+      category: platform
+    - service: postgres
+      recommended_host: oracle-vps
+      category: data
+    - service: quote-api
+      recommended_host: oracle-vps
+      category: service
+    - service: redis-cache
+      recommended_host: oracle-vps
+      category: data
+    - service: twenty
+      recommended_host: oracle-vps
+      category: app-ui
   worker-hosts:
-  - service: cadvisor
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: cloudflared
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: grafana
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: loki
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: mongo
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: n8n
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: postgres
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: prometheus
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: redis
-    node: worker-rtx5090
-    reason: GPU-bound inference workload
-  - service: cadvisor
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: cloudflared
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: grafana
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: loki
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: mongo
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: n8n
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: postgres
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: prometheus
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: redis
-    node: worker-rtx3090ti
-    reason: GPU-bound inference workload
-  - service: cadvisor
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: cloudflared
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: grafana
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: loki
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: mongo
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: n8n
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: postgres
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: prometheus
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: redis
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
-  - service: worker-rtx3060
-    node: worker-rtx3060
-    reason: GPU-bound inference workload
+    - service: cadvisor
+      node: worker-rtx5090
+      reason: GPU-bound inference workload
+    - service: cloudflared
+      node: worker-rtx5090
+      reason: GPU-bound inference workload
+    - service: grafana
+      node: worker-rtx5090
+      reason: GPU-bound inference workload
+    - service: loki
+      node: worker-rtx5090
+      reason: GPU-bound inference workload
+    - service: mongo
+      node: worker-rtx5090
+      reason: GPU-bound inference workload
+    - service: n8n
+      node: worker-rtx5090
+      reason: GPU-bound inference workload
+    - service: postgres
+      node: worker-rtx5090
+      reason: GPU-bound inference workload
+    - service: prometheus
+      node: worker-rtx5090
+      reason: GPU-bound inference workload
+    - service: redis
+      node: worker-rtx5090
+      reason: GPU-bound inference workload
+    - service: cadvisor
+      node: worker-rtx3090ti
+      reason: GPU-bound inference workload
+    - service: cloudflared
+      node: worker-rtx3090ti
+      reason: GPU-bound inference workload
+    - service: grafana
+      node: worker-rtx3090ti
+      reason: GPU-bound inference workload
+    - service: loki
+      node: worker-rtx3090ti
+      reason: GPU-bound inference workload
+    - service: mongo
+      node: worker-rtx3090ti
+      reason: GPU-bound inference workload
+    - service: n8n
+      node: worker-rtx3090ti
+      reason: GPU-bound inference workload
+    - service: postgres
+      node: worker-rtx3090ti
+      reason: GPU-bound inference workload
+    - service: prometheus
+      node: worker-rtx3090ti
+      reason: GPU-bound inference workload
+    - service: redis
+      node: worker-rtx3090ti
+      reason: GPU-bound inference workload
+    - service: cadvisor
+      reason: GPU-bound inference workload
+    - service: cloudflared
+      reason: GPU-bound inference workload
+    - service: grafana
+      reason: GPU-bound inference workload
+    - service: loki
+      reason: GPU-bound inference workload
+    - service: mongo
+      reason: GPU-bound inference workload
+    - service: n8n
+      reason: GPU-bound inference workload
+    - service: postgres
+      reason: GPU-bound inference workload
+    - service: prometheus
+      reason: GPU-bound inference workload
+    - service: redis
+      reason: GPU-bound inference workload

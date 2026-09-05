@@ -30,7 +30,6 @@
       },
       "litellm/nyra/local-utility": {
         "status": "configured",
-        "hardware": "RTX3060 Ollama",
         "context_window": 8192
       },
       "litellm/nyra/free": {

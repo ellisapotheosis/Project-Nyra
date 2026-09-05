@@ -23,7 +23,13 @@
         "name": "composio-mcp",
         "type": "stdio",
         "path": "docker",
-        "args": ["run", "--rm", "-e", "COMPOSIO_API_KEY=${COMPOSIO_API_KEY}", "composiohq/composio-mcp-server"],
+        "args": [
+          "run",
+          "--rm",
+          "-e",
+          "COMPOSIO_API_KEY=${COMPOSIO_API_KEY}",
+          "composiohq/composio-mcp-server"
+        ],
         "env": {
           "COMPOSIO_API_KEY": "${COMPOSIO_API_KEY}",
           "COMPOSIO_BASE_URL": "https://backend.composio.dev"
@@ -32,7 +38,6 @@
     ],
     "ai:systemprompt": "You are Claude, the orchestrator AI for Project Nyra. You have access to:\n\n1. LETTA MEMORY BRIDGE: Multi-turn conversational memory via Letta MCP (stdio). Use this to maintain context across long sessions, store decisions, retrieve past learnings.\n2. COMPOSIO SaaS INTEGRATION: 100+ SaaS tools (Gmail, Slack, GitHub, Jira, Notion, etc.) via Composio MCP.\n3. NEXUS ROUTER: Local GPU worker routing on localhost:6000. Route heavy tasks to RTX5090/3090Ti.\n4. LOCAL CONTEXT: Full access to Project Nyra monorepo via stdio file tools.\n\nYour role: Orchestrate all 3 CLI agents (Claude Code, Gemini, Codex), coordinate GPU workers, manage memory, and handle SaaS integrations seamlessly.\n\nWhen you need to remember something important, use the Letta memory interface:\n- letta.memorize(key, value) → Store persistent fact\n- letta.recall(key) → Retrieve stored fact\n- letta.list() → See all stored facts\n\nWhen you need external integrations:\n- composio.execute(tool, args) → Run any Composio action\n- composio.list() → See all 100+ available tools\n\nAlways route expensive inference to Nexus Router (localhost:6000)."
   },
-
   "ghost-proxy-llxprt": {
     "display:name": "Ghost Proxy (llxprt-code hijack)",
     "ai:provider": "custom",
@@ -42,7 +47,6 @@
     "ai:apitokenvar": "LLXPRT_DUMMY_KEY",
     "description": "Direct passthrough to llxprt-code proxy (hijacks Claude Pro subscription)"
   },
-
   "worker-5090-deepseek": {
     "display:name": "RTX 5090 (DeepSeek R1)",
     "ai:provider": "custom",
@@ -52,7 +56,6 @@
     "ai:apitokenvar": "OLLAMA_TOKEN",
     "description": "Heavy metal local reasoning via RTX 5090 (48GB VRAM)"
   },
-
   "worker-3090ti-llama": {
     "display:name": "RTX 3090 Ti (Llama 3.1 70B)",
     "ai:provider": "custom",
@@ -61,15 +64,5 @@
     "ai:apitype": "openai-chat",
     "ai:apitokenvar": "OLLAMA_TOKEN",
     "description": "General-purpose local LLM via RTX 3090 Ti (24GB VRAM)"
-  },
-
-  "worker-3060-embeddings": {
-    "display:name": "RTX 3060 (Embeddings + Lightweight)",
-    "ai:provider": "custom",
-    "ai:model": "nomic-embed-text",
-    "ai:endpoint": "http://worker-rtx3060.trex-fiordland.ts.net:8000/v1/embeddings",
-    "ai:apitype": "openai-embeddings",
-    "ai:apitokenvar": "OLLAMA_TOKEN",
-    "description": "Vector embeddings + lightweight LLM tasks via RTX 3060 (12GB VRAM)"
   }
 }

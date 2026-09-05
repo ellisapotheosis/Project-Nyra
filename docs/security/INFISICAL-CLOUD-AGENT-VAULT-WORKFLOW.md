@@ -177,7 +177,7 @@ project-nyra/
         ├── oracle/
         ├── orchestrator/
         ├── local-dev/
-        ├── worker-rtx3060/
+ ├── /
         ├── worker-rtx3090ti/
         └── worker-rtx5090/
 ```
@@ -185,6 +185,7 @@ project-nyra/
 All credential keys must be **UPPER_SNAKE_CASE**.
 
 Examples:
+
 - `OPENAI_API_KEY`
 - `ANTHROPIC_API_KEY`
 - `GITHUB_TOKEN`
@@ -193,15 +194,15 @@ Examples:
 
 ## Failure Modes & Recovery
 
-| Scenario | Symptom | Recovery |
-|----------|---------|----------|
-| Bad Machine Identity | Agent Vault can't auth to Infisical Cloud | Update INFISICAL_UNIVERSAL_AUTH_CLIENT_ID/SECRET in `.env.agent-vault`, restart |
-| Leaked agent token | Attacker can impersonate agent | Regenerate token in Agent Vault UI → Agents |
-| Expired Infisical credential store | Vaults can't fetch from Cloud | Update machine identity credentials (rotate) |
-| Agent Vault master password lost | Can't recover local credentials | Restart container; re-add all services/agents from scratch |
-| SMTP misconfigured | Email notifications fail | Fix AGENT_VAULT_SMTP_* env vars, restart |
-| Port 14321 exposed to public | Anyone can access Agent Vault UI | Change port binding to 127.0.0.1:14321 (or use Tailscale) |
-| Credentials cached too long | Leaked credential takes time to revoke | Reduce AGENT_VAULT_LOGS_MAX_AGE_HOURS; manual sync: `agent-vault vault credential-store sync <vault>` |
+| Scenario                           | Symptom                                   | Recovery                                                                                              |
+| ---------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Bad Machine Identity               | Agent Vault can't auth to Infisical Cloud | Update INFISICAL_UNIVERSAL_AUTH_CLIENT_ID/SECRET in `.env.agent-vault`, restart                       |
+| Leaked agent token                 | Attacker can impersonate agent            | Regenerate token in Agent Vault UI → Agents                                                           |
+| Expired Infisical credential store | Vaults can't fetch from Cloud             | Update machine identity credentials (rotate)                                                          |
+| Agent Vault master password lost   | Can't recover local credentials           | Restart container; re-add all services/agents from scratch                                            |
+| SMTP misconfigured                 | Email notifications fail                  | Fix AGENT_VAULT_SMTP_* env vars, restart                                                              |
+| Port 14321 exposed to public       | Anyone can access Agent Vault UI          | Change port binding to 127.0.0.1:14321 (or use Tailscale)                                             |
+| Credentials cached too long        | Leaked credential takes time to revoke    | Reduce AGENT_VAULT_LOGS_MAX_AGE_HOURS; manual sync: `agent-vault vault credential-store sync <vault>` |
 
 ## Migration Path
 
@@ -242,6 +243,7 @@ Examples:
    - Optional: SMTP settings (SendGrid, Resend, AWS SES)
 
 3. **Start Agent Vault**
+
    ```bash
    cd infra/hosts/oracle-vps
    docker compose -f docker-compose.yml -f docker-compose.agent-vault.yml up -d agent-vault
@@ -254,6 +256,7 @@ Examples:
    - (Do NOT share credentials; this is local-only)
 
 5. **Create Infisical-Backed Vaults**
+
    ```bash
    export INFISICAL_PROJECT_ID="<from Infisical Cloud>"
    bash infra/agent-vault/scripts/create-infisical-vaults.sh
@@ -279,6 +282,7 @@ Examples:
 ## No Rollback
 
 Once local Infisical is removed, do NOT recreate it. If needed:
+
 - Use Infisical Cloud UI or API directly
 - Use Docker compose restore from git history (for dev/test only)
 - Archive old setup docs but maintain "do not recreate" rule

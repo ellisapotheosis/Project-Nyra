@@ -14,7 +14,7 @@ OpenClaw Gateway (orchestrator:18789)
     ├─ LiteLLM provider
     │   ├─ litellm/nyra/local-interactive (RTX5090)
     │   ├─ litellm/nyra/local-stable (RTX3090Ti)
-    │   ├─ litellm/nyra/local-utility (RTX3060 Ollama)
+ │ ├─ litellm/nyra/local-utility ( Ollama)
     │   └─ litellm/nyra/free (OmniRoute fallback)
     ├─ Agents: main, researcher, reviewer, memory-worker
     ├─ Memory: Mem0 plugin (pending installation)
@@ -38,7 +38,6 @@ OpenClaw Gateway (orchestrator:18789)
 | -------------------------------- | ---------------- | ------- | ---- |
 | `litellm/nyra/local-interactive` | RTX5090 (32GB)   | 32K     | $0   |
 | `litellm/nyra/local-stable`      | RTX3090Ti (24GB) | 24K     | $0   |
-| `litellm/nyra/local-utility`     | RTX3060 Ollama   | 8K      | $0   |
 | `litellm/nyra/free`              | OmniRoute        | 32K     | Free |
 
 ### Agents

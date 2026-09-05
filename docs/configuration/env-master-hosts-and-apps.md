@@ -4,745 +4,745 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 
 ## Global deduplicated variable index
 
-| Variable | Sensitive? | Seen In | Env-specific values? |
-|---|---|---:|---|
-| `ACTIVEPIECES_API_KEY` | Yes | 3 | not specified |
-| `ACTIVEPIECES_API_URL` | No | 1 | dev |
-| `ACTIVEPIECES_BASE_URL` | No | 1 | dev |
-| `ACTIVEPIECES_ENCRYPTION_KEY` | Yes | 3 | multiple defaults (not specified) |
-| `ACTIVEPIECES_HOST` | No | 1 | not specified |
-| `ACTIVEPIECES_JWT_SECRET` | Yes | 3 | multiple defaults (not specified) |
-| `ACTIVEPIECES_PORT` | No | 2 | multiple defaults (not specified) |
-| `ACTIVEPIECES_WEBHOOK_SECRET` | Yes | 1 | not specified |
-| `AGENT_VAULT_ADDR` | No | 2 | multiple defaults (not specified) |
-| `AGENT_VAULT_ADMIN_EMAIL` | No | 1 | not specified |
-| `AGENT_VAULT_ADMIN_PASSWORD` | Yes | 1 | not specified |
-| `AGENT_VAULT_IDENTITY_ID` | No | 1 | not specified |
-| `AGENT_VAULT_MASTER_PASSWORD` | Yes | 2 | multiple defaults (not specified) |
-| `AGENT_VAULT_ORG_ID` | No | 1 | not specified |
-| `AGENT_VAULT_TRUSTED_PROXIES` | No | 2 | not specified |
-| `AGENT_VAULT_UA_CLIENT_ID` | No | 1 | not specified |
-| `AGENT_VAULT_UA_CLIENT_SECRET` | Yes | 1 | not specified |
-| `ALERTMANAGER_HOST` | No | 1 | not specified |
-| `ALERTMANAGER_PORT` | No | 2 | not specified |
-| `ALERT_CHECK_INTERVAL_MINUTES` | No | 1 | not specified |
-| `ALERT_EMAIL` | No | 2 | not specified |
-| `ALERT_EMAIL_ENABLED` | No | 1 | not specified |
-| `ALERT_EMAIL_TO` | No | 1 | not specified |
-| `ALERT_THRESHOLD_GPU_TEMP` | No | 1 | not specified |
-| `ALERT_THRESHOLD_INFERENCE_TIME` | No | 1 | not specified |
-| `ALERT_THRESHOLD_VRAM_USAGE` | No | 1 | not specified |
-| `ALERT_WEBHOOK_URL` | Yes | 1 | not specified |
-| `ALLOWED_FILE_TYPES` | No | 2 | multiple defaults (not specified) |
-| `ALLOWED_ORIGINS` | No | 1 | dev |
-| `ANTHROPIC_API_KEY` | Yes | 9 | multiple defaults (not specified) |
-| `ANTHROPIC_MAX_TOKENS` | Yes | 1 | not specified |
-| `ANTHROPIC_MODEL` | No | 1 | not specified |
-| `API_KEY` | Yes | 1 | not specified |
-| `API_KEY_EXPIRY` | Yes | 1 | not specified |
-| `API_KEY_HEADER` | Yes | 1 | not specified |
-| `API_RATE_LIMITING_REQUEST_COUNT` | No | 1 | not specified |
-| `API_RATE_LIMITING_TTL` | No | 1 | not specified |
-| `API_RATE_LIMIT_MAX_REQUESTS` | No | 1 | not specified |
-| `API_RATE_LIMIT_WINDOW_MS` | No | 1 | not specified |
-| `API_VERSION` | No | 4 | not specified |
-| `APP_SECRET` | Yes | 1 | not specified |
-| `AP_DB_TYPE` | No | 1 | not specified |
-| `AP_ENCRYPTION_KEY` | Yes | 2 | multiple defaults (not specified) |
-| `AP_EXECUTION_MODE` | No | 1 | not specified |
-| `AP_FRONTEND_URL` | No | 2 | multiple defaults (not specified) |
-| `AP_JWT_SECRET` | Yes | 2 | multiple defaults (not specified) |
-| `AP_POSTGRES_DATABASE` | No | 1 | not specified |
-| `AP_POSTGRES_HOST` | No | 1 | not specified |
-| `AP_POSTGRES_PASSWORD` | Yes | 2 | multiple defaults (not specified) |
-| `AP_POSTGRES_PORT` | No | 1 | not specified |
-| `AP_POSTGRES_USERNAME` | No | 2 | not specified |
-| `AP_REDIS_HOST` | No | 1 | not specified |
-| `AP_REDIS_PASSWORD` | Yes | 1 | not specified |
-| `AP_REDIS_PORT` | No | 1 | not specified |
-| `AP_TELEMETRY_ENABLED` | No | 1 | not specified |
-| `ARCHON_HOST` | No | 1 | not specified |
-| `ARCHON_MODE` | No | 2 | not specified |
-| `ARCHON_OS_PORT` | No | 1 | not specified |
-| `ARCHON_PORT` | No | 1 | not specified |
-| `ARCHON_SERVER_URL` | No | 3 | not specified |
-| `ARCHON_STATUS_URL` | No | 1 | not specified |
-| `ASSET_CDN_URL` | No | 1 | not specified |
-| `ASSIGNMENT_ENABLED` | No | 1 | not specified |
-| `ASSIGNMENT_STRATEGY` | No | 1 | not specified |
-| `ASSISTANT_GATEWAY_URL` | No | 1 | not specified |
-| `AWS_ACCESS_KEY_ID` | Yes | 1 | not specified |
-| `AWS_REGION` | No | 1 | not specified |
-| `AWS_SECRET_ACCESS_KEY` | Yes | 1 | not specified |
-| `BACKUP_DIR` | No | 1 | not specified |
-| `BACKUP_ENABLED` | No | 1 | not specified |
-| `BACKUP_RETENTION_DAYS` | No | 1 | not specified |
-| `BACKUP_SCHEDULE` | No | 1 | not specified |
-| `BATCH_SIZE` | No | 1 | not specified |
-| `BCRYPT_ROUNDS` | No | 1 | not specified |
-| `BOOT_OPENCLAW` | No | 1 | not specified |
-| `BOOT_OPENCLAW_UI_PROXY` | No | 1 | not specified |
-| `BOOT_OPENCLAW_VOICE` | No | 1 | not specified |
-| `BROWSERLESS_CONCURRENT` | No | 1 | not specified |
-| `BROWSERLESS_HOST_PORT` | No | 1 | not specified |
-| `BROWSERLESS_KEEP_ALIVE` | No | 1 | not specified |
-| `BROWSERLESS_PREBOOT_CHROME` | No | 1 | not specified |
-| `BROWSERLESS_QUEUED` | No | 1 | not specified |
-| `BROWSERLESS_TIMEOUT_MS` | No | 1 | not specified |
-| `BROWSERLESS_TOKEN` | Yes | 2 | not specified |
-| `CACHE_MAX_SIZE` | No | 1 | not specified |
-| `CACHE_TTL` | No | 1 | not specified |
-| `CACHE_TTL_CALCULATOR` | No | 1 | not specified |
-| `CACHE_TTL_RATES` | No | 1 | not specified |
-| `CACHE_TTL_SECONDS` | No | 1 | not specified |
-| `CADVISOR_PORT` | No | 1 | not specified |
-| `CAMPAIGN_ENGINE_HOST` | No | 1 | not specified |
-| `CAMPAIGN_ENGINE_PORT` | No | 1 | not specified |
-| `CAMPAIGN_ENGINE_URL` | No | 2 | multiple defaults (dev) |
-| `CAMPAIGN_MAX_RETRIES` | No | 1 | not specified |
-| `CAMPAIGN_RETRY_DELAY_MINUTES` | No | 1 | not specified |
-| `CAMPAIGN_TIMEZONE` | No | 1 | not specified |
-| `CF_TUNNEL_TOKEN` | Yes | 1 | not specified |
-| `CHECK_INTERVAL` | No | 1 | not specified |
-| `CLAUDE_FLOW_CONFIG_PATH` | No | 1 | not specified |
-| `CLAUDE_FLOW_HOST` | No | 1 | not specified |
-| `CLAUDE_FLOW_MODE` | No | 1 | not specified |
-| `CLAUDE_FLOW_PORT` | No | 1 | not specified |
-| `CLAWDBOT_GATEWAY_PORT` | No | 2 | not specified |
-| `CLAWDBOT_GATEWAY_TOKEN` | Yes | 2 | multiple defaults (not specified) |
-| `CLEARBIT_API_KEY` | Yes | 1 | not specified |
-| `CLERK_SECRET_KEY` | Yes | 1 | not specified |
-| `CLOUDFLARED_HOSTNAME` | No | 1 | not specified |
-| `CLOUDFLARED_LITELLM_HOSTNAME` | No | 1 | not specified |
-| `CLOUDFLARED_TOKEN` | Yes | 1 | not specified |
-| `CLOUDFLARED_TUNNEL_NAME` | No | 1 | not specified |
-| `CLOUDFLARED_TUNNEL_TOKEN` | Yes | 2 | not specified |
-| `CLOUDFLARE_API_TOKEN` | Yes | 1 | not specified |
-| `CLOUDFLARE_TUNNEL_TOKEN` | Yes | 2 | not specified |
-| `CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR` | Yes | 2 | multiple defaults (not specified) |
-| `CLOUDFLARE_ZONE_ID` | No | 1 | not specified |
-| `COMPOSE_PROFILES` | No | 3 | multiple defaults (not specified) |
-| `COMPOSE_PROJECT_NAME` | No | 3 | multiple defaults (not specified) |
-| `COMPOSIO_API_KEY` | Yes | 2 | multiple defaults (not specified) |
-| `COMPOSIO_DEFAULT_USER_ID` | No | 2 | not specified |
-| `COMPOSIO_EXECUTION_POLICY` | No | 1 | not specified |
-| `COMPOSIO_MCP_SERVER_ID` | No | 2 | multiple defaults (not specified) |
-| `COMPOSIO_MCP_SERVER_NAME` | No | 1 | not specified |
-| `COMPOSIO_MCP_TRANSPORT` | No | 1 | not specified |
-| `COMPOSIO_MCP_URL` | No | 2 | dev |
-| `COMPOSIO_TOOLKITS_ALLOW` | No | 1 | not specified |
-| `CONFIG_DIR` | No | 1 | not specified |
-| `CONFLICT_STRATEGY` | No | 2 | not specified |
-| `CONNECTION_TIMEOUT` | No | 1 | not specified |
-| `CONSENT_REQUIRED` | No | 1 | not specified |
-| `CORS_ALLOWED_ORIGINS` | No | 4 | multiple defaults (dev) |
-| `CORS_ORIGIN` | No | 2 | multiple defaults (dev) |
-| `CRM_API_KEY` | Yes | 3 | multiple defaults (not specified) |
-| `CRM_API_URL` | No | 2 | multiple defaults (dev) |
-| `CUDA_VISIBLE_DEVICES` | No | 2 | not specified |
-| `DATABASE_URL` | No | 5 | multiple defaults (dev) |
-| `DATA_DIR` | No | 1 | not specified |
-| `DB_HOST` | No | 3 | dev |
-| `DB_NAME` | No | 3 | multiple defaults (not specified) |
-| `DB_PASSWORD` | Yes | 3 | multiple defaults (not specified) |
-| `DB_POOL_MAX` | No | 1 | not specified |
-| `DB_POOL_MIN` | No | 1 | not specified |
-| `DB_PORT` | No | 3 | not specified |
-| `DB_USER` | No | 3 | not specified |
-| `DEBUG_MODE` | No | 3 | not specified |
-| `DEFAULT_THEME` | No | 1 | not specified |
-| `DISCORD_BOT_TOKEN` | Yes | 2 | not specified |
-| `DNC_CHECK_ENABLED` | No | 1 | not specified |
-| `DOCKER_CPU_LIMIT` | No | 1 | not specified |
-| `DOCKER_MEMORY_LIMIT` | No | 1 | not specified |
-| `DOCKER_REGISTRY` | No | 1 | not specified |
-| `DOCKER_REGISTRY_PASS` | Yes | 1 | not specified |
-| `DOCKER_REGISTRY_USER` | No | 1 | not specified |
-| `DOCUSIGN_ACCOUNT_ID` | No | 1 | not specified |
-| `DOCUSIGN_BASE_PATH` | No | 1 | not specified |
-| `DOCUSIGN_INTEGRATION_KEY` | Yes | 1 | not specified |
-| `DOCUSIGN_PRIVATE_KEY_PATH` | Yes | 1 | not specified |
-| `DOCUSIGN_USER_ID` | No | 1 | not specified |
-| `DOMAIN_NAME` | No | 1 | not specified |
-| `ELASTICSEARCH_INDEX` | No | 1 | not specified |
-| `ELASTICSEARCH_NODE` | No | 1 | dev |
-| `EMAIL_DRIVER` | No | 1 | not specified |
-| `EMAIL_FROM` | No | 3 | multiple defaults (not specified) |
-| `EMAIL_FROM_ADDRESS` | No | 1 | not specified |
-| `EMAIL_HOST` | No | 1 | not specified |
-| `EMAIL_PASSWORD` | Yes | 1 | not specified |
-| `EMAIL_PORT` | No | 1 | not specified |
-| `EMAIL_SECURE` | No | 1 | not specified |
-| `EMAIL_SYSTEM_ADDRESS` | No | 1 | not specified |
-| `EMAIL_USER` | No | 1 | not specified |
-| `ENABLE_AUDIT_LOGGING` | No | 1 | not specified |
-| `ENABLE_CACHING` | No | 1 | not specified |
-| `ENABLE_COMPLIANCE_CHECKS` | No | 1 | not specified |
-| `ENABLE_COST_TRACKING` | No | 1 | not specified |
-| `ENABLE_CRM` | No | 2 | multiple defaults (not specified) |
-| `ENABLE_GPU_WORKERS` | No | 2 | not specified |
-| `ENABLE_GUARDRAILS` | No | 1 | not specified |
-| `ENABLE_MONITORING` | No | 3 | not specified |
-| `ENABLE_RATE_LIMITING` | No | 1 | not specified |
-| `ENABLE_WORKFLOWS` | No | 2 | not specified |
-| `ENABLE_YAML_CONFIG_EDITING` | No | 1 | not specified |
-| `ENCRYPTION_KEY` | Yes | 1 | not specified |
-| `ENRICHMENT_ENABLED` | No | 1 | not specified |
-| `ENRICHMENT_PROVIDER` | No | 1 | not specified |
-| `FALKORDB_CACHE_SIZE_MB` | No | 1 | not specified |
-| `FALKORDB_HOST` | No | 2 | multiple defaults (not specified) |
-| `FALKORDB_PASSWORD` | Yes | 1 | not specified |
-| `FALKORDB_PORT` | No | 2 | multiple defaults (not specified) |
-| `FALKORDB_QUERY_MEM_CAPACITY` | No | 1 | not specified |
-| `FALKORDB_THREADS` | No | 1 | not specified |
-| `FALKORDB_TIMEOUT_DEFAULT_MS` | No | 1 | not specified |
-| `FALKORDB_TIMEOUT_MAX_MS` | No | 1 | not specified |
-| `FALKORDB_URL` | No | 1 | dev |
-| `FRONTEND_URL` | No | 1 | dev |
-| `GEMINI_API_KEY` | Yes | 2 | multiple defaults (not specified) |
-| `GEMINI_BASE_URL` | No | 1 | not specified |
-| `GEMINI_MAX_TOKENS` | Yes | 1 | not specified |
-| `GEMINI_MODEL` | No | 1 | not specified |
-| `GITEA_ACTIONS_ENABLED` | No | 1 | not specified |
-| `GITEA_ADMIN_EMAIL` | No | 1 | not specified |
-| `GITEA_ADMIN_PASSWORD` | Yes | 1 | not specified |
-| `GITEA_ADMIN_USER` | No | 1 | not specified |
-| `GITEA_DB_HOST` | No | 1 | not specified |
-| `GITEA_DB_NAME` | No | 2 | not specified |
-| `GITEA_DB_PASSWORD` | Yes | 2 | not specified |
-| `GITEA_DB_PORT` | No | 1 | not specified |
-| `GITEA_DB_TYPE` | No | 1 | not specified |
-| `GITEA_DB_USER` | No | 2 | not specified |
-| `GITEA_DOMAIN` | No | 2 | multiple defaults (dev) |
-| `GITEA_HOST` | No | 1 | not specified |
-| `GITEA_HTTP_PORT` | No | 1 | not specified |
-| `GITEA_INTERNAL_TOKEN` | Yes | 1 | not specified |
-| `GITEA_JWT_SECRET` | Yes | 2 | not specified |
-| `GITEA_PORT` | No | 3 | not specified |
-| `GITEA_REPO` | No | 1 | not specified |
-| `GITEA_ROOT_URL` | No | 4 | multiple defaults (dev) |
-| `GITEA_RUNNER_NAME` | No | 1 | not specified |
-| `GITEA_RUNNER_REGISTRATION_TOKEN` | Yes | 1 | not specified |
-| `GITEA_RUNNER_TOKEN` | Yes | 1 | not specified |
-| `GITEA_SECRET_KEY` | Yes | 3 | not specified |
-| `GITEA_SSH_DOMAIN` | No | 3 | multiple defaults (dev) |
-| `GITEA_SSH_PORT` | No | 4 | not specified |
-| `GITEA_TOKEN` | Yes | 1 | not specified |
-| `GITHUB_MIRROR_INTERVAL_SECONDS` | No | 1 | not specified |
-| `GITHUB_REPO` | No | 1 | not specified |
-| `GITHUB_TOKEN` | Yes | 1 | not specified |
-| `GOOGLE_API_KEY` | Yes | 4 | multiple defaults (not specified) |
-| `GOOGLE_CALLBACK_URL` | No | 1 | dev |
-| `GOOGLE_CLIENT_ID` | No | 1 | not specified |
-| `GOOGLE_CLIENT_SECRET` | Yes | 1 | not specified |
-| `GOOGLE_WORKSPACE_CLIENT_ID` | No | 1 | not specified |
-| `GOOGLE_WORKSPACE_CLIENT_SECRET` | Yes | 1 | not specified |
-| `GPU_MODEL` | No | 3 | multiple defaults (not specified) |
-| `GPU_TYPE` | No | 1 | not specified |
-| `GPU_VRAM` | No | 3 | multiple defaults (not specified) |
-| `GPU_WORKER_ID` | No | 1 | not specified |
-| `GRAFANA_ADMIN_PASSWORD` | Yes | 5 | multiple defaults (not specified) |
-| `GRAFANA_ADMIN_USER` | No | 2 | not specified |
-| `GRAFANA_CPU_LIMIT` | No | 1 | not specified |
-| `GRAFANA_HOST` | No | 1 | not specified |
-| `GRAFANA_MEMORY_LIMIT` | No | 2 | multiple defaults (not specified) |
-| `GRAFANA_PASSWORD` | Yes | 1 | not specified |
-| `GRAFANA_PORT` | No | 3 | multiple defaults (not specified) |
-| `GRAFANA_ROOT_URL` | No | 1 | not specified |
-| `GRAFANA_URL` | No | 2 | multiple defaults (not specified) |
-| `GROQ_API_KEY` | Yes | 2 | not specified |
-| `HAMCP_ENABLE_CUSTOM_COMPONENT_INTEGRATION` | No | 1 | not specified |
-| `HAMCP_ENABLE_FILESYSTEM_TOOLS` | No | 1 | not specified |
-| `HASS_LONG_LIVED_TOKEN` | Yes | 1 | not specified |
-| `HASS_URL` | No | 1 | not specified |
-| `HA_MCP_BACKUP_HINT` | No | 1 | not specified |
-| `HA_MCP_IMAGE` | No | 1 | not specified |
-| `HEALTH_CHECK_INTERVAL` | No | 1 | not specified |
-| `HEALTH_CHECK_INTERVAL_MINUTES` | No | 2 | not specified |
-| `HEALTH_CHECK_PORT` | No | 1 | not specified |
-| `HEALTH_CHECK_RETRIES` | No | 1 | not specified |
-| `HEALTH_CHECK_TIMEOUT` | No | 1 | not specified |
-| `HOMEASSISTANT_TOKEN` | Yes | 1 | not specified |
-| `HOMEASSISTANT_URL` | No | 1 | not specified |
-| `HOT_RELOAD_ENABLED` | No | 2 | multiple defaults (not specified) |
-| `INFISICAL_API_URL` | No | 2 | not specified |
-| `INFISICAL_AUDIT_RETENTION` | No | 1 | not specified |
-| `INFISICAL_AUTH_SECRET` | Yes | 3 | multiple defaults (not specified) |
-| `INFISICAL_CLIENT_ID` | No | 2 | not specified |
-| `INFISICAL_CLIENT_SECRET` | Yes | 2 | not specified |
-| `INFISICAL_DB_NAME` | No | 1 | not specified |
-| `INFISICAL_DB_PASSWORD` | Yes | 1 | not specified |
-| `INFISICAL_DB_USER` | No | 1 | not specified |
-| `INFISICAL_ENCRYPTION_KEY` | Yes | 3 | multiple defaults (not specified) |
-| `INFISICAL_ENV` | No | 4 | multiple defaults (dev, prod) |
-| `INFISICAL_ENVIRONMENT` | No | 1 | dev |
-| `INFISICAL_GATEWAY_CLIENT_ID` | No | 1 | not specified |
-| `INFISICAL_GATEWAY_CLIENT_SECRET` | Yes | 1 | not specified |
-| `INFISICAL_LICENSE_KEY` | Yes | 1 | not specified |
-| `INFISICAL_PATH` | No | 3 | multiple defaults (not specified) |
-| `INFISICAL_PKI_KEY_ALGO` | Yes | 1 | not specified |
-| `INFISICAL_POLL_INTERVAL` | No | 2 | not specified |
-| `INFISICAL_PORT` | No | 1 | not specified |
-| `INFISICAL_POSTGRES_DB` | No | 1 | not specified |
-| `INFISICAL_POSTGRES_PASSWORD` | Yes | 1 | not specified |
-| `INFISICAL_POSTGRES_USER` | No | 1 | not specified |
-| `INFISICAL_PROJECT_ID` | No | 5 | multiple defaults (not specified) |
-| `INFISICAL_REDIS_PASSWORD` | Yes | 1 | not specified |
-| `INFISICAL_SCAN_GIT_APP_ID` | No | 1 | not specified |
-| `INFISICAL_SCAN_GIT_APP_SLUG` | No | 1 | not specified |
-| `INFISICAL_SCAN_GIT_PRIVATE_KEY` | Yes | 1 | not specified |
-| `INFISICAL_SCAN_GIT_WEBHOOK_SECRET` | Yes | 1 | not specified |
-| `INFISICAL_SITE_URL` | No | 2 | multiple defaults (not specified) |
-| `INFISICAL_SSH_CA_TTL` | No | 1 | not specified |
-| `INFI_CLIENT_ID` | No | 1 | not specified |
-| `INFI_CLIENT_SECRET` | Yes | 1 | not specified |
-| `INFI_PROJECT_ID` | No | 1 | not specified |
-| `JWT_EXPIRES_IN` | No | 3 | not specified |
-| `JWT_EXPIRY` | No | 2 | multiple defaults (not specified) |
-| `JWT_REFRESH_EXPIRES_IN` | No | 2 | not specified |
-| `JWT_REFRESH_EXPIRY` | No | 1 | not specified |
-| `JWT_REFRESH_SECRET` | Yes | 1 | not specified |
-| `JWT_SECRET` | Yes | 8 | multiple defaults (prod) |
-| `LETTA_DB_NAME` | No | 1 | not specified |
-| `LETTA_DB_PASSWORD` | Yes | 1 | not specified |
-| `LETTA_DB_USER` | No | 1 | not specified |
-| `LETTA_DEFAULT_EMBEDDING_CONFIG` | No | 1 | not specified |
-| `LETTA_DEFAULT_LLM_CONFIG` | No | 1 | not specified |
-| `LETTA_HOST` | No | 1 | not specified |
-| `LETTA_HOST_PORT` | No | 1 | not specified |
-| `LETTA_IMAGE` | No | 1 | not specified |
-| `LETTA_PG_URI` | No | 1 | not specified |
-| `LETTA_PORT` | No | 1 | not specified |
-| `LETTA_SERVER_PASSWORD` | Yes | 2 | not specified |
-| `LITELLM_API_KEY` | Yes | 2 | not specified |
-| `LITELLM_BASE_URL` | No | 4 | multiple defaults (dev) |
-| `LITELLM_DATABASE_URL` | No | 1 | not specified |
-| `LITELLM_HOST` | No | 1 | not specified |
-| `LITELLM_LOG` | No | 1 | not specified |
-| `LITELLM_MASTER_KEY` | Yes | 9 | multiple defaults (not specified) |
-| `LITELLM_MODE` | No | 1 | dev |
-| `LITELLM_PORT` | No | 3 | not specified |
-| `LOG_DIR` | No | 1 | not specified |
-| `LOG_FILE` | No | 5 | multiple defaults (not specified) |
-| `LOG_FILE_PATH` | No | 1 | not specified |
-| `LOG_FORMAT` | No | 2 | not specified |
-| `LOG_LEVEL` | No | 16 | multiple defaults (not specified) |
-| `LOKI_HOST` | No | 1 | not specified |
-| `LOKI_PORT` | No | 3 | not specified |
-| `LOKI_URL` | No | 1 | not specified |
-| `MACHINE_HOSTNAME` | No | 1 | not specified |
-| `MACHINE_IP_ETHERNET` | No | 1 | not specified |
-| `MACHINE_IP_TAILSCALE` | No | 1 | not specified |
-| `MACHINE_NAME` | No | 4 | multiple defaults (not specified) |
-| `MACHINE_ROLE` | No | 4 | multiple defaults (not specified) |
-| `MAGIC_UI_ENABLED` | No | 1 | not specified |
-| `MAX_CONCURRENT_SCRAPERS` | No | 1 | not specified |
-| `MAX_CONNECTIONS` | No | 1 | not specified |
-| `MAX_CONNECTIONS_PER_USER` | No | 1 | not specified |
-| `MAX_FILE_SIZE` | No | 2 | multiple defaults (not specified) |
-| `MAX_RETRY_ATTEMPTS` | No | 2 | not specified |
-| `MEM0_API_KEY` | Yes | 2 | not specified |
-| `MEM0_HOST` | No | 1 | not specified |
-| `MEM0_HOST_PORT` | No | 1 | not specified |
-| `MEM0_IMAGE` | No | 1 | dev |
-| `MEM0_PORT` | No | 1 | not specified |
-| `MEMORY_BASE_URL` | No | 1 | not specified |
-| `MEMPALACE_PORT` | No | 1 | not specified |
-| `MEMPALACE_URL` | No | 2 | multiple defaults (dev) |
-| `MEMPAL_DIR` | No | 1 | not specified |
-| `METRICS_PORT` | No | 1 | not specified |
-| `MFA_ISSUER` | No | 1 | not specified |
-| `MICROSOFT_CALLBACK_URL` | No | 1 | dev |
-| `MICROSOFT_CLIENT_ID` | No | 1 | not specified |
-| `MICROSOFT_CLIENT_SECRET` | Yes | 1 | not specified |
-| `MODEL_MANAGER_PORT` | No | 1 | not specified |
-| `MODEL_ROUTING_COST_THRESHOLD` | No | 1 | not specified |
-| `MODEL_ROUTING_FALLBACK_CLOUD` | No | 1 | not specified |
-| `MODEL_ROUTING_PREFER_LOCAL` | No | 1 | not specified |
-| `MODEL_ROUTING_STRATEGY` | No | 1 | not specified |
-| `MOLTBOT_WEB_PORT` | No | 1 | not specified |
-| `MONGODB_URI` | No | 1 | dev |
-| `MONGO_PORT` | No | 1 | not specified |
-| `MONGO_ROOT_PASSWORD` | Yes | 3 | multiple defaults (not specified) |
-| `MONGO_ROOT_USER` | No | 1 | not specified |
-| `N8N_API_KEY` | Yes | 2 | not specified |
-| `N8N_BASE_URL` | No | 1 | dev |
-| `N8N_BASIC_AUTH_ACTIVE` | Yes | 3 | not specified |
-| `N8N_BASIC_AUTH_PASSWORD` | Yes | 3 | multiple defaults (not specified) |
-| `N8N_BASIC_AUTH_USER` | Yes | 3 | not specified |
-| `N8N_DB` | No | 1 | not specified |
-| `N8N_EDITOR_BASE_URL` | No | 1 | dev |
-| `N8N_ENCRYPTION_KEY` | Yes | 6 | multiple defaults (not specified) |
-| `N8N_HOST` | No | 4 | multiple defaults (dev) |
-| `N8N_PORT` | No | 4 | not specified |
-| `N8N_PROTOCOL` | No | 3 | multiple defaults (not specified) |
-| `N8N_SKIP_WEBHOOK_DNS_CHECK` | Yes | 2 | not specified |
-| `N8N_WEBHOOK_URL` | Yes | 2 | multiple defaults (dev) |
-| `NEXT_PUBLIC_ACTIVEPIECES_URL` | No | 2 | multiple defaults (not specified) |
-| `NEXT_PUBLIC_API_BASE_URL` | No | 2 | multiple defaults (dev) |
-| `NEXT_PUBLIC_API_KEY` | Yes | 1 | not specified |
-| `NEXT_PUBLIC_APP_NAME` | No | 1 | not specified |
-| `NEXT_PUBLIC_APP_URL` | No | 2 | multiple defaults (dev) |
-| `NEXT_PUBLIC_ARCHON_UI_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | 1 | not specified |
-| `NEXT_PUBLIC_DEBUG` | No | 1 | not specified |
-| `NEXT_PUBLIC_DIFY_APP_ID` | No | 2 | dev |
-| `NEXT_PUBLIC_DIFY_WIDGET_URL` | No | 2 | dev |
-| `NEXT_PUBLIC_DOCS_BASE_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_GRAFANA_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_MEM0_PROXY_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_N8N_URL` | No | 2 | multiple defaults (not specified) |
-| `NEXT_PUBLIC_NEXUS_UI_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_NEXUS_URL` | No | 4 | multiple defaults (dev) |
-| `NEXT_PUBLIC_OPENCLAW_URL` | No | 2 | multiple defaults (not specified) |
-| `NEXT_PUBLIC_OPENMEMORY_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_PAPERCLIP_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_PORTAINER_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_QUOTE_API_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_SITE_NAME` | No | 2 | not specified |
-| `NEXT_PUBLIC_SITE_URL` | No | 3 | multiple defaults (dev) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | 1 | not specified |
-| `NEXT_PUBLIC_SUPABASE_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_SUPPORT_EMAIL` | No | 1 | not specified |
-| `NEXT_PUBLIC_TAILSCALE_DASHBOARD_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_TWENTY_URL` | No | 3 | multiple defaults (dev) |
-| `NEXT_PUBLIC_WEBAPP_URL` | No | 1 | not specified |
-| `NEXT_PUBLIC_WEBHOOK_URL` | Yes | 1 | not specified |
-| `NEXT_PUBLIC_WS_URL` | No | 1 | dev |
-| `NEXUS_ADMIN_TOKEN` | Yes | 3 | multiple defaults (not specified) |
-| `NEXUS_API_KEY` | Yes | 1 | not specified |
-| `NEXUS_BASE_URL` | No | 1 | not specified |
-| `NEXUS_CONFIG_APPLY_ENABLED` | No | 1 | not specified |
-| `NEXUS_CPU_LIMIT` | No | 1 | not specified |
-| `NEXUS_DEPLOY_TARGET` | No | 1 | not specified |
-| `NEXUS_JWT_SECRET` | Yes | 1 | not specified |
-| `NEXUS_MCP_PORT` | No | 1 | not specified |
-| `NEXUS_MCP_URL` | No | 1 | not specified |
-| `NEXUS_MEMORY_LIMIT` | No | 2 | multiple defaults (not specified) |
-| `NEXUS_METRICS_PORT` | No | 1 | not specified |
-| `NEXUS_MONITORING_ENABLED` | No | 1 | not specified |
-| `NEXUS_ROUTER_API_KEY` | Yes | 1 | not specified |
-| `NEXUS_ROUTER_HOST` | No | 1 | not specified |
-| `NEXUS_ROUTER_MCP_PORT` | No | 1 | not specified |
-| `NEXUS_ROUTER_PORT` | No | 3 | multiple defaults (not specified) |
-| `NEXUS_ROUTER_URL` | No | 6 | multiple defaults (dev) |
-| `NEXUS_STATUS_URL` | No | 1 | not specified |
-| `NEXUS_UI_SETTINGS_PATH` | No | 1 | not specified |
-| `NODE_ENV` | No | 24 | multiple defaults (dev, prod) |
-| `NODE_VERSION` | No | 1 | not specified |
-| `NVIDIA_VISIBLE_DEVICES` | No | 6 | multiple defaults (not specified) |
-| `NYRA_CHAT_INTERNAL_API_BASE_URL` | No | 1 | not specified |
-| `NYRA_CHAT_INTERNAL_PROXY_TOKEN` | Yes | 3 | not specified |
-| `NYRA_ENABLE_MOCKS` | No | 1 | not specified |
-| `NYRA_ENV` | No | 1 | dev |
-| `NYRA_ENVIRONMENT` | No | 2 | multiple defaults (dev, prod) |
-| `NYRA_FORCE_SECRETS` | Yes | 2 | not specified |
-| `NYRA_HTTP_ALLOWLIST` | No | 1 | not specified |
-| `NYRA_KYUTAI_DECODE_IMAGE` | No | 1 | dev |
-| `NYRA_KYUTAI_STT_IMAGE` | No | 1 | dev |
-| `NYRA_KYUTAI_TTS_IMAGE` | No | 1 | dev |
-| `NYRA_KYUTAI_VAD_IMAGE` | No | 1 | dev |
-| `NYRA_MACHINE` | No | 2 | not specified |
-| `NYRA_MCP_PORT` | No | 1 | not specified |
-| `NYRA_NETWORK` | No | 3 | not specified |
-| `NYRA_NETWORK_NAME` | No | 2 | not specified |
-| `NYRA_NODE_ID` | No | 2 | multiple defaults (not specified) |
-| `NYRA_NODE_TYPE` | No | 2 | not specified |
-| `NYRA_VOICE_COORDINATOR_IMAGE` | No | 1 | dev |
-| `NYRA_VOICE_EDGE_IMAGE` | No | 1 | dev |
-| `NYRA_VOICE_EGRESS_IMAGE` | No | 1 | dev |
-| `NYRA_VOICE_LLM_BRIDGE_IMAGE` | No | 1 | dev |
-| `NYRA_WEBHOOK_SECRET` | Yes | 1 | not specified |
-| `OCR_CONFIDENCE_THRESHOLD` | No | 1 | not specified |
-| `OCR_ENABLED` | No | 1 | not specified |
-| `OCR_LANGUAGE` | No | 1 | not specified |
-| `OLLAMA_ENABLED` | No | 1 | not specified |
-| `OLLAMA_HOST` | No | 4 | not specified |
-| `OLLAMA_KEEP_ALIVE` | No | 1 | not specified |
-| `OLLAMA_MAX_LOADED_MODELS` | No | 1 | not specified |
-| `OLLAMA_MAX_VRAM` | No | 1 | not specified |
-| `OLLAMA_MODELS` | No | 1 | not specified |
-| `OLLAMA_NUM_PARALLEL` | No | 1 | not specified |
-| `OLLAMA_PORT` | No | 3 | not specified |
-| `OPENAI_API_KEY` | Yes | 10 | multiple defaults (not specified) |
-| `OPENAI_BASE_URL` | No | 3 | multiple defaults (not specified) |
-| `OPENAI_MAX_TOKENS` | Yes | 1 | not specified |
-| `OPENAI_MODEL` | No | 1 | not specified |
-| `OPENAI_ORG_ID` | No | 1 | not specified |
-| `OPENCLAW_CHAT_PATH` | No | 3 | not specified |
-| `OPENCLAW_COMPOSE_VALIDATE` | No | 1 | not specified |
-| `OPENCLAW_CONFIG_PATH` | No | 1 | not specified |
-| `OPENCLAW_DATA_DIR` | No | 1 | not specified |
-| `OPENCLAW_DEFAULT_MODEL` | No | 3 | multiple defaults (dev) |
-| `OPENCLAW_DOCKER_APT_PACKAGES` | No | 2 | multiple defaults (not specified) |
-| `OPENCLAW_FORCE_BUILD` | No | 1 | not specified |
-| `OPENCLAW_GATEWAY_PORT` | No | 1 | not specified |
-| `OPENCLAW_GATEWAY_TOKEN` | Yes | 6 | not specified |
-| `OPENCLAW_HEALTH_TIMEOUT_S` | No | 1 | not specified |
-| `OPENCLAW_HOME_VOLUME` | No | 1 | not specified |
-| `OPENCLAW_HTTP_ALLOWLIST` | No | 1 | not specified |
-| `OPENCLAW_INSTALL_BROWSER` | No | 2 | multiple defaults (not specified) |
-| `OPENCLAW_MVP_IMAGE` | No | 2 | dev |
-| `OPENCLAW_MVP_PORT` | No | 1 | not specified |
-| `OPENCLAW_OPENAI_BASE_URL` | No | 1 | not specified |
-| `OPENCLAW_OUTBOUND_HTTP_ALLOWLIST` | No | 1 | not specified |
-| `OPENCLAW_PORT` | No | 1 | not specified |
-| `OPENCLAW_PORTS` | No | 1 | not specified |
-| `OPENCLAW_PROVIDER` | No | 1 | not specified |
-| `OPENCLAW_PUBLIC_BASE_URL` | No | 5 | multiple defaults (dev) |
-| `OPENCLAW_SANDBOX_ENABLED` | No | 2 | not specified |
-| `OPENCLAW_SECRET_REF_MODE` | Yes | 1 | not specified |
-| `OPENCLAW_SESSION_PATH` | No | 1 | not specified |
-| `OPENCLAW_TOOLS_ALLOW` | No | 1 | not specified |
-| `OPENCLAW_TOOLS_DENY` | No | 1 | not specified |
-| `OPENCLAW_TOOL_POLICY` | No | 2 | not specified |
-| `OPENCLAW_UI_PREFIX` | No | 1 | not specified |
-| `OPENCLAW_UI_PROXY_PORT` | No | 1 | not specified |
-| `OPENCLAW_WEBHOOK_INGRESS_PATH` | Yes | 1 | not specified |
-| `OPENCLAW_WORKSPACE_VOLUME` | No | 1 | not specified |
-| `OPENLIT_ALLOWED_CORS_ORIGINS` | No | 1 | not specified |
-| `OPENLIT_CLICKHOUSE_HTTP_PORT` | No | 1 | not specified |
-| `OPENLIT_CLICKHOUSE_NATIVE_PORT` | No | 1 | not specified |
-| `OPENLIT_DB_NAME` | No | 1 | not specified |
-| `OPENLIT_DB_PASSWORD` | Yes | 1 | not specified |
-| `OPENLIT_DB_USER` | No | 1 | not specified |
-| `OPENLIT_GITHUB_CLIENT_ID` | No | 1 | not specified |
-| `OPENLIT_GITHUB_CLIENT_SECRET` | Yes | 1 | not specified |
-| `OPENLIT_GOOGLE_CLIENT_ID` | No | 1 | not specified |
-| `OPENLIT_GOOGLE_CLIENT_SECRET` | Yes | 1 | not specified |
-| `OPENLIT_HOST_PORT` | No | 1 | not specified |
-| `OPENLIT_NEXTAUTH_SECRET` | Yes | 1 | not specified |
-| `OPENLIT_NEXTAUTH_URL` | Yes | 1 | not specified |
-| `OPENLIT_OTLP_GRPC_PORT` | No | 1 | not specified |
-| `OPENLIT_OTLP_HTTP_PORT` | No | 1 | not specified |
-| `OPENLIT_TELEMETRY_ENABLED` | No | 1 | not specified |
-| `OPENLIT_VAULT_ENCRYPTION_KEY` | Yes | 1 | not specified |
-| `OPENROUTER_API_KEY` | Yes | 7 | multiple defaults (not specified) |
-| `OPENROUTER_BASE_URL` | No | 2 | not specified |
-| `OPENROUTER_FALLBACK_MODEL` | No | 1 | not specified |
-| `OPENWEBUI_PORT` | No | 1 | not specified |
-| `OPENWEBUI_SECRET_KEY` | Yes | 1 | not specified |
-| `ORACLE_TAILSCALE_IP` | No | 1 | not specified |
-| `ORACLE_TUNNEL_TOKEN` | Yes | 1 | not specified |
-| `ORCHESTRATOR_TAILSCALE_IP` | No | 3 | not specified |
-| `ORCHESTRATOR_URL` | No | 2 | multiple defaults (dev) |
-| `PAGERDUTY_INTEGRATION_KEY` | Yes | 1 | not specified |
-| `PAPERCLIP_AUTH_DISABLE_SIGN_UP` | Yes | 1 | not specified |
-| `PAPERCLIP_DB_NAME` | No | 1 | not specified |
-| `PAPERCLIP_DB_PASSWORD` | Yes | 1 | not specified |
-| `PAPERCLIP_DB_USER` | No | 1 | not specified |
-| `PAPERCLIP_HOST_PORT` | No | 1 | not specified |
-| `PAPERCLIP_IMAGE` | No | 1 | not specified |
-| `PAPERCLIP_PUBLIC_URL` | No | 1 | not specified |
-| `PAPERCLIP_SESSION_SECRET` | Yes | 1 | not specified |
-| `PASSWORD_RESET_EXPIRY` | Yes | 1 | not specified |
-| `PERF_MONITOR_PORT` | No | 1 | not specified |
-| `PG_DATABASE_URL` | No | 1 | not specified |
-| `PKI_ENABLED` | No | 1 | not specified |
-| `PORT` | No | 18 | multiple defaults (dev) |
-| `PORTAINER_ADMIN_PASSWORD` | Yes | 1 | not specified |
-| `PORTAINER_ADMIN_USERNAME` | No | 1 | not specified |
-| `PORTAINER_AGENT_PORT` | No | 1 | not specified |
-| `PORTAINER_AGENT_TAGS` | No | 1 | not specified |
-| `PORTAINER_EDGE_ID` | No | 4 | multiple defaults (not specified) |
-| `PORTAINER_EDGE_INSECURE_POLL` | No | 2 | not specified |
-| `PORTAINER_EDGE_KEY` | Yes | 5 | not specified |
-| `PORTAINER_HTTP_PORT` | No | 1 | not specified |
-| `PORTAINER_ORCHESTRATOR_URL` | No | 1 | not specified |
-| `PORTAINER_PORT` | No | 1 | not specified |
-| `PORTAINER_PUBLIC_URL` | No | 1 | not specified |
-| `POSTGRES_CPU_LIMIT` | No | 1 | not specified |
-| `POSTGRES_DB` | No | 7 | multiple defaults (not specified) |
-| `POSTGRES_HOST` | No | 2 | multiple defaults (dev) |
-| `POSTGRES_MEMORY_LIMIT` | No | 2 | multiple defaults (not specified) |
-| `POSTGRES_PASSWORD` | Yes | 8 | multiple defaults (not specified) |
-| `POSTGRES_PORT` | No | 4 | not specified |
-| `POSTGRES_URL` | No | 4 | multiple defaults (dev) |
-| `POSTGRES_USER` | No | 7 | multiple defaults (not specified) |
-| `PRIMARY_MODELS` | No | 1 | not specified |
-| `PROFILING_ENABLED` | No | 2 | not specified |
-| `PROMETHEUS_HOST` | No | 1 | not specified |
-| `PROMETHEUS_PORT` | No | 3 | not specified |
-| `PROMETHEUS_PUSH_GATEWAY` | No | 1 | not specified |
-| `QDRANT_API_KEY` | Yes | 1 | not specified |
-| `QDRANT_MAX_SEARCH_THREADS` | No | 1 | not specified |
-| `QUERY_TIMEOUT` | No | 1 | not specified |
-| `QUOTE_API_PORT` | No | 2 | not specified |
-| `QUOTE_API_SECRET` | Yes | 3 | multiple defaults (not specified) |
-| `QUOTE_API_URL` | No | 1 | not specified |
-| `QUOTE_ENGINE_HOST` | No | 2 | not specified |
-| `QUOTE_ENGINE_PORT` | No | 2 | not specified |
-| `QUOTE_ENGINE_URL` | No | 2 | multiple defaults (dev) |
-| `RATE_CACHE_KEY_PREFIX` | Yes | 1 | not specified |
-| `RATE_LIMIT_DURATION` | No | 1 | not specified |
-| `RATE_LIMIT_MAX_REQUESTS` | No | 5 | not specified |
-| `RATE_LIMIT_POINTS` | No | 1 | not specified |
-| `RATE_LIMIT_REQUESTS` | No | 1 | not specified |
-| `RATE_LIMIT_WINDOW` | No | 1 | not specified |
-| `RATE_LIMIT_WINDOW_MS` | No | 5 | multiple defaults (not specified) |
-| `REDIS_CPU_LIMIT` | No | 1 | not specified |
-| `REDIS_DB` | No | 5 | not specified |
-| `REDIS_ENABLED` | No | 1 | not specified |
-| `REDIS_HOST` | No | 7 | multiple defaults (dev) |
-| `REDIS_MEMORY_LIMIT` | No | 2 | multiple defaults (not specified) |
-| `REDIS_PASSWORD` | Yes | 9 | multiple defaults (not specified) |
-| `REDIS_PORT` | No | 7 | not specified |
-| `REDIS_URL` | No | 5 | multiple defaults (dev) |
-| `RETRY_DELAY_MS` | No | 2 | not specified |
-| `REVIEW_LABEL` | No | 2 | not specified |
-| `REVIEW_MAX_CHARS` | No | 2 | not specified |
-| `REVIEW_MODEL` | No | 2 | not specified |
-| `REVIEW_POST_AS_REVIEW` | No | 2 | not specified |
-| `RTX3060_LAN_IP` | No | 1 | not specified |
-| `RTX3090TI_LAN_IP` | No | 1 | not specified |
-| `RTX5090_LAN_IP` | No | 1 | not specified |
-| `RUVECTOR_HOST` | No | 1 | not specified |
-| `RUVECTOR_PGADMIN_PORT` | No | 1 | not specified |
-| `RUVECTOR_PORT` | No | 1 | not specified |
-| `RUVECTOR_POSTGRES_DB` | No | 1 | not specified |
-| `RUVECTOR_POSTGRES_PASSWORD` | Yes | 2 | multiple defaults (not specified) |
-| `RUVECTOR_POSTGRES_PORT` | No | 1 | not specified |
-| `RUVECTOR_POSTGRES_USER` | No | 1 | not specified |
-| `S3_BUCKET` | No | 1 | not specified |
-| `S3_ENDPOINT` | No | 1 | not specified |
-| `SCORING_ENABLED` | No | 1 | not specified |
-| `SCORING_MAX_SCORE` | No | 1 | not specified |
-| `SCORING_MIN_SCORE` | No | 1 | not specified |
-| `SCRAPER_INTERVAL_MINUTES` | No | 1 | not specified |
-| `SCRAPER_TIMEOUT_MS` | No | 1 | not specified |
-| `SEARXNG_BASE_URL` | No | 1 | not specified |
-| `SEARXNG_HOST_PORT` | No | 1 | not specified |
-| `SEARXNG_SECRET` | Yes | 1 | not specified |
-| `SEARXNG_UWSGI_THREADS` | No | 1 | not specified |
-| `SEARXNG_UWSGI_WORKERS` | No | 1 | not specified |
-| `SECRET_SCANNING_ENABLED` | Yes | 1 | not specified |
-| `SECURITY_SERVICE_PORT` | No | 1 | not specified |
-| `SENDGRID_API_KEY` | Yes | 1 | not specified |
-| `SERVER_URL` | No | 1 | not specified |
-| `SERVICES` | No | 1 | not specified |
-| `SESSION_TIMEOUT` | No | 1 | not specified |
-| `SHADCN_REGISTRY_URL` | No | 1 | not specified |
-| `SHARED_SCHEMA_VERSION` | No | 1 | not specified |
-| `SIGN_IN_PREFILLED` | No | 1 | not specified |
-| `SLACK_WEBHOOK_URL` | Yes | 1 | not specified |
-| `SMTP_FROM` | No | 1 | not specified |
-| `SMTP_FROM_NAME` | No | 1 | not specified |
-| `SMTP_HOST` | No | 4 | not specified |
-| `SMTP_PASSWORD` | Yes | 4 | multiple defaults (not specified) |
-| `SMTP_PORT` | No | 4 | not specified |
-| `SMTP_SECURE` | No | 2 | not specified |
-| `SMTP_USER` | No | 3 | multiple defaults (not specified) |
-| `SMTP_USERNAME` | No | 1 | not specified |
-| `SPECIALIZATION` | No | 1 | not specified |
-| `SSH_CA_ENABLED` | No | 1 | not specified |
-| `SSL_ENABLED` | No | 1 | not specified |
-| `STOP_ENFORCEMENT_ENABLED` | No | 1 | not specified |
-| `STORAGE_TYPE` | No | 1 | dev |
-| `STT_PRECISION` | No | 1 | not specified |
-| `SUPABASE_ANON_KEY` | Yes | 1 | not specified |
-| `SUPABASE_JWT_SECRET` | Yes | 1 | not specified |
-| `SUPABASE_SERVICE_KEY` | Yes | 1 | not specified |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | 1 | not specified |
-| `SUPABASE_URL` | No | 1 | not specified |
-| `SYNC_BATCH_SIZE` | No | 2 | not specified |
-| `SYNC_INTERVAL_MINUTES` | No | 2 | not specified |
-| `TAILSCALE_AUTHKEY` | Yes | 4 | not specified |
-| `TAILSCALE_ENABLED` | No | 2 | multiple defaults (not specified) |
-| `TAILSCALE_HOSTNAME` | No | 1 | not specified |
-| `TAILSCALE_IP` | No | 4 | multiple defaults (not specified) |
-| `TAILSCALE_KEY` | Yes | 1 | not specified |
-| `TAILSCALE_TAILNET` | No | 1 | not specified |
-| `TELEGRAM_BOT_TOKEN` | Yes | 2 | not specified |
-| `TELEMETRY_ENABLED` | No | 1 | not specified |
-| `TENANT_ENGINEERING_KEY` | Yes | 1 | not specified |
-| `TENANT_PRODUCTION_KEY` | Yes | 1 | prod |
-| `TENANT_RESEARCH_KEY` | Yes | 1 | not specified |
-| `TEST_DATABASE_URL` | No | 1 | not specified |
-| `THUMBNAIL_QUALITY` | No | 1 | not specified |
-| `THUMBNAIL_SIZE` | No | 1 | not specified |
-| `TTS_PRECISION` | No | 1 | not specified |
-| `TWEAKCN_PRESET` | No | 1 | not specified |
-| `TWENTYCRM_API_KEY` | Yes | 4 | multiple defaults (not specified) |
-| `TWENTYCRM_API_URL` | No | 2 | not specified |
-| `TWENTYCRM_MCP_PORT` | No | 2 | not specified |
-| `TWENTYCRM_PORT` | No | 1 | not specified |
-| `TWENTYCRM_WEBHOOK_SECRET` | Yes | 2 | not specified |
-| `TWENTY_ACCESS_TOKEN_SECRET` | Yes | 1 | not specified |
-| `TWENTY_API_KEY` | Yes | 2 | not specified |
-| `TWENTY_API_URL` | No | 1 | dev |
-| `TWENTY_APP_SECRET` | Yes | 2 | multiple defaults (not specified) |
-| `TWENTY_CRM_API_KEY` | Yes | 3 | multiple defaults (not specified) |
-| `TWENTY_CRM_API_URL` | No | 1 | not specified |
-| `TWENTY_CRM_SYNC_ENABLED` | No | 1 | not specified |
-| `TWENTY_CRM_SYNC_INTERVAL` | No | 1 | not specified |
-| `TWENTY_CRM_URL` | No | 1 | not specified |
-| `TWENTY_CRM_WORKSPACE_ID` | No | 2 | multiple defaults (not specified) |
-| `TWENTY_DATABASE_URL` | No | 1 | not specified |
-| `TWENTY_DB_PASSWORD` | Yes | 1 | not specified |
-| `TWENTY_ENCRYPTION_SECRET` | Yes | 3 | multiple defaults (not specified) |
-| `TWENTY_FILE_TOKEN_SECRET` | Yes | 1 | not specified |
-| `TWENTY_FRONTEND_URL` | No | 2 | multiple defaults (not specified) |
-| `TWENTY_FRONT_BASE_URL` | No | 1 | dev |
-| `TWENTY_HOST` | No | 1 | not specified |
-| `TWENTY_JWT_SECRET` | Yes | 3 | multiple defaults (not specified) |
-| `TWENTY_LOGIN_TOKEN_SECRET` | Yes | 1 | not specified |
-| `TWENTY_PASSWORD_SALT` | Yes | 3 | multiple defaults (not specified) |
-| `TWENTY_PG_DATABASE_URL` | No | 2 | not specified |
-| `TWENTY_PORT` | No | 1 | not specified |
-| `TWENTY_POSTGRES_DB` | No | 1 | not specified |
-| `TWENTY_POSTGRES_PASSWORD` | Yes | 1 | not specified |
-| `TWENTY_POSTGRES_USER` | No | 1 | not specified |
-| `TWENTY_REDIS_PASSWORD` | Yes | 1 | not specified |
-| `TWENTY_REDIS_URL` | No | 2 | not specified |
-| `TWENTY_REFRESH_TOKEN_SECRET` | Yes | 1 | not specified |
-| `TWENTY_SERVER_URL` | No | 3 | multiple defaults (dev) |
-| `TWENTY_WEBHOOK_SECRET` | Yes | 1 | not specified |
-| `TWILIO_ACCOUNT_SID` | No | 2 | not specified |
-| `TWILIO_AUTH_TOKEN` | Yes | 2 | not specified |
-| `TWILIO_FROM_NUMBER` | No | 1 | not specified |
-| `TWILIO_PHONE_NUMBER` | No | 1 | not specified |
-| `TZ` | No | 2 | not specified |
-| `UNMUTE_ASSISTANT_GATEWAY_URL` | No | 1 | not specified |
-| `UNMUTE_CACHE_VOLUME` | No | 1 | not specified |
-| `UNMUTE_HOST_PORT` | No | 3 | multiple defaults (not specified) |
-| `UNMUTE_IMAGE` | No | 3 | not specified |
-| `UNMUTE_LLM_BASE_URL` | No | 1 | not specified |
-| `UNMUTE_MODEL_PROVIDER` | No | 2 | not specified |
-| `UNMUTE_MODEL_VOLUME` | No | 1 | not specified |
-| `UNMUTE_OPENAI_API_KEY` | Yes | 2 | not specified |
-| `UNMUTE_PUBLIC_BASE_URL` | No | 2 | dev |
-| `UPLOAD_DIR` | No | 1 | not specified |
-| `VLLM_HOST` | No | 2 | not specified |
-| `VLLM_MODEL` | No | 4 | multiple defaults (not specified) |
-| `VLLM_PORT` | No | 4 | multiple defaults (not specified) |
-| `VOICE_PTP_INTERFACE` | No | 1 | not specified |
-| `VOICE_RTP_PORT_RANGE` | No | 1 | not specified |
-| `VRAM_GB` | No | 1 | not specified |
-| `WEBHOOK_RETRY_ATTEMPTS` | Yes | 1 | not specified |
-| `WEBHOOK_RETRY_DELAY` | Yes | 1 | not specified |
-| `WEBHOOK_TIMEOUT` | Yes | 1 | not specified |
-| `WEBHOOK_URL` | Yes | 3 | multiple defaults (dev) |
-| `WHATSAPP_PHONE_NUMBER` | No | 1 | not specified |
-| `WORKER_3060_API_KEY` | Yes | 1 | not specified |
-| `WORKER_3060_MODELS` | No | 2 | multiple defaults (not specified) |
-| `WORKER_3060_OLLAMA_PORT` | No | 1 | not specified |
-| `WORKER_3060_URL` | No | 2 | multiple defaults (not specified) |
-| `WORKER_3090TI_MODEL` | No | 1 | not specified |
-| `WORKER_3090TI_VLLM_PORT` | No | 1 | not specified |
-| `WORKER_3090_API_KEY` | Yes | 1 | not specified |
-| `WORKER_3090_MODELS` | No | 2 | not specified |
-| `WORKER_3090_URL` | No | 2 | multiple defaults (not specified) |
-| `WORKER_5090_API_KEY` | Yes | 1 | not specified |
-| `WORKER_5090_MODEL` | No | 1 | not specified |
-| `WORKER_5090_MODELS` | No | 2 | not specified |
-| `WORKER_5090_URL` | No | 2 | multiple defaults (not specified) |
-| `WORKER_5090_VLLM_PORT` | No | 1 | not specified |
-| `WORKER_ID` | No | 1 | not specified |
-| `WORKER_ROLE` | No | 1 | not specified |
+| Variable                                    | Sensitive? | Seen In | Env-specific values?              |
+| ------------------------------------------- | ---------- | ------: | --------------------------------- |
+| `ACTIVEPIECES_API_KEY`                      | Yes        |       3 | not specified                     |
+| `ACTIVEPIECES_API_URL`                      | No         |       1 | dev                               |
+| `ACTIVEPIECES_BASE_URL`                     | No         |       1 | dev                               |
+| `ACTIVEPIECES_ENCRYPTION_KEY`               | Yes        |       3 | multiple defaults (not specified) |
+| `ACTIVEPIECES_HOST`                         | No         |       1 | not specified                     |
+| `ACTIVEPIECES_JWT_SECRET`                   | Yes        |       3 | multiple defaults (not specified) |
+| `ACTIVEPIECES_PORT`                         | No         |       2 | multiple defaults (not specified) |
+| `ACTIVEPIECES_WEBHOOK_SECRET`               | Yes        |       1 | not specified                     |
+| `AGENT_VAULT_ADDR`                          | No         |       2 | multiple defaults (not specified) |
+| `AGENT_VAULT_ADMIN_EMAIL`                   | No         |       1 | not specified                     |
+| `AGENT_VAULT_ADMIN_PASSWORD`                | Yes        |       1 | not specified                     |
+| `AGENT_VAULT_IDENTITY_ID`                   | No         |       1 | not specified                     |
+| `AGENT_VAULT_MASTER_PASSWORD`               | Yes        |       2 | multiple defaults (not specified) |
+| `AGENT_VAULT_ORG_ID`                        | No         |       1 | not specified                     |
+| `AGENT_VAULT_TRUSTED_PROXIES`               | No         |       2 | not specified                     |
+| `AGENT_VAULT_UA_CLIENT_ID`                  | No         |       1 | not specified                     |
+| `AGENT_VAULT_UA_CLIENT_SECRET`              | Yes        |       1 | not specified                     |
+| `ALERTMANAGER_HOST`                         | No         |       1 | not specified                     |
+| `ALERTMANAGER_PORT`                         | No         |       2 | not specified                     |
+| `ALERT_CHECK_INTERVAL_MINUTES`              | No         |       1 | not specified                     |
+| `ALERT_EMAIL`                               | No         |       2 | not specified                     |
+| `ALERT_EMAIL_ENABLED`                       | No         |       1 | not specified                     |
+| `ALERT_EMAIL_TO`                            | No         |       1 | not specified                     |
+| `ALERT_THRESHOLD_GPU_TEMP`                  | No         |       1 | not specified                     |
+| `ALERT_THRESHOLD_INFERENCE_TIME`            | No         |       1 | not specified                     |
+| `ALERT_THRESHOLD_VRAM_USAGE`                | No         |       1 | not specified                     |
+| `ALERT_WEBHOOK_URL`                         | Yes        |       1 | not specified                     |
+| `ALLOWED_FILE_TYPES`                        | No         |       2 | multiple defaults (not specified) |
+| `ALLOWED_ORIGINS`                           | No         |       1 | dev                               |
+| `ANTHROPIC_API_KEY`                         | Yes        |       9 | multiple defaults (not specified) |
+| `ANTHROPIC_MAX_TOKENS`                      | Yes        |       1 | not specified                     |
+| `ANTHROPIC_MODEL`                           | No         |       1 | not specified                     |
+| `API_KEY`                                   | Yes        |       1 | not specified                     |
+| `API_KEY_EXPIRY`                            | Yes        |       1 | not specified                     |
+| `API_KEY_HEADER`                            | Yes        |       1 | not specified                     |
+| `API_RATE_LIMITING_REQUEST_COUNT`           | No         |       1 | not specified                     |
+| `API_RATE_LIMITING_TTL`                     | No         |       1 | not specified                     |
+| `API_RATE_LIMIT_MAX_REQUESTS`               | No         |       1 | not specified                     |
+| `API_RATE_LIMIT_WINDOW_MS`                  | No         |       1 | not specified                     |
+| `API_VERSION`                               | No         |       4 | not specified                     |
+| `APP_SECRET`                                | Yes        |       1 | not specified                     |
+| `AP_DB_TYPE`                                | No         |       1 | not specified                     |
+| `AP_ENCRYPTION_KEY`                         | Yes        |       2 | multiple defaults (not specified) |
+| `AP_EXECUTION_MODE`                         | No         |       1 | not specified                     |
+| `AP_FRONTEND_URL`                           | No         |       2 | multiple defaults (not specified) |
+| `AP_JWT_SECRET`                             | Yes        |       2 | multiple defaults (not specified) |
+| `AP_POSTGRES_DATABASE`                      | No         |       1 | not specified                     |
+| `AP_POSTGRES_HOST`                          | No         |       1 | not specified                     |
+| `AP_POSTGRES_PASSWORD`                      | Yes        |       2 | multiple defaults (not specified) |
+| `AP_POSTGRES_PORT`                          | No         |       1 | not specified                     |
+| `AP_POSTGRES_USERNAME`                      | No         |       2 | not specified                     |
+| `AP_REDIS_HOST`                             | No         |       1 | not specified                     |
+| `AP_REDIS_PASSWORD`                         | Yes        |       1 | not specified                     |
+| `AP_REDIS_PORT`                             | No         |       1 | not specified                     |
+| `AP_TELEMETRY_ENABLED`                      | No         |       1 | not specified                     |
+| `ARCHON_HOST`                               | No         |       1 | not specified                     |
+| `ARCHON_MODE`                               | No         |       2 | not specified                     |
+| `ARCHON_OS_PORT`                            | No         |       1 | not specified                     |
+| `ARCHON_PORT`                               | No         |       1 | not specified                     |
+| `ARCHON_SERVER_URL`                         | No         |       3 | not specified                     |
+| `ARCHON_STATUS_URL`                         | No         |       1 | not specified                     |
+| `ASSET_CDN_URL`                             | No         |       1 | not specified                     |
+| `ASSIGNMENT_ENABLED`                        | No         |       1 | not specified                     |
+| `ASSIGNMENT_STRATEGY`                       | No         |       1 | not specified                     |
+| `ASSISTANT_GATEWAY_URL`                     | No         |       1 | not specified                     |
+| `AWS_ACCESS_KEY_ID`                         | Yes        |       1 | not specified                     |
+| `AWS_REGION`                                | No         |       1 | not specified                     |
+| `AWS_SECRET_ACCESS_KEY`                     | Yes        |       1 | not specified                     |
+| `BACKUP_DIR`                                | No         |       1 | not specified                     |
+| `BACKUP_ENABLED`                            | No         |       1 | not specified                     |
+| `BACKUP_RETENTION_DAYS`                     | No         |       1 | not specified                     |
+| `BACKUP_SCHEDULE`                           | No         |       1 | not specified                     |
+| `BATCH_SIZE`                                | No         |       1 | not specified                     |
+| `BCRYPT_ROUNDS`                             | No         |       1 | not specified                     |
+| `BOOT_OPENCLAW`                             | No         |       1 | not specified                     |
+| `BOOT_OPENCLAW_UI_PROXY`                    | No         |       1 | not specified                     |
+| `BOOT_OPENCLAW_VOICE`                       | No         |       1 | not specified                     |
+| `BROWSERLESS_CONCURRENT`                    | No         |       1 | not specified                     |
+| `BROWSERLESS_HOST_PORT`                     | No         |       1 | not specified                     |
+| `BROWSERLESS_KEEP_ALIVE`                    | No         |       1 | not specified                     |
+| `BROWSERLESS_PREBOOT_CHROME`                | No         |       1 | not specified                     |
+| `BROWSERLESS_QUEUED`                        | No         |       1 | not specified                     |
+| `BROWSERLESS_TIMEOUT_MS`                    | No         |       1 | not specified                     |
+| `BROWSERLESS_TOKEN`                         | Yes        |       2 | not specified                     |
+| `CACHE_MAX_SIZE`                            | No         |       1 | not specified                     |
+| `CACHE_TTL`                                 | No         |       1 | not specified                     |
+| `CACHE_TTL_CALCULATOR`                      | No         |       1 | not specified                     |
+| `CACHE_TTL_RATES`                           | No         |       1 | not specified                     |
+| `CACHE_TTL_SECONDS`                         | No         |       1 | not specified                     |
+| `CADVISOR_PORT`                             | No         |       1 | not specified                     |
+| `CAMPAIGN_ENGINE_HOST`                      | No         |       1 | not specified                     |
+| `CAMPAIGN_ENGINE_PORT`                      | No         |       1 | not specified                     |
+| `CAMPAIGN_ENGINE_URL`                       | No         |       2 | multiple defaults (dev)           |
+| `CAMPAIGN_MAX_RETRIES`                      | No         |       1 | not specified                     |
+| `CAMPAIGN_RETRY_DELAY_MINUTES`              | No         |       1 | not specified                     |
+| `CAMPAIGN_TIMEZONE`                         | No         |       1 | not specified                     |
+| `CF_TUNNEL_TOKEN`                           | Yes        |       1 | not specified                     |
+| `CHECK_INTERVAL`                            | No         |       1 | not specified                     |
+| `CLAUDE_FLOW_CONFIG_PATH`                   | No         |       1 | not specified                     |
+| `CLAUDE_FLOW_HOST`                          | No         |       1 | not specified                     |
+| `CLAUDE_FLOW_MODE`                          | No         |       1 | not specified                     |
+| `CLAUDE_FLOW_PORT`                          | No         |       1 | not specified                     |
+| `CLAWDBOT_GATEWAY_PORT`                     | No         |       2 | not specified                     |
+| `CLAWDBOT_GATEWAY_TOKEN`                    | Yes        |       2 | multiple defaults (not specified) |
+| `CLEARBIT_API_KEY`                          | Yes        |       1 | not specified                     |
+| `CLERK_SECRET_KEY`                          | Yes        |       1 | not specified                     |
+| `CLOUDFLARED_HOSTNAME`                      | No         |       1 | not specified                     |
+| `CLOUDFLARED_LITELLM_HOSTNAME`              | No         |       1 | not specified                     |
+| `CLOUDFLARED_TOKEN`                         | Yes        |       1 | not specified                     |
+| `CLOUDFLARED_TUNNEL_NAME`                   | No         |       1 | not specified                     |
+| `CLOUDFLARED_TUNNEL_TOKEN`                  | Yes        |       2 | not specified                     |
+| `CLOUDFLARE_API_TOKEN`                      | Yes        |       1 | not specified                     |
+| `CLOUDFLARE_TUNNEL_TOKEN`                   | Yes        |       2 | not specified                     |
+| `CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR`      | Yes        |       2 | multiple defaults (not specified) |
+| `CLOUDFLARE_ZONE_ID`                        | No         |       1 | not specified                     |
+| `COMPOSE_PROFILES`                          | No         |       3 | multiple defaults (not specified) |
+| `COMPOSE_PROJECT_NAME`                      | No         |       3 | multiple defaults (not specified) |
+| `COMPOSIO_API_KEY`                          | Yes        |       2 | multiple defaults (not specified) |
+| `COMPOSIO_DEFAULT_USER_ID`                  | No         |       2 | not specified                     |
+| `COMPOSIO_EXECUTION_POLICY`                 | No         |       1 | not specified                     |
+| `COMPOSIO_MCP_SERVER_ID`                    | No         |       2 | multiple defaults (not specified) |
+| `COMPOSIO_MCP_SERVER_NAME`                  | No         |       1 | not specified                     |
+| `COMPOSIO_MCP_TRANSPORT`                    | No         |       1 | not specified                     |
+| `COMPOSIO_MCP_URL`                          | No         |       2 | dev                               |
+| `COMPOSIO_TOOLKITS_ALLOW`                   | No         |       1 | not specified                     |
+| `CONFIG_DIR`                                | No         |       1 | not specified                     |
+| `CONFLICT_STRATEGY`                         | No         |       2 | not specified                     |
+| `CONNECTION_TIMEOUT`                        | No         |       1 | not specified                     |
+| `CONSENT_REQUIRED`                          | No         |       1 | not specified                     |
+| `CORS_ALLOWED_ORIGINS`                      | No         |       4 | multiple defaults (dev)           |
+| `CORS_ORIGIN`                               | No         |       2 | multiple defaults (dev)           |
+| `CRM_API_KEY`                               | Yes        |       3 | multiple defaults (not specified) |
+| `CRM_API_URL`                               | No         |       2 | multiple defaults (dev)           |
+| `CUDA_VISIBLE_DEVICES`                      | No         |       2 | not specified                     |
+| `DATABASE_URL`                              | No         |       5 | multiple defaults (dev)           |
+| `DATA_DIR`                                  | No         |       1 | not specified                     |
+| `DB_HOST`                                   | No         |       3 | dev                               |
+| `DB_NAME`                                   | No         |       3 | multiple defaults (not specified) |
+| `DB_PASSWORD`                               | Yes        |       3 | multiple defaults (not specified) |
+| `DB_POOL_MAX`                               | No         |       1 | not specified                     |
+| `DB_POOL_MIN`                               | No         |       1 | not specified                     |
+| `DB_PORT`                                   | No         |       3 | not specified                     |
+| `DB_USER`                                   | No         |       3 | not specified                     |
+| `DEBUG_MODE`                                | No         |       3 | not specified                     |
+| `DEFAULT_THEME`                             | No         |       1 | not specified                     |
+| `DISCORD_BOT_TOKEN`                         | Yes        |       2 | not specified                     |
+| `DNC_CHECK_ENABLED`                         | No         |       1 | not specified                     |
+| `DOCKER_CPU_LIMIT`                          | No         |       1 | not specified                     |
+| `DOCKER_MEMORY_LIMIT`                       | No         |       1 | not specified                     |
+| `DOCKER_REGISTRY`                           | No         |       1 | not specified                     |
+| `DOCKER_REGISTRY_PASS`                      | Yes        |       1 | not specified                     |
+| `DOCKER_REGISTRY_USER`                      | No         |       1 | not specified                     |
+| `DOCUSIGN_ACCOUNT_ID`                       | No         |       1 | not specified                     |
+| `DOCUSIGN_BASE_PATH`                        | No         |       1 | not specified                     |
+| `DOCUSIGN_INTEGRATION_KEY`                  | Yes        |       1 | not specified                     |
+| `DOCUSIGN_PRIVATE_KEY_PATH`                 | Yes        |       1 | not specified                     |
+| `DOCUSIGN_USER_ID`                          | No         |       1 | not specified                     |
+| `DOMAIN_NAME`                               | No         |       1 | not specified                     |
+| `ELASTICSEARCH_INDEX`                       | No         |       1 | not specified                     |
+| `ELASTICSEARCH_NODE`                        | No         |       1 | dev                               |
+| `EMAIL_DRIVER`                              | No         |       1 | not specified                     |
+| `EMAIL_FROM`                                | No         |       3 | multiple defaults (not specified) |
+| `EMAIL_FROM_ADDRESS`                        | No         |       1 | not specified                     |
+| `EMAIL_HOST`                                | No         |       1 | not specified                     |
+| `EMAIL_PASSWORD`                            | Yes        |       1 | not specified                     |
+| `EMAIL_PORT`                                | No         |       1 | not specified                     |
+| `EMAIL_SECURE`                              | No         |       1 | not specified                     |
+| `EMAIL_SYSTEM_ADDRESS`                      | No         |       1 | not specified                     |
+| `EMAIL_USER`                                | No         |       1 | not specified                     |
+| `ENABLE_AUDIT_LOGGING`                      | No         |       1 | not specified                     |
+| `ENABLE_CACHING`                            | No         |       1 | not specified                     |
+| `ENABLE_COMPLIANCE_CHECKS`                  | No         |       1 | not specified                     |
+| `ENABLE_COST_TRACKING`                      | No         |       1 | not specified                     |
+| `ENABLE_CRM`                                | No         |       2 | multiple defaults (not specified) |
+| `ENABLE_GPU_WORKERS`                        | No         |       2 | not specified                     |
+| `ENABLE_GUARDRAILS`                         | No         |       1 | not specified                     |
+| `ENABLE_MONITORING`                         | No         |       3 | not specified                     |
+| `ENABLE_RATE_LIMITING`                      | No         |       1 | not specified                     |
+| `ENABLE_WORKFLOWS`                          | No         |       2 | not specified                     |
+| `ENABLE_YAML_CONFIG_EDITING`                | No         |       1 | not specified                     |
+| `ENCRYPTION_KEY`                            | Yes        |       1 | not specified                     |
+| `ENRICHMENT_ENABLED`                        | No         |       1 | not specified                     |
+| `ENRICHMENT_PROVIDER`                       | No         |       1 | not specified                     |
+| `FALKORDB_CACHE_SIZE_MB`                    | No         |       1 | not specified                     |
+| `FALKORDB_HOST`                             | No         |       2 | multiple defaults (not specified) |
+| `FALKORDB_PASSWORD`                         | Yes        |       1 | not specified                     |
+| `FALKORDB_PORT`                             | No         |       2 | multiple defaults (not specified) |
+| `FALKORDB_QUERY_MEM_CAPACITY`               | No         |       1 | not specified                     |
+| `FALKORDB_THREADS`                          | No         |       1 | not specified                     |
+| `FALKORDB_TIMEOUT_DEFAULT_MS`               | No         |       1 | not specified                     |
+| `FALKORDB_TIMEOUT_MAX_MS`                   | No         |       1 | not specified                     |
+| `FALKORDB_URL`                              | No         |       1 | dev                               |
+| `FRONTEND_URL`                              | No         |       1 | dev                               |
+| `GEMINI_API_KEY`                            | Yes        |       2 | multiple defaults (not specified) |
+| `GEMINI_BASE_URL`                           | No         |       1 | not specified                     |
+| `GEMINI_MAX_TOKENS`                         | Yes        |       1 | not specified                     |
+| `GEMINI_MODEL`                              | No         |       1 | not specified                     |
+| `GITEA_ACTIONS_ENABLED`                     | No         |       1 | not specified                     |
+| `GITEA_ADMIN_EMAIL`                         | No         |       1 | not specified                     |
+| `GITEA_ADMIN_PASSWORD`                      | Yes        |       1 | not specified                     |
+| `GITEA_ADMIN_USER`                          | No         |       1 | not specified                     |
+| `GITEA_DB_HOST`                             | No         |       1 | not specified                     |
+| `GITEA_DB_NAME`                             | No         |       2 | not specified                     |
+| `GITEA_DB_PASSWORD`                         | Yes        |       2 | not specified                     |
+| `GITEA_DB_PORT`                             | No         |       1 | not specified                     |
+| `GITEA_DB_TYPE`                             | No         |       1 | not specified                     |
+| `GITEA_DB_USER`                             | No         |       2 | not specified                     |
+| `GITEA_DOMAIN`                              | No         |       2 | multiple defaults (dev)           |
+| `GITEA_HOST`                                | No         |       1 | not specified                     |
+| `GITEA_HTTP_PORT`                           | No         |       1 | not specified                     |
+| `GITEA_INTERNAL_TOKEN`                      | Yes        |       1 | not specified                     |
+| `GITEA_JWT_SECRET`                          | Yes        |       2 | not specified                     |
+| `GITEA_PORT`                                | No         |       3 | not specified                     |
+| `GITEA_REPO`                                | No         |       1 | not specified                     |
+| `GITEA_ROOT_URL`                            | No         |       4 | multiple defaults (dev)           |
+| `GITEA_RUNNER_NAME`                         | No         |       1 | not specified                     |
+| `GITEA_RUNNER_REGISTRATION_TOKEN`           | Yes        |       1 | not specified                     |
+| `GITEA_RUNNER_TOKEN`                        | Yes        |       1 | not specified                     |
+| `GITEA_SECRET_KEY`                          | Yes        |       3 | not specified                     |
+| `GITEA_SSH_DOMAIN`                          | No         |       3 | multiple defaults (dev)           |
+| `GITEA_SSH_PORT`                            | No         |       4 | not specified                     |
+| `GITEA_TOKEN`                               | Yes        |       1 | not specified                     |
+| `GITHUB_MIRROR_INTERVAL_SECONDS`            | No         |       1 | not specified                     |
+| `GITHUB_REPO`                               | No         |       1 | not specified                     |
+| `GITHUB_TOKEN`                              | Yes        |       1 | not specified                     |
+| `GOOGLE_API_KEY`                            | Yes        |       4 | multiple defaults (not specified) |
+| `GOOGLE_CALLBACK_URL`                       | No         |       1 | dev                               |
+| `GOOGLE_CLIENT_ID`                          | No         |       1 | not specified                     |
+| `GOOGLE_CLIENT_SECRET`                      | Yes        |       1 | not specified                     |
+| `GOOGLE_WORKSPACE_CLIENT_ID`                | No         |       1 | not specified                     |
+| `GOOGLE_WORKSPACE_CLIENT_SECRET`            | Yes        |       1 | not specified                     |
+| `GPU_MODEL`                                 | No         |       3 | multiple defaults (not specified) |
+| `GPU_TYPE`                                  | No         |       1 | not specified                     |
+| `GPU_VRAM`                                  | No         |       3 | multiple defaults (not specified) |
+| `GPU_WORKER_ID`                             | No         |       1 | not specified                     |
+| `GRAFANA_ADMIN_PASSWORD`                    | Yes        |       5 | multiple defaults (not specified) |
+| `GRAFANA_ADMIN_USER`                        | No         |       2 | not specified                     |
+| `GRAFANA_CPU_LIMIT`                         | No         |       1 | not specified                     |
+| `GRAFANA_HOST`                              | No         |       1 | not specified                     |
+| `GRAFANA_MEMORY_LIMIT`                      | No         |       2 | multiple defaults (not specified) |
+| `GRAFANA_PASSWORD`                          | Yes        |       1 | not specified                     |
+| `GRAFANA_PORT`                              | No         |       3 | multiple defaults (not specified) |
+| `GRAFANA_ROOT_URL`                          | No         |       1 | not specified                     |
+| `GRAFANA_URL`                               | No         |       2 | multiple defaults (not specified) |
+| `GROQ_API_KEY`                              | Yes        |       2 | not specified                     |
+| `HAMCP_ENABLE_CUSTOM_COMPONENT_INTEGRATION` | No         |       1 | not specified                     |
+| `HAMCP_ENABLE_FILESYSTEM_TOOLS`             | No         |       1 | not specified                     |
+| `HASS_LONG_LIVED_TOKEN`                     | Yes        |       1 | not specified                     |
+| `HASS_URL`                                  | No         |       1 | not specified                     |
+| `HA_MCP_BACKUP_HINT`                        | No         |       1 | not specified                     |
+| `HA_MCP_IMAGE`                              | No         |       1 | not specified                     |
+| `HEALTH_CHECK_INTERVAL`                     | No         |       1 | not specified                     |
+| `HEALTH_CHECK_INTERVAL_MINUTES`             | No         |       2 | not specified                     |
+| `HEALTH_CHECK_PORT`                         | No         |       1 | not specified                     |
+| `HEALTH_CHECK_RETRIES`                      | No         |       1 | not specified                     |
+| `HEALTH_CHECK_TIMEOUT`                      | No         |       1 | not specified                     |
+| `HOMEASSISTANT_TOKEN`                       | Yes        |       1 | not specified                     |
+| `HOMEASSISTANT_URL`                         | No         |       1 | not specified                     |
+| `HOT_RELOAD_ENABLED`                        | No         |       2 | multiple defaults (not specified) |
+| `INFISICAL_API_URL`                         | No         |       2 | not specified                     |
+| `INFISICAL_AUDIT_RETENTION`                 | No         |       1 | not specified                     |
+| `INFISICAL_AUTH_SECRET`                     | Yes        |       3 | multiple defaults (not specified) |
+| `INFISICAL_CLIENT_ID`                       | No         |       2 | not specified                     |
+| `INFISICAL_CLIENT_SECRET`                   | Yes        |       2 | not specified                     |
+| `INFISICAL_DB_NAME`                         | No         |       1 | not specified                     |
+| `INFISICAL_DB_PASSWORD`                     | Yes        |       1 | not specified                     |
+| `INFISICAL_DB_USER`                         | No         |       1 | not specified                     |
+| `INFISICAL_ENCRYPTION_KEY`                  | Yes        |       3 | multiple defaults (not specified) |
+| `INFISICAL_ENV`                             | No         |       4 | multiple defaults (dev, prod)     |
+| `INFISICAL_ENVIRONMENT`                     | No         |       1 | dev                               |
+| `INFISICAL_GATEWAY_CLIENT_ID`               | No         |       1 | not specified                     |
+| `INFISICAL_GATEWAY_CLIENT_SECRET`           | Yes        |       1 | not specified                     |
+| `INFISICAL_LICENSE_KEY`                     | Yes        |       1 | not specified                     |
+| `INFISICAL_PATH`                            | No         |       3 | multiple defaults (not specified) |
+| `INFISICAL_PKI_KEY_ALGO`                    | Yes        |       1 | not specified                     |
+| `INFISICAL_POLL_INTERVAL`                   | No         |       2 | not specified                     |
+| `INFISICAL_PORT`                            | No         |       1 | not specified                     |
+| `INFISICAL_POSTGRES_DB`                     | No         |       1 | not specified                     |
+| `INFISICAL_POSTGRES_PASSWORD`               | Yes        |       1 | not specified                     |
+| `INFISICAL_POSTGRES_USER`                   | No         |       1 | not specified                     |
+| `INFISICAL_PROJECT_ID`                      | No         |       5 | multiple defaults (not specified) |
+| `INFISICAL_REDIS_PASSWORD`                  | Yes        |       1 | not specified                     |
+| `INFISICAL_SCAN_GIT_APP_ID`                 | No         |       1 | not specified                     |
+| `INFISICAL_SCAN_GIT_APP_SLUG`               | No         |       1 | not specified                     |
+| `INFISICAL_SCAN_GIT_PRIVATE_KEY`            | Yes        |       1 | not specified                     |
+| `INFISICAL_SCAN_GIT_WEBHOOK_SECRET`         | Yes        |       1 | not specified                     |
+| `INFISICAL_SITE_URL`                        | No         |       2 | multiple defaults (not specified) |
+| `INFISICAL_SSH_CA_TTL`                      | No         |       1 | not specified                     |
+| `INFI_CLIENT_ID`                            | No         |       1 | not specified                     |
+| `INFI_CLIENT_SECRET`                        | Yes        |       1 | not specified                     |
+| `INFI_PROJECT_ID`                           | No         |       1 | not specified                     |
+| `JWT_EXPIRES_IN`                            | No         |       3 | not specified                     |
+| `JWT_EXPIRY`                                | No         |       2 | multiple defaults (not specified) |
+| `JWT_REFRESH_EXPIRES_IN`                    | No         |       2 | not specified                     |
+| `JWT_REFRESH_EXPIRY`                        | No         |       1 | not specified                     |
+| `JWT_REFRESH_SECRET`                        | Yes        |       1 | not specified                     |
+| `JWT_SECRET`                                | Yes        |       8 | multiple defaults (prod)          |
+| `LETTA_DB_NAME`                             | No         |       1 | not specified                     |
+| `LETTA_DB_PASSWORD`                         | Yes        |       1 | not specified                     |
+| `LETTA_DB_USER`                             | No         |       1 | not specified                     |
+| `LETTA_DEFAULT_EMBEDDING_CONFIG`            | No         |       1 | not specified                     |
+| `LETTA_DEFAULT_LLM_CONFIG`                  | No         |       1 | not specified                     |
+| `LETTA_HOST`                                | No         |       1 | not specified                     |
+| `LETTA_HOST_PORT`                           | No         |       1 | not specified                     |
+| `LETTA_IMAGE`                               | No         |       1 | not specified                     |
+| `LETTA_PG_URI`                              | No         |       1 | not specified                     |
+| `LETTA_PORT`                                | No         |       1 | not specified                     |
+| `LETTA_SERVER_PASSWORD`                     | Yes        |       2 | not specified                     |
+| `LITELLM_API_KEY`                           | Yes        |       2 | not specified                     |
+| `LITELLM_BASE_URL`                          | No         |       4 | multiple defaults (dev)           |
+| `LITELLM_DATABASE_URL`                      | No         |       1 | not specified                     |
+| `LITELLM_HOST`                              | No         |       1 | not specified                     |
+| `LITELLM_LOG`                               | No         |       1 | not specified                     |
+| `LITELLM_MASTER_KEY`                        | Yes        |       9 | multiple defaults (not specified) |
+| `LITELLM_MODE`                              | No         |       1 | dev                               |
+| `LITELLM_PORT`                              | No         |       3 | not specified                     |
+| `LOG_DIR`                                   | No         |       1 | not specified                     |
+| `LOG_FILE`                                  | No         |       5 | multiple defaults (not specified) |
+| `LOG_FILE_PATH`                             | No         |       1 | not specified                     |
+| `LOG_FORMAT`                                | No         |       2 | not specified                     |
+| `LOG_LEVEL`                                 | No         |      16 | multiple defaults (not specified) |
+| `LOKI_HOST`                                 | No         |       1 | not specified                     |
+| `LOKI_PORT`                                 | No         |       3 | not specified                     |
+| `LOKI_URL`                                  | No         |       1 | not specified                     |
+| `MACHINE_HOSTNAME`                          | No         |       1 | not specified                     |
+| `MACHINE_IP_ETHERNET`                       | No         |       1 | not specified                     |
+| `MACHINE_IP_TAILSCALE`                      | No         |       1 | not specified                     |
+| `MACHINE_NAME`                              | No         |       4 | multiple defaults (not specified) |
+| `MACHINE_ROLE`                              | No         |       4 | multiple defaults (not specified) |
+| `MAGIC_UI_ENABLED`                          | No         |       1 | not specified                     |
+| `MAX_CONCURRENT_SCRAPERS`                   | No         |       1 | not specified                     |
+| `MAX_CONNECTIONS`                           | No         |       1 | not specified                     |
+| `MAX_CONNECTIONS_PER_USER`                  | No         |       1 | not specified                     |
+| `MAX_FILE_SIZE`                             | No         |       2 | multiple defaults (not specified) |
+| `MAX_RETRY_ATTEMPTS`                        | No         |       2 | not specified                     |
+| `MEM0_API_KEY`                              | Yes        |       2 | not specified                     |
+| `MEM0_HOST`                                 | No         |       1 | not specified                     |
+| `MEM0_HOST_PORT`                            | No         |       1 | not specified                     |
+| `MEM0_IMAGE`                                | No         |       1 | dev                               |
+| `MEM0_PORT`                                 | No         |       1 | not specified                     |
+| `MEMORY_BASE_URL`                           | No         |       1 | not specified                     |
+| `MEMPALACE_PORT`                            | No         |       1 | not specified                     |
+| `MEMPALACE_URL`                             | No         |       2 | multiple defaults (dev)           |
+| `MEMPAL_DIR`                                | No         |       1 | not specified                     |
+| `METRICS_PORT`                              | No         |       1 | not specified                     |
+| `MFA_ISSUER`                                | No         |       1 | not specified                     |
+| `MICROSOFT_CALLBACK_URL`                    | No         |       1 | dev                               |
+| `MICROSOFT_CLIENT_ID`                       | No         |       1 | not specified                     |
+| `MICROSOFT_CLIENT_SECRET`                   | Yes        |       1 | not specified                     |
+| `MODEL_MANAGER_PORT`                        | No         |       1 | not specified                     |
+| `MODEL_ROUTING_COST_THRESHOLD`              | No         |       1 | not specified                     |
+| `MODEL_ROUTING_FALLBACK_CLOUD`              | No         |       1 | not specified                     |
+| `MODEL_ROUTING_PREFER_LOCAL`                | No         |       1 | not specified                     |
+| `MODEL_ROUTING_STRATEGY`                    | No         |       1 | not specified                     |
+| `MOLTBOT_WEB_PORT`                          | No         |       1 | not specified                     |
+| `MONGODB_URI`                               | No         |       1 | dev                               |
+| `MONGO_PORT`                                | No         |       1 | not specified                     |
+| `MONGO_ROOT_PASSWORD`                       | Yes        |       3 | multiple defaults (not specified) |
+| `MONGO_ROOT_USER`                           | No         |       1 | not specified                     |
+| `N8N_API_KEY`                               | Yes        |       2 | not specified                     |
+| `N8N_BASE_URL`                              | No         |       1 | dev                               |
+| `N8N_BASIC_AUTH_ACTIVE`                     | Yes        |       3 | not specified                     |
+| `N8N_BASIC_AUTH_PASSWORD`                   | Yes        |       3 | multiple defaults (not specified) |
+| `N8N_BASIC_AUTH_USER`                       | Yes        |       3 | not specified                     |
+| `N8N_DB`                                    | No         |       1 | not specified                     |
+| `N8N_EDITOR_BASE_URL`                       | No         |       1 | dev                               |
+| `N8N_ENCRYPTION_KEY`                        | Yes        |       6 | multiple defaults (not specified) |
+| `N8N_HOST`                                  | No         |       4 | multiple defaults (dev)           |
+| `N8N_PORT`                                  | No         |       4 | not specified                     |
+| `N8N_PROTOCOL`                              | No         |       3 | multiple defaults (not specified) |
+| `N8N_SKIP_WEBHOOK_DNS_CHECK`                | Yes        |       2 | not specified                     |
+| `N8N_WEBHOOK_URL`                           | Yes        |       2 | multiple defaults (dev)           |
+| `NEXT_PUBLIC_ACTIVEPIECES_URL`              | No         |       2 | multiple defaults (not specified) |
+| `NEXT_PUBLIC_API_BASE_URL`                  | No         |       2 | multiple defaults (dev)           |
+| `NEXT_PUBLIC_API_KEY`                       | Yes        |       1 | not specified                     |
+| `NEXT_PUBLIC_APP_NAME`                      | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_APP_URL`                       | No         |       2 | multiple defaults (dev)           |
+| `NEXT_PUBLIC_ARCHON_UI_URL`                 | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`         | Yes        |       1 | not specified                     |
+| `NEXT_PUBLIC_DEBUG`                         | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_DIFY_APP_ID`                   | No         |       2 | dev                               |
+| `NEXT_PUBLIC_DIFY_WIDGET_URL`               | No         |       2 | dev                               |
+| `NEXT_PUBLIC_DOCS_BASE_URL`                 | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_GRAFANA_URL`                   | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_MEM0_PROXY_URL`                | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_N8N_URL`                       | No         |       2 | multiple defaults (not specified) |
+| `NEXT_PUBLIC_NEXUS_UI_URL`                  | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_NEXUS_URL`                     | No         |       4 | multiple defaults (dev)           |
+| `NEXT_PUBLIC_OPENCLAW_URL`                  | No         |       2 | multiple defaults (not specified) |
+| `NEXT_PUBLIC_OPENMEMORY_URL`                | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_PAPERCLIP_URL`                 | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_PORTAINER_URL`                 | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_QUOTE_API_URL`                 | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_SITE_NAME`                     | No         |       2 | not specified                     |
+| `NEXT_PUBLIC_SITE_URL`                      | No         |       3 | multiple defaults (dev)           |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`             | Yes        |       1 | not specified                     |
+| `NEXT_PUBLIC_SUPABASE_URL`                  | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_SUPPORT_EMAIL`                 | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_TAILSCALE_DASHBOARD_URL`       | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_TWENTY_URL`                    | No         |       3 | multiple defaults (dev)           |
+| `NEXT_PUBLIC_WEBAPP_URL`                    | No         |       1 | not specified                     |
+| `NEXT_PUBLIC_WEBHOOK_URL`                   | Yes        |       1 | not specified                     |
+| `NEXT_PUBLIC_WS_URL`                        | No         |       1 | dev                               |
+| `NEXUS_ADMIN_TOKEN`                         | Yes        |       3 | multiple defaults (not specified) |
+| `NEXUS_API_KEY`                             | Yes        |       1 | not specified                     |
+| `NEXUS_BASE_URL`                            | No         |       1 | not specified                     |
+| `NEXUS_CONFIG_APPLY_ENABLED`                | No         |       1 | not specified                     |
+| `NEXUS_CPU_LIMIT`                           | No         |       1 | not specified                     |
+| `NEXUS_DEPLOY_TARGET`                       | No         |       1 | not specified                     |
+| `NEXUS_JWT_SECRET`                          | Yes        |       1 | not specified                     |
+| `NEXUS_MCP_PORT`                            | No         |       1 | not specified                     |
+| `NEXUS_MCP_URL`                             | No         |       1 | not specified                     |
+| `NEXUS_MEMORY_LIMIT`                        | No         |       2 | multiple defaults (not specified) |
+| `NEXUS_METRICS_PORT`                        | No         |       1 | not specified                     |
+| `NEXUS_MONITORING_ENABLED`                  | No         |       1 | not specified                     |
+| `NEXUS_ROUTER_API_KEY`                      | Yes        |       1 | not specified                     |
+| `NEXUS_ROUTER_HOST`                         | No         |       1 | not specified                     |
+| `NEXUS_ROUTER_MCP_PORT`                     | No         |       1 | not specified                     |
+| `NEXUS_ROUTER_PORT`                         | No         |       3 | multiple defaults (not specified) |
+| `NEXUS_ROUTER_URL`                          | No         |       6 | multiple defaults (dev)           |
+| `NEXUS_STATUS_URL`                          | No         |       1 | not specified                     |
+| `NEXUS_UI_SETTINGS_PATH`                    | No         |       1 | not specified                     |
+| `NODE_ENV`                                  | No         |      24 | multiple defaults (dev, prod)     |
+| `NODE_VERSION`                              | No         |       1 | not specified                     |
+| `NVIDIA_VISIBLE_DEVICES`                    | No         |       6 | multiple defaults (not specified) |
+| `NYRA_CHAT_INTERNAL_API_BASE_URL`           | No         |       1 | not specified                     |
+| `NYRA_CHAT_INTERNAL_PROXY_TOKEN`            | Yes        |       3 | not specified                     |
+| `NYRA_ENABLE_MOCKS`                         | No         |       1 | not specified                     |
+| `NYRA_ENV`                                  | No         |       1 | dev                               |
+| `NYRA_ENVIRONMENT`                          | No         |       2 | multiple defaults (dev, prod)     |
+| `NYRA_FORCE_SECRETS`                        | Yes        |       2 | not specified                     |
+| `NYRA_HTTP_ALLOWLIST`                       | No         |       1 | not specified                     |
+| `NYRA_KYUTAI_DECODE_IMAGE`                  | No         |       1 | dev                               |
+| `NYRA_KYUTAI_STT_IMAGE`                     | No         |       1 | dev                               |
+| `NYRA_KYUTAI_TTS_IMAGE`                     | No         |       1 | dev                               |
+| `NYRA_KYUTAI_VAD_IMAGE`                     | No         |       1 | dev                               |
+| `NYRA_MACHINE`                              | No         |       2 | not specified                     |
+| `NYRA_MCP_PORT`                             | No         |       1 | not specified                     |
+| `NYRA_NETWORK`                              | No         |       3 | not specified                     |
+| `NYRA_NETWORK_NAME`                         | No         |       2 | not specified                     |
+| `NYRA_NODE_ID`                              | No         |       2 | multiple defaults (not specified) |
+| `NYRA_NODE_TYPE`                            | No         |       2 | not specified                     |
+| `NYRA_VOICE_COORDINATOR_IMAGE`              | No         |       1 | dev                               |
+| `NYRA_VOICE_EDGE_IMAGE`                     | No         |       1 | dev                               |
+| `NYRA_VOICE_EGRESS_IMAGE`                   | No         |       1 | dev                               |
+| `NYRA_VOICE_LLM_BRIDGE_IMAGE`               | No         |       1 | dev                               |
+| `NYRA_WEBHOOK_SECRET`                       | Yes        |       1 | not specified                     |
+| `OCR_CONFIDENCE_THRESHOLD`                  | No         |       1 | not specified                     |
+| `OCR_ENABLED`                               | No         |       1 | not specified                     |
+| `OCR_LANGUAGE`                              | No         |       1 | not specified                     |
+| `OLLAMA_ENABLED`                            | No         |       1 | not specified                     |
+| `OLLAMA_HOST`                               | No         |       4 | not specified                     |
+| `OLLAMA_KEEP_ALIVE`                         | No         |       1 | not specified                     |
+| `OLLAMA_MAX_LOADED_MODELS`                  | No         |       1 | not specified                     |
+| `OLLAMA_MAX_VRAM`                           | No         |       1 | not specified                     |
+| `OLLAMA_MODELS`                             | No         |       1 | not specified                     |
+| `OLLAMA_NUM_PARALLEL`                       | No         |       1 | not specified                     |
+| `OLLAMA_PORT`                               | No         |       3 | not specified                     |
+| `OPENAI_API_KEY`                            | Yes        |      10 | multiple defaults (not specified) |
+| `OPENAI_BASE_URL`                           | No         |       3 | multiple defaults (not specified) |
+| `OPENAI_MAX_TOKENS`                         | Yes        |       1 | not specified                     |
+| `OPENAI_MODEL`                              | No         |       1 | not specified                     |
+| `OPENAI_ORG_ID`                             | No         |       1 | not specified                     |
+| `OPENCLAW_CHAT_PATH`                        | No         |       3 | not specified                     |
+| `OPENCLAW_COMPOSE_VALIDATE`                 | No         |       1 | not specified                     |
+| `OPENCLAW_CONFIG_PATH`                      | No         |       1 | not specified                     |
+| `OPENCLAW_DATA_DIR`                         | No         |       1 | not specified                     |
+| `OPENCLAW_DEFAULT_MODEL`                    | No         |       3 | multiple defaults (dev)           |
+| `OPENCLAW_DOCKER_APT_PACKAGES`              | No         |       2 | multiple defaults (not specified) |
+| `OPENCLAW_FORCE_BUILD`                      | No         |       1 | not specified                     |
+| `OPENCLAW_GATEWAY_PORT`                     | No         |       1 | not specified                     |
+| `OPENCLAW_GATEWAY_TOKEN`                    | Yes        |       6 | not specified                     |
+| `OPENCLAW_HEALTH_TIMEOUT_S`                 | No         |       1 | not specified                     |
+| `OPENCLAW_HOME_VOLUME`                      | No         |       1 | not specified                     |
+| `OPENCLAW_HTTP_ALLOWLIST`                   | No         |       1 | not specified                     |
+| `OPENCLAW_INSTALL_BROWSER`                  | No         |       2 | multiple defaults (not specified) |
+| `OPENCLAW_MVP_IMAGE`                        | No         |       2 | dev                               |
+| `OPENCLAW_MVP_PORT`                         | No         |       1 | not specified                     |
+| `OPENCLAW_OPENAI_BASE_URL`                  | No         |       1 | not specified                     |
+| `OPENCLAW_OUTBOUND_HTTP_ALLOWLIST`          | No         |       1 | not specified                     |
+| `OPENCLAW_PORT`                             | No         |       1 | not specified                     |
+| `OPENCLAW_PORTS`                            | No         |       1 | not specified                     |
+| `OPENCLAW_PROVIDER`                         | No         |       1 | not specified                     |
+| `OPENCLAW_PUBLIC_BASE_URL`                  | No         |       5 | multiple defaults (dev)           |
+| `OPENCLAW_SANDBOX_ENABLED`                  | No         |       2 | not specified                     |
+| `OPENCLAW_SECRET_REF_MODE`                  | Yes        |       1 | not specified                     |
+| `OPENCLAW_SESSION_PATH`                     | No         |       1 | not specified                     |
+| `OPENCLAW_TOOLS_ALLOW`                      | No         |       1 | not specified                     |
+| `OPENCLAW_TOOLS_DENY`                       | No         |       1 | not specified                     |
+| `OPENCLAW_TOOL_POLICY`                      | No         |       2 | not specified                     |
+| `OPENCLAW_UI_PREFIX`                        | No         |       1 | not specified                     |
+| `OPENCLAW_UI_PROXY_PORT`                    | No         |       1 | not specified                     |
+| `OPENCLAW_WEBHOOK_INGRESS_PATH`             | Yes        |       1 | not specified                     |
+| `OPENCLAW_WORKSPACE_VOLUME`                 | No         |       1 | not specified                     |
+| `OPENLIT_ALLOWED_CORS_ORIGINS`              | No         |       1 | not specified                     |
+| `OPENLIT_CLICKHOUSE_HTTP_PORT`              | No         |       1 | not specified                     |
+| `OPENLIT_CLICKHOUSE_NATIVE_PORT`            | No         |       1 | not specified                     |
+| `OPENLIT_DB_NAME`                           | No         |       1 | not specified                     |
+| `OPENLIT_DB_PASSWORD`                       | Yes        |       1 | not specified                     |
+| `OPENLIT_DB_USER`                           | No         |       1 | not specified                     |
+| `OPENLIT_GITHUB_CLIENT_ID`                  | No         |       1 | not specified                     |
+| `OPENLIT_GITHUB_CLIENT_SECRET`              | Yes        |       1 | not specified                     |
+| `OPENLIT_GOOGLE_CLIENT_ID`                  | No         |       1 | not specified                     |
+| `OPENLIT_GOOGLE_CLIENT_SECRET`              | Yes        |       1 | not specified                     |
+| `OPENLIT_HOST_PORT`                         | No         |       1 | not specified                     |
+| `OPENLIT_NEXTAUTH_SECRET`                   | Yes        |       1 | not specified                     |
+| `OPENLIT_NEXTAUTH_URL`                      | Yes        |       1 | not specified                     |
+| `OPENLIT_OTLP_GRPC_PORT`                    | No         |       1 | not specified                     |
+| `OPENLIT_OTLP_HTTP_PORT`                    | No         |       1 | not specified                     |
+| `OPENLIT_TELEMETRY_ENABLED`                 | No         |       1 | not specified                     |
+| `OPENLIT_VAULT_ENCRYPTION_KEY`              | Yes        |       1 | not specified                     |
+| `OPENROUTER_API_KEY`                        | Yes        |       7 | multiple defaults (not specified) |
+| `OPENROUTER_BASE_URL`                       | No         |       2 | not specified                     |
+| `OPENROUTER_FALLBACK_MODEL`                 | No         |       1 | not specified                     |
+| `OPENWEBUI_PORT`                            | No         |       1 | not specified                     |
+| `OPENWEBUI_SECRET_KEY`                      | Yes        |       1 | not specified                     |
+| `ORACLE_TAILSCALE_IP`                       | No         |       1 | not specified                     |
+| `ORACLE_TUNNEL_TOKEN`                       | Yes        |       1 | not specified                     |
+| `ORCHESTRATOR_TAILSCALE_IP`                 | No         |       3 | not specified                     |
+| `ORCHESTRATOR_URL`                          | No         |       2 | multiple defaults (dev)           |
+| `PAGERDUTY_INTEGRATION_KEY`                 | Yes        |       1 | not specified                     |
+| `PAPERCLIP_AUTH_DISABLE_SIGN_UP`            | Yes        |       1 | not specified                     |
+| `PAPERCLIP_DB_NAME`                         | No         |       1 | not specified                     |
+| `PAPERCLIP_DB_PASSWORD`                     | Yes        |       1 | not specified                     |
+| `PAPERCLIP_DB_USER`                         | No         |       1 | not specified                     |
+| `PAPERCLIP_HOST_PORT`                       | No         |       1 | not specified                     |
+| `PAPERCLIP_IMAGE`                           | No         |       1 | not specified                     |
+| `PAPERCLIP_PUBLIC_URL`                      | No         |       1 | not specified                     |
+| `PAPERCLIP_SESSION_SECRET`                  | Yes        |       1 | not specified                     |
+| `PASSWORD_RESET_EXPIRY`                     | Yes        |       1 | not specified                     |
+| `PERF_MONITOR_PORT`                         | No         |       1 | not specified                     |
+| `PG_DATABASE_URL`                           | No         |       1 | not specified                     |
+| `PKI_ENABLED`                               | No         |       1 | not specified                     |
+| `PORT`                                      | No         |      18 | multiple defaults (dev)           |
+| `PORTAINER_ADMIN_PASSWORD`                  | Yes        |       1 | not specified                     |
+| `PORTAINER_ADMIN_USERNAME`                  | No         |       1 | not specified                     |
+| `PORTAINER_AGENT_PORT`                      | No         |       1 | not specified                     |
+| `PORTAINER_AGENT_TAGS`                      | No         |       1 | not specified                     |
+| `PORTAINER_EDGE_ID`                         | No         |       4 | multiple defaults (not specified) |
+| `PORTAINER_EDGE_INSECURE_POLL`              | No         |       2 | not specified                     |
+| `PORTAINER_EDGE_KEY`                        | Yes        |       5 | not specified                     |
+| `PORTAINER_HTTP_PORT`                       | No         |       1 | not specified                     |
+| `PORTAINER_ORCHESTRATOR_URL`                | No         |       1 | not specified                     |
+| `PORTAINER_PORT`                            | No         |       1 | not specified                     |
+| `PORTAINER_PUBLIC_URL`                      | No         |       1 | not specified                     |
+| `POSTGRES_CPU_LIMIT`                        | No         |       1 | not specified                     |
+| `POSTGRES_DB`                               | No         |       7 | multiple defaults (not specified) |
+| `POSTGRES_HOST`                             | No         |       2 | multiple defaults (dev)           |
+| `POSTGRES_MEMORY_LIMIT`                     | No         |       2 | multiple defaults (not specified) |
+| `POSTGRES_PASSWORD`                         | Yes        |       8 | multiple defaults (not specified) |
+| `POSTGRES_PORT`                             | No         |       4 | not specified                     |
+| `POSTGRES_URL`                              | No         |       4 | multiple defaults (dev)           |
+| `POSTGRES_USER`                             | No         |       7 | multiple defaults (not specified) |
+| `PRIMARY_MODELS`                            | No         |       1 | not specified                     |
+| `PROFILING_ENABLED`                         | No         |       2 | not specified                     |
+| `PROMETHEUS_HOST`                           | No         |       1 | not specified                     |
+| `PROMETHEUS_PORT`                           | No         |       3 | not specified                     |
+| `PROMETHEUS_PUSH_GATEWAY`                   | No         |       1 | not specified                     |
+| `QDRANT_API_KEY`                            | Yes        |       1 | not specified                     |
+| `QDRANT_MAX_SEARCH_THREADS`                 | No         |       1 | not specified                     |
+| `QUERY_TIMEOUT`                             | No         |       1 | not specified                     |
+| `QUOTE_API_PORT`                            | No         |       2 | not specified                     |
+| `QUOTE_API_SECRET`                          | Yes        |       3 | multiple defaults (not specified) |
+| `QUOTE_API_URL`                             | No         |       1 | not specified                     |
+| `QUOTE_ENGINE_HOST`                         | No         |       2 | not specified                     |
+| `QUOTE_ENGINE_PORT`                         | No         |       2 | not specified                     |
+| `QUOTE_ENGINE_URL`                          | No         |       2 | multiple defaults (dev)           |
+| `RATE_CACHE_KEY_PREFIX`                     | Yes        |       1 | not specified                     |
+| `RATE_LIMIT_DURATION`                       | No         |       1 | not specified                     |
+| `RATE_LIMIT_MAX_REQUESTS`                   | No         |       5 | not specified                     |
+| `RATE_LIMIT_POINTS`                         | No         |       1 | not specified                     |
+| `RATE_LIMIT_REQUESTS`                       | No         |       1 | not specified                     |
+| `RATE_LIMIT_WINDOW`                         | No         |       1 | not specified                     |
+| `RATE_LIMIT_WINDOW_MS`                      | No         |       5 | multiple defaults (not specified) |
+| `REDIS_CPU_LIMIT`                           | No         |       1 | not specified                     |
+| `REDIS_DB`                                  | No         |       5 | not specified                     |
+| `REDIS_ENABLED`                             | No         |       1 | not specified                     |
+| `REDIS_HOST`                                | No         |       7 | multiple defaults (dev)           |
+| `REDIS_MEMORY_LIMIT`                        | No         |       2 | multiple defaults (not specified) |
+| `REDIS_PASSWORD`                            | Yes        |       9 | multiple defaults (not specified) |
+| `REDIS_PORT`                                | No         |       7 | not specified                     |
+| `REDIS_URL`                                 | No         |       5 | multiple defaults (dev)           |
+| `RETRY_DELAY_MS`                            | No         |       2 | not specified                     |
+| `REVIEW_LABEL`                              | No         |       2 | not specified                     |
+| `REVIEW_MAX_CHARS`                          | No         |       2 | not specified                     |
+| `REVIEW_MODEL`                              | No         |       2 | not specified                     |
+| `REVIEW_POST_AS_REVIEW`                     | No         |       2 | not specified                     |
+| `RTX3090TI_LAN_IP`                          | No         |       1 | not specified                     |
+| `RTX5090_LAN_IP`                            | No         |       1 | not specified                     |
+| `RUVECTOR_HOST`                             | No         |       1 | not specified                     |
+| `RUVECTOR_PGADMIN_PORT`                     | No         |       1 | not specified                     |
+| `RUVECTOR_PORT`                             | No         |       1 | not specified                     |
+| `RUVECTOR_POSTGRES_DB`                      | No         |       1 | not specified                     |
+| `RUVECTOR_POSTGRES_PASSWORD`                | Yes        |       2 | multiple defaults (not specified) |
+| `RUVECTOR_POSTGRES_PORT`                    | No         |       1 | not specified                     |
+| `RUVECTOR_POSTGRES_USER`                    | No         |       1 | not specified                     |
+| `S3_BUCKET`                                 | No         |       1 | not specified                     |
+| `S3_ENDPOINT`                               | No         |       1 | not specified                     |
+| `SCORING_ENABLED`                           | No         |       1 | not specified                     |
+| `SCORING_MAX_SCORE`                         | No         |       1 | not specified                     |
+| `SCORING_MIN_SCORE`                         | No         |       1 | not specified                     |
+| `SCRAPER_INTERVAL_MINUTES`                  | No         |       1 | not specified                     |
+| `SCRAPER_TIMEOUT_MS`                        | No         |       1 | not specified                     |
+| `SEARXNG_BASE_URL`                          | No         |       1 | not specified                     |
+| `SEARXNG_HOST_PORT`                         | No         |       1 | not specified                     |
+| `SEARXNG_SECRET`                            | Yes        |       1 | not specified                     |
+| `SEARXNG_UWSGI_THREADS`                     | No         |       1 | not specified                     |
+| `SEARXNG_UWSGI_WORKERS`                     | No         |       1 | not specified                     |
+| `SECRET_SCANNING_ENABLED`                   | Yes        |       1 | not specified                     |
+| `SECURITY_SERVICE_PORT`                     | No         |       1 | not specified                     |
+| `SENDGRID_API_KEY`                          | Yes        |       1 | not specified                     |
+| `SERVER_URL`                                | No         |       1 | not specified                     |
+| `SERVICES`                                  | No         |       1 | not specified                     |
+| `SESSION_TIMEOUT`                           | No         |       1 | not specified                     |
+| `SHADCN_REGISTRY_URL`                       | No         |       1 | not specified                     |
+| `SHARED_SCHEMA_VERSION`                     | No         |       1 | not specified                     |
+| `SIGN_IN_PREFILLED`                         | No         |       1 | not specified                     |
+| `SLACK_WEBHOOK_URL`                         | Yes        |       1 | not specified                     |
+| `SMTP_FROM`                                 | No         |       1 | not specified                     |
+| `SMTP_FROM_NAME`                            | No         |       1 | not specified                     |
+| `SMTP_HOST`                                 | No         |       4 | not specified                     |
+| `SMTP_PASSWORD`                             | Yes        |       4 | multiple defaults (not specified) |
+| `SMTP_PORT`                                 | No         |       4 | not specified                     |
+| `SMTP_SECURE`                               | No         |       2 | not specified                     |
+| `SMTP_USER`                                 | No         |       3 | multiple defaults (not specified) |
+| `SMTP_USERNAME`                             | No         |       1 | not specified                     |
+| `SPECIALIZATION`                            | No         |       1 | not specified                     |
+| `SSH_CA_ENABLED`                            | No         |       1 | not specified                     |
+| `SSL_ENABLED`                               | No         |       1 | not specified                     |
+| `STOP_ENFORCEMENT_ENABLED`                  | No         |       1 | not specified                     |
+| `STORAGE_TYPE`                              | No         |       1 | dev                               |
+| `STT_PRECISION`                             | No         |       1 | not specified                     |
+| `SUPABASE_ANON_KEY`                         | Yes        |       1 | not specified                     |
+| `SUPABASE_JWT_SECRET`                       | Yes        |       1 | not specified                     |
+| `SUPABASE_SERVICE_KEY`                      | Yes        |       1 | not specified                     |
+| `SUPABASE_SERVICE_ROLE_KEY`                 | Yes        |       1 | not specified                     |
+| `SUPABASE_URL`                              | No         |       1 | not specified                     |
+| `SYNC_BATCH_SIZE`                           | No         |       2 | not specified                     |
+| `SYNC_INTERVAL_MINUTES`                     | No         |       2 | not specified                     |
+| `TAILSCALE_AUTHKEY`                         | Yes        |       4 | not specified                     |
+| `TAILSCALE_ENABLED`                         | No         |       2 | multiple defaults (not specified) |
+| `TAILSCALE_HOSTNAME`                        | No         |       1 | not specified                     |
+| `TAILSCALE_IP`                              | No         |       4 | multiple defaults (not specified) |
+| `TAILSCALE_KEY`                             | Yes        |       1 | not specified                     |
+| `TAILSCALE_TAILNET`                         | No         |       1 | not specified                     |
+| `TELEGRAM_BOT_TOKEN`                        | Yes        |       2 | not specified                     |
+| `TELEMETRY_ENABLED`                         | No         |       1 | not specified                     |
+| `TENANT_ENGINEERING_KEY`                    | Yes        |       1 | not specified                     |
+| `TENANT_PRODUCTION_KEY`                     | Yes        |       1 | prod                              |
+| `TENANT_RESEARCH_KEY`                       | Yes        |       1 | not specified                     |
+| `TEST_DATABASE_URL`                         | No         |       1 | not specified                     |
+| `THUMBNAIL_QUALITY`                         | No         |       1 | not specified                     |
+| `THUMBNAIL_SIZE`                            | No         |       1 | not specified                     |
+| `TTS_PRECISION`                             | No         |       1 | not specified                     |
+| `TWEAKCN_PRESET`                            | No         |       1 | not specified                     |
+| `TWENTYCRM_API_KEY`                         | Yes        |       4 | multiple defaults (not specified) |
+| `TWENTYCRM_API_URL`                         | No         |       2 | not specified                     |
+| `TWENTYCRM_MCP_PORT`                        | No         |       2 | not specified                     |
+| `TWENTYCRM_PORT`                            | No         |       1 | not specified                     |
+| `TWENTYCRM_WEBHOOK_SECRET`                  | Yes        |       2 | not specified                     |
+| `TWENTY_ACCESS_TOKEN_SECRET`                | Yes        |       1 | not specified                     |
+| `TWENTY_API_KEY`                            | Yes        |       2 | not specified                     |
+| `TWENTY_API_URL`                            | No         |       1 | dev                               |
+| `TWENTY_APP_SECRET`                         | Yes        |       2 | multiple defaults (not specified) |
+| `TWENTY_CRM_API_KEY`                        | Yes        |       3 | multiple defaults (not specified) |
+| `TWENTY_CRM_API_URL`                        | No         |       1 | not specified                     |
+| `TWENTY_CRM_SYNC_ENABLED`                   | No         |       1 | not specified                     |
+| `TWENTY_CRM_SYNC_INTERVAL`                  | No         |       1 | not specified                     |
+| `TWENTY_CRM_URL`                            | No         |       1 | not specified                     |
+| `TWENTY_CRM_WORKSPACE_ID`                   | No         |       2 | multiple defaults (not specified) |
+| `TWENTY_DATABASE_URL`                       | No         |       1 | not specified                     |
+| `TWENTY_DB_PASSWORD`                        | Yes        |       1 | not specified                     |
+| `TWENTY_ENCRYPTION_SECRET`                  | Yes        |       3 | multiple defaults (not specified) |
+| `TWENTY_FILE_TOKEN_SECRET`                  | Yes        |       1 | not specified                     |
+| `TWENTY_FRONTEND_URL`                       | No         |       2 | multiple defaults (not specified) |
+| `TWENTY_FRONT_BASE_URL`                     | No         |       1 | dev                               |
+| `TWENTY_HOST`                               | No         |       1 | not specified                     |
+| `TWENTY_JWT_SECRET`                         | Yes        |       3 | multiple defaults (not specified) |
+| `TWENTY_LOGIN_TOKEN_SECRET`                 | Yes        |       1 | not specified                     |
+| `TWENTY_PASSWORD_SALT`                      | Yes        |       3 | multiple defaults (not specified) |
+| `TWENTY_PG_DATABASE_URL`                    | No         |       2 | not specified                     |
+| `TWENTY_PORT`                               | No         |       1 | not specified                     |
+| `TWENTY_POSTGRES_DB`                        | No         |       1 | not specified                     |
+| `TWENTY_POSTGRES_PASSWORD`                  | Yes        |       1 | not specified                     |
+| `TWENTY_POSTGRES_USER`                      | No         |       1 | not specified                     |
+| `TWENTY_REDIS_PASSWORD`                     | Yes        |       1 | not specified                     |
+| `TWENTY_REDIS_URL`                          | No         |       2 | not specified                     |
+| `TWENTY_REFRESH_TOKEN_SECRET`               | Yes        |       1 | not specified                     |
+| `TWENTY_SERVER_URL`                         | No         |       3 | multiple defaults (dev)           |
+| `TWENTY_WEBHOOK_SECRET`                     | Yes        |       1 | not specified                     |
+| `TWILIO_ACCOUNT_SID`                        | No         |       2 | not specified                     |
+| `TWILIO_AUTH_TOKEN`                         | Yes        |       2 | not specified                     |
+| `TWILIO_FROM_NUMBER`                        | No         |       1 | not specified                     |
+| `TWILIO_PHONE_NUMBER`                       | No         |       1 | not specified                     |
+| `TZ`                                        | No         |       2 | not specified                     |
+| `UNMUTE_ASSISTANT_GATEWAY_URL`              | No         |       1 | not specified                     |
+| `UNMUTE_CACHE_VOLUME`                       | No         |       1 | not specified                     |
+| `UNMUTE_HOST_PORT`                          | No         |       3 | multiple defaults (not specified) |
+| `UNMUTE_IMAGE`                              | No         |       3 | not specified                     |
+| `UNMUTE_LLM_BASE_URL`                       | No         |       1 | not specified                     |
+| `UNMUTE_MODEL_PROVIDER`                     | No         |       2 | not specified                     |
+| `UNMUTE_MODEL_VOLUME`                       | No         |       1 | not specified                     |
+| `UNMUTE_OPENAI_API_KEY`                     | Yes        |       2 | not specified                     |
+| `UNMUTE_PUBLIC_BASE_URL`                    | No         |       2 | dev                               |
+| `UPLOAD_DIR`                                | No         |       1 | not specified                     |
+| `VLLM_HOST`                                 | No         |       2 | not specified                     |
+| `VLLM_MODEL`                                | No         |       4 | multiple defaults (not specified) |
+| `VLLM_PORT`                                 | No         |       4 | multiple defaults (not specified) |
+| `VOICE_PTP_INTERFACE`                       | No         |       1 | not specified                     |
+| `VOICE_RTP_PORT_RANGE`                      | No         |       1 | not specified                     |
+| `VRAM_GB`                                   | No         |       1 | not specified                     |
+| `WEBHOOK_RETRY_ATTEMPTS`                    | Yes        |       1 | not specified                     |
+| `WEBHOOK_RETRY_DELAY`                       | Yes        |       1 | not specified                     |
+| `WEBHOOK_TIMEOUT`                           | Yes        |       1 | not specified                     |
+| `WEBHOOK_URL`                               | Yes        |       3 | multiple defaults (dev)           |
+| `WHATSAPP_PHONE_NUMBER`                     | No         |       1 | not specified                     |
+| `WORKER_3060_API_KEY`                       | Yes        |       1 | not specified                     |
+| `WORKER_3060_MODELS`                        | No         |       2 | multiple defaults (not specified) |
+| `WORKER_3060_OLLAMA_PORT`                   | No         |       1 | not specified                     |
+| `WORKER_3060_URL`                           | No         |       2 | multiple defaults (not specified) |
+| `WORKER_3090TI_MODEL`                       | No         |       1 | not specified                     |
+| `WORKER_3090TI_VLLM_PORT`                   | No         |       1 | not specified                     |
+| `WORKER_3090_API_KEY`                       | Yes        |       1 | not specified                     |
+| `WORKER_3090_MODELS`                        | No         |       2 | not specified                     |
+| `WORKER_3090_URL`                           | No         |       2 | multiple defaults (not specified) |
+| `WORKER_5090_API_KEY`                       | Yes        |       1 | not specified                     |
+| `WORKER_5090_MODEL`                         | No         |       1 | not specified                     |
+| `WORKER_5090_MODELS`                        | No         |       2 | not specified                     |
+| `WORKER_5090_URL`                           | No         |       2 | multiple defaults (not specified) |
+| `WORKER_5090_VLLM_PORT`                     | No         |       1 | not specified                     |
+| `WORKER_ID`                                 | No         |       1 | not specified                     |
+| `WORKER_ROLE`                               | No         |       1 | not specified                     |
 
 ## Host-specific secret/env lists
 
 ### orchestrator
+
 - `ACTIVEPIECES_API_KEY` (secret)
 - `ACTIVEPIECES_API_URL`
 - `ACTIVEPIECES_BASE_URL`
@@ -1317,7 +1317,6 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `REVIEW_MAX_CHARS`
 - `REVIEW_MODEL`
 - `REVIEW_POST_AS_REVIEW`
-- `RTX3060_LAN_IP`
 - `RTX3090TI_LAN_IP`
 - `RTX5090_LAN_IP`
 - `RUVECTOR_HOST`
@@ -1462,6 +1461,7 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `WORKER_ROLE`
 
 ### homeassistant
+
 - `ARCHON_STATUS_URL`
 - `GRAFANA_URL`
 - `HASS_LONG_LIVED_TOKEN` (secret)
@@ -1478,6 +1478,7 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `TAILSCALE_IP`
 
 ### oracle-vps
+
 - `AGENT_VAULT_ADDR`
 - `AGENT_VAULT_ADMIN_EMAIL`
 - `AGENT_VAULT_ADMIN_PASSWORD` (secret)
@@ -1615,7 +1616,6 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `TWENTY_SERVER_URL`
 - `WEBHOOK_URL` (secret)
 
-### worker-rtx3060
 - `ARCHON_SERVER_URL`
 - `GPU_MODEL`
 - `GPU_VRAM`
@@ -1634,7 +1634,6 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `OLLAMA_PORT`
 - `ORCHESTRATOR_TAILSCALE_IP`
 - `POSTGRES_URL`
-- `RTX3060_LAN_IP`
 - `TAILSCALE_AUTHKEY` (secret)
 - `TAILSCALE_IP`
 - `WORKER_3060_API_KEY` (secret)
@@ -1643,6 +1642,7 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `WORKER_3060_URL`
 
 ### worker-rtx3090ti
+
 - `ARCHON_SERVER_URL`
 - `GPU_MODEL`
 - `GPU_VRAM`
@@ -1668,6 +1668,7 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `WORKER_5090_VLLM_PORT`
 
 ### worker-rtx5090
+
 - `ALERT_THRESHOLD_GPU_TEMP`
 - `ALERT_THRESHOLD_INFERENCE_TIME`
 - `ALERT_THRESHOLD_VRAM_USAGE`
@@ -1745,6 +1746,7 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 ## App-specific secret/env lists (`apps/*`)
 
 ### apps/guidance
+
 - `ALERT_EMAIL`
 - `APP_SECRET` (secret)
 - `ASSET_CDN_URL`
@@ -1802,6 +1804,7 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `TWENTYCRM_WEBHOOK_SECRET` (secret)
 
 ### apps/projectnyra
+
 - `CAMPAIGN_ENGINE_URL`
 - `CRM_API_KEY` (secret)
 - `CRM_API_URL`
@@ -1827,8 +1830,8 @@ This file is intended for Infisical host/app profiles. Variables are deduplicate
 - `SUPABASE_SERVICE_ROLE_KEY` (secret)
 
 ### apps/ratehunter
+
 - `NEXT_PUBLIC_SITE_NAME`
 - `NEXT_PUBLIC_SITE_URL`
 - `NODE_ENV`
 - `NODE_VERSION`
-

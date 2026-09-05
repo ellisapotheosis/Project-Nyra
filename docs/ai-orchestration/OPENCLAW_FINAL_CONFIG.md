@@ -119,7 +119,6 @@ Models:
 
 - `litellm/nyra/local-interactive`: RTX5090 (32GB, 32K context)
 - `litellm/nyra/local-stable`: RTX3090Ti (24GB, 24K context)
-- `litellm/nyra/local-utility`: RTX3060 Ollama (8K context)
 - `litellm/nyra/free`: OmniRoute fallback (free tier only)
 
 ---
@@ -140,12 +139,12 @@ Models:
 
 ```bash
 # Store fact
-curl -X POST http://100.64.0.12:5000/memories \
+curl -X POST http:///memories \
   -H 'Content-Type: application/json' \
   -d '{"user_id":"nyra","messages":[{"content":"Remember: Project Nyra uses Tailscale for private DNS."}]}'
 
 # Retrieve
-curl http://100.64.0.12:5000/search \
+curl http:///search \
   -d 'query=Tailscale&user_id=nyra'
 ```
 

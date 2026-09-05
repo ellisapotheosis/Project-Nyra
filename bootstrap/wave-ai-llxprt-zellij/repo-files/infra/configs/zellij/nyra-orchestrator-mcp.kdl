@@ -81,7 +81,7 @@ layout {
             }
             pane split_direction="horizontal" size="50%" {
                 pane name="Worker Cluster (GPU Mesh)" command="bash" {
-                    args "-c" "while true; do clear; echo '=== WORKER GPU MESH ==='; for ctx in worker-rtx5090 worker-rtx3090ti worker-rtx3060; do echo \"[${ctx}]\"; docker --context ${ctx} ps --format 'table {{.Names}}\t{{.Status}}' 2>/dev/null | head -3; echo ''; done; sleep 5; done"
+ args "-c" "while true; do clear; echo '=== WORKER GPU MESH ==='; for ctx in worker-rtx5090 worker-rtx3090ti ; do echo \"[${ctx}]\"; docker --context ${ctx} ps --format 'table {{.Names}}\t{{.Status}}' 2>/dev/null | head -3; echo ''; done; sleep 5; done"
                 }
                 pane name="Nexus Router State" command="bash" {
                     args "-c" "while true; do clear; echo '=== NEXUS ROUTER (Port 6000) ==='; curl -s http://localhost:6000/health | jq . 2>/dev/null || echo 'Router offline'; echo ''; echo 'Active Routes:'; curl -s http://localhost:6000/routes | jq '.routes[] | {model, endpoint}' 2>/dev/null || true; sleep 5; done"

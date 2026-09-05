@@ -64,7 +64,6 @@ infra/env/secrets/
 !infra/hosts/orchestrator/example.env
 !infra/hosts/oracle-vps/example.env
 !infra/hosts/worker-rtx3090ti/example.env
-!infra/hosts/worker-rtx3060/example.env
 !infra/hosts/worker-rtx5090/example.env
 !infra/hosts/hosts-shared.example.env
 !infra/shared-example.env
@@ -577,3 +576,25 @@ security/infisical/**/.env.*
 .vercel
 # Cloudflare OpenNext build output is generated in each Pages app.
 **/.open-next/
+
+# =============================================================================
+# LiteLLM-native control-plane migration (2026-09-04) — secret file policy
+# =============================================================================
+# Infisical-rendered runtime artifacts. These carry live secret material and are
+# never committed. Rendered file sinks must be root/service-owned, tmpfs-backed
+# where practical, atomically rotated, and followed by a service reload.
+*.runtime.env
+runtime-secrets/
+secrets/
+.infisical-runtime/
+
+# `env/` (line ~286) is a broad ignore aimed at Python virtualenvs. It also
+# swallowed infra/env/, which holds the tracked per-host TEMPLATES. Re-admit the
+# directory and its examples; real values still live in Infisical.
+!infra/env/
+!infra/env/*.env.example
+
+# Keep every example template tracked despite the broad .env.* ignores above.
+!.env.example
+!**/.env.example
+!**/*.env.example

@@ -26,6 +26,7 @@ You are Hermes, acting as: Principal Infisical Architect, Staff+ DevSecOps Engin
 4. Older conversation ideas only when non-conflicting.
 
 ### Resolved decisions (user overrides — DO NOT re-litigate)
+
 - `/providers` → **`/llm-providers`** (already done in live Infisical).
 - `/clients` → **`/external`** (already done in live Infisical).
 - `/monitoring` → **`/observability`** (already done; contains alertmanager, grafana, langfuse, loki, openlit, prometheus).
@@ -37,8 +38,8 @@ You are Hermes, acting as: Principal Infisical Architect, Staff+ DevSecOps Engin
 - `/shared` = **legacy compatibility layer, RETIRE after migration**.
 - **xAI naming:** standardize on **`/llm-providers/xai`** (do NOT use `grok`; if a `grok` alias is found, treat as an alias of `xai`).
 - **llxprt naming:** standardize on **`/llm-providers/llxprt`** (do NOT use `vybestack`; if `vybestack` is found, treat as alias of `llxprt`). `llxprt` is a model-inference/CLI provider per user intent → stays in `/llm-providers`. Its router adapter lives at `/router/adapters/llxprt`.
-- **omniroute + openrouter** are LLM *providers* per user intent → **stay in `/llm-providers`** (this deliberately differs from the older draft that moved them to `/router`). Keep them as provider credential homes; their runtime routing config (if any) may reference them.
-- **litellm** is the gateway *runtime* → **`/router/litellm`** (not `/llm-providers/litellm`).
+- **omniroute + openrouter** are LLM _providers_ per user intent → **stay in `/llm-providers`** (this deliberately differs from the older draft that moved them to `/router`). Keep them as provider credential homes; their runtime routing config (if any) may reference them.
+- **litellm** is the gateway _runtime_ → **`/router/litellm`** (not `/llm-providers/litellm`).
 - **nexus** is a router/aggregator → **`/router/nexus`**.
 - **Dual-ingress domain standard (see §16):** every URL is `https://<service>.projectnyra.com`; Tailscale split-DNS resolves the same name privately. Never create separate local-vs-remote URL keys.
 
@@ -71,7 +72,6 @@ Local working mirror (already exported, redacted-friendly): `development/infisic
 Top-level roots (live): `/databases /domains /external /hosts /infra /llm-providers /network /observability /router /security /services /shared`
 
 **`/domains`:** project-nyra, ratehunter, twenty-crm
-**`/hosts`:** homeassistant, iphone, oracle-vps, orchestrator, worker-rtx3060, worker-rtx3090ti, worker-rtx5090
 **`/databases`:** chromadb, falkordb, floccus, google-s3, linkwarden, minio, mongodb, neo4j, notion, nyra-ingestion, postgres, qdrant-cloud, qdrant-local, redis, supabase
 **`/observability`:** alertmanager, grafana, langfuse, loki, openlit, prometheus
 **`/router`:** adapters, litellm-proxy-client-local, litellm-proxy-client-remote, litellm-proxy-server
@@ -80,7 +80,7 @@ Top-level roots (live): `/databases /domains /external /hosts /infra /llm-provid
 **`/network`:** (empty — to be populated with URL metadata; see §16)
 **`/external` (current, non-exhaustive):** activepieces, agentdb, agentmemory, anythingllm, apify, arc, archon, atlassian, axiom, braintrust, browserless, calendly, chatbox, circleci, claude-code, clawteam, cloudflare, codecov, composio, confident-ai, copilot-kit, desktopcommander, discord, docker, elevenlabs, epicllm, exa-mcp, fal, firecrawl, flow-nexus, freerateupdate, galileo, gastown, gitea, github, gitkraken, gitlab, gravatar, greptile, hermes, jigsawstack, kilocode, komodo, leadmailbox, lendingtree, letta, llamaindex, lobechat, logfire, mem0, memOS, mempalace, memrader, memu, memzero, metamcp, minio, mos-embedder, mqtt, n8n, n8n-mcp_com, nexus, ngrok, npm, open-webui, openclaw, openhands, openmemory, owui, paperclip, picoclaw, playwright, plugged-in, portainer, pypi, renovate, sambanova, searxng, sendgrid, sentry, serena, slack, smithery, stitch, superset, syncthing, tailscale, tavily, turborepo, twenty, twentyfirst, twilio, unmute, vercel, voicemod, warp
 **`/llm-providers` (current):** agentdb, agentmemory, anthropic, anythingllm, apify, archon, atlassian, axiom, braintrust, browserless, calendly, cerebras, chatbox, circleci, claude-code, cloudflare, codecov, cohere, composio, confident-ai, copilot-kit, credit-bureau, desktopcommander, discord, docker, elevenlabs, exa, fal, figma, firecrawl, freerateupdate, galileo, gastown, gitea, github, gitkraken, gitlab, google, grafana, gravatar, greptile, groq, hermes, huggingface, jigsawstack, langfuse, leadmailbox, lendingtree, letta, litellm, llamaindex, llxprt, lobechat, logfire, mem0, memos, mempalace, memrader, memzero, mistral, morph, mos-embedder, mqtt, n8n-mcp, nexus, ngrok, npm, nvidia, ollama, omniroute, open-webui, openai, openrouter, picoclaw, playwright, plugged-in, portainer, pypi, sambanova, searxng, sendgrid, sentry, serena, slack, smithery, stitch, superset, syncthing, tailscale, tavily, turborepo, twentyfirst, twilio, ubuntu-pro, unmute, vercel, virustotal, voicemod, warp, xai
-**`/shared` (legacy imports):** /base, /databases/*, /clients/*, /providers/*, /monitoring/*, /security/*, /apps/twenty-crm, /ssh, /public-urls — all stale; treat as migration input only.
+**`/shared` (legacy imports):** /base, /databases/_, /clients/_, /providers/_, /monitoring/_, /security/*, /apps/twenty-crm, /ssh, /public-urls — all stale; treat as migration input only.
 
 ---
 
@@ -110,9 +110,10 @@ Top-level roots (live): `/databases /domains /external /hosts /infra /llm-provid
 ### §4.1 `/llm-providers` — KEEP vs MOVE (authoritative)
 
 **KEEP (true model/inference providers):**
-openai, anthropic, google (gemini), groq, huggingface, ollama, sambanova, cohere, nvidia, cerebras, mistral, morph, omniroute, openrouter, llxprt, xai, fal *(if used as model inference)*, qwen *(create if active credential exists)*, kimi *(create if active credential exists)*.
+openai, anthropic, google (gemini), groq, huggingface, ollama, sambanova, cohere, nvidia, cerebras, mistral, morph, omniroute, openrouter, llxprt, xai, fal _(if used as model inference)_, qwen _(create if active credential exists)_, kimi _(create if active credential exists)_.
 
 **MOVE OUT (currently under /llm-providers but NOT providers):**
+
 - `litellm` → `/router/litellm`
 - `nexus` → `/router/nexus`
 - All SaaS/tools/CI/db/obs/security/comms items → `/external/<name>` (or functional root below):
@@ -122,6 +123,7 @@ openai, anthropic, google (gemini), groq, huggingface, ollama, sambanova, cohere
   - agentdb, agentmemory, anythingllm, apify, archon, atlassian, axiom, braintrust, browserless, calendly, chatbox, circleci, claude-code, codecov, composio, confident-ai, copilot-kit, credit-bureau, desktopcommander, discord, docker, elevenlabs, exa, figma, firecrawl, freerateupdate, galileo, gastown, gitea, github, gitkraken, gitlab, gravatar, greptile, jigsawstack, leadmailbox, lendingtree, llamaindex, lobechat, mem0, memos, mempalace, memrader, memzero, mos-embedder, mqtt, n8n-mcp, ngrok, npm, open-webui, owui, playwright, plugged-in, portainer, pypi, searxng, sendgrid, sentry, serena, slack, smithery, stitch, superset, syncthing, turborepo, twentyfirst, twilio, ubuntu-pro, unmute, vercel, voicemod, warp → `/external/<name>`
 
 ### §4.2 `/external` cleanup
+
 - `minio` → `/databases/minio`
 - `metamcp` → `/router/metamcp`
 - `nexus` (if present) → `/router/nexus`
@@ -133,25 +135,32 @@ openai, anthropic, google (gemini), groq, huggingface, ollama, sambanova, cohere
 - `twentyfirst` → verify distinct from `twenty`/`twenty-crm` before merging.
 
 ### §4.3 `/databases` normalization
+
 Keep: chromadb, falkordb, minio, mongodb, neo4j, postgres, qdrant/{cloud,local}, redis, supabase.
 Move out: floccus→/external, google-s3→/external (or /infra control-plane backup), linkwarden→/external, notion→/external, nyra-ingestion→/services (first-party; compare with lead-ingestion first — do NOT merge on name similarity alone).
 
 ### §4.4 `/observability`
+
 alertmanager, grafana, langfuse, loki, openlit, prometheus + (if active telemetry) axiom, braintrust, galileo, logfire, sentry. Use OTEL-standard variable names where supported.
 
 ### §4.5 `/router`
+
 `/router/litellm/{server,clients/{local,remote}}`, `/router/nexus`, `/router/omniroute`, `/router/metamcp`, `/router/adapters/{llxprt,ollama,subscription-wrappers}`, `/router/mcp`. Map: litellm-proxy-server→litellm/server; litellm-proxy-client-local→litellm/clients/local; litellm-proxy-client-remote→litellm/clients/remote.
 
 ### §4.6 `/security`
+
 1password, auth0, bitwarden, deepsite-auth-hf, infisical, jwt, passwordless, ssh (+ move virustotal here if chosen). Keep Cloudflare Access service tokens distinct from Cloudflare API tokens.
 
 ### §4.7 `/domains` (public/server separation)
+
 For each: `shared/{public,server}`, `web-app/{cf-pages,server}`, `landing-page/{cf-pages,server}`, `workers/*`. `cf-pages` gets ONLY values proven safe for browser build context. `server` holds private values. Never import `shared/server` into `cf-pages`. Supabase: separate modern `sb_publishable_*` / `sb_secret_*` from legacy anon/service-role JWTs; never expose secret/service-role to public paths.
 
 ### §4.8 `/hosts`
+
 Pattern: `/hosts/<host>/{base,stacks/{router,observability,memory,applications},agents,tunnels}`. Host-local values only (device IDs, bind addrs, tunnel token, mount paths, GPU select, node labels, certs). Import only the secrets a specific stack needs. A worker should NOT get CRM/mortgage/prod-DB secrets merely for running an LLM workload.
 
 ### §4.9 `/services` (first-party only)
+
 assistant-service, campaign-service, communication-service, crm-api, lead-ingestion, quote-api, quote-service, ratehunter-api, soft-pull-credit, twenty-mcp-jezweb. Move out: browserless→/external, letta→/external+/infra/ai-profiles/letta, paperclip→/external, searxng→/external, memory→classify actual impl.
 
 ---
@@ -177,7 +186,7 @@ e.g. `LITELLM_API_KEY=${prod.router.litellm.LITELLM_API_KEY}` (after litellm mov
 ## 6. `/shared` DECOMMISSION
 
 **Phase A — inventory:** for every env, list folders/secrets/imports/references/order under /shared; find every consumer; build graph legacy→source→consumer→code→target; detect dup keys/value conflicts via fingerprints (no raw values).
-**Phase B — classify:** /shared/base→split by semantic owner; /shared/databases/*→/databases/*; /shared/clients/*→/external,/router,/observability,profiles; /shared/providers/*→/llm-providers (if true provider); /shared/monitoring/*→/observability; /shared/security/*→/security; /shared/apps/twenty-crm→/domains/twenty-crm; /shared/ssh→/security/ssh; /shared/public-urls→/network/endpoints.
+**Phase B — classify:** /shared/base→split by semantic owner; /shared/databases/_→/databases/_; /shared/clients/*→/external,/router,/observability,profiles; /shared/providers/*→/llm-providers (if true provider); /shared/monitoring/*→/observability; /shared/security/*→/security; /shared/apps/twenty-crm→/domains/twenty-crm; /shared/ssh→/security/ssh; /shared/public-urls→/network/endpoints.
 **Phase C — replace consumers** with direct imports / multi `--path` / explicit references. Avoid `consumer→/shared→canonical` chains.
 **Phase D — validate & delete** only after all gates (§14) pass. If a gate fails, mark /shared deprecated/read-only and continue non-destructive work.
 

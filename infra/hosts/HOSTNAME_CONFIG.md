@@ -1,31 +1,44 @@
 # Hostname Configuration — Project Nyra Cluster
 
-**Purpose**: Define hostname resolution strategy across the 4-node GPU cluster + Oracle VPS, covering local `/etc/hosts`, Tailscale mesh DNS, and Cloudflare public ingress.
+**Purpose**: Define hostname resolution across the cluster, covering local
+`/etc/hosts`, Tailscale mesh DNS, and Cloudflare public ingress.
 
-**Last Updated**: 2026-07-17
+**Last Updated**: 2026-09-04 (LiteLLM-native control-plane migration)
+
+> **There are exactly TWO GPU workers.** A third (an RTX 3060) was retired and
+> sold. It is not a standby, fallback, embedding host or deployment target.
+>
+> **Internal application traffic MUST use `100.64.0.0/10` Tailnet addresses,
+> not the public `*.projectnyra.com` hostnames listed below.** The public names
+> do not resolve from the Oracle container network; using them for internal
+> traffic produces DNS timeouts. This was a live defect in the pre-migration
+> LiteLLM config, which reached both GPU workers by public hostname. The public
+> domains are for Cloudflare ingress only.
+>
+> The 5090 was documented here as 32 GB and elsewhere as 48 GB. `nvidia-smi`
+> reports **24463 MiB** (RTX 5090 Laptop GPU). Size everything for 24 GB.
 
 ---
 
 ## Cluster Hosts
 
-| Host                 | Role                                  | Network                     | Tailscale IP   | Public Domain                            |
-| -------------------- | ------------------------------------- | --------------------------- | -------------- | ---------------------------------------- |
-| **orchestrator**     | Control Plane (Windows host)          | Tailscale                   | 100.64.0.10    | orchestrator.projectnyra.com             |
-| **orchestrator-wsl** | Control Plane sidecar (WSL Ubuntu)    | Tailscale                   | 100.87.255.119 | orchestrator-wsl.projectnyra.com         |
-| **worker-rtx5090**   | GPU Worker — vLLM primary (32GB)      | Tailscale                   | 100.64.0.11    | worker-rtx5090.projectnyra.com           |
-| **worker-rtx3090ti** | GPU Worker — vLLM secondary (24GB)    | Tailscale                   | 100.64.0.13    | worker-rtx3090ti.projectnyra.com         |
-| **worker-rtx3060**   | GPU Worker — Ollama embeddings (12GB) | Tailscale                   | 100.64.0.12    | worker-rtx3060.projectnyra.com           |
-| **oracle-vps**       | Cloud Backend (VPS)                   | Tailscale + Public Internet | 100.64.0.3     | app.projectnyra.com, crm.projectnyra.com |
+| Host                 | Role                                                                               | Network                     | Tailscale IP   | Public Domain                            |
+| -------------------- | ---------------------------------------------------------------------------------- | --------------------------- | -------------- | ---------------------------------------- |
+| **orchestrator**     | Control Plane (Windows host)                                                       | Tailscale                   | 100.64.0.10    | orchestrator.projectnyra.com             |
+| **orchestrator-wsl** | Control Plane sidecar (WSL Ubuntu)                                                 | Tailscale                   | 100.87.255.119 | orchestrator-wsl.projectnyra.com         |
+| **worker-rtx5090**   | GPU Worker — vLLM primary (**24 GB, measured**), LMCache Redis, embedding endpoint | Tailscale                   | 100.64.0.11    | worker-rtx5090.projectnyra.com           |
+| **worker-rtx3090ti** | GPU Worker — vLLM secondary (24GB)                                                 | Tailscale                   | 100.64.0.13    | worker-rtx3090ti.projectnyra.com         |
+| **oracle-vps**       | Cloud Backend (VPS)                                                                | Tailscale + Public Internet | 100.64.0.3     | app.projectnyra.com, crm.projectnyra.com |
 
 ---
 
 ## 1. Local Hostname Resolution (`/etc/hosts`)
 
-All machines in the cluster (orchestrator + 3 workers + oracle-vps) must have entries for all 5 hosts in their local `/etc/hosts` file. This ensures reliable DNS resolution even when Tailscale DNS resolvers are unavailable.
+All machines in the cluster must have entries for all listed hosts in their local `/etc/hosts` file. This ensures reliable DNS resolution even when Tailscale DNS resolvers are unavailable.
 
 ### Configuration Steps
 
-#### 1a. On Each Local Machine (orchestrator + 3 workers)
+#### 1a. On Each Local Machine (orchestrator + both GPU workers)
 
 Edit `/etc/hosts` and add the following block:
 
@@ -35,7 +48,6 @@ Edit `/etc/hosts` and add the following block:
 100.87.255.119   orchestrator-wsl
 100.64.0.11      worker-rtx5090
 100.64.0.13      worker-rtx3090ti
-100.64.0.12      worker-rtx3060
 100.64.0.3       oracle-vps
 ```
 
@@ -63,7 +75,6 @@ Add the entries to Oracle's `/etc/hosts`:
 100.87.255.119   orchestrator-wsl
 100.64.0.11      worker-rtx5090
 100.64.0.13      worker-rtx3090ti
-100.64.0.12      worker-rtx3060
 100.64.0.3       oracle-vps
 ```
 
@@ -333,8 +344,8 @@ Host worker-rtx3090ti
     IdentityFile ~/.ssh/id_ed25519
     StrictHostKeyChecking no
 
-Host worker-rtx3060
-    HostName worker-rtx3060.ts.net
+Host
+ HostName
     User ellisapotheosis
     IdentityFile ~/.ssh/id_ed25519
     StrictHostKeyChecking no

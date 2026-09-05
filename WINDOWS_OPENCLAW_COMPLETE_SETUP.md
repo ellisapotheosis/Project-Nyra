@@ -193,8 +193,9 @@ This is the RTX5090 GPU on the Project Nyra orchestrator.
 - Model Priority:
   1. RTX5090 (local-interactive)
   2. RTX3090Ti (local-stable)
-  3. RTX3060 (local-utility)
-  4. OmniRoute (free tier)
+
+3. (local-utility)
+4. OmniRoute (free tier)
 
 **Memory Tab:**
 
@@ -246,7 +247,6 @@ This is the RTX5090 GPU on the Project Nyra orchestrator.
 
    ```
    Memory-worker agent: "Consolidate facts about Project Nyra architecture"
-   Expected: Uses RTX3060, consolidates to FalkorDB graph
    ```
 
 5. **Memory Recall Test**
@@ -315,8 +315,6 @@ infisical run --env=prod --path=/hosts/shared -- openclaw gateway --port 18789
 
 1. Go to [tailscale.com/admin/dns](https://tailscale.com/admin/dns)
 2. Add split-DNS entries:
-   - openclaw.projectnyra.com → 100.64.0.12
-   - litellm.projectnyra.com → 100.64.0.12
 
 ### Issue: "Plugin Not Found"
 
@@ -380,7 +378,6 @@ To apply:
 | Main agent    | 3-5s           | <2s        | RTX5090   |
 | Researcher    | 3-5s           | <2s        | RTX5090   |
 | Reviewer      | 2-4s           | <2s        | RTX3090Ti |
-| Memory-worker | 1-3s           | <1s        | RTX3060   |
 | Free fallback | 2-6s           | 2-4s       | OmniRoute |
 
 **Memory Capture:**

@@ -59,11 +59,11 @@ alias dc5090='docker --context worker-rtx5090'
 alias d-5090='docker --context worker-rtx5090'
 alias dc3090='docker --context worker-rtx3090ti'
 alias d-3090='docker --context worker-rtx3090ti'
-alias dc3060='docker --context worker-rtx3060'
-alias d-3060='docker --context worker-rtx3060'
+alias dc3060='docker --context '
+alias d-3060='docker --context '
 
 # Show all containers across all contexts
-alias nyra-ps='for c in orchestrator worker-rtx5090 worker-rtx3060 worker-rtx3090ti; do echo "=== Context: $c ==="; docker --context "$c" ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"; done'
+alias nyra-ps='for c in orchestrator worker-rtx5090 worker-rtx3090ti; do echo "=== Context: $c ==="; docker --context "$c" ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"; done'
 
 # ==============================================================================
 # SSH HOST SHORTCUTS
@@ -71,7 +71,7 @@ alias nyra-ps='for c in orchestrator worker-rtx5090 worker-rtx3060 worker-rtx309
 alias orch='ssh orchestrator-win'
 alias orchip='ssh orchestrator-ip'
 alias w5090='ssh worker-rtx5090-win'
-alias w3060='ssh worker-rtx3060-win'
+alias w3060='ssh '
 alias w3090='ssh worker-rtx3090ti-win'
 alias w3090ti='ssh worker-rtx3090ti-win'
 alias w3090ti-wsl='ssh worker-rtx3090ti-wsl'

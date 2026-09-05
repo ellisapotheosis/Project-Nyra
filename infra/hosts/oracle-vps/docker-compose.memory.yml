@@ -26,13 +26,21 @@ services:
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
       OPENAI_API_BASE: http://litellm:4000/v1
       OPENAI_BASE_URL: http://litellm:4000/v1
-      MEM0_LLM_MODEL: ${MEM0_LLM_MODEL:-local/qwen3-4b-3060}
-      MEM0_EMBEDDER_MODEL: ${MEM0_EMBEDDER_MODEL:-local/embeddings}
+      # Logical LiteLLM aliases. `local/qwen3-4b-3060` and `local/embeddings`
+      # were the pre-migration names and NO LONGER EXIST in
+      # infra/configs/litellm/config.yaml - the retired RTX 3060 backed both.
+      MEM0_LLM_MODEL: ${MEM0_LLM_MODEL:-nyra-fast}
+      MEM0_EMBEDDER_MODEL: ${MEM0_EMBEDDER_MODEL:-nyra-embedding}
       # nomic-embed-text emits 768 dimensions; keep Qdrant schema aligned.
+      # `nyra-embedding` now resolves to llama.cpp on orchestrator, which serves
+      # the SAME model at the SAME width (measured cosine 0.999999581 against
+      # the previous endpoint), so this number does not change and no stored
+      # vector is invalidated.
       MEM0_EMBEDDING_DIMS: ${MEM0_EMBEDDING_DIMS:-768}
       MEM0_LLM_API_KEY: ${MEM0_LLM_API_KEY:-not-needed}
       MEM0_LLM_BASE_URL: ${MEM0_LLM_BASE_URL:-http://litellm:4000/v1}
       MEM0_EMBEDDER_API_KEY: ${MEM0_EMBEDDER_API_KEY:-not-needed}
+      # Always the gateway, never the orchestrator origin directly.
       MEM0_EMBEDDER_BASE_URL: ${MEM0_EMBEDDER_BASE_URL:-http://litellm:4000/v1}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       LETTA_DEFAULT_LLM_CONFIG: ${LETTA_DEFAULT_LLM_CONFIG:-}
@@ -74,14 +82,24 @@ services:
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
       OPENAI_API_BASE: http://litellm:4000/v1
       OPENAI_BASE_URL: http://litellm:4000/v1
-      MEM0_LLM_MODEL: ${MEM0_LLM_MODEL:-local/qwen3-4b-3060}
-      MEM0_EMBEDDER_MODEL: ${MEM0_EMBEDDER_MODEL:-local/embeddings}
+      # Logical LiteLLM aliases. `local/qwen3-4b-3060` and `local/embeddings`
+      # were the pre-migration names and NO LONGER EXIST in
+      # infra/configs/litellm/config.yaml - the retired RTX 3060 backed both.
+      MEM0_LLM_MODEL: ${MEM0_LLM_MODEL:-nyra-fast}
+      MEM0_EMBEDDER_MODEL: ${MEM0_EMBEDDER_MODEL:-nyra-embedding}
       # nomic-embed-text emits 768 dimensions; keep Qdrant schema aligned.
+      # `nyra-embedding` now resolves to llama.cpp on orchestrator, which serves
+      # the SAME model at the SAME width (measured cosine 0.999999581 against
+      # the previous endpoint), so this number does not change and no stored
+      # vector is invalidated.
       MEM0_EMBEDDING_DIMS: ${MEM0_EMBEDDING_DIMS:-768}
       MEM0_LLM_API_KEY: ${MEM0_LLM_API_KEY:-not-needed}
       MEM0_LLM_BASE_URL: ${MEM0_LLM_BASE_URL:-http://litellm:4000/v1}
       MEM0_EMBEDDER_API_KEY: ${MEM0_EMBEDDER_API_KEY:-not-needed}
-      MEM0_EMBEDDER_BASE_URL: ${MEM0_EMBEDDER_BASE_URL:-http://orchestrator:11435/v1}
+      # Was `http://orchestrator:11435/v1` - a host/port that resolves to
+      # nothing from this container network and disagreed with the letta
+      # service two blocks up. Both now go through the gateway.
+      MEM0_EMBEDDER_BASE_URL: ${MEM0_EMBEDDER_BASE_URL:-http://litellm:4000/v1}
       QDRANT_HOST: qdrant
       QDRANT_PORT: 6333
       QDRANT_API_KEY: ${QDRANT_API_KEY:-}

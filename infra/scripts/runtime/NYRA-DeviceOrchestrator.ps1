@@ -30,7 +30,7 @@ param(
     [ValidateSet("wake-compute-cluster", "distribute-gpu-task", "tunnel-gpu", "setup-orchestrator", "status", "shutdown-cluster", "sync-repos", "deploy-mcp")]
     [string]$Action = "status",
     
-    [ValidateSet("area51-rtx5090", "desktop-rtx3090ti", "m15r7-rtx3060", "minisforum-um680", "all")]
+ [ValidateSet("area51-rtx5090", "desktop-rtx3090ti", "minisforum-um680", "all")]
     [string]$Device = "all",
     
     [ValidateSet("llm-inference", "image-generation", "video-processing", "code-analysis", "model-training")]
@@ -140,7 +140,6 @@ $GPUTaskConfigs = @{
         NetworkBandwidth = "High"
     }
     "code-analysis" = @{
-        PreferredGPU = @("m15r7-rtx3060", "desktop-rtx3090ti")
         MinVRAM = 4
         ParallelCapable = $true
         CPUIntensive = $true

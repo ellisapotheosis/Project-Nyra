@@ -12,11 +12,12 @@ services:
     environment:
       - CLAWTEAM_ROLE=primary
       - CLAWTEAM_HOST=orchestrator
-      # The current Docker engine reports ~7.75 GiB total memory. Keep the
-      # coordinator bounded until the host/engine memory allocation is raised.
+      # The Docker engine on orchestrator reports ~7.75 GiB allocated (below
+      # the host's measured 15.2 GB total RAM). Keep the coordinator bounded
+      # until the engine's own memory allocation is raised.
       - CLAWTEAM_MEMORY_LIMIT=2g
-      - CLAWTEAM_FALLBACK_REPLICA=worker-rtx3060:9002
-      - WORKER_NODES=["worker-rtx5090", "worker-rtx3090ti", "worker-rtx3060"]
+      - WORKER_NODES=["worker-rtx5090", "worker-rtx3090ti"]
+      # worker-rtx3060 retired 2026 — do not reintroduce as a fallback/node.
       # Nerve remains colocated with OpenClaw on worker-rtx5090.
       - NERVE_UI_ENABLED=false
       - LITELLM_API_URL=http://100.64.0.3:4000

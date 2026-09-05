@@ -26,10 +26,7 @@ $machines = @(
         OutputFile = "combined\orchestrator-mini.env"
     },
     @{
-        Name = "worker-rtx3060"
         Role = "worker"
-        Path = "/hosts/worker-rtx3060"
-        OutputFile = "combined\worker-rtx3060.env"
     },
     @{
         Name = "worker-rtx5090"
@@ -182,7 +179,7 @@ if ($OutputToFiles) {
     Write-Host "  1. Review the generated files in combined/" -ForegroundColor White
     Write-Host "  2. Copy to each PC:" -ForegroundColor White
     Write-Host "     - orchestrator-mini: combined/orchestrator-mini.env -> .env" -ForegroundColor White
-    Write-Host "     - worker-rtx3060:   combined/worker-rtx3060.env -> .env" -ForegroundColor White
+ Write-Host " - : combined/ -> .env" -ForegroundColor White
     Write-Host "     - worker-rtx5090:   combined/worker-rtx5090.env -> .env" -ForegroundColor White
     Write-Host "     - worker-rtx3090ti: combined/worker-rtx3090ti.env -> .env" -ForegroundColor White
     Write-Host "  3. Test services on each PC`n" -ForegroundColor White

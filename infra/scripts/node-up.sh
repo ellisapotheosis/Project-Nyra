@@ -3,7 +3,7 @@ set -euo pipefail
 
 NODE=${1:-}
 if [[ -z "$NODE" ]]; then
-  echo "Usage: $0 <orchestrator|oracle|worker-rtx3060|worker-rtx5090|worker-rtx3090ti|dev-laptop>" >&2
+ echo "Usage: $0 <orchestrator|oracle| |worker-rtx5090|worker-rtx3090ti|dev-laptop>" >&2
   exit 1
 fi
 

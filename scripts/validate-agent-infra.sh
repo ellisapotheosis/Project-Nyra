@@ -64,14 +64,13 @@ compose_config "webapp Composio injection" \
     docker compose -f "$tmpdir/webapp.base.yml" -f infra/compose/composio.webapp.inject.compose.yml config
 
 for file in \
-  infra/workers/worker-rtx3060/docker-compose.voice.yml \
-  infra/workers/worker-rtx3060/docker-compose.kyutai-mesh.yml \
+ infra/workers//docker-compose.voice.yml \
+ infra/workers//docker-compose.kyutai-mesh.yml \
   infra/workers/worker-rtx3090ti/docker-compose.kyutai-mesh.yml \
   infra/workers/worker-rtx5090/docker-compose.kyutai-mesh.yml
 do
   compose_config "$file" \
     env \
-      RTX3060_LAN_IP=192.168.1.36 \
       RTX3090TI_LAN_IP=192.168.1.39 \
       RTX5090_LAN_IP=192.168.1.50 \
       LITELLM_API_KEY=x \
@@ -91,8 +90,8 @@ if rg -n 'OpenMemory|MemOS|MemPalace|Activepieces|openmemory|memos|mempalace|act
   infra/environments/memory.example.env \
   infra/environments/voice-mesh.example.env \
   infra/compose/configs/openclaw/mcp.servers.composio.json \
-  infra/workers/worker-rtx3060/docker-compose.voice.yml \
-  infra/workers/worker-rtx3060/docker-compose.kyutai-mesh.yml \
+ infra/workers//docker-compose.voice.yml \
+ infra/workers//docker-compose.kyutai-mesh.yml \
   infra/workers/worker-rtx3090ti/docker-compose.kyutai-mesh.yml \
   infra/workers/worker-rtx5090/docker-compose.kyutai-mesh.yml \
   docs/architecture/kyutai-unmute-gpu-mesh.md

@@ -41,6 +41,7 @@ external/llxprt-jefe/target/release/
 ### New Makefile Targets (20+ additions)
 
 **AI Orchestration**:
+
 - `make orch` - Launch Jefe Orchestrator UI (SSH to AlienApotheosis51)
 - `make orch-attach` - Attach to existing jefe-orch session
 - `make llxprt-{claude|grid|gemini|codex}` - Launch with specific profile
@@ -48,6 +49,7 @@ external/llxprt-jefe/target/release/
 - `make llxprt-check` - Verify configuration ✅
 
 **Tmux Sessions**:
+
 - `make tmux-cluster` - Full cluster layout (Orch + 3 AI profiles)
 - `make tmux-grid` - 5-pane SSH mesh (monitor all 4 worker hosts)
 - `make tmux-ai-grid` - 4-pane AI CLI grid (concurrent profile sessions)
@@ -57,12 +59,14 @@ external/llxprt-jefe/target/release/
 ## 🚀 Quick Start
 
 ### 1. Verify Configuration
+
 ```bash
 cd infra
 make llxprt-check
 ```
 
 Output shows:
+
 - ✓ Profiles directory exists
 - ✓ Jefe binary found
 - ✓ Orchestrator in SSH config
@@ -70,6 +74,7 @@ Output shows:
 - All 4 profiles loaded
 
 ### 2. Start Docker Stack
+
 ```bash
 make bootstrap      # Start Oracle VPS, Orchestrator, Workers
 make worker-up      # Or just start GPU workers
@@ -77,7 +82,9 @@ make oracle-up      # Or just Oracle VPS
 ```
 
 ### 3. Launch AI Orchestrator UI
+
 **Terminal 1**: Jefe Orchestrator (persistent across disconnects)
+
 ```bash
 make orch
 ```
@@ -85,27 +92,33 @@ make orch
 Connects to `AlienApotheosis51` and launches jefe-orch tmux session.
 
 ### 4. Launch Concurrent AI Sessions
+
 **Terminal 2**: Claude/Anthropic
+
 ```bash
 make llxprt-claude
 ```
 
 **Terminal 3**: Local GPU Grid (vLLM on 5090/3090ti, Ollama on 3060)
+
 ```bash
 make llxprt-grid
 ```
 
 **Terminal 4**: OpenAI Codex
+
 ```bash
 make llxprt-codex
 ```
 
 ### 5. Full Cluster Layout (All at Once)
+
 ```bash
 make tmux-cluster
 ```
 
 Creates 4-window tmux session:
+
 - Window 1: Jefe Orchestrator UI
 - Window 2: Claude (Anthropic)
 - Window 3: GPU Grid (Local Inference)
@@ -182,6 +195,7 @@ make llxprt-status
 ### AI Orchestration Targets
 
 #### `make orch`
+
 Launch Jefe Orchestrator UI via SSH to AlienApotheosis51.
 
 ```bash
@@ -192,12 +206,14 @@ Launching Jefe Orchestrator UI on AlienApotheosis51...
 ```
 
 **What it does**:
+
 1. SSH to `AlienApotheosis51`
 2. Runs `~/.local/bin/jefe-bootstrap.sh`
 3. Attaches to persistent `jefe-orch` tmux session
 4. If disconnected, you can `make orch` again from any machine to re-attach
 
 #### `make orch-attach`
+
 Attach to existing jefe-orch session without SSH.
 
 ```bash
@@ -208,6 +224,7 @@ Attaching to existing Jefe Orchestrator session...
 Requires existing jefe-orch session on AlienApotheosis51.
 
 #### `make llxprt-claude`
+
 Launch llxprt with Anthropic (Claude) profile.
 
 ```bash
@@ -222,6 +239,7 @@ Launching llxprt with Anthropic (Claude) profile...
 **Model**: Claude 3.5 Sonnet
 
 #### `make llxprt-grid`
+
 Launch llxprt with Local GPU Grid profile.
 
 ```bash
@@ -237,6 +255,7 @@ Launching llxprt with Local GPU Grid profile...
 **Workers**: RTX 5090 (primary), 3090 Ti (secondary), 3060 (lightweight)
 
 #### `make llxprt-gemini`
+
 Launch llxprt with Google Gemini profile.
 
 ```bash
@@ -249,6 +268,7 @@ Launching llxprt with Google Gemini profile...
 **Uses profile**: `~/.llxprt/profiles/gemini.json`
 
 #### `make llxprt-codex`
+
 Launch llxprt with OpenAI Codex profile.
 
 ```bash
@@ -261,6 +281,7 @@ Launching llxprt with OpenAI Codex profile...
 **Uses profile**: `~/.llxprt/profiles/codex.json`
 
 #### `make llxprt-status`
+
 Show all active llxprt and jefe tmux sessions.
 
 ```bash
@@ -275,6 +296,7 @@ Active jefe sessions:
 ```
 
 #### `make llxprt-check`
+
 Verify llxprt/jefe configuration.
 
 ```bash
@@ -301,6 +323,7 @@ Profiles available:
 ### Tmux Session Targets
 
 #### `make tmux-cluster`
+
 Launch full cluster tmux session with 4 windows.
 
 ```bash
@@ -316,18 +339,21 @@ This will create a tmux session with:
 ```
 
 **Windows created**:
+
 1. `orch` - Jefe Orchestrator UI (SSH to AlienApotheosis51)
 2. `claude` - llxprt with Claude profile
 3. `grid` - llxprt with Local GPU Grid
 4. `codex` - llxprt with Codex profile
 
 **Navigation**:
+
 - Switch windows: `Ctrl+B` then `1/2/3/4`
 - Kill window: `Ctrl+B` then `X`
 - Detach: `Ctrl+B` then `D`
 - Re-attach: `tmux attach-session -t cluster-control`
 
 #### `make tmux-grid`
+
 Launch 5-pane SSH mesh monitor (all worker nodes + local).
 
 ```bash
@@ -344,6 +370,7 @@ Monitoring:
 ```
 
 **Panes**:
+
 ```
 ┌──────────────────┬──────────────┬──────────────┐
 │  Orchestrator    │   5090       │  3090 Ti     │
@@ -355,12 +382,14 @@ Monitoring:
 ```
 
 **Navigation**:
+
 - Switch panes: `Ctrl+B` then arrow keys
 - Resize panes: `Ctrl+B` then `Meta+arrow keys`
 - Zoom pane: `Ctrl+B` then `Z`
 - Detach: `Ctrl+B` then `D`
 
 #### `make tmux-ai-grid`
+
 Launch 4-pane AI CLI grid (concurrent profiles).
 
 ```bash
@@ -370,6 +399,7 @@ Launching AI CLI grid (Claude/Codex/Gemini/Workers)...
 ```
 
 **Panes**:
+
 ```
 ┌──────────────────┬──────────────┬──────────────┐
 │  Claude          │   Codex      │   Gemini     │
@@ -409,6 +439,7 @@ LLXPRT_PROFILES ?= $(HOME)/.llxprt/profiles
 Each profile in `~/.llxprt/profiles/` is a JSON file:
 
 **claude.json** (Example structure):
+
 ```json
 {
   "provider": "anthropic",
@@ -422,6 +453,7 @@ Each profile in `~/.llxprt/profiles/` is a JSON file:
 ```
 
 **local-grid.json** (Example):
+
 ```json
 {
   "provider": "local-grid",
@@ -441,7 +473,7 @@ Each profile in `~/.llxprt/profiles/` is a JSON file:
       "maxConcurrent": 3
     },
     {
-      "host": "worker-rtx3060",
+ "host":,
       "model": "mistral-7b",
       "backend": "ollama",
       "maxConcurrent": 2
@@ -457,6 +489,7 @@ Each profile in `~/.llxprt/profiles/` is a JSON file:
 ### Docker + llxprt Workflows
 
 **Scenario 1: New Feature Development**
+
 ```bash
 # Terminal 1: Start infrastructure
 make bootstrap          # Docker services ready
@@ -469,6 +502,7 @@ make tmux-grid        # Real-time worker status
 ```
 
 **Scenario 2: Local Model Testing**
+
 ```bash
 # Terminal 1: Start Docker core
 make up               # Just core stack
@@ -482,6 +516,7 @@ make llxprt-claude    # Compare with Claude Sonnet
 ```
 
 **Scenario 3: Multi-Model Benchmarking**
+
 ```bash
 # Terminal 1: Docker services (if needed)
 make oracle-up
@@ -500,6 +535,7 @@ make llxprt-grid      # Term 5
 ## 🎯 Usage Patterns
 
 ### Pattern 1: Interactive Development
+
 ```bash
 # Start everything
 make tmux-cluster
@@ -520,6 +556,7 @@ make tmux-cluster
 ```
 
 ### Pattern 2: Overnight Training Runs
+
 ```bash
 # Start GPU workers with monitoring
 make worker-up
@@ -537,6 +574,7 @@ make tmux-grid        # Re-attach mesh monitor
 ```
 
 ### Pattern 3: Production Orchestration
+
 ```bash
 # Full production stack
 make bootstrap        # All Docker services
@@ -555,6 +593,7 @@ make worker-down      # Remove workers
 ## 🚨 Troubleshooting
 
 ### Issue: "SSH connection refused"
+
 ```bash
 # Ensure orchestrator is in SSH config
 grep AlienApotheosis51 ~/.ssh/config
@@ -567,6 +606,7 @@ grep AlienApotheosis51 ~/.ssh/config
 ```
 
 ### Issue: "jefe binary not found"
+
 ```bash
 # Compile jefe binary
 cd external/llxprt-jefe
@@ -577,6 +617,7 @@ make llxprt-check
 ```
 
 ### Issue: "llxprt command not found"
+
 ```bash
 # Install llxprt CLI
 npm install -g @vybestack/llxprt-code
@@ -586,6 +627,7 @@ which llxprt
 ```
 
 ### Issue: "Profile not found"
+
 ```bash
 # Check profiles directory
 ls -la ~/.llxprt/profiles/
@@ -602,16 +644,19 @@ ls -la ~/.llxprt/profiles/
 ## 📊 Performance Notes
 
 ### GPU Grid Routing
+
 - **RTX 5090**: vLLM backend, max 4 concurrent (primary inference)
 - **RTX 3090 Ti**: vLLM + LMCache (caching layer), max 3 concurrent
 - **RTX 3060**: Ollama backend (lightweight), max 2 concurrent
 
 ### Latency Expectations
+
 - Local GPU Grid: 50-200ms (inference)
 - Claude (cloud): 200-500ms (API + network)
 - Codex (cloud): 150-400ms (API + network)
 
 ### Concurrent Session Limits
+
 - Docker services: Unlimited (separate containers)
 - llxprt sessions: 1 per profile (shared resource)
 - tmux: Unlimited panes (just terminal windows)
@@ -621,7 +666,9 @@ ls -la ~/.llxprt/profiles/
 ## 🔐 Security Notes
 
 ### SSH Configuration
+
 Ensure SSH keys are properly configured:
+
 ```bash
 # Generate key if needed
 ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
@@ -631,7 +678,9 @@ ssh-copy-id -i ~/.ssh/id_ed25519.pub user@AlienApotheosis51
 ```
 
 ### API Keys in Profiles
+
 Store securely in profile JSON:
+
 ```bash
 # Set environment variables
 export ANTHROPIC_API_KEY="sk-ant-..."
@@ -664,7 +713,7 @@ You now have:
 ✅ **Multi-Provider Support**: Claude, Gemini, Codex + Local GPU Grid  
 ✅ **Mesh Monitoring**: Real-time view of all 4 worker nodes  
 ✅ **Concurrent Development**: Run 4 AI backends simultaneously  
-✅ **Full Documentation**: Complete integration guide  
+✅ **Full Documentation**: Complete integration guide
 
 **Ready to build, code, and orchestrate at scale!** 🚀
 

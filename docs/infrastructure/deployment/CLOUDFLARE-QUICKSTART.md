@@ -14,11 +14,13 @@
 ### Step 1: Install Infisical CLI (30 seconds)
 
 **macOS:**
+
 ```bash
 brew install infisical/get-cli/infisical
 ```
 
 **Linux:**
+
 ```bash
 curl -1sLf https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh | sudo -E bash
 sudo apt-get install infisical
@@ -33,7 +35,7 @@ cloudflared login
 # Create tunnels (adjust names as needed)
 cloudflared tunnel create nyra-orchestrator
 cloudflared tunnel create nyra-worker-rtx5090
-cloudflared tunnel create nyra-worker-rtx3060
+cloudflared tunnel create nyra-
 cloudflared tunnel create nyra-worker-rtx3090ti
 ```
 
@@ -44,7 +46,6 @@ cloudflared tunnel create nyra-worker-rtx3090ti
 3. Create 4 service accounts:
    - `orchestrator-cloudflare`
    - `worker-rtx5090-cloudflare`
-   - `worker-rtx3060-cloudflare`
    - `worker-rtx3090ti-cloudflare`
 4. Copy Client ID and Client Secret for each
 
@@ -133,6 +134,7 @@ docker logs nyra-cloudflared-orchestrator
 ### Issue: "INFISICAL_CLIENT_ID required"
 
 **Solution:** Check your `.env` file has all required credentials:
+
 ```bash
 grep INFISICAL_CLIENT .env
 ```
@@ -140,6 +142,7 @@ grep INFISICAL_CLIENT .env
 ### Issue: "Token format validation failed"
 
 **Solution:** Ensure tunnel token is complete (200+ characters):
+
 ```bash
 echo $CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR | wc -c
 ```
@@ -147,6 +150,7 @@ echo $CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR | wc -c
 ### Issue: "Tunnel authentication failed"
 
 **Solution:** Verify token is stored correctly in Infisical:
+
 ```bash
 infisical secrets get --env=production --path=/nyra/orchestrator CLOUDFLARE_TUNNEL_TOKEN --plain
 ```
@@ -189,7 +193,7 @@ infisical secrets get --env=production --path=/nyra/orchestrator CLOUDFLARE_TUNN
 │   ├── cloudflare-secrets-schema.json  # Secret structure definition
 │   ├── agent-orchestrator.yaml         # Orchestrator agent config
 │   ├── agent-worker-rtx5090.yaml       # Worker 1 agent config
-│   ├── agent-worker-rtx3060.yaml       # Worker 2 agent config
+│ ├── agent- # Worker 2 agent config
 │   └── agent-worker-rtx3090ti.yaml     # Worker 3 agent config
 ├── docker-compose.cloudflare.yml       # Tunnel services + agents
 └── .env.cloudflare.example             # Example configuration
@@ -198,6 +202,7 @@ infisical secrets get --env=production --path=/nyra/orchestrator CLOUDFLARE_TUNN
 ## Full Documentation
 
 For detailed information, see:
+
 - [CLOUDFLARE-INFISICAL-INTEGRATION.md](./CLOUDFLARE-INFISICAL-INTEGRATION.md)
 - [Cloudflare Tunnel Docs](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
 - [Infisical Docs](https://infisical.com/docs)
@@ -205,6 +210,7 @@ For detailed information, see:
 ## Support
 
 If you encounter issues:
+
 1. Check logs: `docker-compose logs -f cloudflared-orchestrator agent-cloudflare-orchestrator`
 2. Validate setup: `./scripts/infisical/validate-cloudflare-tokens.sh production --verbose`
 3. Review troubleshooting guide in main documentation

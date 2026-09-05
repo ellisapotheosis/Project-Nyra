@@ -12,19 +12,18 @@ Infisical Project: apotheosis (8374cea9-e5e8-4050-bda4-b91f25ab30ef)
     ├── /shared                          # Shared variables (API keys, passwords, database)
     └── /hosts/
         ├── orchestrator-mini            # Orchestrator-specific variables
-        ├── worker-rtx3060              # RTX 3060 worker variables
+ ├── # RTX 3060 worker variables
         ├── worker-rtx5090              # RTX 5090 worker variables
         └── worker-rtx3090ti            # RTX 3090 Ti worker variables
 ```
 
 ### Machine Roles
 
-| Machine | Hostname | Role | Specialization | GPU | VRAM | Status |
-|---------|----------|------|----------------|-----|------|--------|
-| **PC1** | orchestrator-mini | orchestrator | coordination | None | 0GB | ✅ Connected |
-| **PC2** | ALIENAPOTHEOSIS | worker-rtx3060 | code generation | RTX 3060 | 12GB | ✅ Connected |
-| **PC3** | TO_BE_COLLECTED | worker-rtx5090 | reasoning | RTX 5090 | 32GB | ⏳ Pending |
-| **PC4** | TO_BE_COLLECTED | worker-rtx3090ti | analysis | RTX 3090 Ti | 24GB | ⏳ Pending |
+| Machine | Hostname          | Role             | Specialization | GPU         | VRAM | Status       |
+| ------- | ----------------- | ---------------- | -------------- | ----------- | ---- | ------------ |
+| **PC1** | orchestrator-mini | orchestrator     | coordination   | None        | 0GB  | ✅ Connected |
+| **PC3** | TO_BE_COLLECTED   | worker-rtx5090   | reasoning      | RTX 5090    | 32GB | ⏳ Pending   |
+| **PC4** | TO_BE_COLLECTED   | worker-rtx3090ti | analysis       | RTX 3090 Ti | 24GB | ⏳ Pending   |
 
 ## 📁 Files in This Directory
 
@@ -35,12 +34,6 @@ Infisical Project: apotheosis (8374cea9-e5e8-4050-bda4-b91f25ab30ef)
   - Worker connection URLs
   - Service coordination settings
   - RuVector leader configuration
-
-- **`worker-rtx3060.env`** - RTX 3060 worker (ALIENAPOTHEOSIS) ✅ ACTUAL VALUES
-  - Real network info from machine-info.json
-  - 12GB VRAM configuration
-  - Code generation models (CodeLlama, Qwen, Gemma)
-  - Ollama settings for medium models
 
 - **`worker-rtx5090.env`** - RTX 5090 worker (Primary GPU) ⏳ PLACEHOLDERS
   - 32GB VRAM configuration
@@ -97,12 +90,12 @@ After uploading, generate combined .env files that merge `/shared` + `/hosts/<pc
 .\generate-combined-env.ps1 -MachineRole "orchestrator-mini"
 
 # Generate only for specific machine
-.\generate-combined-env.ps1 -MachineRole "worker-rtx3060" -OutputToFiles
+.\generate-combined-env.ps1 -MachineRole -OutputToFiles
 ```
 
 This creates files in `combined/`:
+
 - `combined/orchestrator-mini.env`
-- `combined/worker-rtx3060.env`
 - `combined/worker-rtx5090.env`
 - `combined/worker-rtx3090ti.env`
 
@@ -111,6 +104,7 @@ This creates files in `combined/`:
 Copy the generated combined .env file to each machine:
 
 **On orchestrator-mini (PC1):**
+
 ```powershell
 # Copy combined .env
 Copy-Item combined/orchestrator-mini.env $env:PROJECT_ROOT\.env
@@ -119,16 +113,16 @@ Copy-Item combined/orchestrator-mini.env $env:PROJECT_ROOT\.env
 docker compose -f infra/cluster-setup/docker-compose.orchestrator.yml up -d
 ```
 
-**On worker-rtx3060 (PC2 - ALIENAPOTHEOSIS):**
 ```powershell
 # Copy combined .env
-Copy-Item combined/worker-rtx3060.env $env:PROJECT_ROOT\.env
+Copy-Item combined/ $env:PROJECT_ROOT\.env
 
 # Start services
 docker compose -f infra/cluster-setup/docker-compose.worker.yml up -d
 ```
 
 **On worker-rtx5090 (PC3) and worker-rtx3090ti (PC4):**
+
 ```powershell
 # After collecting actual values, same deployment process
 ```
@@ -171,7 +165,7 @@ Common across all machines:
 Local .env files          Infisical Paths
 ─────────────────         ───────────────
 orchestrator-mini.env  →  /hosts/orchestrator
-worker-rtx3060.env     →  /hosts/worker-rtx3060
+ → /hosts/
 worker-rtx5090.env     →  /hosts/worker-rtx5090
 worker-rtx3090ti.env   →  /hosts/worker-rtx3090ti
 
@@ -188,7 +182,7 @@ Infisical Paths              Combined Output
 /machines/orch...    ┘
 
 /shared              ┐
-                     ├─ merge →  combined/worker-rtx3060.env
+ ├─ merge → combined/
 /machines/worker-3060┘
 
 [generate-combined-env.ps1]
@@ -229,6 +223,7 @@ cd C:\Dev\Projects\Repos\Project-Nyra\infra\machines
 ### Step 3: Update .env Files
 
 Take the values from `machine-info.json` and replace placeholders in:
+
 - `worker-rtx5090.env` - Replace all `TO_BE_COLLECTED` values
 - `worker-rtx3090ti.env` - Replace all `TO_BE_COLLECTED` values
 
@@ -246,6 +241,7 @@ Take the values from `machine-info.json` and replace placeholders in:
 **Purpose**: Parse machine-specific .env files and upload each variable to Infisical.
 
 **Parameters**:
+
 - `-DryRun` - Preview what would be uploaded without making changes
 - `-Verbose` - Show detailed output for each variable
 
@@ -263,6 +259,7 @@ Take the values from `machine-info.json` and replace placeholders in:
 ```
 
 **What it does**:
+
 1. Reads each machine's .env file
 2. Parses variables (skips comments and empty lines)
 3. Uploads to `/hosts/<pc-name>` path in Infisical
@@ -270,6 +267,7 @@ Take the values from `machine-info.json` and replace placeholders in:
 5. Skips `TO_BE_*` placeholders in dry-run mode
 
 **Output**:
+
 ```
 📁 Uploading orchestrator-mini (orchestrator-mini.env)
    Found 67 variables
@@ -288,6 +286,7 @@ Skipped:  0
 **Purpose**: Download variables from Infisical and merge `/shared` + `/hosts/<pc>` into single .env file.
 
 **Parameters**:
+
 - `-MachineRole <name>` - Generate only for specific machine
 - `-OutputToFiles` - Write to `combined/` directory (otherwise just preview)
 
@@ -300,11 +299,11 @@ Skipped:  0
 # Generate all combined files
 .\generate-combined-env.ps1 -OutputToFiles
 
-# Generate only worker-rtx3060
-.\generate-combined-env.ps1 -MachineRole "worker-rtx3060" -OutputToFiles
+.\generate-combined-env.ps1 -MachineRole -OutputToFiles
 ```
 
 **What it does**:
+
 1. Exports variables from `/shared` using Infisical CLI
 2. Exports variables from `/hosts/<pc-name>` using Infisical CLI
 3. Merges into single .env file (machine-specific overrides shared)
@@ -312,6 +311,7 @@ Skipped:  0
 5. Saves to `combined/<machine>.env` if `-OutputToFiles` specified
 
 **Output Format**:
+
 ```env
 # ==============================================================================
 # COMBINED ENVIRONMENT VARIABLES: orchestrator-mini
@@ -368,16 +368,19 @@ infisical export --path="/shared" --format=dotenv
 **Debug steps**:
 
 1. **Verify token is valid**:
+
 ```powershell
 infisical secrets list --path="/shared" --env=dev --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
 ```
 
 2. **Test uploading single variable**:
+
 ```powershell
 infisical secrets set "TEST_VAR" "test_value" --path="/hosts/orchestrator" --env=dev --projectId="8374cea9-e5e8-4050-bda4-b91f25ab30ef"
 ```
 
 3. **Run upload script with verbose**:
+
 ```powershell
 .\upload-machines-to-infisical.ps1 -Verbose
 ```
@@ -398,6 +401,7 @@ infisical secrets set "TEST_VAR" "test_value" --path="/hosts/orchestrator" --env
 **Cause**: PC3/PC4 not connected yet, still have `TO_BE_COLLECTED` values
 
 **Solution**:
+
 1. Connect PCs to Tailscale
 2. Run `PC-INFO-COLLECTOR.ps1` on each PC
 3. Update .env files with actual values
@@ -411,7 +415,6 @@ infisical secrets set "TEST_VAR" "test_value" --path="/hosts/orchestrator" --env
 - [ ] Upload machine configs to Infisical
 - [ ] Generate combined .env files
 - [ ] Copy combined .env to orchestrator-mini
-- [ ] Copy combined .env to worker-rtx3060
 - [ ] Test orchestrator services start correctly
 - [ ] Test worker services start correctly
 - [ ] Verify Tailscale connectivity between PCs

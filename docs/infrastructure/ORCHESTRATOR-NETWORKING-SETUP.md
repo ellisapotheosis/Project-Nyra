@@ -11,10 +11,12 @@
 ### **Tailscale** → Install in BOTH Windows AND WSL
 
 **Why BOTH?**
+
 - **Windows Tailscale**: Provides system-wide VPN access, enables all Windows applications to reach workers
 - **WSL Tailscale**: Ensures Docker containers can directly access GPU workers via Tailscale mesh network
 
 **Installation Order**:
+
 1. Install Tailscale in Windows (GUI app)
 2. Install Tailscale in WSL2 (daemon mode)
 3. Configure both to use same account
@@ -22,6 +24,7 @@
 ### **Cloudflared** → Install in WSL ONLY
 
 **Why WSL?**
+
 - Docker containers run in WSL2 backend
 - All services (Nexus, Grafana, etc.) are in Docker
 - Cloudflared needs to access localhost:port of Docker services
@@ -49,18 +52,21 @@ Before starting, ensure you have:
 ### Step 1: Install Tailscale (Windows)
 
 **Option A: Using WinGet (Recommended)**
+
 ```powershell
 # Run in PowerShell as Administrator
 winget install tailscale.tailscale
 ```
 
 **Option B: Manual Install**
+
 1. Download: https://tailscale.com/download/windows
 2. Run installer
 3. Sign in with your account
 4. Verify: Check system tray for Tailscale icon
 
 **Configure Windows Tailscale**:
+
 1. Click Tailscale system tray icon
 2. Click "Settings"
 3. Enable "Use Tailscale DNS"
@@ -344,6 +350,7 @@ Once orchestrator is set up, configure each worker PC:
 ### Cloudflared Security
 
 ✅ **DO**:
+
 - Store credentials in `/etc/cloudflared/` with `600` permissions
 - Use systemd for automatic restart
 - Enable Cloudflare Access for admin services
@@ -351,6 +358,7 @@ Once orchestrator is set up, configure each worker PC:
 - Monitor tunnel health via Prometheus
 
 ❌ **DON'T**:
+
 - Commit credentials to Git
 - Run cloudflared as root
 - Disable TLS verification
@@ -359,6 +367,7 @@ Once orchestrator is set up, configure each worker PC:
 ### Tailscale Security
 
 ✅ **DO**:
+
 - Enable MFA on Tailscale account
 - Use ACLs to restrict worker access
 - Enable key expiry (90 days)
@@ -366,6 +375,7 @@ Once orchestrator is set up, configure each worker PC:
 - Monitor access logs
 
 ❌ **DON'T**:
+
 - Share auth keys publicly
 - Disable device approval
 - Use admin keys for workers
@@ -426,6 +436,7 @@ done
 **Error**: `tailscale up` hangs or fails
 
 **Fix**:
+
 ```bash
 # Check if tailscaled daemon is running
 sudo systemctl status tailscaled
@@ -442,6 +453,7 @@ sudo journalctl -u tailscaled -n 50
 **Error**: Dashboard shows tunnel offline
 
 **Fix**:
+
 ```bash
 # Check service is running
 sudo systemctl status cloudflared-orchestrator
@@ -464,6 +476,7 @@ cloudflared tunnel --config /etc/cloudflared/config.yml run nyra-prod-orchestrat
 **Error**: 502 Bad Gateway when accessing subdomain
 
 **Fix**:
+
 ```bash
 # Verify Docker container is running
 docker compose -f infra/docker-compose.yml ps nexus-router
@@ -486,6 +499,7 @@ cat /etc/cloudflared/config.yml
 This is normal! Windows and WSL are separate network stacks. Both need Tailscale for full connectivity.
 
 **Optimization**: You can disable one if only using Docker:
+
 - Keep WSL Tailscale if only Docker needs access
 - Keep Windows Tailscale if Windows apps need access
 - Keep both for maximum flexibility (recommended)
@@ -500,11 +514,11 @@ private Split DNS subdomain (`*.projectnyra.com`, resolved inside the tailnet on
 
 Currently configured Tailscale-private MCP services:
 
-| Service            | MagicDNS                                | Split DNS                           | Port |
-| ------------------ | --------------------------------------- | ----------------------------------- | ---- |
-| `spline-mcp`       | `spline-mcp.trex-fiordland.ts.net`      | `spline-mcp.projectnyra.com`        | 8779 |
-| `meshy-mcp`        | `meshy-mcp.trex-fiordland.ts.net`       | `meshy-mcp.projectnyra.com`         | 8780 |
-| `loki-website-mcp` | `loki-website-mcp.trex-fiordland.ts.net`| `loki-website-mcp.projectnyra.com`  | 8781 |
+| Service            | MagicDNS                                 | Split DNS                          | Port |
+| ------------------ | ---------------------------------------- | ---------------------------------- | ---- |
+| `spline-mcp`       | `spline-mcp.trex-fiordland.ts.net`       | `spline-mcp.projectnyra.com`       | 8779 |
+| `meshy-mcp`        | `meshy-mcp.trex-fiordland.ts.net`        | `meshy-mcp.projectnyra.com`        | 8780 |
+| `loki-website-mcp` | `loki-website-mcp.trex-fiordland.ts.net` | `loki-website-mcp.projectnyra.com` | 8781 |
 
 ### Step A: Give Each MCP Its Own MagicDNS Hostname (Tailscale Sidecar Pattern)
 
@@ -518,14 +532,14 @@ services:
     image: tailscale/tailscale:latest
     hostname: spline-mcp
     environment:
-      - TS_AUTHKEY=${TS_AUTHKEY_SPLINE_MCP}   # ephemeral key, tag:mcp-server
+      - TS_AUTHKEY=${TS_AUTHKEY_SPLINE_MCP} # ephemeral key, tag:mcp-server
       - TS_HOSTNAME=spline-mcp
       - TS_STATE_DIR=/var/lib/tailscale
-      - TS_SERVE_CONFIG=/config/serve.json     # optional: auto-configure tailscale serve
+      - TS_SERVE_CONFIG=/config/serve.json # optional: auto-configure tailscale serve
     volumes:
       - spline-mcp-ts-state:/var/lib/tailscale
     cap_add: [NET_ADMIN, SYS_MODULE]
-    network_mode: service:spline-mcp           # shares network namespace with the MCP container
+    network_mode: service:spline-mcp # shares network namespace with the MCP container
 
   spline-mcp:
     image: your-spline-mcp-image
@@ -559,6 +573,7 @@ MCP's Tailscale IP — without touching Cloudflare or public DNS.
 **Option 1 — Point Split DNS to MagicDNS resolver (simplest)**
 
 In the Tailscale admin console (login.tailscale.com/admin/dns):
+
 1. Under "Nameservers" → "Add nameserver" → "Custom"
 2. Set nameserver IP to `100.100.100.100` (Tailscale's own MagicDNS resolver)
 3. Set the restricted domain to `projectnyra.com`
@@ -585,6 +600,7 @@ services:
 ```
 
 `/zones/projectnyra.com.db`:
+
 ```zone
 $ORIGIN projectnyra.com.
 @ 300 IN SOA ns1 admin 1 3600 900 604800 300
@@ -620,7 +636,7 @@ Full setup reference: `docs/network/TAILSCALE-SERVICES.md`
 
 After completing this setup:
 
-1. **Configure GPU Workers**: Repeat similar steps on Worker-RTX5090, RTX3060, RTX3090Ti
+1. **Configure GPU Workers**: Repeat similar steps on Worker-RTX5090, RTX3090Ti
 2. **Setup Wake-on-LAN**: Configure RTX3090Ti for on-demand wake (see `QUICK-REFERENCE-WOL.md`)
 3. **Configure Cloudflare Access**: Setup authentication for admin services
 4. **Setup Monitoring**: Import Grafana dashboards for Tailscale and Cloudflared metrics

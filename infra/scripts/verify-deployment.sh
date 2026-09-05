@@ -138,7 +138,7 @@ echo
 echo "📋 PHASE 4: Worker Services"
 echo "───────────────────────────────────────────────────────────────────"
 
-for worker in "worker-rtx3060:100.64.0.20" "worker-rtx3090ti:100.64.0.21" "worker-rtx5090:100.64.0.22"; do
+for worker in .64.0.20" "worker-rtx3090ti:100.64.0.21" "worker-rtx5090:100.64.0.22"; do
   IFS=: read name ip <<< "$worker"
   check_port "$name LiteLLM" "$ip" "4000"
 done

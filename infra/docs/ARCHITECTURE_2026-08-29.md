@@ -48,8 +48,6 @@
 └─────────────────────────────────────────┘
 ```
 
-### Worker-RTX3090Ti + Worker-RTX3060
-
 ```
 Similar GPU nodes (24GB + 12GB VRAM respectively)
 ```

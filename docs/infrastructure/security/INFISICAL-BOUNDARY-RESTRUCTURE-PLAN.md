@@ -10,7 +10,6 @@ Host boundaries:
 - `/hosts/orchestrator`
 - `/hosts/worker-rtx5090`
 - `/hosts/worker-rtx3090ti`
-- `/hosts/worker-rtx3060`
 - `/hosts/homeassistant`
 
 App boundaries:

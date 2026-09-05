@@ -29,9 +29,8 @@ HOST_BUCKETS = {
     "orchestrator": ["orchestrator", "litellm", "langfuse", "n8n", "cloudflare", "portainer", "openclaw", "router", "postgres", "redis", "twenty", "gitea", "infisical"],
     "homeassistant": ["homeassistant", "ha_", "hass"],
     "oracle-vps": ["oracle", "oci", "onevm", "vps"],
-    "worker-rtx3060": ["rtx3060", "3060", "ollama", "embedding"],
     "worker-rtx3090ti": ["rtx3090", "3090", "vllm", "lmcache"],
-    "worker-rtx5090": ["rtx5090", "5090", "vllm", "lmcache"],
+    "worker-rtx5090": ["rtx5090", "5090", "vllm", "lmcache", "ollama", "embedding"],
 }
 
 ENV_HINTS = {
@@ -213,7 +212,7 @@ def main() -> None:
     master.append("")
     master.append("## Host-specific secret/env lists")
     master.append("")
-    for host in ["orchestrator", "homeassistant", "oracle-vps", "worker-rtx3060", "worker-rtx3090ti", "worker-rtx5090"]:
+    for host in ["orchestrator", "homeassistant", "oracle-vps", "worker-rtx3090ti", "worker-rtx5090"]:
         master.append(f"### {host}")
         vars_sorted = sorted(host_vars.get(host, set()))
         if not vars_sorted:

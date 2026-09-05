@@ -97,7 +97,6 @@ services:
     container_name: nyra-clawteam-primary
     environment:
       CLAWTEAM_ROLE: primary
-      WORKER_NODES: ["worker-rtx5090", "worker-rtx3090ti", "worker-rtx3060"]
       LITELLM_URL: http://nyra-litellm:4000/v1
     ports:
       - "8085:8085"

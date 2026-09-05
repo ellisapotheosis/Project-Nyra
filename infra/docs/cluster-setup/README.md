@@ -18,6 +18,7 @@ This saves a file `PC-INFO-<hostname>-<timestamp>.txt` with network details.
 ### 2. Review the Setup Guide
 
 Read the complete setup guide:
+
 - **[CLUSTER-SETUP-GUIDE.md](./CLUSTER-SETUP-GUIDE.md)** - Step-by-step instructions
 
 ### 3. Install Tailscale on All PCs
@@ -42,11 +43,11 @@ Follow Phase 3-5 in the [CLUSTER-SETUP-GUIDE.md](./CLUSTER-SETUP-GUIDE.md).
 
 ## Files
 
-| File | Purpose |
-|------|---------|
-| `CLUSTER-SETUP-GUIDE.md` | Complete setup documentation |
-| `PC-INFO-COLLECTOR.ps1` | Gather network info from each PC |
-| `TEST-CLUSTER-CONNECTIVITY.ps1` | Test connectivity between all PCs |
+| File                               | Purpose                                |
+| ---------------------------------- | -------------------------------------- |
+| `CLUSTER-SETUP-GUIDE.md`           | Complete setup documentation           |
+| `PC-INFO-COLLECTOR.ps1`            | Gather network info from each PC       |
+| `TEST-CLUSTER-CONNECTIVITY.ps1`    | Test connectivity between all PCs      |
 | `cloudflared-config-template.yaml` | Template for cloudflared configuration |
 
 ## Current Status
@@ -54,10 +55,8 @@ Follow Phase 3-5 in the [CLUSTER-SETUP-GUIDE.md](./CLUSTER-SETUP-GUIDE.md).
 **As of 2026-01-22**:
 
 ✅ **Connected (2/4)**:
-- `orchestrator-mini` (100.115.69.115)
-- `worker-rtx3060` (100.83.23.49) - Current PC (AlienApotheosis)
 
-❓ **Not Connected (2/4)**:
+- `orchestrator-mini` (100.115.69.115)
 - `worker-5090` (RTX 5090, 48GB VRAM)
 - `worker-3090` (RTX 3090 Ti, 24GB VRAM)
 
@@ -73,6 +72,7 @@ Follow Phase 3-5 in the [CLUSTER-SETUP-GUIDE.md](./CLUSTER-SETUP-GUIDE.md).
 ## Architecture Reference
 
 See `CLAUDE.md` for the complete Project Nyra architecture and:
+
 - GPU worker specifications
 - LLM model distribution
 - Nexus Router configuration
@@ -81,6 +81,7 @@ See `CLAUDE.md` for the complete Project Nyra architecture and:
 ## Support
 
 For issues, see:
+
 - Tailscale KB: https://tailscale.com/kb/
 - Cloudflared docs: https://developers.cloudflare.com/cloudflare-one/
 - Project Nyra whitepaper: `ToDo/whitepaper-workflow/nyra-mcp-infisical-patchkit-v1/docs/whitepaper/`

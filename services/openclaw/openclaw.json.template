@@ -32,9 +32,9 @@
             "embedder": {
               "provider": "openai",
               "config": {
-                "model": "${MEM0_EMBEDDER_MODEL:-nomic-embed-text}",
+                "model": "${MEM0_EMBEDDER_MODEL:-nyra-embedding}",
                 "api_key": "${MEM0_EMBEDDER_API_KEY:-not-needed}",
-                "base_url": "${MEM0_EMBEDDER_BASE_URL:-http://100.64.0.12:11435/v1}"
+                "base_url": "${MEM0_EMBEDDER_BASE_URL:-http://100.64.0.3:4000/v1}"
               }
             },
             "vectorStore": {
@@ -52,9 +52,9 @@
             "llm": {
               "provider": "openai",
               "config": {
-                "model": "${MEM0_LLM_MODEL:-llama3.2:3b}",
+                "model": "${MEM0_LLM_MODEL:-nyra-fast}",
                 "api_key": "${MEM0_LLM_API_KEY:-not-needed}",
-                "base_url": "${MEM0_LLM_BASE_URL:-http://100.64.0.12:11435/v1}"
+                "base_url": "${MEM0_LLM_BASE_URL:-http://100.64.0.3:4000/v1}"
               }
             }
           }

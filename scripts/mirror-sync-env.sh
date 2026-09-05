@@ -24,7 +24,6 @@ for dir in "$BASE_DIR"/*/; do
         continue
     fi
 
-    # Strip trailing slash and get the folder name (e.g., worker-rtx3060)
     folder_name=$(basename "$dir")
     
     # Define the target path in Infisical

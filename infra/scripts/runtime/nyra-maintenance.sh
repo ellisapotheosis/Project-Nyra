@@ -43,7 +43,7 @@ fi
 
 # Verify critical directories
 echo "→ Verifying directory structure..."
-for dir in infra/shared infra/orchestrator-mini infra/worker-rtx3060 infra/worker-rtx3090ti infra/worker-rtx5090; do
+for dir in infra/shared infra/orchestrator-mini infra/ infra/worker-rtx3090ti infra/worker-rtx5090; do
     mkdir -p "$dir/scripts" 2>/dev/null || true
 done
 echo "✓ Directory structure verified"

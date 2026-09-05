@@ -232,7 +232,7 @@ tmux-grid:
 	@tmux send-keys -t mesh-grid "ssh $(ORCHESTRATOR_HOST)" C-m
 	@tmux split-window -t mesh-grid -h "ssh worker-rtx5090"
 	@tmux split-window -t mesh-grid -v "ssh worker-rtx3090ti"
-	@tmux split-window -t mesh-grid -v "ssh worker-rtx3060"
+	@tmux split-window -t mesh-grid -v "ssh
 	@tmux split-window -t mesh-grid -v "pwd"
 	@tmux attach-session -t mesh-grid
 

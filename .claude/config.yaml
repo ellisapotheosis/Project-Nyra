@@ -8,7 +8,12 @@ autonomy:
 mcp:
   enabled: true
   servers:
-    nexus-router: "http://127.0.0.1:6000/mcp"
+    # Nexus is retired. MCP aggregation is LiteLLM's job now.
+    # Internal (Tailnet) path to the canonical LiteLLM MCP endpoint.
+    # Authenticate with a SCOPED LiteLLM virtual key, never the master key.
+    # External clients go through Cloudflare Access -> the MCP Server Portal
+    # instead; see .mcp.json.
+    nyra-litellm-mcp: "http://100.64.0.3:4000/mcp"
     serena:
       command: "serena"
       args: ["start-mcp-server", "--project-from-cwd", "--context=claude-code"]

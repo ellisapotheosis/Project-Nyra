@@ -40,22 +40,30 @@ def test_build_config_no_falkordb():
         assert "graph_store" not in cfg
 
 
-def test_build_config_local_worker_route_and_dimensions():
-    """The canonical memory route must be configurable for the 3060 Ollama host."""
+def test_build_config_gateway_route_and_dimensions():
+    """The canonical memory route goes through the LiteLLM gateway by ALIAS.
+
+    mem0 must never name a host. `nyra-embedding` has already moved three times
+    (RTX 3060 Ollama -> worker-rtx5090 Ollama -> orchestrator llama.cpp) without
+    mem0 changing, which is the point of routing through the gateway.
+
+    768 is the load-bearing assertion: every stored Qdrant vector was written at
+    that width, so a change here means re-embedding, not a config tweak.
+    """
     with patch.dict(os.environ, {
         "MEM0_LLM_API_KEY": "not-needed",
-        "MEM0_LLM_BASE_URL": "http://100.64.0.12:11435/v1",
-        "MEM0_LLM_MODEL": "llama3.2:3b",
+        "MEM0_LLM_BASE_URL": "http://litellm:4000/v1",
+        "MEM0_LLM_MODEL": "nyra-fast",
         "MEM0_EMBEDDER_API_KEY": "not-needed",
-        "MEM0_EMBEDDER_BASE_URL": "http://100.64.0.12:11435/v1",
-        "MEM0_EMBEDDER_MODEL": "nomic-embed-text",
+        "MEM0_EMBEDDER_BASE_URL": "http://litellm:4000/v1",
+        "MEM0_EMBEDDER_MODEL": "nyra-embedding",
         "MEM0_EMBEDDING_DIMS": "768",
     }, clear=True):
         cfg = _build_config()
 
-    assert cfg["llm"]["config"]["model"] == "llama3.2:3b"
-    assert cfg["llm"]["config"]["openai_base_url"] == "http://100.64.0.12:11435/v1"
-    assert cfg["embedder"]["config"]["model"] == "nomic-embed-text"
+    assert cfg["llm"]["config"]["model"] == "nyra-fast"
+    assert cfg["llm"]["config"]["openai_base_url"] == "http://litellm:4000/v1"
+    assert cfg["embedder"]["config"]["model"] == "nyra-embedding"
     assert cfg["embedder"]["config"]["embedding_dims"] == 768
-    assert cfg["embedder"]["config"]["openai_base_url"] == "http://100.64.0.12:11435/v1"
+    assert cfg["embedder"]["config"]["openai_base_url"] == "http://litellm:4000/v1"
     assert cfg["vector_store"]["config"]["embedding_model_dims"] == 768

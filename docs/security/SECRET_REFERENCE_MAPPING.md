@@ -91,9 +91,9 @@ Scope: Infisical Cloud → Agent Vault / Infisical Agent
 
 ### `/external/tailscale`
 
-| Key               | Usage               | Hosts                                            | Pattern                     |
-| ----------------- | ------------------- | ------------------------------------------------ | --------------------------- |
-| TAILSCALE_AUTHKEY | Tailscale node auth | worker-rtx3090ti, worker-rtx5090, worker-rtx3060 | `TAILSCALE_AUTHKEY=<value>` |
+| Key               | Usage               | Hosts                             | Pattern                     |
+| ----------------- | ------------------- | --------------------------------- | --------------------------- |
+| TAILSCALE_AUTHKEY | Tailscale node auth | worker-rtx3090ti, worker-rtx5090, | `TAILSCALE_AUTHKEY=<value>` |
 
 **Consumers:** Tailscale daemon on worker nodes
 
@@ -294,10 +294,8 @@ Scope: Infisical Cloud → Agent Vault / Infisical Agent
 
 ### `/observability/grafana`
 
-| Key                    | Usage              | Hosts                        | Pattern       |
-| ---------------------- | ------------------ | ---------------------------- | ------------- |
-| GRAFANA_ADMIN_USER     | Dashboard user     | orchestrator, worker-rtx3060 | Username      |
-| GRAFANA_ADMIN_PASSWORD | Dashboard password | orchestrator, worker-rtx3060 | Bcrypt-hashed |
+| Key | Usage | Hosts | Pattern |
+| --- | ----- | ----- | ------- |
 
 **Consumers:** Grafana service, observability dashboard
 

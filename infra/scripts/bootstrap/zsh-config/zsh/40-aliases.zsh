@@ -18,8 +18,8 @@ export WIN_HOME="/mnt/c/Users/$(cmd.exe /c echo %USERNAME% 2>/dev/null | tr -d $
 alias winhome='cd "$WIN_HOME"'
 
 alias d-orch='docker --context default'
-alias d-3060='docker --context worker-rtx3060'
+alias d-3060='docker --context '
 alias d-3090='docker --context worker-rtx3090ti'
 alias d-5090='docker --context worker-rtx5090'
-alias nyra-ps='for c in default worker-rtx3060 worker-rtx3090ti worker-rtx5090; do echo "--- Context: $c ---"; docker --context $c ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"; done'
+alias nyra-ps='for c in default worker-rtx3090ti worker-rtx5090; do echo "--- Context: $c ---"; docker --context $c ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"; done'
 alias claude-local='claude-code --api-base http://localhost:4000/v1 --model local/vybestack-coder'

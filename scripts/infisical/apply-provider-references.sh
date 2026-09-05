@@ -12,7 +12,7 @@ CUT_BIN="${CUT_BIN:-/usr/bin/cut}"
 DESTINATIONS=(
   /hosts/orchestrator
   /hosts/oracle-vps
-  /hosts/worker-rtx3060
+ /hosts/
   /hosts/worker-rtx3090ti
   /hosts/worker-rtx5090
   /hosts/homeassistant

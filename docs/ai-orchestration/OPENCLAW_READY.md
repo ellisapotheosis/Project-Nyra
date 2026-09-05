@@ -34,12 +34,11 @@ Runs in foreground. Logs to stdout + `/tmp/openclaw/openclaw-YYYY-MM-DD.log`
 
 ## 🎯 Model Routing (LiteLLM)
 
-| Model ID                         | Hardware             | Context | Provider      |
-| -------------------------------- | -------------------- | ------- | ------------- |
-| `litellm/nyra/local-interactive` | RTX5090 (24GB)       | 32K     | Local vLLM    |
-| `litellm/nyra/local-stable`      | RTX3090Ti (24GB)     | 24K     | Local vLLM    |
-| `litellm/nyra/local-utility`     | RTX3060 (6GB) Ollama | 8K      | Local Ollama  |
-| `litellm/nyra/free`              | OmniRoute            | 32K     | Free fallback |
+| Model ID                         | Hardware         | Context | Provider      |
+| -------------------------------- | ---------------- | ------- | ------------- |
+| `litellm/nyra/local-interactive` | RTX5090 (24GB)   | 32K     | Local vLLM    |
+| `litellm/nyra/local-stable`      | RTX3090Ti (24GB) | 24K     | Local vLLM    |
+| `litellm/nyra/free`              | OmniRoute        | 32K     | Free fallback |
 
 Base URL: `https://litellm.projectnyra.com/v1` (via Tailscale)
 

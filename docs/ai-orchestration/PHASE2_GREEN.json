@@ -17,8 +17,6 @@
     "oracle_grafbase_nexus_healthy": true,
     "nexus_origin_loopback_bound": true,
     "canonical_oracle_compose_contains_nexus": true,
-    "worker_rtx3060_ollama_reachable": true,
-    "worker_rtx3060_embedding_dimensions_768": true,
     "mem0_vector_add_search_cleanup": true,
     "mem0_service_healthy_after_refresh": true,
     "mem0_falkordb_compatibility_adapter_roundtrip": true
@@ -29,7 +27,6 @@
     "portal_managed_nexus_upstream_credential": "Cloudflare API shows nyra-bearer connected and ready; end-to-end Portal tool call remains unproven",
     "nexus_not_directly_public": "Access-protected public hostname and live loopback-only origin verified; direct public-origin bypass remains unproven",
     "context_benchmark_numbers": "transport probes captured; 20-call latency/context benchmark remains to be run through the selected Portal path",
-    "memory_add_vector_graph_letta_openmemory_roundtrip": "Mem0/Qdrant vector add/search/cleanup and the explicit private FalkorDB user-to-memory compatibility adapter are verified using worker-rtx3060; Letta new-session recall and OpenMemory browsing remain unverified",
     "mem0_falkordb_graph_backend": "Verified through the explicit adapter; native unsupported Mem0 graph_store provider keys remain disabled",
     "backup_snapshot_and_auth_validation": "requires host-side operational checks"
   },

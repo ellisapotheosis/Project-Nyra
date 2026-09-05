@@ -11,7 +11,6 @@ SESSION_NAME="${NYRA_TMUX_SESSION:-NYRA-CLUSTER}"
 # IP Mapping (Tailscale)
 ORCH_IP="100.64.0.10"
 RTX5090_IP="100.64.0.11"
-RTX3060_IP="100.64.0.12"
 RTX3090TI_IP="100.64.0.13"
 
 # shellcheck source=scripts/llxprt-common.sh
@@ -38,7 +37,6 @@ PANE_CLAUDE_API="export CLAUDE_CODE_USE_API=true && claude" # Example API usage 
 
 PANE_5090_MON=$(get_monitor_cmd "$RTX5090_IP" "RTX 5090" "nyra-worker-rtx5090-vllm")
 PANE_3090TI_MON=$(get_monitor_cmd "$RTX3090TI_IP" "RTX 3090 Ti" "nyra-worker-rtx3090ti-vllm")
-PANE_3060_MON=$(get_monitor_cmd "$RTX3060_IP" "RTX 3060" "nyra-worker-rtx3060-ollama")
 PANE_ORCH_MON="docker stats"
 
 # 2. Start tmux session

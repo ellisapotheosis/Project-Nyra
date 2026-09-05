@@ -23,13 +23,13 @@ The Oracle inventory verifies running containers for Qdrant, FalkorDB, Mem0, Let
 
 The Oracle memory containers are running with Qdrant and FalkorDB private (no host bindings), Mem0 loopback-only, Letta Tailscale/loopback-only, and OpenMemory Tailscale/loopback-only. Current Mem0 releases do not provide a verified native FalkorDB graph-store provider, so the service refuses unsupported provider keys and uses an explicit compatibility adapter after successful Mem0 writes. Mem0 remains the semantic authority; the adapter maintains only the normalized user-to-memory graph edge.
 
-The first synthetic `memory.add` attempt exposed two configuration issues. Mem0's service code ignored its model/base-url environment settings, and the worker routes were offline from Oracle. The service now honors explicit LLM and embedding routes. The canonical memory path targets the private worker at `100.64.0.12`: Docker Ollama exposes `llama3.2:3b` extraction and `nomic-embed-text` embeddings on port 11435. `nomic-embed-text` uses a 768-dimensional Qdrant collection. A 6 GB RTX 3060 is sufficient for this sequential extraction plus embedding workload; it is not intended to host the databases. The vector and graph round-trip is validated through the separate adapter.
+The first synthetic `memory.add` attempt exposed two configuration issues. Mem0's service code ignored its model/base-url environment settings, and the worker routes were offline from Oracle. The service now honors explicit LLM and embedding routes. The canonical memory path targets the private worker at ``: Docker Ollama exposes `llama3.2:3b` extraction and `nomic-embed-text` embeddings on port 11435. `nomic-embed-text` uses a 768-dimensional Qdrant collection. A 6 GB RTX 3060 is sufficient for this sequential extraction plus embedding workload; it is not intended to host the databases. The vector and graph round-trip is validated through the separate adapter.
 
 Worker bring-up validation:
 
 ```sh
-docker compose -f infra/hosts/worker-rtx3060/docker-compose.yml -f infra/hosts/worker-rtx3060/docker-compose.gpu.yml up -d ollama
-docker compose -f infra/hosts/worker-rtx3060/docker-compose.gpu.yml --profile setup run --rm ollama-model-loader
+docker compose -f infra/hosts//docker-compose.yml -f infra/hosts//docker-compose.gpu.yml up -d ollama
+docker compose -f infra/hosts//docker-compose.gpu.yml --profile setup run --rm ollama-model-loader
 curl http://127.0.0.1:11434/api/tags
 ```
 

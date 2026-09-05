@@ -2,7 +2,6 @@
 
 ## High Priority
 
-- Normalize duplicate worker directory naming (`worker-3060`, `worker-3090`, `worker-rtx3060`, `worker-rtx3090ti`) behind a single canonical path convention in `infra/workers/`.
 - Reduce root-level compose sprawl by formally deprecating non-canonical compose files in favor of:
   - `infra/oracle/docker-compose.oracle.yml`
   - `infra/orchestrator/docker-compose.orchestrator.yml`

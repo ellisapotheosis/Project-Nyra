@@ -5,6 +5,7 @@ Cursor, Windsurf, OpenCode, OpenClaw, Copilot CLI, Gemini, Hermes, Pi, Codex, st
 Antigravity) can mount it and get the same memory, skills, and protocols.
 
 ## Memory (read in this order)
+
 - `memory/personal/PREFERENCES.md` — stable user conventions
 - `memory/working/WORKSPACE.md` — current task state
 - `memory/working/REVIEW_QUEUE.md` — pending candidate lessons waiting for you
@@ -21,6 +22,7 @@ Check `memory/working/REVIEW_QUEUE.md` at session start. If pending > 10 or
 oldest staged > 7 days, review before substantive work.
 
 Workflow:
+
 1. `python .agent/tools/list_candidates.py` — pending candidates, sorted by priority
 2. For each: decide accept / reject / defer based on claim, evidence_ids,
    cluster_size, and any contradictions with existing LESSONS.md
@@ -36,12 +38,14 @@ judgment. Rationale is required for graduation — rubber-stamped promotions
 are the exact failure mode this layer prevents.
 
 ## Skills
+
 - `skills/_index.md` — read first for discovery
 - `skills/_manifest.jsonl` — machine-readable skill metadata
 - Load a full `SKILL.md` only when its triggers match the current task
 - Every skill has a self-rewrite hook; invoke it after failures
 
 ## Design Systems
+
 - If the project root contains `DESIGN.md`, treat it as the source of truth
   for visual design decisions and load `skills/design-md/SKILL.md` when a
   task mentions `DESIGN.md`, Google Stitch, design tokens, design system,
@@ -55,12 +59,15 @@ are the exact failure mode this layer prevents.
   edit it.
 
 ## Protocols
+
 - `protocols/permissions.md` — read before any tool call
 - `protocols/tool_schemas/` — typed interfaces for external tools
 - `protocols/delegation.md` — rules for sub-agent handoff
 
 ## Host-agent CLI tools (in `tools/`)
+
 Daily driver, highest-leverage first:
+
 - `recall.py "<intent>"` — surface graduated lessons relevant to what
   you're about to do. **Run before deploy / migration / timestamp / debug /
   refactor work.** This is how lessons cross harnesses.
@@ -82,7 +89,45 @@ Daily driver, highest-leverage first:
   CLI for git-backed long-term memory shared across harnesses.
 - `memory_reflect.py <skill> <action> <outcome>` — log a significant event.
 
+## Where the model calls go
+
+Read this before assuming the brain "runs on" a model.
+
+**The dream cycle does not call a model, by design.** `memory/auto_dream.py`,
+`promote.py` and `cluster.py` are mechanical: similarity clustering, salience
+thresholds and lifecycle bookkeeping. Subjective validation is the host agent's
+job via `list_candidates.py` / `graduate.py` / `reject.py`, and `LESSONS.md` is
+rendered, never written by a model. Do not add an LLM step there — it would let
+a model promote its own lessons with no review.
+
+**The one real model seam is `harness/llm.py`**, used by `harness/conductor.py`.
+It is provider-agnostic and env-driven:
+
+| Variable         | Meaning                                             |
+| ---------------- | --------------------------------------------------- |
+| `AGENT_PROVIDER` | `anthropic` (default) or `openai`                   |
+| `AGENT_MODEL`    | model id or LiteLLM alias                           |
+| `AGENT_BASE_URL` | OpenAI-compatible base URL (`openai` provider only) |
+| `AGENT_API_KEY`  | key for that base URL (`openai` provider only)      |
+
+`AGENT_BASE_URL` / `AGENT_API_KEY` exist so a lane can target the Nyra LiteLLM
+gateway **without** setting `OPENAI_BASE_URL` / `OPENAI_API_KEY` globally, which
+would break native subscription auth for Claude Code and Codex.
+
+The CPU memory-manager lane — BitNet b1.58 2B-4T on orchestrator, reached
+through the `nyra-memory` LiteLLM alias — is configured in
+`infra/env/agent-memory.env.example`. Source it for that lane only:
+
+```bash
+set -a; . ./infra/env/agent-memory.env; set +a
+python3 .agent/harness/conductor.py "<prompt>"
+```
+
+Address the alias, never the origin (`100.64.0.10:8087`): routing, budget and
+key scoping live at the gateway.
+
 ## Rules
+
 1. Check memory before decisions you have been corrected on before.
 2. If `REVIEW_QUEUE.md` shows backlog past threshold, handle it before the new task.
 3. Log every significant action to `memory/episodic/AGENT_LEARNINGS.jsonl`

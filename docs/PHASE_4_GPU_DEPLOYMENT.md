@@ -9,9 +9,8 @@
 Each worker already has docker-compose.yml with liteLLM defined. SSH to each worker and run:
 
 ```bash
-# worker-rtx3060 (Ollama + LiteLLM)
-ssh worker-rtx3060
-cd /home/ellisapotheosis/repos/project-nyra/infra/hosts/worker-rtx3060
+ssh
+cd /home/ellisapotheosis/repos/project-nyra/infra/hosts/
 docker-compose -f docker-compose.yml -f docker-compose.litellm.yml up -d
 docker-compose logs -f litellm
 
@@ -32,11 +31,10 @@ docker-compose logs -f litellm
 
 ### Worker Configuration
 
-| Worker           | GPU                | Role             | Port | Model                    |
-| ---------------- | ------------------ | ---------------- | ---- | ------------------------ |
-| worker-rtx3060   | RTX 3060 (12GB)    | Ollama inference | 4010 | Small quantized models   |
-| worker-rtx3090ti | RTX 3090 Ti (24GB) | vLLM inference   | 4010 | Medium-large models      |
-| worker-rtx5090   | RTX 5090 (32GB)    | Primary vLLM     | 4010 | Large models (canonical) |
+| Worker           | GPU                | Role           | Port | Model                    |
+| ---------------- | ------------------ | -------------- | ---- | ------------------------ |
+| worker-rtx3090ti | RTX 3090 Ti (24GB) | vLLM inference | 4010 | Medium-large models      |
+| worker-rtx5090   | RTX 5090 (32GB)    | Primary vLLM   | 4010 | Large models (canonical) |
 
 ### Prerequisites Checklist
 

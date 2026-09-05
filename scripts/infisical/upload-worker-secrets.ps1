@@ -97,26 +97,26 @@ $worker2Ollama = @{
     "OLLAMA_NUM_PARALLEL" = "2"
     "OLLAMA_MAX_LOADED_MODELS" = "2"
 }
-$result = Upload-Secrets -Secrets $worker2Ollama -Path "/worker-rtx3060/ollama" -Category "Ollama Config"
+$result = Upload-Secrets -Secrets $worker2Ollama -Path "//ollama" -Category "Ollama Config"
 $totalSuccess += $result.Success
 $totalFailed += $result.Failed
 
 $worker2Config = @{
-    "NYRA_PC_ID" = "worker-rtx3060"
-    "NYRA_GPU_TYPE" = "rtx_3060"
+ "NYRA_PC_ID" =
+ "NYRA_GPU_TYPE" =
     "NYRA_WORKER_ID" = "2"
     "ORCHESTRATOR_URL" = "http://orchestrator:8000"
     "CUDA_VISIBLE_DEVICES" = "0"
 }
-$result = Upload-Secrets -Secrets $worker2Config -Path "/worker-rtx3060/worker-config" -Category "Worker Config"
+$result = Upload-Secrets -Secrets $worker2Config -Path "//worker-config" -Category "Worker Config"
 $totalSuccess += $result.Success
 $totalFailed += $result.Failed
 
 $worker2Cloudflare = @{
-    "CLOUDFLARED_TOKEN_WORKER_RTX3060" = $env:CLOUDFLARED_TOKEN_WORKER_2
-    "CLOUDFLARE_TUNNEL_NAME_WORKER_2" = "nyra-worker-rtx3060"
+ "CLOUDFLARED_TOKEN_ = $env:CLOUDFLARED_TOKEN_WORKER_2
+ "CLOUDFLARE_TUNNEL_NAME_WORKER_2" = "nyra-
 }
-$result = Upload-Secrets -Secrets $worker2Cloudflare -Path "/worker-rtx3060/cloudflare" -Category "Cloudflare Tunnel"
+$result = Upload-Secrets -Secrets $worker2Cloudflare -Path "//cloudflare" -Category "Cloudflare Tunnel"
 $totalSuccess += $result.Success
 $totalFailed += $result.Failed
 

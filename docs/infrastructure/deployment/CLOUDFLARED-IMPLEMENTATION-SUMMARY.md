@@ -21,7 +21,7 @@ This document summarizes the implementation of Cloudflare Tunnel (cloudflared) c
      │             │              │              │
      ▼             ▼              ▼              ▼
 ┌─────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐
-│Orchestr.│  │RTX5090   │  │RTX3060   │  │RTX3090Ti  │
+│Orchestr.│ │RTX5090 │ │ │ │RTX3090Ti │
 │Mini     │  │Worker    │  │Worker    │  │Worker     │
 └─────────┘  └──────────┘  └──────────┘  └───────────┘
 ```
@@ -31,7 +31,9 @@ This document summarizes the implementation of Cloudflare Tunnel (cloudflared) c
 ### 1. Docker Compose Configurations
 
 #### Orchestrator-Mini
+
 **Location**: `infra/docker-compose.yml`
+
 - **Changes**: Added cloudflared service to existing infrastructure compose file
 - **Service Name**: `cloudflared`
 - **Container**: `nyra-cloudflared`
@@ -44,17 +46,19 @@ This document summarizes the implementation of Cloudflare Tunnel (cloudflared) c
   - PostgreSQL (5432 - bastion pattern)
 
 **Additional File**: `bootstrap/orchestrator-mini/docker/docker-compose.yml`
+
 - Standalone compose file for orchestrator-specific services
 - Can be used alongside main infra compose
 
 #### Worker PCs
+
 Each worker has a complete docker-compose.yml with cloudflared and development services:
 
 1. **RTX5090**: `bootstrap/worker-rtx5090/docker/docker-compose.yml`
    - Development UI: port 8090
    - GPU Monitor: port 9835
 
-2. **RTX3060**: `bootstrap/worker-rtx3060/docker/docker-compose.yml`
+2. ****: `bootstrap//docker/docker-compose.yml`
    - Development UI: port 8091
    - GPU Monitor: port 9836
 
@@ -68,7 +72,6 @@ Optional YAML configurations for advanced ingress rules:
 
 - `bootstrap/orchestrator-mini/docker/configs/cloudflared/config.yml`
 - `bootstrap/worker-rtx5090/docker/configs/cloudflared/config.yml`
-- `bootstrap/worker-rtx3060/docker/configs/cloudflared/config.yml`
 - `bootstrap/worker-rtx3090ti/docker/configs/cloudflared/config.yml`
 
 **Note**: These are optional when using token-based tunnels (recommended approach).
@@ -79,13 +82,12 @@ Each PC has a `.env.example` file:
 
 - `bootstrap/orchestrator-mini/docker/.env.example`
 - `bootstrap/worker-rtx5090/docker/.env.example`
-- `bootstrap/worker-rtx3060/docker/.env.example`
 - `bootstrap/worker-rtx3090ti/docker/.env.example`
 
 **Required Variables**:
+
 - `CLOUDFLARE_TUNNEL_TOKEN_ORCHESTRATOR`
 - `CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX5090`
-- `CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3060`
 - `CLOUDFLARE_TUNNEL_TOKEN_WORKER_RTX3090TI`
 
 ### 4. Documentation
@@ -105,10 +107,11 @@ Each PC has a `.env.example` file:
 - **Purpose**: Automated setup and validation for each PC
 
 **Usage**:
+
 ```bash
 ./bootstrap/scripts/setup-cloudflared.sh orchestrator-mini
 ./bootstrap/scripts/setup-cloudflared.sh worker-rtx5090
-./bootstrap/scripts/setup-cloudflared.sh worker-rtx3060
+./bootstrap/scripts/setup-cloudflared.sh
 ./bootstrap/scripts/setup-cloudflared.sh worker-rtx3090ti
 ```
 
@@ -117,23 +120,26 @@ Each PC has a `.env.example` file:
 ### Container Specifications
 
 All cloudflared containers use:
+
 - **Image**: `cloudflare/cloudflared:latest`
 - **Command**: `tunnel --no-autoupdate run`
 - **Restart Policy**: `unless-stopped`
 
 **Resource Limits**:
+
 ```yaml
 deploy:
   resources:
     limits:
-      cpus: '0.5'
+      cpus: "0.5"
       memory: 256M
     reservations:
-      cpus: '0.1'
+      cpus: "0.1"
       memory: 64M
 ```
 
 **Health Check**:
+
 ```yaml
 healthcheck:
   test: ["CMD", "cloudflared", "tunnel", "info"]
@@ -144,6 +150,7 @@ healthcheck:
 ```
 
 **Logging**:
+
 ```yaml
 logging:
   driver: "json-file"
@@ -155,21 +162,24 @@ logging:
 ### Network Configuration
 
 #### Orchestrator-Mini Networks
+
 - `nyra-network`: Main application network (external from infra compose)
 - `monitoring`: Prometheus/Grafana metrics
 - `databases`: Database access
 
 #### Worker Networks
+
 Each worker uses isolated network:
+
 - `worker-network`: Internal worker services
 - Subnet assignments:
   - RTX5090: `172.21.0.0/16`
-  - RTX3060: `172.22.0.0/16`
   - RTX3090Ti: `172.23.0.0/16`
 
 ### Environment Variables
 
 #### Required for All PCs
+
 ```env
 CLOUDFLARE_TUNNEL_TOKEN_<PC>=your-tunnel-token-here
 CLOUDFLARE_TUNNEL_LOGLEVEL=info
@@ -177,6 +187,7 @@ CLOUDFLARE_TUNNEL_METRICS=0.0.0.0:9126
 ```
 
 #### Orchestrator-Specific
+
 ```env
 POSTGRES_ROOT_PASSWORD=<secure-password>
 REDIS_PASSWORD=<secure-password>
@@ -184,6 +195,7 @@ MONGO_ROOT_PASSWORD=<secure-password>
 ```
 
 #### Worker-Specific
+
 ```env
 WORKER_<GPU>_DEV_UI_PORT=<port>
 WORKER_<GPU>_GPU_MONITOR_PORT=<port>
@@ -194,41 +206,42 @@ NVIDIA_VISIBLE_DEVICES=all
 
 ### Orchestrator Services
 
-| Service | Internal Port | External Hostname |
-|---------|--------------|------------------|
-| Grafana | 3003 | grafana.nyra.yourdomain.com |
-| Prometheus | 9090 | prometheus.nyra.yourdomain.com |
-| Infisical | 8080 | infisical.nyra.yourdomain.com |
-| Nexus | 6000 | nexus.nyra.yourdomain.com |
-| PostgreSQL | 5432 | postgres-bastion.nyra.yourdomain.com (bastion) |
+| Service    | Internal Port | External Hostname                              |
+| ---------- | ------------- | ---------------------------------------------- |
+| Grafana    | 3003          | grafana.nyra.yourdomain.com                    |
+| Prometheus | 9090          | prometheus.nyra.yourdomain.com                 |
+| Infisical  | 8080          | infisical.nyra.yourdomain.com                  |
+| Nexus      | 6000          | nexus.nyra.yourdomain.com                      |
+| PostgreSQL | 5432          | postgres-bastion.nyra.yourdomain.com (bastion) |
 
 ### Worker Services
 
-| Worker | Service | Internal Port | External Hostname |
-|--------|---------|--------------|------------------|
-| RTX5090 | Dev UI | 8090 | rtx5090-dev.nyra.yourdomain.com |
-| RTX5090 | GPU Monitor | 9835 | rtx5090-gpu.nyra.yourdomain.com |
-| RTX3060 | Dev UI | 8091 | rtx3060-dev.nyra.yourdomain.com |
-| RTX3060 | GPU Monitor | 9836 | rtx3060-gpu.nyra.yourdomain.com |
-| RTX3090Ti | Dev UI | 8092 | rtx3090ti-dev.nyra.yourdomain.com |
-| RTX3090Ti | GPU Monitor | 9837 | rtx3090ti-gpu.nyra.yourdomain.com |
+| Worker    | Service     | Internal Port | External Hostname                 |
+| --------- | ----------- | ------------- | --------------------------------- |
+| RTX5090   | Dev UI      | 8090          | rtx5090-dev.nyra.yourdomain.com   |
+| RTX5090   | GPU Monitor | 9835          | rtx5090-gpu.nyra.yourdomain.com   |
+| RTX3090Ti | Dev UI      | 8092          | rtx3090ti-dev.nyra.yourdomain.com |
+| RTX3090Ti | GPU Monitor | 9837          | rtx3090ti-gpu.nyra.yourdomain.com |
 
 ## Deployment Steps
 
 ### Quick Start (Per PC)
 
 1. **Navigate to PC directory**:
+
    ```bash
    cd bootstrap/<pc-name>/docker
    ```
 
 2. **Configure environment**:
+
    ```bash
    cp .env.example .env
    nano .env  # Add your tunnel token
    ```
 
 3. **Start cloudflared**:
+
    ```bash
    docker-compose up -d cloudflared
    ```
@@ -248,6 +261,7 @@ Use the setup script for guided configuration:
 ```
 
 The script will:
+
 1. Validate prerequisites (Docker, Docker Compose)
 2. Check/create `.env` file
 3. Validate `docker-compose.yml` syntax
@@ -268,12 +282,14 @@ The script will:
 ### Recommended Policies
 
 1. **Email-based Access**:
+
    ```
    Rule: Allow emails ending in @yourcompany.com
    Apply to: All orchestrator services
    ```
 
 2. **IP Restrictions** (optional):
+
    ```
    Rule: Allow specific office IPs
    Apply to: Sensitive services (PostgreSQL bastion)
@@ -294,13 +310,12 @@ All cloudflared containers expose Prometheus metrics on port `9126`:
 ```yaml
 # Prometheus scrape config
 scrape_configs:
-  - job_name: 'cloudflared'
+  - job_name: "cloudflared"
     static_configs:
       - targets:
-          - 'orchestrator-cloudflared:9126'
-          - 'worker-rtx5090-cloudflared:9126'
-          - 'worker-rtx3060-cloudflared:9126'
-          - 'worker-rtx3090ti-cloudflared:9126'
+          - "orchestrator-cloudflared:9126"
+          - "worker-rtx5090-cloudflared:9126"
+          - "worker-rtx3090ti-cloudflared:9126"
 ```
 
 ### Key Metrics
@@ -313,12 +328,14 @@ scrape_configs:
 ### Log Aggregation
 
 Logs are available via:
+
 ```bash
 docker logs <container-name>
 docker logs -f <container-name>  # Follow mode
 ```
 
 Integrate with Loki (already in orchestrator stack):
+
 ```yaml
 # Promtail config
 scrape_configs:
@@ -326,8 +343,8 @@ scrape_configs:
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
     relabel_configs:
-      - source_labels: ['__meta_docker_container_name']
-        regex: '.*cloudflared.*'
+      - source_labels: ["__meta_docker_container_name"]
+        regex: ".*cloudflared.*"
         action: keep
 ```
 
@@ -416,6 +433,7 @@ docker exec <container-name> cloudflared tunnel info
 ### Resource Usage
 
 Per cloudflared container:
+
 - **CPU**: 0.1-0.5 cores (average 0.2)
 - **Memory**: 64-256 MB (average 128 MB)
 - **Storage**: < 100 MB

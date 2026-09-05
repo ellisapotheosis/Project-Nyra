@@ -423,12 +423,6 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.yml",
-      "accessCount": 8,
-      "lastAccessed": 1785020434742,
-      "type": "file"
-    },
-    {
       "path": "infra/hosts/orchestrator/cloudflared-config.yml",
       "accessCount": 8,
       "lastAccessed": 1787984320094,
@@ -444,12 +438,6 @@
       "path": "infra/hosts/host-layout.yaml",
       "accessCount": 7,
       "lastAccessed": 1785020130246,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.gpu.yml",
-      "accessCount": 6,
-      "lastAccessed": 1778312829834,
       "type": "file"
     },
     {
@@ -471,9 +459,9 @@
       "type": "file"
     },
     {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.voice.yml",
-      "accessCount": 4,
-      "lastAccessed": 1778326742490,
+      "path": ".mcp.json",
+      "accessCount": 6,
+      "lastAccessed": 1787566859337,
       "type": "file"
     },
     {
@@ -522,12 +510,6 @@
       "path": "infra/hosts/orchestrator/docker-compose.bitnet.yml",
       "accessCount": 2,
       "lastAccessed": 1778281875198,
-      "type": "file"
-    },
-    {
-      "path": "infra/hosts/worker-rtx3060/docker-compose.worker.yml",
-      "accessCount": 2,
-      "lastAccessed": 1778281892347,
       "type": "file"
     },
     {

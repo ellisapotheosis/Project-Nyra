@@ -5,7 +5,6 @@
 #   - Orchestrator (100.64.0.10): LiteLLM, Portainer, Prometheus, etc.
 #   - RTX5090 (100.64.0.11): Primary vLLM inference
 #   - RTX3090Ti (100.64.0.13): Secondary vLLM inference
-#   - RTX3060 (100.64.0.12): Ollama, ingestion helpers
 
 # ==============================================================================
 # WSL EXECUTION HELPERS (Windows Host → PowerShell → WSL)
@@ -21,7 +20,7 @@ w5090wsl() {
 }
 
 w3060wsl() {
-  ssh worker-rtx3060-win "powershell -NoProfile -Command \"wsl -d $DISTRO -u $ORCH_WSL_USER -- bash -lc '$*'\""
+ ssh "powershell -NoProfile -Command \"wsl -d $DISTRO -u $ORCH_WSL_USER -- bash -lc '$*'\""
 }
 
 w3090wsl() {
@@ -45,8 +44,8 @@ nyra-health() {
   curl -sf --connect-timeout 3 http://100.64.0.11:8000/health >/dev/null 2>&1 && echo "✅ OK" || echo "❌ UNREACHABLE"
 
   echo ""
-  echo "📊 RTX3060 Ollama (Tailscale 100.64.0.12:11434)"
-  curl -sf --connect-timeout 3 http://100.64.0.12:11434/api/version >/dev/null 2>&1 && echo "✅ OK" || echo "❌ UNREACHABLE"
+ echo "📊 Ollama (Tailscale )"
+ curl -sf --connect-timeout 3 http:///api/version >/dev/null 2>&1 && echo "✅ OK" | | echo "❌ UNREACHABLE"
 
   echo ""
   echo "📊 RTX3090Ti vLLM (Tailscale 100.64.0.13:8000)"
@@ -88,10 +87,10 @@ nyra-push-worker() {
       echo "✅ Pushed to RTX5090"
       ;;
     3060)
-      echo "🚀 Pushing RTX3060 config..."
-      cat "$repo/infra/workers/worker-rtx3060/docker-compose.gpu.yml" | \
-        ssh worker-rtx3060-win "powershell -NoProfile -Command \"wsl -d $DISTRO -u $ORCH_WSL_USER -- bash -c 'cat > ~/docker-compose.gpu.yml'\""
-      echo "✅ Pushed to RTX3060"
+ echo "🚀 Pushing config..."
+ cat "$repo/infra/workers//docker-compose.gpu.yml" | \
+ ssh "powershell -NoProfile -Command \"wsl -d $DISTRO -u $ORCH_WSL_USER -- bash -c 'cat > ~/docker-compose.gpu.yml'\""
+ echo "✅ Pushed to
       ;;
     3090ti|3090)
       echo "🚀 Pushing RTX3090Ti config..."

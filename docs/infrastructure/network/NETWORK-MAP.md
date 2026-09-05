@@ -2,17 +2,17 @@
 
 ## Tailscale Mesh (as of last refresh)
 
-| Role                | Hostname                        | Tailscale IP  | Description                                                                |
-| ------------------- | ------------------------------- | ------------- | -------------------------------------------------------------------------- |
-| Orchestrator        | `orchestrator.projectnyra.com`  | `100.64.0.10` | MinisForum UM680 coordinating Docker, LiteLLM proxy, monitoring dashboards |
-| Worker (RTX 3060)   | `worker-3060.projectnyra.com`   | `100.64.0.11` | Ollama / GPU compute worker, hosts `ollama` at 11434                       |
-| Worker (RTX 5090)   | `worker-5090.projectnyra.com`   | `100.64.0.12` | vLLM / Kyutai TTS node, serves rate-sensitive inference workloads          |
-| Worker (RTX 3090Ti) | `worker-3090ti.projectnyra.com` | `100.64.0.13` | Ollama / Medium compute with GPU acceleration                              |
-| MCP (spline-mcp)    | `spline-mcp.trex-fiordland.ts.net` | TBD after registration | Spline 3D design MCP; Split DNS: `spline-mcp.projectnyra.com`; port 8779 |
-| MCP (meshy-mcp)     | `meshy-mcp.trex-fiordland.ts.net`  | TBD after registration | Meshy AI 3D gen MCP; Split DNS: `meshy-mcp.projectnyra.com`; port 8780 |
-| MCP (loki-website-mcp) | `loki-website-mcp.trex-fiordland.ts.net` | TBD after registration | Loki website builder MCP; Split DNS: `loki-website-mcp.projectnyra.com`; port 8781 |
-| LiteLLM Router | `litellm-router.trex-fiordland.ts.net` | TBD after registration | Private LiteLLM gateway; Split DNS: `litellm-router.projectnyra.com`; port 4000 |
-| A2A Integration | `a2a.trex-fiordland.ts.net` | TBD after registration | Private OmniRoute A2A surface; Split DNS: `a2a.projectnyra.com`; port 20128, path `/a2a` |
+| Role                   | Hostname                                 | Tailscale IP           | Description                                                                              |
+| ---------------------- | ---------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------- |
+| Orchestrator           | `orchestrator.projectnyra.com`           | `100.64.0.10`          | MinisForum UM680 coordinating Docker, LiteLLM proxy, monitoring dashboards               |
+| Worker (RTX 3060)      | `worker-3060.projectnyra.com`            | `100.64.0.11`          | Ollama / GPU compute worker, hosts `ollama` at 11434                                     |
+| Worker (RTX 5090)      | `worker-5090.projectnyra.com`            | ``                     | vLLM / Kyutai TTS node, serves rate-sensitive inference workloads                        |
+| Worker (RTX 3090Ti)    | `worker-3090ti.projectnyra.com`          | `100.64.0.13`          | Ollama / Medium compute with GPU acceleration                                            |
+| MCP (spline-mcp)       | `spline-mcp.trex-fiordland.ts.net`       | TBD after registration | Spline 3D design MCP; Split DNS: `spline-mcp.projectnyra.com`; port 8779                 |
+| MCP (meshy-mcp)        | `meshy-mcp.trex-fiordland.ts.net`        | TBD after registration | Meshy AI 3D gen MCP; Split DNS: `meshy-mcp.projectnyra.com`; port 8780                   |
+| MCP (loki-website-mcp) | `loki-website-mcp.trex-fiordland.ts.net` | TBD after registration | Loki website builder MCP; Split DNS: `loki-website-mcp.projectnyra.com`; port 8781       |
+| LiteLLM Router         | `litellm-router.trex-fiordland.ts.net`   | TBD after registration | Private LiteLLM gateway; Split DNS: `litellm-router.projectnyra.com`; port 4000          |
+| A2A Integration        | `a2a.trex-fiordland.ts.net`              | TBD after registration | Private OmniRoute A2A surface; Split DNS: `a2a.projectnyra.com`; port 20128, path `/a2a` |
 
 ## Cloudflare Tunnels (ratehunter.net namespace)
 
@@ -53,17 +53,17 @@ flowchart TB
   end
   subgraph Tailscale Mesh
     orchestrator[Orchestrator (100.64.0.10)]
-    worker3060[Worker-3060 (RTX 3060)]
+ [ (RTX 3060)]
     worker5090[Worker-5090 (RTX 5090)]
     worker3090[Worker-3090Ti (RTX 3090Ti)]
   end
   ratehunter --> orchestrator
   crm --> orchestrator
   flows --> orchestrator
-  chat --> worker3060
+ chat -->
   chat --> worker3090
   api --> orchestrator
-  orchestrator --> worker3060
+ orchestrator -->
   orchestrator --> worker5090
   orchestrator --> worker3090
 ```

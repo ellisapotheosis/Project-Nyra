@@ -71,7 +71,6 @@ When implementing work:
 
 This document is intentionally detailed so Hermes can reason about product intent without repeatedly asking what Project Nyra is.
 
-
 ## 1.1 Current Baseline at Document Date
 
 As of 2026-07-20, the repository has already absorbed substantial application, infrastructure, UI-recovery, Supabase, Cloudflare, LiteLLM, MCP, A2A, and architecture-governance work.
@@ -1997,8 +1996,6 @@ Target responsibilities:
 
 Do not assume 32 GB or 48 GB VRAM. The known target is a 24 GB RTX 5090 unless actual hardware inspection proves otherwise.
 
-## 16.5 `worker-rtx3060`
-
 Utility GPU and memory-processing worker.
 
 Target responsibilities:
@@ -2074,31 +2071,30 @@ Changes must respect host-scoped compose boundaries.
 
 ---
 
-
 ## 16.9 Target Service Placement Matrix
 
 The following matrix describes the preferred target ownership. The repository and live hosts must be inspected because transitional duplicates may still exist.
 
-| Capability | Authoritative target | Secondary/transition | Exposure |
-|---|---|---|---|
-| LiteLLM gateway and policy | Orchestrator | Existing Oracle deployment during migration | Private or Access-gated API |
-| LiteLLM database | Orchestrator Postgres | Managed/durable backup | Private |
-| Nexus Router | Orchestrator behind LiteLLM | Oracle legacy deployment | Private |
-| Hermes | `worker-rtx3090ti` | Central LiteLLM cloud/local fallback | A2A private |
-| Heavy coding/reasoning | `worker-rtx5090` | Cloud coding agents | Private |
-| Embeddings/extraction | `worker-rtx3060` | 3090 Ti when idle | Private |
-| Twenty CRM | Oracle durable plane or explicitly selected authoritative host | Orchestrator development instance | Access-gated |
-| Supabase | Oracle durable plane | Managed Supabase only by explicit decision | Public API with RLS; admin private |
-| CRM API | Oracle durable plane | Orchestrator development | Authenticated |
-| Lead ingestion/webhooks | Oracle durable plane | Cloudflare Worker/Pages Function adapter | Public hardened boundary |
-| Campaign/compliance services | Oracle durable plane | Orchestrator development | Private/authenticated |
-| Quote engine/API | Oracle durable plane or selected deterministic service host | Orchestrator development | Authenticated |
-| n8n/Activepieces | Oracle durable plane | Orchestrator development | Access-gated |
-| OpenClaw gateway | Orchestrator | Oracle relay only if required | Authenticated/Access-gated |
-| Prometheus/Loki/Grafana | Orchestrator | Oracle offsite checks | Private/Access-gated |
-| Cloudflare Pages | Cloudflare | — | Public |
-| Cloudflare Tunnel | Orchestrator and Oracle only where each has origin services | — | Public ingress agent |
-| Redis/Postgres/FalkorDB/Qdrant | Declared service owner | Replicas/backups only | Private |
+| Capability                     | Authoritative target                                           | Secondary/transition                        | Exposure                           |
+| ------------------------------ | -------------------------------------------------------------- | ------------------------------------------- | ---------------------------------- |
+| LiteLLM gateway and policy     | Orchestrator                                                   | Existing Oracle deployment during migration | Private or Access-gated API        |
+| LiteLLM database               | Orchestrator Postgres                                          | Managed/durable backup                      | Private                            |
+| Nexus Router                   | Orchestrator behind LiteLLM                                    | Oracle legacy deployment                    | Private                            |
+| Hermes                         | `worker-rtx3090ti`                                             | Central LiteLLM cloud/local fallback        | A2A private                        |
+| Heavy coding/reasoning         | `worker-rtx5090`                                               | Cloud coding agents                         | Private                            |
+| Embeddings/extraction          | ``                                                             | 3090 Ti when idle                           | Private                            |
+| Twenty CRM                     | Oracle durable plane or explicitly selected authoritative host | Orchestrator development instance           | Access-gated                       |
+| Supabase                       | Oracle durable plane                                           | Managed Supabase only by explicit decision  | Public API with RLS; admin private |
+| CRM API                        | Oracle durable plane                                           | Orchestrator development                    | Authenticated                      |
+| Lead ingestion/webhooks        | Oracle durable plane                                           | Cloudflare Worker/Pages Function adapter    | Public hardened boundary           |
+| Campaign/compliance services   | Oracle durable plane                                           | Orchestrator development                    | Private/authenticated              |
+| Quote engine/API               | Oracle durable plane or selected deterministic service host    | Orchestrator development                    | Authenticated                      |
+| n8n/Activepieces               | Oracle durable plane                                           | Orchestrator development                    | Access-gated                       |
+| OpenClaw gateway               | Orchestrator                                                   | Oracle relay only if required               | Authenticated/Access-gated         |
+| Prometheus/Loki/Grafana        | Orchestrator                                                   | Oracle offsite checks                       | Private/Access-gated               |
+| Cloudflare Pages               | Cloudflare                                                     | —                                           | Public                             |
+| Cloudflare Tunnel              | Orchestrator and Oracle only where each has origin services    | —                                           | Public ingress agent               |
+| Redis/Postgres/FalkorDB/Qdrant | Declared service owner                                         | Replicas/backups only                       | Private                            |
 
 A service may run elsewhere for development, but one location must be declared authoritative for production writes.
 
@@ -2241,7 +2237,6 @@ feature branch
 -> post-deploy health and business checks
 ```
 
-
 ---
 
 # 17. Repository and Deployment Structure
@@ -2300,7 +2295,7 @@ Project-Nyra/
 │   │   ├── oracle-vps/
 │   │   ├── worker-rtx5090/
 │   │   ├── worker-rtx3090ti/
-│   │   ├── worker-rtx3060/
+│ │ ├── /
 │   │   └── _templates/
 │   ├── configs/
 │   ├── images/
@@ -2536,7 +2531,7 @@ Example logical paths:
 /hosts/oracle-vps
 /hosts/worker-rtx5090
 /hosts/worker-rtx3090ti
-/hosts/worker-rtx3060
+/hosts/
 /apps/ratehunter
 /apps/projectnyra-landing
 /apps/projectnyra

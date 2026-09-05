@@ -28,6 +28,7 @@ This document defines the architecture for transforming the existing bootstrap/i
 ### 1.1 Existing Architecture
 
 **Strengths:**
+
 - ✅ Electron + React + TypeScript foundation
 - ✅ Multi-phase installation workflow
 - ✅ Component-based React architecture
@@ -39,6 +40,7 @@ This document defines the architecture for transforming the existing bootstrap/i
 - ✅ Docker setup integration
 
 **Limitations:**
+
 - ⚠️ Limited hardware info collection (only CPU, RAM, GPU detection)
 - ⚠️ No network configuration wizards
 - ⚠️ No static IP setup
@@ -51,12 +53,11 @@ This document defines the architecture for transforming the existing bootstrap/i
 
 ### 1.2 Target PC Types
 
-| PC Type | Hardware | Role | Special Requirements |
-|---------|----------|------|---------------------|
-| **Orchestrator** | Minisforum UH680 (Ryzen 7 6800H, 16GB RAM) | Control plane | Gitea, All databases, No GPU |
-| **Worker RTX3060** | Alienware M15R7 (RTX 3060, 32GB RAM) | Compute node | NVIDIA drivers, CUDA |
-| **Worker RTX5090** | Alienware Area-51 (RTX 5090, 32GB RAM) | Compute node | NVIDIA drivers, CUDA |
-| **Worker RTX3090Ti** | Custom PC (RTX 3090Ti, 32GB RAM) | Compute node | NVIDIA drivers, CUDA |
+| PC Type              | Hardware                                   | Role          | Special Requirements         |
+| -------------------- | ------------------------------------------ | ------------- | ---------------------------- |
+| **Orchestrator**     | Minisforum UH680 (Ryzen 7 6800H, 16GB RAM) | Control plane | Gitea, All databases, No GPU |
+| **Worker RTX5090**   | Alienware Area-51 (RTX 5090, 32GB RAM)     | Compute node  | NVIDIA drivers, CUDA         |
+| **Worker RTX3090Ti** | Custom PC (RTX 3090Ti, 32GB RAM)           | Compute node  | NVIDIA drivers, CUDA         |
 
 ---
 
@@ -275,6 +276,7 @@ App
 ### 3.2 Key Component Specifications
 
 #### WizardScreen (Base Component)
+
 ```typescript
 interface WizardScreenProps {
   title: string;
@@ -289,9 +291,10 @@ interface WizardScreenProps {
 ```
 
 #### HardwareInfoCard
+
 ```typescript
 interface HardwareInfoCardProps {
-  type: 'cpu' | 'ram' | 'gpu' | 'network';
+  type: "cpu" | "ram" | "gpu" | "network";
   data: HardwareInfo;
   editable?: boolean;
   onEdit?: (data: HardwareInfo) => void;
@@ -300,12 +303,13 @@ interface HardwareInfoCardProps {
 interface HardwareInfo {
   name: string;
   specs: Record<string, string | number>;
-  status: 'detected' | 'manual' | 'missing';
+  status: "detected" | "manual" | "missing";
   validated: boolean;
 }
 ```
 
 #### SetupWizard (Generic)
+
 ```typescript
 interface SetupWizardProps<T> {
   component: string; // e.g., "Docker", "Tailscale"
@@ -407,7 +411,10 @@ interface SetupStore {
     testNetworkConfig: () => Promise<boolean>;
 
     // Infrastructure Setup
-    updateComponentSetup: (component: string, state: ComponentSetupState) => void;
+    updateComponentSetup: (
+      component: string,
+      state: ComponentSetupState
+    ) => void;
     validateInfrastructure: () => Promise<boolean>;
 
     // VPN/Tunnel Setup
@@ -433,7 +440,7 @@ interface SetupStore {
     retrieveConfigFromInfisical: (key: string) => Promise<any>;
 
     // Logging
-    addLog: (log: Omit<LogEntry, 'timestamp'>) => void;
+    addLog: (log: Omit<LogEntry, "timestamp">) => void;
     addError: (error: Error, context: string) => void;
     clearLogs: () => void;
   };
@@ -446,14 +453,14 @@ interface SetupStore {
 // types/setup.ts
 
 export type SetupPhase =
-  | 'pc-detection'
-  | 'hardware-collection'
-  | 'network-config'
-  | 'infrastructure-setup'
-  | 'vpn-tunnel-setup'
-  | 'service-deployment'
-  | 'validation'
-  | 'complete';
+  | "pc-detection"
+  | "hardware-collection"
+  | "network-config"
+  | "infrastructure-setup"
+  | "vpn-tunnel-setup"
+  | "service-deployment"
+  | "validation"
+  | "complete";
 
 export interface HardwareInfo {
   pcName: string;
@@ -472,14 +479,14 @@ export interface HardwareInfo {
     frequency: number; // GHz
   };
   ram: {
-    type: 'DDR4' | 'DDR5';
+    type: "DDR4" | "DDR5";
     totalSize: number; // GB
     speed: number; // MHz
     slots: RAMSlot[];
   };
   gpu: {
     model: string;
-    vendor: 'NVIDIA' | 'AMD' | 'Intel' | 'Unknown';
+    vendor: "NVIDIA" | "AMD" | "Intel" | "Unknown";
     vram: number; // GB
     driverVersion?: string;
     cudaVersion?: string;
@@ -655,7 +662,7 @@ export class HardwareDetector {
   /**
    * Detect network configuration
    */
-  private async detectNetwork(): Promise<HardwareInfo['network']> {
+  private async detectNetwork(): Promise<HardwareInfo["network"]> {
     const interfaces = os.networkInterfaces();
     const primaryInterface = this.findPrimaryInterface(interfaces);
 
@@ -678,18 +685,19 @@ export class HardwareDetector {
   /**
    * Detect RAM details including type and speed
    */
-  private async detectRAM(): Promise<HardwareInfo['ram']> {
+  private async detectRAM(): Promise<HardwareInfo["ram"]> {
     // Windows: wmic memorychip get Speed,Capacity,MemoryType
     // Linux: dmidecode --type memory
 
     const output = await this.execCommand(
-      process.platform === 'win32'
-        ? 'wmic memorychip get Speed,Capacity,MemoryType,DeviceLocator /format:csv'
-        : 'sudo dmidecode --type memory'
+      process.platform === "win32"
+        ? "wmic memorychip get Speed,Capacity,MemoryType,DeviceLocator /format:csv"
+        : "sudo dmidecode --type memory"
     );
 
     const slots = this.parseRAMInfo(output);
-    const totalSize = slots.reduce((sum, slot) => sum + slot.capacity, 0) / (1024 ** 3); // GB
+    const totalSize =
+      slots.reduce((sum, slot) => sum + slot.capacity, 0) / 1024 ** 3; // GB
     const speed = slots[0]?.speed || 0;
     const type = this.inferRAMType(slots[0]?.memoryType);
 
@@ -699,11 +707,11 @@ export class HardwareDetector {
   /**
    * Detect GPU details including VRAM
    */
-  private async detectGPU(): Promise<HardwareInfo['gpu']> {
+  private async detectGPU(): Promise<HardwareInfo["gpu"]> {
     try {
       // Try nvidia-smi first
       const output = await this.execCommand(
-        'nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader'
+        "nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader"
       );
 
       return this.parseNVIDIAInfo(output);
@@ -717,30 +725,33 @@ export class HardwareDetector {
    * Infer PC type from hardware specs
    */
   private inferPCType(specs: {
-    cpu: HardwareInfo['cpu'];
-    ram: HardwareInfo['ram'];
-    gpu: HardwareInfo['gpu'];
+    cpu: HardwareInfo["cpu"];
+    ram: HardwareInfo["ram"];
+    gpu: HardwareInfo["gpu"];
   }): PCId {
-    const hasHighEndGPU = specs.gpu.some(g =>
-      g.model.includes('3090') || g.model.includes('5090')
+    const hasHighEndGPU = specs.gpu.some(
+      (g) => g.model.includes("3090") || g.model.includes("5090")
     );
 
-    const hasRTX3060 = specs.gpu.some(g => g.model.includes('3060'));
+    const has = specs.gpu.some((g) => g.model.includes("3060"));
     const ramGB = specs.ram.totalSize;
 
     if (hasHighEndGPU && ramGB >= 28) {
-      if (specs.gpu[0].model.includes('5090')) return 'worker-rtx5090';
-      if (specs.gpu[0].model.includes('3090')) return 'worker-rtx3090ti';
+      if (specs.gpu[0].model.includes("5090")) return "worker-rtx5090";
+      if (specs.gpu[0].model.includes("3090")) return "worker-rtx3090ti";
     }
 
-    if (hasRTX3060 && ramGB >= 28) return 'worker-rtx3060';
+    if (has && ramGB >= 28) return "";
 
-    if (specs.cpu.model.includes('6800H') || specs.cpu.model.includes('Ryzen 7')) {
-      return 'orchestrator-mini';
+    if (
+      specs.cpu.model.includes("6800H") ||
+      specs.cpu.model.includes("Ryzen 7")
+    ) {
+      return "orchestrator-mini";
     }
 
     // Default fallback
-    return 'orchestrator-mini';
+    return "orchestrator-mini";
   }
 }
 ```
@@ -760,9 +771,13 @@ export class StaticIPConfigurator {
       const command = `
         netsh interface ip set address name="${config.interfaceName}" static ${config.ipAddress} ${config.subnetMask} ${config.gateway}
         netsh interface ip set dns name="${config.interfaceName}" static ${config.dnsServers[0]}
-        ${config.dnsServers.slice(1).map((dns, i) =>
-          `netsh interface ip add dns name="${config.interfaceName}" ${dns} index=${i + 2}`
-        ).join('\n')}
+        ${config.dnsServers
+          .slice(1)
+          .map(
+            (dns, i) =>
+              `netsh interface ip add dns name="${config.interfaceName}" ${dns} index=${i + 2}`
+          )
+          .join("\n")}
       `;
 
       await this.execAsAdmin(command);
@@ -771,7 +786,7 @@ export class StaticIPConfigurator {
       const validation = await this.validateStaticIP(config);
       return validation.success;
     } catch (error) {
-      console.error('Failed to configure static IP:', error);
+      console.error("Failed to configure static IP:", error);
       return false;
     }
   }
@@ -806,11 +821,11 @@ export class StaticIPConfigurator {
     if (!dnsWorking) {
       return {
         success: false,
-        message: 'DNS resolution failed',
+        message: "DNS resolution failed",
       };
     }
 
-    return { success: true, message: 'Static IP configured successfully' };
+    return { success: true, message: "Static IP configured successfully" };
   }
 
   /**
@@ -826,7 +841,7 @@ export class StaticIPConfigurator {
       await this.execAsAdmin(command);
       return true;
     } catch (error) {
-      console.error('Failed to rollback to DHCP:', error);
+      console.error("Failed to rollback to DHCP:", error);
       return false;
     }
   }
@@ -854,11 +869,14 @@ export class InfisicalClient {
     password: string;
   }): Promise<boolean> {
     try {
-      const response = await axios.post(`${this.apiUrl}/api/v1/auth/login`, credentials);
+      const response = await axios.post(
+        `${this.apiUrl}/api/v1/auth/login`,
+        credentials
+      );
       this.token = response.data.token;
       return true;
     } catch (error) {
-      console.error('Infisical authentication failed:', error);
+      console.error("Infisical authentication failed:", error);
       return false;
     }
   }
@@ -866,17 +884,22 @@ export class InfisicalClient {
   /**
    * Store configuration in Infisical
    */
-  async storeConfig(key: string, value: any, metadata?: {
-    environment?: string;
-    pcType?: PCId;
-  }): Promise<boolean> {
-    if (!this.token) throw new Error('Not authenticated');
+  async storeConfig(
+    key: string,
+    value: any,
+    metadata?: {
+      environment?: string;
+      pcType?: PCId;
+    }
+  ): Promise<boolean> {
+    if (!this.token) throw new Error("Not authenticated");
 
     try {
       await axios.post(
         `${this.apiUrl}/api/v3/secrets/${key}`,
         {
-          secretValue: typeof value === 'string' ? value : JSON.stringify(value),
+          secretValue:
+            typeof value === "string" ? value : JSON.stringify(value),
           secretComment: JSON.stringify(metadata),
         },
         {
@@ -885,7 +908,7 @@ export class InfisicalClient {
       );
       return true;
     } catch (error) {
-      console.error('Failed to store config in Infisical:', error);
+      console.error("Failed to store config in Infisical:", error);
       return false;
     }
   }
@@ -894,15 +917,12 @@ export class InfisicalClient {
    * Retrieve configuration from Infisical
    */
   async retrieveConfig(key: string): Promise<any | null> {
-    if (!this.token) throw new Error('Not authenticated');
+    if (!this.token) throw new Error("Not authenticated");
 
     try {
-      const response = await axios.get(
-        `${this.apiUrl}/api/v3/secrets/${key}`,
-        {
-          headers: { Authorization: `Bearer ${this.token}` },
-        }
-      );
+      const response = await axios.get(`${this.apiUrl}/api/v3/secrets/${key}`, {
+        headers: { Authorization: `Bearer ${this.token}` },
+      });
 
       const secretValue = response.data.secret.secretValue;
 
@@ -913,7 +933,7 @@ export class InfisicalClient {
         return secretValue;
       }
     } catch (error) {
-      console.error('Failed to retrieve config from Infisical:', error);
+      console.error("Failed to retrieve config from Infisical:", error);
       return null;
     }
   }
@@ -929,7 +949,10 @@ export class InfisicalClient {
   /**
    * Store network configuration in Infisical
    */
-  async storeNetworkConfig(pcType: PCId, config: StaticIPConfig): Promise<boolean> {
+  async storeNetworkConfig(
+    pcType: PCId,
+    config: StaticIPConfig
+  ): Promise<boolean> {
     const key = `network/${pcType}/static-ip`;
     return this.storeConfig(key, config, { pcType });
   }
@@ -988,7 +1011,7 @@ export class CheckpointManager {
 
     // Save checkpoint metadata
     await fs.writeFile(
-      path.join(checkpointPath, 'checkpoint.json'),
+      path.join(checkpointPath, "checkpoint.json"),
       JSON.stringify(checkpoint, null, 2)
     );
 
@@ -1000,14 +1023,14 @@ export class CheckpointManager {
    */
   async rollbackToCheckpoint(checkpointId: string): Promise<boolean> {
     const checkpointPath = path.join(this.checkpointsDir, checkpointId);
-    const metadataPath = path.join(checkpointPath, 'checkpoint.json');
+    const metadataPath = path.join(checkpointPath, "checkpoint.json");
 
-    if (!await this.fileExists(metadataPath)) {
+    if (!(await this.fileExists(metadataPath))) {
       throw new Error(`Checkpoint ${checkpointId} not found`);
     }
 
     const checkpoint: Checkpoint = JSON.parse(
-      await fs.readFile(metadataPath, 'utf-8')
+      await fs.readFile(metadataPath, "utf-8")
     );
 
     if (!checkpoint.reversible) {
@@ -1023,7 +1046,7 @@ export class CheckpointManager {
 
       return true;
     } catch (error) {
-      console.error('Rollback failed:', error);
+      console.error("Rollback failed:", error);
       return false;
     }
   }
@@ -1036,14 +1059,20 @@ export class CheckpointManager {
     const checkpoints: Checkpoint[] = [];
 
     for (const dir of dirs) {
-      const metadataPath = path.join(this.checkpointsDir, dir, 'checkpoint.json');
+      const metadataPath = path.join(
+        this.checkpointsDir,
+        dir,
+        "checkpoint.json"
+      );
       if (await this.fileExists(metadataPath)) {
-        const checkpoint = JSON.parse(await fs.readFile(metadataPath, 'utf-8'));
+        const checkpoint = JSON.parse(await fs.readFile(metadataPath, "utf-8"));
         checkpoints.push(checkpoint);
       }
     }
 
-    return checkpoints.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return checkpoints.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
+    );
   }
 
   /**
@@ -1069,7 +1098,11 @@ export class CheckpointManager {
 
     for (const file of filesToBackup) {
       if (await this.fileExists(file)) {
-        const backupFile = path.join(checkpointPath, 'files', path.basename(file));
+        const backupFile = path.join(
+          checkpointPath,
+          "files",
+          path.basename(file)
+        );
         await fs.mkdir(path.dirname(backupFile), { recursive: true });
         await fs.copyFile(file, backupFile);
 
@@ -1094,7 +1127,11 @@ export class CheckpointManager {
     checkpointPath: string
   ): Promise<void> {
     for (const file of backupFiles) {
-      const backupFile = path.join(checkpointPath, 'files', path.basename(file.originalPath));
+      const backupFile = path.join(
+        checkpointPath,
+        "files",
+        path.basename(file.originalPath)
+      );
 
       if (await this.fileExists(backupFile)) {
         await fs.copyFile(backupFile, file.originalPath);
@@ -1108,7 +1145,7 @@ export class CheckpointManager {
   private getFilesToBackup(): string[] {
     return [
       // Network configuration files
-      'C:\\Windows\\System32\\drivers\\etc\\hosts',
+      "C:\\Windows\\System32\\drivers\\etc\\hosts",
 
       // Docker configuration
       `${process.env.APPDATA}\\.docker\\config.json`,
@@ -1223,6 +1260,7 @@ C:\Dev\Projects\Repos\Project-Nyra\
 ```
 
 **Key Principle**:
+
 - **bootstrap/installer/** = GUI application only
 - **bootstrap/windows/** and **bootstrap/wsl/** = OS-specific scripts
 - **docker/** = Docker Compose files (referenced, not copied)
@@ -1235,40 +1273,46 @@ C:\Dev\Projects\Repos\Project-Nyra\
 
 export function registerIPCHandlers(ipcMain: IpcMain) {
   // Hardware Detection
-  ipcMain.handle('hardware:detect', async () => {
+  ipcMain.handle("hardware:detect", async () => {
     const detector = new HardwareDetector();
     return await detector.detectHardware();
   });
 
   // Network Configuration
-  ipcMain.handle('network:configure-static-ip', async (event, config: StaticIPConfig) => {
-    const configurator = new StaticIPConfigurator();
-    return await configurator.configureStaticIP(config);
-  });
+  ipcMain.handle(
+    "network:configure-static-ip",
+    async (event, config: StaticIPConfig) => {
+      const configurator = new StaticIPConfigurator();
+      return await configurator.configureStaticIP(config);
+    }
+  );
 
   // Docker Management
-  ipcMain.handle('docker:install', async () => {
+  ipcMain.handle("docker:install", async () => {
     const installer = new DockerInstaller();
     return await installer.install();
   });
 
   // Service Deployment
-  ipcMain.handle('services:deploy', async (event, service: string) => {
+  ipcMain.handle("services:deploy", async (event, service: string) => {
     const deployer = getDeployerForService(service);
     return await deployer.deploy();
   });
 
   // Infisical Integration
-  ipcMain.handle('infisical:store', async (event, key: string, value: any) => {
+  ipcMain.handle("infisical:store", async (event, key: string, value: any) => {
     const client = InfisicalClient.getInstance();
     return await client.storeConfig(key, value);
   });
 
   // Rollback
-  ipcMain.handle('rollback:create-checkpoint', async (event, name: string, phase: SetupPhase) => {
-    const manager = CheckpointManager.getInstance();
-    return await manager.createCheckpoint(name, phase);
-  });
+  ipcMain.handle(
+    "rollback:create-checkpoint",
+    async (event, name: string, phase: SetupPhase) => {
+      const manager = CheckpointManager.getInstance();
+      return await manager.createCheckpoint(name, phase);
+    }
+  );
 }
 ```
 
@@ -1287,18 +1331,18 @@ export class ValidationEngine {
    */
   async validatePhase(phase: SetupPhase): Promise<ValidationResult> {
     switch (phase) {
-      case 'pc-detection':
+      case "pc-detection":
         return this.validatePCDetection();
-      case 'network-config':
+      case "network-config":
         return this.validateNetworkConfig();
-      case 'infrastructure-setup':
+      case "infrastructure-setup":
         return this.validateInfrastructure();
-      case 'vpn-tunnel-setup':
+      case "vpn-tunnel-setup":
         return this.validateVPNTunnels();
-      case 'service-deployment':
+      case "service-deployment":
         return this.validateServices();
       default:
-        return { valid: true, message: 'Phase validation not required' };
+        return { valid: true, message: "Phase validation not required" };
     }
   }
 
@@ -1313,13 +1357,14 @@ export class ValidationEngine {
     ];
 
     const results = await Promise.all(checks);
-    const failed = results.filter(r => !r.valid);
+    const failed = results.filter((r) => !r.valid);
 
     return {
       valid: failed.length === 0,
-      message: failed.length > 0
-        ? `PC Detection validation failed: ${failed.map(r => r.message).join(', ')}`
-        : 'PC detection validated successfully',
+      message:
+        failed.length > 0
+          ? `PC Detection validation failed: ${failed.map((r) => r.message).join(", ")}`
+          : "PC detection validated successfully",
       details: results,
     };
   }
@@ -1336,13 +1381,14 @@ export class ValidationEngine {
     ];
 
     const results = await Promise.all(checks);
-    const failed = results.filter(r => !r.valid);
+    const failed = results.filter((r) => !r.valid);
 
     return {
       valid: failed.length === 0,
-      message: failed.length > 0
-        ? `Network validation failed: ${failed.map(r => r.message).join(', ')}`
-        : 'Network configuration validated successfully',
+      message:
+        failed.length > 0
+          ? `Network validation failed: ${failed.map((r) => r.message).join(", ")}`
+          : "Network configuration validated successfully",
       details: results,
     };
   }
@@ -1360,20 +1406,18 @@ export class ValidationEngine {
 
     // Workers only: check NVIDIA
     if (this.isWorkerPC()) {
-      checks.push(
-        this.checkNVIDIADriverInstalled(),
-        this.checkCUDAWorking()
-      );
+      checks.push(this.checkNVIDIADriverInstalled(), this.checkCUDAWorking());
     }
 
     const results = await Promise.all(checks);
-    const failed = results.filter(r => !r.valid);
+    const failed = results.filter((r) => !r.valid);
 
     return {
       valid: failed.length === 0,
-      message: failed.length > 0
-        ? `Infrastructure validation failed: ${failed.map(r => r.message).join(', ')}`
-        : 'Infrastructure validated successfully',
+      message:
+        failed.length > 0
+          ? `Infrastructure validation failed: ${failed.map((r) => r.message).join(", ")}`
+          : "Infrastructure validated successfully",
       details: results,
     };
   }
@@ -1389,13 +1433,14 @@ export class ValidationEngine {
     ];
 
     const results = await Promise.all(checks);
-    const failed = results.filter(r => !r.valid);
+    const failed = results.filter((r) => !r.valid);
 
     return {
       valid: failed.length === 0,
-      message: failed.length > 0
-        ? `VPN/Tunnel validation failed: ${failed.map(r => r.message).join(', ')}`
-        : 'VPN/Tunnel setup validated successfully',
+      message:
+        failed.length > 0
+          ? `VPN/Tunnel validation failed: ${failed.map((r) => r.message).join(", ")}`
+          : "VPN/Tunnel setup validated successfully",
       details: results,
     };
   }
@@ -1404,9 +1449,7 @@ export class ValidationEngine {
    * Validate service deployment
    */
   private async validateServices(): Promise<ValidationResult> {
-    const checks = [
-      this.checkClaudeCodeInstalled(),
-    ];
+    const checks = [this.checkClaudeCodeInstalled()];
 
     // Orchestrator only: check databases and Gitea
     if (this.isOrchestratorPC()) {
@@ -1420,13 +1463,14 @@ export class ValidationEngine {
     }
 
     const results = await Promise.all(checks);
-    const failed = results.filter(r => !r.valid);
+    const failed = results.filter((r) => !r.valid);
 
     return {
       valid: failed.length === 0,
-      message: failed.length > 0
-        ? `Service validation failed: ${failed.map(r => r.message).join(', ')}`
-        : 'Services validated successfully',
+      message:
+        failed.length > 0
+          ? `Service validation failed: ${failed.map((r) => r.message).join(", ")}`
+          : "Services validated successfully",
       details: results,
     };
   }
@@ -1464,14 +1508,20 @@ export class PrivilegeEscalator {
   /**
    * Run command with admin privileges
    */
-  async runAsAdmin(command: string): Promise<{ stdout: string; stderr: string }> {
+  async runAsAdmin(
+    command: string
+  ): Promise<{ stdout: string; stderr: string }> {
     return new Promise((resolve, reject) => {
       sudo.exec(
         command,
-        { name: 'Project Nyra Setup' },
+        { name: "Project Nyra Setup" },
         (error, stdout, stderr) => {
           if (error) reject(error);
-          else resolve({ stdout: stdout?.toString() || '', stderr: stderr?.toString() || '' });
+          else
+            resolve({
+              stdout: stdout?.toString() || "",
+              stderr: stderr?.toString() || "",
+            });
         }
       );
     });
@@ -1483,7 +1533,7 @@ export class PrivilegeEscalator {
   async hasAdminPrivileges(): Promise<boolean> {
     try {
       // Try to write to a protected location
-      await fs.access('C:\\Windows\\System32', fs.constants.W_OK);
+      await fs.access("C:\\Windows\\System32", fs.constants.W_OK);
       return true;
     } catch {
       return false;
@@ -1516,20 +1566,20 @@ export class ErrorRecovery {
     const action = this.determineRecoveryAction(phase, error);
 
     switch (action.type) {
-      case 'retry':
-        return { type: 'retry', maxAttempts: 3 };
+      case "retry":
+        return { type: "retry", maxAttempts: 3 };
 
-      case 'rollback':
+      case "rollback":
         await this.rollbackPhase(phase);
-        return { type: 'rollback', checkpoint: action.checkpoint };
+        return { type: "rollback", checkpoint: action.checkpoint };
 
-      case 'skip':
+      case "skip":
         logger.warn(`Skipping phase ${phase} due to error`);
-        return { type: 'skip' };
+        return { type: "skip" };
 
-      case 'abort':
+      case "abort":
         await this.cleanup();
-        return { type: 'abort', message: error.message };
+        return { type: "abort", message: error.message };
     }
   }
 
@@ -1557,19 +1607,20 @@ export class ErrorRecovery {
 
 ### 9.2 Rollback Scope
 
-| Phase | Rollback Capability | Strategy |
-|-------|-------------------|----------|
-| **PC Detection** | Full | Reset state only (no system changes) |
-| **Network Config** | Full | Restore to DHCP, restore DNS |
-| **Infrastructure** | Partial | Uninstall Docker/WSL (user choice) |
-| **VPN/Tunnel** | Full | Disconnect, remove credentials |
-| **Service Deployment** | Full | Stop containers, remove volumes |
+| Phase                  | Rollback Capability | Strategy                             |
+| ---------------------- | ------------------- | ------------------------------------ |
+| **PC Detection**       | Full                | Reset state only (no system changes) |
+| **Network Config**     | Full                | Restore to DHCP, restore DNS         |
+| **Infrastructure**     | Partial             | Uninstall Docker/WSL (user choice)   |
+| **VPN/Tunnel**         | Full                | Disconnect, remove credentials       |
+| **Service Deployment** | Full                | Stop containers, remove volumes      |
 
 ---
 
 ## 10. Implementation Roadmap
 
 ### Phase 1: Foundation (Week 1-2)
+
 - [ ] Enhance HardwareDetector service
   - Add RAM type/speed detection
   - Add detailed network info collection
@@ -1580,6 +1631,7 @@ export class ErrorRecovery {
 - [ ] Create CheckpointManager service
 
 ### Phase 2: Network Configuration (Week 3)
+
 - [ ] Build StaticIPConfigurator service
 - [ ] Create NetworkConfigScreen component
 - [ ] Build StaticIPWizard component
@@ -1587,6 +1639,7 @@ export class ErrorRecovery {
 - [ ] Implement network validation
 
 ### Phase 3: Infrastructure Wizards (Week 4-5)
+
 - [ ] Create DockerInstaller service
 - [ ] Build DockerSetupScreen with wizard
 - [ ] Create WSL2Installer service
@@ -1596,6 +1649,7 @@ export class ErrorRecovery {
 - [ ] Implement validation for each component
 
 ### Phase 4: VPN/Tunnel Setup (Week 6)
+
 - [ ] Create TailscaleManager service
 - [ ] Build TailscaleSetupScreen with wizard
 - [ ] Create CloudflaredManager service
@@ -1603,6 +1657,7 @@ export class ErrorRecovery {
 - [ ] Implement connectivity testing
 
 ### Phase 5: Service Deployment (Week 7-8)
+
 - [ ] Create GiteaDeployer service
 - [ ] Build GiteaSetupScreen (orchestrator)
 - [ ] Create DatabaseDeployer service
@@ -1612,6 +1667,7 @@ export class ErrorRecovery {
 - [ ] Implement health checks
 
 ### Phase 6: Validation & Polish (Week 9-10)
+
 - [ ] Implement ValidationEngine
 - [ ] Build comprehensive HealthCheckScreen
 - [ ] Create ConfigReviewScreen
@@ -1625,21 +1681,23 @@ export class ErrorRecovery {
 ## 11. Testing Strategy
 
 ### 11.1 Unit Tests
+
 - Hardware detection logic
 - Network configuration validation
 - Service installation logic
 - Rollback mechanisms
 
 ### 11.2 Integration Tests
+
 - Complete workflow from PC detection to completion
 - Rollback at each phase
 - Infisical integration
 - Docker deployment from /docker/ directory
 
 ### 11.3 E2E Tests
+
 - Test on each PC type:
   - Orchestrator (Minisforum)
-  - Worker RTX3060
   - Worker RTX5090
   - Worker RTX3090Ti
 
@@ -1648,6 +1706,7 @@ export class ErrorRecovery {
 ## 12. Success Criteria
 
 ### 12.1 Functional Requirements
+
 - ✅ Auto-detects PC type with >90% confidence
 - ✅ Collects all hardware info (CPU, RAM type/speed, GPU+VRAM, network)
 - ✅ Configures static IP with validation
@@ -1665,6 +1724,7 @@ export class ErrorRecovery {
 - ✅ Supports complete rollback
 
 ### 12.2 Non-Functional Requirements
+
 - ⚡ Setup completion in <30 minutes (excluding downloads)
 - 🛡️ Zero credential leaks (all in Infisical)
 - 🔄 100% rollback success rate
@@ -1677,6 +1737,7 @@ export class ErrorRecovery {
 ## 13. References
 
 ### 13.1 External Documentation
+
 - Docker Desktop API: https://docs.docker.com/desktop/
 - WSL2 Setup: https://docs.microsoft.com/en-us/windows/wsl/
 - Tailscale API: https://tailscale.com/kb/1101/api/
@@ -1685,6 +1746,7 @@ export class ErrorRecovery {
 - NVIDIA Driver API: https://www.nvidia.com/en-us/drivers/
 
 ### 13.2 Internal References
+
 - `/docker/orchestrator/docker-compose.yml` - Orchestrator services
 - `/docker/client/docker-compose.yml` - Worker services
 - `/configs/` - Service configurations
@@ -1696,6 +1758,7 @@ export class ErrorRecovery {
 ## Appendix A: Data Flow Diagrams
 
 ### PC Detection Flow
+
 ```
 User Opens App
     │
@@ -1718,6 +1781,7 @@ User Opens App
 ```
 
 ### Network Configuration Flow
+
 ```
 Network Config Phase
     │
@@ -1741,6 +1805,7 @@ Network Config Phase
 ```
 
 ### Service Deployment Flow (Orchestrator)
+
 ```
 Service Deployment Phase
     │
@@ -1771,6 +1836,7 @@ Service Deployment Phase
 ## Appendix B: Sample Configurations
 
 ### Sample Static IP Configuration
+
 ```json
 {
   "ipAddress": "192.168.1.100",
@@ -1783,6 +1849,7 @@ Service Deployment Phase
 ```
 
 ### Sample Hardware Info
+
 ```json
 {
   "pcName": "ORCHESTRATOR-01",
@@ -1825,6 +1892,7 @@ Service Deployment Phase
 ## Appendix C: CLI Command Reference
 
 ### Hardware Detection Commands
+
 ```powershell
 # CPU info
 wmic cpu get Name,NumberOfCores,NumberOfLogicalProcessors,MaxClockSpeed
@@ -1847,6 +1915,7 @@ getmac /v /fo csv
 ```
 
 ### Network Configuration Commands
+
 ```powershell
 # Set static IP
 netsh interface ip set address name="Ethernet" static 192.168.1.100 255.255.255.0 192.168.1.1
@@ -1865,6 +1934,7 @@ nslookup google.com
 ```
 
 ### Docker Commands
+
 ```powershell
 # Check Docker installation
 docker --version

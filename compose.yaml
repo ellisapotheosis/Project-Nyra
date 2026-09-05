@@ -1,0 +1,414 @@
+# =============================================================================
+# Project-Nyra — canonical root Compose
+# =============================================================================
+# Docker Compose does NOT orchestrate containers across three remote machines.
+# This file declares host profiles; the deploy scripts run the right profile ON
+# THE RIGHT HOST over SSH/Tailscale.
+#
+#   on oracle-vps        : docker compose --profile oracle up -d
+#   on orchestrator      : docker compose --profile orchestrator up -d
+#   on worker-rtx5090    : docker compose --profile worker-5090 up -d
+#   on worker-rtx3090ti  : docker compose --profile worker-3090ti up -d
+#
+# Use scripts/deploy/deploy-{oracle,orchestrator,worker-5090,worker-3090ti,all}.sh.
+#
+# Every production image reference is an immutable digest supplied through
+# infra/env/<host>.env. No floating tags.
+# =============================================================================
+
+name: project-nyra
+
+x-common-logging: &common-logging
+  driver: json-file
+  options:
+    max-size: "20m"
+    max-file: "5"
+
+x-common-security: &common-security
+  security_opt:
+    - no-new-privileges:true
+
+services:
+  # ===========================================================================
+  # ORACLE PROFILE — control plane
+  # ===========================================================================
+
+  litellm-redis:
+    profiles: ["oracle"]
+    image: ${REDIS_IMAGE:?REDIS_IMAGE must be an immutable redis:7-alpine digest reference}
+    container_name: nyra-litellm-redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --maxmemory
+      - "2gb"
+      - --maxmemory-policy
+      - allkeys-lru
+    volumes:
+      - litellm-redis-data:/data
+    networks:
+      - nyra-control
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *common-logging
+    <<: *common-security
+
+  litellm:
+    profiles: ["oracle"]
+    image: ${LITELLM_IMAGE:?LITELLM_IMAGE must be an immutable verified LiteLLM v1.99.1 image reference}
+    container_name: nyra-litellm
+    restart: unless-stopped
+    command:
+      - --config
+      - /app/config.yaml
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "4000"
+    env_file:
+      - ${NYRA_ORACLE_RUNTIME_ENV:?NYRA_ORACLE_RUNTIME_ENV must point to an Infisical-rendered runtime env file}
+    volumes:
+      - ./infra/configs/litellm/config.yaml:/app/config.yaml:ro
+    # Tailnet-only. Never 0.0.0.0 - oracle-vps is a public cloud VM.
+    # Cloudflare Access + cloudflared is the only public ingress.
+    ports:
+      - "100.64.0.3:4000:4000"
+    depends_on:
+      litellm-redis:
+        condition: service_healthy
+    networks:
+      - nyra-control
+    healthcheck:
+      # /health/readiness is unauthenticated. /health is NOT - it requires the
+      # master key and would make this healthcheck permanently unhealthy.
+      test:
+        [
+          "CMD-SHELL",
+          'python3 -c "import urllib.request; urllib.request.urlopen(''http://127.0.0.1:4000/health/readiness'', timeout=8)"',
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+    logging: *common-logging
+    <<: *common-security
+
+  omniroute:
+    profiles: ["oracle"]
+    image: ${OMNIROUTE_IMAGE:?OMNIROUTE_IMAGE must be set to the pinned image/build produced from the currently adopted OmniRoute source}
+    container_name: nyra-omniroute
+    restart: unless-stopped
+    env_file:
+      - ${NYRA_ORACLE_RUNTIME_ENV:?NYRA_ORACLE_RUNTIME_ENV must be set}
+    volumes:
+      - omniroute-data:/data
+    # Only LiteLLM consumes OmniRoute, so loopback is sufficient and port 20128
+    # is never published publicly.
+    ports:
+      - "127.0.0.1:20128:20128"
+    networks:
+      - nyra-control
+    logging: *common-logging
+    <<: *common-security
+
+  # ===========================================================================
+  # ORCHESTRATOR PROFILE — memory-manager host (CPU only)
+  # ===========================================================================
+  # orchestrator (`MiniApotheosis`, 100.64.0.10) is NOT a second control plane.
+  # It runs no LiteLLM and no Nexus. It owns exactly two CPU workloads that
+  # would otherwise sit on a GPU that should be doing inference:
+  #
+  #   1. embeddings      — llama.cpp serving nomic-embed-text-v1.5 (768 dims)
+  #   2. memory-manager  — bitnet.cpp serving BitNet b1.58 2B-4T, used by the
+  #                        `.agent/` episodic -> semantic consolidation lane
+  #
+  # Both are registered as ordinary `model_list` entries on the canonical
+  # oracle-vps LiteLLM. Agents address `nyra-embedding` / `nyra-memory`; they
+  # never address this host directly.
+  #
+  # MEASURED host budget (do not raise these without re-measuring):
+  #   AMD Ryzen 7 6800H, 8 cores / 16 threads, 15.2 GB RAM.
+  #   Docker runs under Docker Desktop on a WSL2 backend whose VM is capped at
+  #   ~7 GB, which is the real ceiling for these containers. The previous
+  #   `docker-compose.bitnet.yml` asked for `mem_limit: 10g` on that 7 GB VM.
+
+  embeddings:
+    profiles: ["orchestrator"]
+    image: ${LLAMACPP_SERVER_IMAGE:?LLAMACPP_SERVER_IMAGE must be an immutable ghcr.io/ggml-org/llama.cpp server digest reference}
+    container_name: nyra-embeddings
+    restart: unless-stopped
+    environment:
+      # llama.cpp resolves -hf/-hff downloads into this directory, so the
+      # weights survive container replacement and are fetched exactly once.
+      LLAMA_CACHE: /models
+    command:
+      # SAME MODEL FAMILY, SAME DIMENSIONS as the endpoint this replaces.
+      # `ollama show nomic-embed-text` on worker-rtx5090 reports:
+      #   architecture=nomic-bert, parameter_size=137M, quantization_level=F16,
+      #   nomic-bert.embedding_length=768.
+      # nomic-ai/nomic-embed-text-v1.5-GGUF ships `nomic-embed-text-v1.5.f16.gguf`,
+      # which is that same artifact. Existing Qdrant collections and
+      # MEM0_EMBEDDING_DIMS=768 stay valid — no re-embedding.
+      - --hf-repo
+      - nomic-ai/nomic-embed-text-v1.5-GGUF
+      - --hf-file
+      - nomic-embed-text-v1.5.f16.gguf
+      - --alias
+      - nomic-embed-text
+      # Embedding-only server: no completion surface is exposed at all.
+      - --embeddings
+      # Pinned rather than inherited from GGUF metadata so a future upstream
+      # metadata change cannot silently alter vector semantics.
+      - --pooling
+      - mean
+      - --ctx-size
+      - "8192"
+      # Must be >= ctx-size for a non-causal embedding model, otherwise
+      # llama.cpp rejects prompts at the context limit.
+      - --batch-size
+      - "8192"
+      - --ubatch-size
+      - "8192"
+      - --threads
+      - ${EMBEDDINGS_THREADS:-4}
+      # Container namespace only; the host bind is narrowed below.
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8081"
+    volumes:
+      - orchestrator-embedding-models:/models
+    # Tailnet-only. Verified live on this host: Docker Desktop publishes on the
+    # WSL2-mirrored Tailscale address and worker-rtx5090 can reach it.
+    ports:
+      - "100.64.0.10:8081:8081"
+    cpus: ${EMBEDDINGS_CPUS:-4}
+    mem_limit: ${EMBEDDINGS_MEM_LIMIT:-2g}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://127.0.0.1:8081/health >/dev/null || exit 1",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    logging: *common-logging
+    <<: *common-security
+
+  memory-manager:
+    profiles: ["orchestrator"]
+    # No upstream registry publishes bitnet.cpp, so this is a local build from
+    # a PINNED microsoft/BitNet commit and a PINNED weights revision. See
+    # infra/hosts/orchestrator/bitnet/Dockerfile.
+    build:
+      context: ./infra/hosts/orchestrator/bitnet
+    image: ${BITNET_IMAGE:-nyra/bitnet-memory-manager:local}
+    container_name: nyra-memory-manager
+    restart: unless-stopped
+    environment:
+      BITNET_MODEL_DIR: /models/bitnet-b1.58-2B-4T
+      BITNET_MODEL_FILE: /models/bitnet-b1.58-2B-4T/ggml-model-i2_s.gguf
+      BITNET_MODEL_REPO: microsoft/bitnet-b1.58-2B-4T-gguf
+      BITNET_MODEL_REVISION: a1f2f1c765812aa8af3f6eda4a313707064bba15
+      BITNET_QUANT_TYPE: i2_s
+      BITNET_THREADS: ${BITNET_THREADS:-6}
+      BITNET_CTX_SIZE: ${BITNET_CTX_SIZE:-4096}
+      BITNET_PORT: 8080
+    volumes:
+      - orchestrator-bitnet-models:/models
+      - orchestrator-bitnet-build:/opt/bitnet/build
+    ports:
+      - "100.64.0.10:8087:8080"
+    cpus: ${BITNET_CPUS:-6}
+    mem_limit: ${BITNET_MEM_LIMIT:-3g}
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://127.0.0.1:8080/health >/dev/null || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      # First start compiles bitnet.cpp and downloads ~1.1 GB of weights.
+      start_period: 900s
+    logging: *common-logging
+    <<: *common-security
+
+  # ===========================================================================
+  # WORKER-5090 PROFILE — primary inference + LMCache backend
+  # ===========================================================================
+
+  lmcache-redis:
+    profiles: ["worker-5090"]
+    image: ${REDIS_IMAGE:?REDIS_IMAGE must be an immutable redis:7-alpine digest reference}
+    container_name: nyra-lmcache-redis
+    restart: unless-stopped
+    # No persistence: KV tensors are regenerable and high-churn. This instance
+    # is deliberately SEPARATE from the Oracle litellm-redis control cache.
+    command:
+      - redis-server
+      - --appendonly
+      - "no"
+      - --save
+      - ""
+      - --maxmemory
+      - ${LMCACHE_REDIS_MAXMEMORY:?Set from measured worker-rtx5090 system RAM - do not guess}
+      - --maxmemory-policy
+      - allkeys-lru
+    ports:
+      - "100.64.0.11:6379:6379"
+    networks:
+      - lmcache-local
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *common-logging
+    <<: *common-security
+
+  vllm-5090:
+    profiles: ["worker-5090"]
+    image: ${VLLM_IMAGE:?VLLM_IMAGE must be pinned to the validated vLLM/LMCache-compatible release}
+    container_name: nyra-vllm-5090
+    restart: unless-stopped
+    network_mode: host
+    ipc: host
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
+      LMCACHE_USE_EXPERIMENTAL: "True"
+      LMCACHE_CONFIG_FILE: /etc/lmcache/lmcache.yaml
+    volumes:
+      - ${HF_CACHE_DIR:-${HOME}/.cache/huggingface}:/root/.cache/huggingface
+      - ./infra/configs/lmcache/worker-rtx5090.yaml:/etc/lmcache/lmcache.yaml:ro
+    command:
+      - ${VLLM_MODEL_5090:?Set to the verified locally deployed model}
+      - --host
+      - "100.64.0.11"
+      - --port
+      - "8000"
+      - --served-model-name
+      - ${VLLM_SERVED_NAME_5090:?Set to the stable LiteLLM-facing served name}
+      - --gpu-memory-utilization
+      - ${VLLM_GPU_MEMORY_UTILIZATION_5090:-0.88}
+      - --max-model-len
+      - ${VLLM_MAX_MODEL_LEN_5090:?Set after VRAM validation on the 24 GB device}
+      - --kv-transfer-config
+      - '{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}'
+    depends_on:
+      lmcache-redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ["gpu"]
+    logging: *common-logging
+    <<: *common-security
+
+  # ===========================================================================
+  # WORKER-3090TI PROFILE — secondary inference
+  # ===========================================================================
+
+  vllm-3090ti:
+    profiles: ["worker-3090ti"]
+    image: ${VLLM_IMAGE:?VLLM_IMAGE must be pinned}
+    container_name: nyra-vllm-3090ti
+    restart: unless-stopped
+    network_mode: host
+    ipc: host
+    environment:
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
+      LMCACHE_USE_EXPERIMENTAL: "True"
+      LMCACHE_CONFIG_FILE: /etc/lmcache/lmcache.yaml
+    volumes:
+      - ${HF_CACHE_DIR:-${HOME}/.cache/huggingface}:/root/.cache/huggingface
+      - ./infra/configs/lmcache/worker-rtx3090ti.yaml:/etc/lmcache/lmcache.yaml:ro
+    command:
+      - ${VLLM_MODEL_3090TI:?Set to the verified locally deployed model}
+      - --host
+      - "100.64.0.13"
+      - --port
+      - "8000"
+      - --served-model-name
+      - ${VLLM_SERVED_NAME_3090TI:?Set to the stable LiteLLM-facing served name}
+      - --gpu-memory-utilization
+      - ${VLLM_GPU_MEMORY_UTILIZATION_3090TI:-0.88}
+      - --max-model-len
+      - ${VLLM_MAX_MODEL_LEN_3090TI:?Set after VRAM validation}
+      - --kv-transfer-config
+      - '{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}'
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: ["gpu"]
+    logging: *common-logging
+    <<: *common-security
+
+  # ===========================================================================
+  # AGENT-CONTAINERIZED PROFILE — reproducible CI / sandbox use ONLY
+  # ===========================================================================
+  # For interactive development on worker-rtx5090, prefer the officially
+  # supported HOST-NATIVE installation of ClawTeam and OpenHarness. They
+  # coordinate CLI agents and interactive auth; forcing Claude Code's
+  # OS/browser/keychain authentication into a container for architectural purity
+  # breaks it. These profiles exist for CI reproducibility, not daily driving.
+
+  clawteam:
+    profiles: ["agent-containerized"]
+    image: ${CLAWTEAM_IMAGE:?Only enable this profile after creating/pinning the verified ClawTeam runtime image}
+    container_name: nyra-clawteam
+    restart: "no"
+    network_mode: host
+    env_file:
+      - ${NYRA_AGENT_RUNTIME_ENV:?NYRA_AGENT_RUNTIME_ENV must be an Infisical-rendered scoped environment}
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    stdin_open: true
+    tty: true
+    logging: *common-logging
+    <<: *common-security
+
+  openharness:
+    profiles: ["agent-containerized"]
+    image: ${OPENHARNESS_IMAGE:?Only enable this profile after creating/pinning the verified OpenHarness runtime image}
+    container_name: nyra-openharness
+    restart: "no"
+    network_mode: host
+    env_file:
+      - ${NYRA_AGENT_RUNTIME_ENV:?NYRA_AGENT_RUNTIME_ENV must be an Infisical-rendered scoped environment}
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    stdin_open: true
+    tty: true
+    logging: *common-logging
+    <<: *common-security
+
+networks:
+  nyra-control:
+    driver: bridge
+
+  lmcache-local:
+    driver: bridge
+
+volumes:
+  litellm-redis-data:
+  omniroute-data:
+  orchestrator-embedding-models:
+  orchestrator-bitnet-models:
+  orchestrator-bitnet-build:
