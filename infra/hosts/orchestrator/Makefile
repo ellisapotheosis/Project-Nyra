@@ -4,16 +4,20 @@
 PROJECT_NAME := orchestrator
 include ../../shared/makefiles/infisical.mk
 
+# The orchestrator LiteLLM overlay was REMOVED. LiteLLM runs on oracle-vps
+# only, from the root compose.yaml `oracle` profile — one control plane.
+# orchestrator's model-plane role is the CPU memory-manager host: see
+# `memory-*` below and the root compose.yaml `orchestrator` profile.
+ROOT_COMPOSE      := ../../../compose.yaml
 COMPOSE_FILE      := docker-compose.yml
-LITELLM_COMPOSE   := docker-compose.litellm.yml
 HERMES_COMPOSE    := docker-compose.hermes-gateway.yml
 CLAWTEAM_COMPOSE  := docker-compose.clawteam.yml
 PROTECTED_COMPOSE := docker-compose.protected.yml
 OBS_COMPOSE       := docker-compose.observability.yml
 
-.PHONY: up down restart litellm-up litellm-down hermes-up hermes-down \
+.PHONY: up down restart hermes-up hermes-down \
         protected-up protected-down clawteam-up clawteam-down \
-        logs status litellm-health litellm-models
+        logs status memory-up memory-down memory-health
 
 # ── Main stack ────────────────────────────────────────────────────────────────
 up:
@@ -31,29 +35,22 @@ logs:
 status:
 	$(DC) -f $(COMPOSE_FILE) ps
 
-# ── Canonical LiteLLM gateway ─────────────────────────────────────────────────
-litellm-up:
-	$(INJECT) $(DC) -f $(COMPOSE_FILE) -f $(LITELLM_COMPOSE) up -d
+# ── Memory-manager plane (embeddings + BitNet), root compose profile ─────────
+# No auth headers here on purpose: these are unauthenticated Tailnet-only
+# origins behind LiteLLM, exactly like the vLLM workers. The scoped-key surface
+# is the LiteLLM gateway on oracle-vps, not these origins.
+memory-up:
+	docker compose -f $(ROOT_COMPOSE) --profile orchestrator up -d --build
 
-litellm-down:
-	$(DC) -f $(COMPOSE_FILE) -f $(LITELLM_COMPOSE) stop litellm litellm-redis
+memory-down:
+	docker compose -f $(ROOT_COMPOSE) --profile orchestrator stop \
+	    embeddings memory-manager
 
-litellm-health:
-	@if [ -z "$${LITELLM_MASTER_KEY:-}" ] && [ -f ~/.zsh/secrets ]; then \
-	    source ~/.zsh/secrets; \
-	fi; \
-	curl -sf \
-	    -H "Authorization: Bearer $${LITELLM_MASTER_KEY}" \
-	    http://localhost:4010/health/readiness \
-	    && echo "  LiteLLM: healthy" || echo "  LiteLLM: UNHEALTHY"
-
-litellm-models:
-	@if [ -z "$${LITELLM_MASTER_KEY:-}" ] && [ -f ~/.zsh/secrets ]; then \
-	    source ~/.zsh/secrets; \
-	fi; \
-	curl -s \
-	    -H "Authorization: Bearer $${LITELLM_MASTER_KEY}" \
-	    http://localhost:4010/v1/models | python3 -m json.tool
+memory-health:
+	@curl -fsS http://100.64.0.10:8081/health >/dev/null \
+	    && echo "  embeddings:     healthy" || echo "  embeddings:     UNHEALTHY"
+	@curl -fsS http://100.64.0.10:8087/health >/dev/null \
+	    && echo "  memory-manager: healthy" || echo "  memory-manager: UNHEALTHY"
 
 # ── Hermes gateway ────────────────────────────────────────────────────────────
 hermes-up:
@@ -85,10 +82,9 @@ protected-down:
 protected-status:
 	docker compose -p orchestrator-protected -f $(PROTECTED_COMPOSE) ps
 
-# ── Full stack (main + litellm + hermes) ─────────────────────────────────────
+# ── Full stack (main + hermes) ───────────────────────────────────────────────
 all-up:
 	$(INJECT) $(DC) \
 	    -f $(COMPOSE_FILE) \
-	    -f $(LITELLM_COMPOSE) \
 	    -f $(HERMES_COMPOSE) \
 	    up -d

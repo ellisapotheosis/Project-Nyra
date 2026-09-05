@@ -15,6 +15,7 @@ set -euo pipefail
 
   # Tailnet addresses, verified live 2026-09-04.
   readonly ORACLE_IP="100.64.0.3"
+  readonly ORCHESTRATOR_IP="100.64.0.10"
   readonly WORKER_5090_IP="100.64.0.11"
   readonly WORKER_3090TI_IP="100.64.0.13"
 }

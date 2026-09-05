@@ -16,7 +16,8 @@ cd "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)" || exit 1
 LITELLM_IMAGE="$(grep -E '^LITELLM_IMAGE=' .env.example | cut -d= -f2-)"
 REDIS_IMAGE="$(grep -E '^REDIS_IMAGE=' .env.example | cut -d= -f2-)"
 VLLM_IMAGE="$(grep -E '^VLLM_IMAGE=' .env.example | cut -d= -f2-)"
-export LITELLM_IMAGE REDIS_IMAGE VLLM_IMAGE
+LLAMACPP_SERVER_IMAGE="$(grep -E '^LLAMACPP_SERVER_IMAGE=' infra/env/orchestrator.env.example | cut -d= -f2-)"
+export LITELLM_IMAGE REDIS_IMAGE VLLM_IMAGE LLAMACPP_SERVER_IMAGE
 
 # Validation-only placeholders. Never used for a real deployment.
 export OMNIROUTE_IMAGE="validate-only/omniroute:placeholder"
@@ -33,7 +34,7 @@ export VLLM_SERVED_NAME_3090TI="nyra-secondary"
 export VLLM_MAX_MODEL_LEN_3090TI="8192"
 
 rc=0
-for profile in oracle worker-5090 worker-3090ti agent-containerized; do
+for profile in oracle orchestrator worker-5090 worker-3090ti agent-containerized; do
   printf '=== profile %-20s ' "${profile}"
   if err="$(docker compose --profile "${profile}" config 2>&1 >/dev/null)"; then
     printf 'VALID   services: %s\n' \
@@ -45,7 +46,7 @@ for profile in oracle worker-5090 worker-3090ti agent-containerized; do
 done
 
 printf '\n=== port bindings across all profiles ===\n'
-docker compose --profile oracle --profile worker-5090 --profile worker-3090ti config 2>/dev/null |
+docker compose --profile oracle --profile orchestrator --profile worker-5090 --profile worker-3090ti config 2>/dev/null |
   grep -E 'published|host_ip' || true
 
 exit "${rc}"
