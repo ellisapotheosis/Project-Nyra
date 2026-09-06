@@ -20,8 +20,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
-        with:
-          version: 10.27.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -67,8 +65,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
-        with:
-          version: 10.27.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -108,8 +104,6 @@ jobs:
 
       - name: Install pnpm
         uses: pnpm/action-setup@078e9d416474b29c0c387560859308974f7e9c53 # v4
-        with:
-          version: 10.27.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
