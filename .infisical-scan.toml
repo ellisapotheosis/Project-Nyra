@@ -1,0 +1,11 @@
+[scanning]
+# These paths contain reviewed historical snapshots, generated agent state, or
+# vendored third-party material. Active application and infrastructure source
+# remains covered by the working-tree scan.
+ignore_patterns = [
+  ".agent/memory/**",
+  ".omc/**",
+  ".reports/**",
+  "docs/archive/**",
+  "external/**",
+]

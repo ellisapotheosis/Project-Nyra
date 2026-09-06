@@ -7,9 +7,9 @@ inputs:
     required: false
     default: "20"
   pnpm-version:
-    description: pnpm version to install
+    description: Deprecated compatibility input; the root packageManager is authoritative
     required: false
-    default: "10.27.0"
+    default: ""
   install:
     description: Install dependencies with pnpm install --no-frozen-lockfile
     required: false
@@ -24,8 +24,6 @@ runs:
   steps:
     - name: Setup pnpm
       uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
-      with:
-        version: ${{ inputs.pnpm-version }}
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
