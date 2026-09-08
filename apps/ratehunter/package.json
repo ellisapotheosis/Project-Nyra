@@ -54,7 +54,7 @@
     "@types/react-dom": "^18",
     "@types/three": "^0.185.1",
     "@typescript-eslint/eslint-plugin": "^8.64.0",
-    "@typescript-eslint/parser": "^8.58.2",
+    "@typescript-eslint/parser": "^8.70.0",
     "autoprefixer": "^10.5.4",
     "eslint": "^10",
     "eslint-config-next": "14.2.18",
