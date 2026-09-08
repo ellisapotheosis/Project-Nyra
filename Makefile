@@ -17,6 +17,7 @@ ORACLE_ACTIVEPIECES_MCP_COMPOSE := infra/hosts/oracle-vps/docker-compose.activep
 WORKER_3060_COMPOSE := infra/hosts/worker-rtx3060/docker-compose.yml
 WORKER_3090TI_COMPOSE := infra/hosts/worker-rtx3090ti/docker-compose.yml
 WORKER_5090_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.yml
+WORKER_5090_CLAWTEAM_COMPOSE := infra/hosts/worker-rtx5090/docker-compose.clawteam.yml
 ORACLE_COMPOSE := infra/hosts/oracle-vps/docker-compose.yml
 ORACLE_INFISICAL_COMPOSE := ops/scripts/infisical-oracle-compose.sh
 ORACLE_INFISICAL_ENV ?= prod
@@ -648,11 +649,21 @@ orchestrator-status:
 # 🦞 CLAWTEAM — Oracle-VPS Primary + RTX3060 Fallback
 # ════════════════════════════════════════════════════════════════════════════
 
-.PHONY: oracle-clawteam rtx3060-clawteam-fallback \
+.PHONY: oracle-clawteam worker-5090-clawteam-up worker-5090-clawteam-down \
+  rtx3060-clawteam-fallback \
   clawteam-all-deploy clawteam-monitor clawteam-failover-check
 
 oracle-clawteam:
 	@$(MAKE) oracle-clawteam-up
+
+worker-5090-clawteam-up:
+	@echo "Starting the additive ClawTeam worker node on worker-rtx5090..."
+	@docker --context $(WORKER_5090_CONTEXT) compose \
+	  -f $(WORKER_5090_COMPOSE) -f $(WORKER_5090_CLAWTEAM_COMPOSE) up -d clawteam
+
+worker-5090-clawteam-down:
+	@docker --context $(WORKER_5090_CONTEXT) compose \
+	  -f $(WORKER_5090_COMPOSE) -f $(WORKER_5090_CLAWTEAM_COMPOSE) stop clawteam
 
 rtx3060-clawteam-fallback:
 	@docker --context $(WORKER_3060_CONTEXT) compose \
