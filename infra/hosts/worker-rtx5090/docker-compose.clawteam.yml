@@ -1,16 +1,44 @@
-# infra/hosts/worker-rtx5090/docker-compose.clawteam.yml
-# 🦞 Project Nyra - ClawTeam Node Override for RTX 5090
+# Project Nyra - additive ClawTeam worker node for RTX 5090
+#
+# This overlay does not replace the existing Oracle primary. It provides a
+# separately addressable worker node that can be enabled and verified before
+# any primary-placement migration is attempted.
 
 services:
-  openclaw:
-    container_name: worker-5090-clawteam
+  clawteam:
+    build:
+      context: ../../images/clawteam
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-clawteam
+    hostname: worker-5090-clawteam
     environment:
-      - CLAWTEAM_ROLE=node
-      - WORKER_NAME=rtx5090
-      - NERVE_UI_ENABLED=true
+      CLAWTEAM_ROLE: node
+      CLAWTEAM_HOST: worker-rtx5090
+      WORKER_NAME: rtx5090
+      NERVE_UI_ENABLED: "false"
+      LITELLM_API_URL: ${CLAWTEAM_LITELLM_API_URL:-http://100.64.0.3:4000}
+      NEXUS_ROUTER_URL: ${CLAWTEAM_NEXUS_ROUTER_URL:-http://100.64.0.3:7000}
     ports:
-      - "8001:8001"
-      - "18789:18789"
-    # Ensure it can communicate with the local vLLM
+      - "${CLAWTEAM_PORT:-9001}:8080"
+    volumes:
+      - clawteam_state:/root/.clawteam
+    networks:
+      - worker-network
     depends_on:
-      - litellm
+      litellm:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  clawteam_state:
+    name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-5090-clawteam-state
+
+networks:
+  worker-network:
+    name: nyra-worker-5090
+    driver: bridge
