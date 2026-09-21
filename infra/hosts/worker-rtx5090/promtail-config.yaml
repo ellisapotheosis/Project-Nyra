@@ -23,15 +23,16 @@ scrape_configs:
             values: ["com.docker.compose.project=worker-5090"]
 
     relabel_configs:
-      - source_labels: ['__meta_docker_container_name']
-        regex: '/(.*)'
-        target_label: 'container'
+      - source_labels: ["__meta_docker_container_name"]
+        regex: "/(.*)"
+        target_label: "container"
 
-      - source_labels: ['__meta_docker_container_log_stream']
-        target_label: 'stream'
+      - source_labels: ["__meta_docker_container_log_stream"]
+        target_label: "stream"
 
-      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
-        target_label: 'service'
+      - source_labels:
+          ["__meta_docker_container_label_com_docker_compose_service"]
+        target_label: "service"
 
     pipeline_stages:
       - json:
@@ -51,25 +52,6 @@ scrape_configs:
       - output:
           source: message
 
-  # Ollama logs
-  - job_name: ollama
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: ollama
-          worker_id: worker-5090
-          __path__: /var/log/ollama/*.log
-
-    pipeline_stages:
-      - regex:
-          expression: '^(?P<timestamp>\S+) (?P<level>\S+) (?P<message>.*)'
-
-      - labels:
-          level:
-
-      - timestamp:
-          source: timestamp
           format: RFC3339Nano
 
       - output:

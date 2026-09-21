@@ -167,7 +167,7 @@ gitingest-mcp.trex-fiordland.ts.net {
 }
 
 # OpenMemory Integration
-openmemory-mcp.trex-fiordland.ts.net, openmemory-mcp.projectnyra.com {
+openmemory-mcp.trex-fiordland.ts.net, openmemory-mcp.projectnyra.com, openmemory.projectnyra.com {
 	tls internal
 	reverse_proxy openmemory-mcp:8765 {
 		header_up X-Forwarded-Proto https

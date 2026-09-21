@@ -17,7 +17,8 @@ services:
       INFISICAL_PATH: ${INFISICAL_PATH:-/hosts/oracle-vps}
     volumes:
       - nyra_secrets:/run/nyra-secrets
-    networks: [nyra_net]
+    networks:
+      - nyra_net
 
   # ── Infisical agent (polls Infisical and refreshes file-backed secrets) ───
   infisical-agent:
@@ -1028,7 +1029,9 @@ services:
         condition: service_healthy
       redis-cache:
         condition: service_healthy
-    networks: [nyra_net]
+    networks:
+      - nyra_net
+      - memory_private
     healthcheck:
       test:
         [

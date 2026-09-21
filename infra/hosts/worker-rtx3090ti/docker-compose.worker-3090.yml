@@ -140,7 +140,7 @@ services:
       - LMCACHE_LOCAL_DEVICE=cuda
       - LMCACHE_MAX_LOCAL_CACHE_SIZE=8G
     command: >
-      --model meta-llama/Llama-3.1-8B-Instruct
+      --model ${VLLM_MODEL:-hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4}
       --host 0.0.0.0
       --port 8000
       --tensor-parallel-size 1
@@ -195,8 +195,8 @@ services:
       - nyra_secrets:/run/nyra-secrets:ro
     environment:
       - VLLM_URL=http://worker-3090-vllm:8000
-      - AVAILABLE_MODELS=Qwen/Qwen3.8-27B
-      - DEFAULT_MODEL=Qwen/Qwen3.8-27B
+      - AVAILABLE_MODELS=hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
+      - DEFAULT_MODEL=hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
       - SPECIALIZATION=analysis,reasoning,code
     command: python /app/switcher.py
     depends_on:
@@ -338,12 +338,6 @@ volumes:
   redis-data:
     driver: local
   nyra_secrets:
-  ollama-models:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${OLLAMA_MODELS_PATH:-./data/ollama-models}
 
 networks:
   worker-network:

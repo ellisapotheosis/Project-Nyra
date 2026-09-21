@@ -57,6 +57,11 @@ infra/env/secrets/
 **/.env
 **/.env.*
 **/*.env
+# Explicit canonical secret boundaries. Keep the live files locally for
+# review/Infisical migration, but never add them to Git.
+/infra/hosts/shared.env
+/infra/hosts/*/.env
+/infra/hosts/*/.env.*
 !**/.env.example
 !**/.env.*.example
 !**/*.env.example

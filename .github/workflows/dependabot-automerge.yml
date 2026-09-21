@@ -1,0 +1,63 @@
+name: Dependabot Safe Auto Merge
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  merge-safe-dependency-update:
+    if: (github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'app/dependabot') && !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge when all non-Pages checks pass
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          labels=$(gh pr view "$PR_NUMBER" --repo "$REPOSITORY" --json labels --jq '[.labels[].name]')
+          if jq -e 'any(.[]; . == "semver-major")' <<<"$labels" >/dev/null; then
+            echo "Major dependency updates remain review-gated."
+            exit 0
+          fi
+
+          title=$(gh pr view "$PR_NUMBER" --repo "$REPOSITORY" --json title --jq '.title')
+          if [[ "$title" == chore\(deps\):\ bump\ the\ * ]]; then
+            echo "Grouped dependency updates remain review-gated."
+            exit 0
+          fi
+
+          if python3 - "$title" <<'PY'
+          import re
+          import sys
+
+          match = re.search(r"from\s+(\d+)(?:\.\d+)*\s+to\s+(\d+)(?:\.\d+)*", sys.argv[1])
+          raise SystemExit(0 if match and match.group(1) != match.group(2) else 1)
+          PY
+          then
+            echo "Major version change detected in the PR title; leaving PR open."
+            exit 0
+          fi
+
+          mergeable=$(gh pr view "$PR_NUMBER" --repo "$REPOSITORY" --json mergeable --jq '.mergeable')
+          if [ "$mergeable" != "MERGEABLE" ]; then
+            echo "PR is not currently mergeable: $mergeable"
+            exit 0
+          fi
+
+          checks=$(gh pr checks "$PR_NUMBER" --repo "$REPOSITORY" --json name,state,conclusion || true)
+          blocking=$(jq '[.[] | select(.name != null and (.name | test("^Cloudflare Pages: ") | not) and .name != "Auto Merge PR" and .name != "Cleanup Old Comments") | select(.state != "SUCCESS" and .state != "SKIPPED" and .state != "NEUTRAL")]' <<<"$checks")
+          if [ "$(jq 'length' <<<"$blocking")" -gt 0 ]; then
+            echo "Non-Pages checks are not all green; leaving PR open."
+            jq -r '.[] | "- \(.name): \(.state)/\(.conclusion)"' <<<"$blocking"
+            exit 0
+          fi
+
+          gh pr merge "$PR_NUMBER" --repo "$REPOSITORY" --squash --delete-branch --admin

@@ -1,0 +1,3 @@
+# Project Nyra Oracle VPS maintenance
+# Docker image/container/volume pruning is intentionally scheduled weekly.
+0 4 * * 0 docker system prune -a --volumes -f

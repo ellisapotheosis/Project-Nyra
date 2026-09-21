@@ -1,1 +1,0 @@
-- Read range tool prompt
