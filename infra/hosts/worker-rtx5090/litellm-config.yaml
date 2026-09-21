@@ -1,12 +1,12 @@
 # LiteLLM Configuration for Worker RTX 5090
-# Provides OpenAI-compatible API for Ollama models
+# The only local model permitted here is Qwen3.8 27B Q4 abliterated AWQ.
 
 model_list:
-  # DeepSeek-R1 236B - Primary reasoning model
-  - model_name: deepseek-r1-236b
+  - model_name: local/qwen3.8-27b
     litellm_params:
-      model: ollama/deepseek-r1:236b-instruct-q4_K_M
-      api_base: http://ollama:11434
+      model: openai/hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
+      api_base: http://vllm:8000/v1
+      api_key: "local-no-auth"
       stream: true
       temperature: 0.7
       max_tokens: 4096
@@ -15,26 +15,10 @@ model_list:
       supports_function_calling: true
       supports_vision: false
       tags:
-        - complex_reasoning
-        - mortgage_calculations
-        - compliance_analysis
-
-  # Qwen 2.5 72B - Secondary reasoning model
-  - model_name: qwen-2.5-72b
-    litellm_params:
-      model: ollama/qwen2.5:72b-instruct-q5_K_M
-      api_base: http://ollama:11434
-      stream: true
-      temperature: 0.7
-      max_tokens: 4096
-    model_info:
-      mode: chat
-      supports_function_calling: true
-      supports_vision: false
       tags:
-        - general_reasoning
-        - document_analysis
-        - loan_logic
+        - qwen3.8
+        - q4
+        - abliterated
 
 general_settings:
   master_key: ${LITELLM_MASTER_KEY}
@@ -80,12 +64,12 @@ router_settings:
 
   # Model aliases
   model_group_alias:
-    reasoning: deepseek-r1-236b
-    general: qwen-2.5-72b
+    reasoning: local/qwen3.8-27b
+    general: local/qwen3.8-27b
 
   # Fallback models
   fallback_models:
-    deepseek-r1-236b: ["qwen-2.5-72b"]
+    local/qwen3.8-27b: []
 
   # Allowed failures before fallback
   allowed_fails: 1

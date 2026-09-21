@@ -1,10 +1,17 @@
 model_list:
-  - model_name: worker-3090-vllm
+  - model_name: local/qwen3.8-27b
     litellm_params:
-      model: openai/worker-3090-vllm
+      model: openai/hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
       api_base: http://worker-3090-vllm:8000/v1
       api_key: "none"
       drop_params: true
+
+litellm_settings:
+  cache: true
+  cache_params:
+    type: redis
+    host: worker-3090-redis
+    port: 6379
 
 general_settings:
   master_key: ${LITELLM_MASTER_KEY}

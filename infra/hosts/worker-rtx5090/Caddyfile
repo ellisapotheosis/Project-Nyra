@@ -1,0 +1,29 @@
+# Private worker reverse proxy. Bind only to the worker Tailscale address.
+{
+	admin off
+}
+
+:443 {
+	tls internal
+	respond /health "OK" 200
+}
+
+clawteam.projectnyra.com {
+	tls internal
+	reverse_proxy host.docker.internal:9001
+}
+
+mission-control.projectnyra.com {
+	tls internal
+	reverse_proxy host.docker.internal:9091
+}
+
+nerve-ui.projectnyra.com {
+	tls internal
+	reverse_proxy host.docker.internal:5000
+}
+
+nerve-5090.projectnyra.com {
+	tls internal
+	reverse_proxy host.docker.internal:7000
+}

@@ -21,15 +21,10 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      test:
-        [
-          "CMD",
-          "wget",
-          "--no-check-certificate",
-          "--spider",
-          "--timeout=5",
-          "https://localhost/health",
-        ]
+      # The Caddyfile intentionally disables the admin API and redirects HTTP
+      # to HTTPS. A self-TLS probe creates ssl_client zombies in BusyBox wget;
+      # process liveness is the stable container-level health signal here.
+      test: ["CMD-SHELL", "pidof caddy >/dev/null 2>&1"]
       interval: 30s
       timeout: 10s
       retries: 3

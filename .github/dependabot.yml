@@ -16,6 +16,10 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
+    groups:
+      github-actions:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   # npm - Root package (monorepo)
   - package-ecosystem: "npm"
@@ -35,6 +39,10 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    groups:
+      npm-root:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   # npm - Memory module
   - package-ecosystem: "npm"
@@ -55,6 +63,10 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    groups:
+      npm-memory:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   # npm - Apps directory
   - package-ecosystem: "npm"
@@ -75,6 +87,10 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    groups:
+      npm-apps:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   # npm - Services directory
   - package-ecosystem: "npm"
@@ -95,6 +111,10 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    groups:
+      npm-services:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   # npm - Packages directory
   - package-ecosystem: "npm"
@@ -115,6 +135,10 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    groups:
+      npm-packages:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   # Docker images
   - package-ecosystem: "docker"
@@ -132,6 +156,10 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    groups:
+      docker:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   # Python dependencies
   - package-ecosystem: "pip"
@@ -149,6 +177,10 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    groups:
+      python:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   # Go modules (if present)
   - package-ecosystem: "gomod"
@@ -166,3 +198,7 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+    groups:
+      go:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]

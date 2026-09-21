@@ -68,6 +68,12 @@ ingress:
   - hostname: nexus-router.projectnyra.com
     service: http://nexus:3000
 
+  # Public hostname, protected by the Cloudflare Access application. This is
+  # the LiteLLM front door used by the existing MCP Portal/Gateway integrations;
+  # it is not a private host-level mesh endpoint.
+  - hostname: litellm.projectnyra.com
+    service: http://litellm:4000
+
   - hostname: letta.projectnyra.com
     service: http://letta:8283
 

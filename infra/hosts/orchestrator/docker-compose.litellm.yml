@@ -8,7 +8,9 @@
 # Exposed at:
 #   - Internal:   http://litellm:4000  (docker network, same project)
 #   - Tailscale:  http://orchestrator.trex-fiordland.ts.net:4010
-#   - Private DNS: http://litellm.projectnyra.com (AdGuard split-horizon)
+#   - Public Access-gated: https://litellm.projectnyra.com/v1
+#     (Cloudflare Access service tokens for headless MCP Gateway clients;
+#     human OAuth remains owned by the MCP Portal integrations.)
 #
 # Authentication:
 #   LITELLM_MASTER_KEY — required (sk-<48+ random chars>)
@@ -23,8 +25,8 @@ services:
     restart: unless-stopped
     command: ["--config", "/app/config/config.yaml", "--port", "4000"]
     ports:
-      # Bind to all interfaces — Tailscale firewall restricts access.
-      # Access from other Tailscale peers: http://100.64.0.10:4010/v1
+      # Private mesh listener. The public hostname is supplied separately by
+      # the Oracle Cloudflare Tunnel and Access application.
       - "${LITELLM_HOST:-0.0.0.0}:${LITELLM_PORT:-4010}:4000"
     environment:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?LITELLM_MASTER_KEY is required — set sk-<48+ chars>}
@@ -67,7 +69,9 @@ services:
       timeout: 5s
       retries: 3
     networks:
-      - nyra-network
+      nyra-network:
+        aliases:
+          - litellm-redis
     labels:
       com.projectnyra.service: "litellm-redis"
       com.projectnyra.host: "orchestrator"

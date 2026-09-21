@@ -9,6 +9,17 @@
       },
       "startup_timeout_sec": 90
     },
+    "litellm-mcp": {
+      "type": "http",
+      "url": "https://litellm.projectnyra.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${LITELLM_API_KEY}",
+        "CF-Access-Client-Id": "${CF_GATEWAY_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "${CF_GATEWAY_ACCESS_CLIENT_SECRET}"
+      },
+      "startup_timeout_sec": 120,
+      "tool_timeout_sec": 180
+    },
     "letta-mcp": {
       "type": "http",
       "url": "https://letta-mcp.projectnyra.com/mcp",

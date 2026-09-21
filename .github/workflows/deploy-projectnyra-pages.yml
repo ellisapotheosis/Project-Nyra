@@ -41,13 +41,8 @@ jobs:
         working-directory: apps/projectnyra-landing
         run: pnpm run build:cf
 
-      - name: Deploy Pages artifact
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ env.PROJECT_NAME }}
-          directory: apps/projectnyra-landing/.open-next
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
-          wranglerVersion: "3"
+      - name: Deploy Pages artifact with Wrangler
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler pages deploy apps/projectnyra-landing/.open-next --project-name "$PROJECT_NAME" --branch main

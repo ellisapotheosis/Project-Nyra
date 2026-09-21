@@ -2,9 +2,9 @@ services:
   vllm-server:
     image: vllm/vllm-openai:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3090ti-vllm
-    profiles: ['gpu']
+    profiles: ["gpu"]
     environment:
-      - MODEL_NAME=${VLLM_MODEL:-Qwen/Qwen2.5-Coder-32B-Instruct}
+      - MODEL_NAME=${VLLM_MODEL:-hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4}
       - VLLM_HOST=${VLLM_HOST:-0.0.0.0}
       - VLLM_PORT=${VLLM_PORT:-8000}
       - VLLM_TENSOR_PARALLEL_SIZE=${VLLM_TENSOR_PARALLEL_SIZE:-1}
@@ -16,7 +16,7 @@ services:
       - LMCACHE_REDIS_HOST=redis-cache
       - LMCACHE_REDIS_PORT=6379
     ports:
-      - "0.0.0.0:8000:8000"  # Expose on all interfaces for Tailscale
+      - "0.0.0.0:8000:8000" # Expose on all interfaces for Tailscale
     volumes:
       - /root/.cache/huggingface:/root/.cache/huggingface
       - vllm_models:/models
@@ -29,7 +29,7 @@ services:
               count: 1
               capabilities: [gpu]
     command: >
-      --model ${VLLM_MODEL:-Qwen/Qwen2.5-Coder-32B-Instruct}
+      --model ${VLLM_MODEL:-hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4}
       --host 0.0.0.0
       --port 8000
       --tensor-parallel-size ${VLLM_TENSOR_PARALLEL_SIZE:-1}
@@ -47,7 +47,7 @@ services:
   lmcache-server:
     image: lmcache/lmcache-server:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3090ti-lmcache
-    profiles: ['gpu']
+    profiles: ["gpu"]
     environment:
       - LMCACHE_STORAGE_BACKEND=local
       - LMCACHE_LOCAL_DEVICE=cuda
@@ -61,7 +61,7 @@ services:
   redis-cache:
     image: redis:7-alpine
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-rtx3090ti-redis
-    profiles: ['gpu']
+    profiles: ["gpu"]
     ports:
       - "127.0.0.1:6379:6379"
     volumes:

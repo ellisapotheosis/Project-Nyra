@@ -45,7 +45,7 @@ services:
 
   # ── vLLM Server (24GB VRAM optimized) ───────────────────────────────────
   vllm:
-    image: vllm/vllm-openai:latest
+    image: lmcache/vllm-openai:latest
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-worker-3090-vllm
     hostname: worker-3090-vllm
     restart: unless-stopped
@@ -54,18 +54,19 @@ services:
     volumes:
       - vllm_models:/root/.cache/huggingface
       - lmcache_data:/root/.cache/lmcache
+      - ./lmcache:/app/lmcache:ro
     environment:
       - CUDA_VISIBLE_DEVICES=0
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
       - HF_TOKEN=${HF_TOKEN}
       - VLLM_ATTENTION_BACKEND=FLASHINFER
-      - LMCACHE_ENABLED=true
-      - LMCACHE_BACKEND=redis
-      - LMCACHE_REDIS_HOST=worker-3090-redis
-      - LMCACHE_REDIS_PORT=6379
+      - LMCACHE_CONFIG_FILE=/app/lmcache/redis-offload.yaml
+      - LMCACHE_USE_EXPERIMENTAL=True
+      - VLLM_USE_FLASHINFER_SAMPLER=0
+      - VLLM_WSL2_ENABLE_PIN_MEMORY=1
     command: >
-      --model ${VLLM_MODEL:-Qwen/Qwen3.8-27B}
+      --model ${VLLM_MODEL:-hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4}
       --host 0.0.0.0
       --port 8000
       --tensor-parallel-size 1
@@ -73,6 +74,7 @@ services:
       --max-model-len 8192
       --enable-prefix-caching
       --trust-remote-code
+      --kv-transfer-config '{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}'
     deploy:
       resources:
         reservations:
@@ -119,8 +121,8 @@ services:
       - vllm_models:/models
     environment:
       - VLLM_URL=http://worker-3090-vllm:8000
-      - AVAILABLE_MODELS=Qwen/Qwen3.8-27B
-      - DEFAULT_MODEL=Qwen/Qwen3.8-27B
+      - AVAILABLE_MODELS=hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
+      - DEFAULT_MODEL=hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
     command: python /app/switcher.py
     depends_on:
       vllm:
