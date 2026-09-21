@@ -44,7 +44,7 @@ model_list:
 
   - model_name: openrouter/qwen3
     litellm_params:
-      model: openrouter/qwen/qwen3-30b-a3b:free
+      model: openrouter/qwen/qwen3.8-27b:free
       api_key: os.environ/OPENROUTER_API_KEY
       timeout: 120
 
