@@ -53,7 +53,7 @@ jobs:
           fi
 
           checks=$(gh pr checks "$PR_NUMBER" --repo "$REPOSITORY" --json name,state,conclusion || true)
-          blocking=$(jq '[.[] | select(.name != null and (.name | test("^Cloudflare Pages: ") | not) and .name != "Auto Merge PR" and .name != "Cleanup Old Comments") | select(.state != "COMPLETED" or (.conclusion != "SUCCESS" and .conclusion != "SKIPPED" and .conclusion != "NEUTRAL"))]' <<<"$checks")
+          blocking=$(jq '[.[] | select(.name != null and (.name | test("^Cloudflare Pages: ") | not) and .name != "Auto Merge PR" and .name != "Cleanup Old Comments") | select(.state != "SUCCESS" and .state != "SKIPPED" and .state != "NEUTRAL")]' <<<"$checks")
           if [ "$(jq 'length' <<<"$blocking")" -gt 0 ]; then
             echo "Non-Pages checks are not all green; leaving PR open."
             jq -r '.[] | "- \(.name): \(.state)/\(.conclusion)"' <<<"$blocking"
