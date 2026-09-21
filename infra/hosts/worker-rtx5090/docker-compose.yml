@@ -85,6 +85,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10m
     networks:
       - worker-network
 
@@ -202,5 +203,5 @@ volumes:
 
 networks:
   worker-network:
-    name: nyra-worker-5090
+    name: nyra-worker-5090-canonical
     driver: bridge
