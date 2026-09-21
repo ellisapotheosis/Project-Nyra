@@ -1208,8 +1208,8 @@ importers:
         specifier: ^16.3.1
         version: 16.6.1
       eventsource:
-        specifier: ^4.1.0
-        version: 4.1.0
+        specifier: ^5.1.1
+        version: 5.1.1
       express:
         specifier: ^5.2.1
         version: 5.2.1
@@ -8636,13 +8636,17 @@ packages:
     resolution: {integrity: sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg==}
     engines: {node: '>=18.0.0'}
 
+  eventsource-parser@4.1.1:
+    resolution: {integrity: sha512-zaWNqeSLeyzEAAt2Q6aDBRDRk/VnPmsKqvToyGvv6aahvLv71A4Jw7jG93Hckf11zXurbqgsffvpSgKPoeU1Qw==}
+    engines: {node: '>=22.12'}
+
   eventsource@3.0.7:
     resolution: {integrity: sha512-CRT1WTyuQoD771GW56XEZFQ/ZoSfWid1alKGDYMmkt2yl8UXrVR4pspqWNEcqKvVIzg6PAltWjxcSSPrboA4iA==}
     engines: {node: '>=18.0.0'}
 
-  eventsource@4.1.0:
-    resolution: {integrity: sha512-2GuF51iuHX6A9xdTccMTsNb7VO0lHZihApxhvQzJB5A03DvHDd2FQepodbMaztPBmBcE/ox7o2gqaxGhYB9LhQ==}
-    engines: {node: '>=20.0.0'}
+  eventsource@5.1.1:
+    resolution: {integrity: sha512-onrlI7l612Ee3xnBqZNTq4djf6Fho/0yIpO/rYjRG/FzjMyPJquNx9SS3QyjglnVFxwxrube1XmX41zB+0Rdgw==}
+    engines: {node: '>=22.12.0'}
 
   execa@5.1.1:
     resolution: {integrity: sha512-8uSpZZocAZRBAPIEINJj3Lo9HyGitllczc27Eh5YYojjMFMn8yHMDMaUHE2Jqfq05D/wucwI4JGURyXt1vchyg==}
@@ -18443,7 +18447,7 @@ snapshots:
 
   '@types/eventsource@3.0.0':
     dependencies:
-      eventsource: 4.1.0
+      eventsource: 5.1.1
 
   '@types/express-serve-static-core@4.19.8':
     dependencies:
@@ -21955,13 +21959,15 @@ snapshots:
 
   eventsource-parser@3.0.6: {}
 
+  eventsource-parser@4.1.1: {}
+
   eventsource@3.0.7:
     dependencies:
       eventsource-parser: 3.0.6
 
-  eventsource@4.1.0:
+  eventsource@5.1.1:
     dependencies:
-      eventsource-parser: 3.0.6
+      eventsource-parser: 4.1.1
 
   execa@5.1.1:
     dependencies:
