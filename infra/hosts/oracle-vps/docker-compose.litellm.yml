@@ -56,8 +56,10 @@ services:
       JSON_LOGS: "true"
 
     volumes:
-      # Mount config from local directory
-      - ./litellm/config.yaml:/app/config/config.yaml:ro
+      # Mount the canonical control-plane config shared by Oracle services.
+      # The LiteLLM image does not load /app/config/config.yaml implicitly;
+      # the explicit --config argument above is therefore required.
+      - ../../configs/litellm/config.yaml:/app/config/config.yaml:ro
 
       # Optional: PostgreSQL for cost tracking
       # - ${LITELLM_DATABASE_URL}
@@ -122,3 +124,7 @@ volumes:
 networks:
   nyra-network:
     external: true
+    # Match the canonical Oracle project network used by docker-compose.yml
+    # so the standalone LiteLLM overlay can resolve the shared OmniRoute
+    # service without relying on an incidental Compose project name.
+    name: nyra-network_nyra_net

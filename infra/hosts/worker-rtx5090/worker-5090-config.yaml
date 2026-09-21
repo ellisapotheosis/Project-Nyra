@@ -21,11 +21,11 @@ worker:
 
   models:
     primary:
-      - name: deepseek-r1:236b-instruct-q4_K_M
-        display_name: DeepSeek-R1 236B
-        size_gb: 130
-        vram_usage_gb: 36
-        quantization: q4_K_M
+      - name: hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
+        display_name: Qwen3.8 27B Abliterated
+        size_gb: 18
+        vram_usage_gb: 22
+        quantization: AWQ INT4
         use_cases:
           - mortgage_qualification
           - compliance_validation
@@ -36,11 +36,11 @@ worker:
           context_length: 32768
           load_time_seconds: 45
 
-      - name: qwen2.5:72b-instruct-q5_K_M
-        display_name: Qwen 2.5 72B
-        size_gb: 48
-        vram_usage_gb: 42
-        quantization: q5_K_M
+      - name: hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
+        display_name: Qwen3.8 27B Abliterated
+        size_gb: 18
+        vram_usage_gb: 22
+        quantization: AWQ INT4
         use_cases:
           - general_reasoning
           - document_analysis
@@ -62,7 +62,7 @@ worker:
       wifi_ip: ${MACHINE_IP_WIFI}
 
     ports:
-      ollama: 11434
+      vllm: 8000
       litellm: 4000
       model_manager: 8080
       perf_monitor: 9090
@@ -72,7 +72,7 @@ worker:
     cloudflared:
       enabled: false
       hostnames:
-        ollama: worker-5090.projectnyra.com
+        vllm: worker-5090.projectnyra.com
         litellm: litellm-5090.projectnyra.com
         models: models-5090.projectnyra.com
         metrics: metrics-5090.projectnyra.com
@@ -95,7 +95,7 @@ worker:
       checks:
         - name: gpu
           critical: true
-        - name: ollama
+        - name: vllm
           critical: true
         - name: docker_services
           critical: true
@@ -150,11 +150,10 @@ worker:
           enabled: true
 
   performance:
-    ollama:
-      num_parallel: 8
-      max_loaded_models: 2
-      keep_alive: 30m
-      max_vram_gb: 46
+    vllm:
+      tensor_parallel_size: 1
+      gpu_memory_utilization: 0.90
+      max_model_len: 8192
       num_gpu: 1
 
     docker:
@@ -164,7 +163,7 @@ worker:
 
     model_loading:
       preload_models:
-        - deepseek-r1:236b-instruct-q4_K_M
+        - hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
       lazy_load: false
       cache_models: true
 
@@ -216,7 +215,7 @@ worker:
       schedule: "0 2 * * *" # 2 AM daily
       retention_days: 7
       targets:
-        - ollama_models
+        - vllm_models
         - configurations
         - logs
 

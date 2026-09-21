@@ -4,7 +4,7 @@
 model_list:
   - model_name: local/qwen3.8-27b
     litellm_params:
-      model: openai/Qwen3.8-27B
+      model: openai/hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
       api_base: ${VLLM_BASE_URL}
       api_key: dummy
       timeout: 120

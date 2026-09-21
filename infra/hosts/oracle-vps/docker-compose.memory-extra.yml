@@ -4,13 +4,14 @@
 
 services:
   memos:
-    image: ${MEMOS_IMAGE:-ghcr.io/memodb-io/memos:latest}
+    image: ${MEMOS_MCP_IMAGE:-ghcr.io/memodb-io/memos:latest}
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-memos
     restart: unless-stopped
     environment:
       MEM0_BASE_URL: http://mem0:5000
       FALKORDB_URL: redis://falkordb:6379
       QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:?set QDRANT_API_KEY}
       LETTA_BASE_URL: http://letta:8283
     expose:
       - "8080"
@@ -25,6 +26,56 @@ services:
         aliases:
           - memory-memos
 
+  # MemoryTensor/MemOS HTTP API; separate from the MCP transport above.
+  memos-api:
+    image: ${MEMOS_IMAGE:-nyra/memorytensor-memos:local}
+    container_name: ${COMPOSE_PROJECT_NAME:-nyra}-memos-api
+    restart: unless-stopped
+    command:
+      [
+        "/bin/sh",
+        "-lc",
+        "mkdir -p /data/files && exec python -m memos.api.server_api --port 8001 --workers 1",
+      ]
+    environment:
+      MEM0_BASE_URL: http://mem0:5000
+      FALKORDB_URL: redis://falkordb:6379
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: "6333"
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY:?set QDRANT_API_KEY}
+      LETTA_BASE_URL: http://letta:8283
+      OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
+      OPENAI_API_BASE: ${MEMORY_OPENAI_API_BASE:-http://litellm:4000/v1}
+      MOS_EMBEDDER_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
+      MOS_EMBEDDER_API_BASE: ${MEMORY_OPENAI_API_BASE:-http://litellm:4000/v1}
+      MEMRADER_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
+      MEMRADER_API_BASE: ${MEMORY_OPENAI_API_BASE:-http://litellm:4000/v1}
+      MOS_EMBEDDER_PROVIDER: ${MOS_EMBEDDER_PROVIDER:-openai}
+      MOS_EMBEDDER_BACKEND: ${MOS_EMBEDDER_BACKEND:-openai}
+      MOS_EMBEDDER_MODEL: ${MOS_EMBEDDER_MODEL:-nyra-embedding}
+      MOS_CHAT_MODEL: ${MOS_CHAT_MODEL:-nyra-memory}
+      MEMRADER_MODEL: ${MEMRADER_MODEL:-nyra-memory}
+    ports:
+      - "127.0.0.1:${MEMOS_API_HOST_PORT:-8001}:8001"
+    volumes:
+      - memos_data:/data
+    depends_on:
+      mem0:
+        condition: service_healthy
+      falkordb:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      letta:
+        condition: service_healthy
+    networks:
+      memory_edge: {}
+      memory_private: {}
+      nyra_net:
+        aliases:
+          - memory-memos-api
+
   claudemem:
     image: ${CLAUDEMEM_IMAGE:-ghcr.io/ruvnet/claudemem:latest}
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-claudemem
@@ -32,6 +83,7 @@ services:
     environment:
       MEM0_BASE_URL: http://mem0:5000
       OPENMEMORY_MCP_URL: ${OPENMEMORY_MCP_URL:-http://100.64.0.3:8765}
+      QDRANT_API_KEY: ${QDRANT_API_KEY:?set QDRANT_API_KEY}
       LETTA_BASE_URL: http://letta:8283
     expose:
       - "8080"
@@ -47,6 +99,11 @@ services:
 networks:
   memory_edge:
     name: nyra_memory_edge
+    external: true
   nyra_net:
     external: true
     name: nyra-network_nyra_net
+
+volumes:
+  memos_data:
+    name: oracle-vps-memory_memos_data

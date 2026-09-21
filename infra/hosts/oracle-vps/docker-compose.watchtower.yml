@@ -1,0 +1,20 @@
+name: nyra-watchtower-oracle-vps
+
+services:
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: nyra-watchtower-oracle-vps
+    restart: always
+    command:
+      - --schedule
+      - "0 0 3 * * *"
+      - --cleanup
+      - --notifications
+      - shoutrrr
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_NOTIFICATIONS: shoutrrr
+      # Inject the destination from Infisical at deployment time; never commit it.
+      WATCHTOWER_NOTIFICATION_URL: ${WATCHTOWER_NOTIFICATION_URL:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

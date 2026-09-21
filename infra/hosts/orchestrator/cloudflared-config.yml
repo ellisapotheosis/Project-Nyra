@@ -28,18 +28,15 @@ ingress:
     originRequest:
       noTLSVerify: true
 
-  # Phase 3 — AI Orchestration Services
-  - hostname: mission-control.projectnyra.com
-    service: http://nyra-mission-control:9090
+  # Mission Control is private/Tailscale-only. It is intentionally absent from
+  # this public Cloudflare tunnel configuration.
 
+  # Phase 3 — AI Orchestration Services
   - hostname: aionui.projectnyra.com
     service: http://nyra-aionui:3000
 
-  - hostname: clawteam.projectnyra.com
-    service: http://nyra-clawteam-primary:9000
-
-  - hostname: nerveui.projectnyra.com
-    service: http://worker-5090-nerve-ui:5000
+  # clawteam.projectnyra.com and nerve-ui.projectnyra.com are private
+  # Tailscale endpoints; they are intentionally not tunnel ingress entries.
 
   # Orchestrator catch-all. Required by cloudflared.
   - service: http_status:404

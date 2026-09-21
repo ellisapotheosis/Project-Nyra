@@ -1,0 +1,4 @@
+# LMCache Redis KV-cache backend for the local VLLM worker.
+chunk_size: 256
+remote_url: "redis://worker-5090-redis:6379"
+remote_serde: "naive"

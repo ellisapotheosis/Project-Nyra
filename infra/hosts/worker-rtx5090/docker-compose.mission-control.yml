@@ -1,0 +1,33 @@
+# Private worker-local audit endpoint. Publish via Tailscale split DNS/Serve.
+services:
+  mission-control:
+    build:
+      context: ../orchestrator/mission-control
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-worker-5090}-mission-control
+    environment:
+      MISSION_CONTROL_PORT: 9090
+      AUDIT_DIR: /audit
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "${WORKER_TAILSCALE_IP:-100.64.0.11}:9091:9090"
+    volumes:
+      - mission_control_audit:/audit
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9090/health', timeout=3)",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  mission_control_audit:
+    name: nyra-worker-5090-mission-control-audit

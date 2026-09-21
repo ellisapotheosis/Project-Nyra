@@ -16,7 +16,10 @@ x-common: &common
 services:
   letta:
     <<: *common
-    image: ${LETTA_IMAGE:-letta/letta:latest}
+    # Pin the legacy API-server image while this stack still uses the Rust MCP
+    # bridge and LETTA_PG_URI contract. `latest` is now Letta Code/App Server
+    # and rejects LETTA_SERVER_PASSWORD plus the legacy PostgreSQL layout.
+    image: ${LETTA_IMAGE:-letta/letta:0.16.8}
     container_name: ${COMPOSE_PROJECT_NAME:-nyra}-letta
     environment:
       LETTA_PG_URI: postgresql://${LETTA_DB_USER:-letta}:${LETTA_DB_PASSWORD:?set LETTA_DB_PASSWORD}@letta-postgres:5432/${LETTA_DB_NAME:-letta}
@@ -26,8 +29,8 @@ services:
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
       OPENAI_API_BASE: ${MEMORY_OPENAI_API_BASE:-http://litellm:4000/v1}
       OPENAI_BASE_URL: ${MEMORY_OPENAI_API_BASE:-http://litellm:4000/v1}
-      MEM0_LLM_MODEL: ${MEM0_LLM_MODEL:-local/qwen3-4b-3060}
-      MEM0_EMBEDDER_MODEL: ${MEM0_EMBEDDER_MODEL:-local/embeddings}
+      MEM0_LLM_MODEL: ${MEM0_LLM_MODEL:-nyra-memory}
+      MEM0_EMBEDDER_MODEL: ${MEM0_EMBEDDER_MODEL:-nyra-embedding}
       # nomic-embed-text emits 768 dimensions; keep Qdrant schema aligned.
       MEM0_EMBEDDING_DIMS: ${MEM0_EMBEDDING_DIMS:-768}
       MEM0_LLM_API_KEY: ${MEM0_LLM_API_KEY:-not-needed}
@@ -74,8 +77,8 @@ services:
       OPENAI_API_KEY: ${LITELLM_MASTER_KEY:?set LITELLM_MASTER_KEY}
       OPENAI_API_BASE: ${MEMORY_OPENAI_API_BASE:-http://litellm:4000/v1}
       OPENAI_BASE_URL: ${MEMORY_OPENAI_API_BASE:-http://litellm:4000/v1}
-      MEM0_LLM_MODEL: ${MEM0_LLM_MODEL:-local/qwen3-4b-3060}
-      MEM0_EMBEDDER_MODEL: ${MEM0_EMBEDDER_MODEL:-local/embeddings}
+      MEM0_LLM_MODEL: ${MEM0_LLM_MODEL:-nyra-memory}
+      MEM0_EMBEDDER_MODEL: ${MEM0_EMBEDDER_MODEL:-nyra-embedding}
       # nomic-embed-text emits 768 dimensions; keep Qdrant schema aligned.
       MEM0_EMBEDDING_DIMS: ${MEM0_EMBEDDING_DIMS:-768}
       MEM0_LLM_API_KEY: ${MEM0_LLM_API_KEY:-not-needed}
@@ -189,18 +192,30 @@ services:
 networks:
   memory_edge:
     name: nyra_memory_edge
+    external: true
   memory_private:
     name: nyra_memory_private
     internal: true
+    external: true
   nyra_net:
     external: true
-    name: nyra_net
+    # Match the canonical Oracle application network. The previous short name
+    # created a second network, leaving LiteLLM/cloudflared unable to resolve
+    # the memory services by Compose alias.
+    name: nyra-network_nyra_net
   llm_private:
     name: nyra_llm_private
     internal: false
+    external: true
 
 volumes:
+  # Reuse the existing Oracle data volumes; do not create project-name-local
+  # duplicates during a Compose project rename.
   letta_postgres:
+    name: nyra-network-nyra_letta_postgres
   letta_state:
+    name: nyra-network-nyra_letta_state
   falkordb_data:
+    name: nyra-network-nyra_falkordb_data
   qdrant_data:
+    name: nyra-network-nyra_qdrant_data
