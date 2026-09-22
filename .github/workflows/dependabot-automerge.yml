@@ -67,9 +67,7 @@ jobs:
             checks=$(gh pr checks "$pr" --repo "$REPOSITORY" --json name,state,bucket)
             blocking=$(jq '[.[]
               | select(.name != null)
-              | select((.name | test("^Cloudflare Pages: ")) | not)
-              | select(.name != "Auto Create Pull Request")
-              | select(.name != "merge-safe-dependency-update")
+              | select((.name | test("^(Cloudflare Pages: |Auto Create Pull Request$|merge-safe-dependency-update$|Mergify Merge |Sourcery review$|CodeRabbit$|Greptile Review$|Kilo Code Review$)")) | not)
               | select(.bucket != "pass" and .bucket != "skipping")]' <<<"$checks")
 
             if [ "$(jq 'length' <<<"$blocking")" -gt 0 ]; then
