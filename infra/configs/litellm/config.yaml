@@ -24,7 +24,7 @@ model_list:
   # ---------------------------------------------------------------------------
   - model_name: nyra-general
     litellm_params:
-      model: openai/nyra-primary
+      model: openai/hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
       api_base: http://100.64.0.11:8000/v1
       api_key: "local-no-auth"
       timeout: 300
@@ -35,7 +35,7 @@ model_list:
 
   - model_name: nyra-general
     litellm_params:
-      model: openai/nyra-secondary
+      model: openai/hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
       api_base: http://100.64.0.13:8000/v1
       api_key: "local-no-auth"
       timeout: 300
@@ -46,7 +46,7 @@ model_list:
 
   - model_name: nyra-reasoning
     litellm_params:
-      model: openai/nyra-primary
+      model: openai/hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
       api_base: http://100.64.0.11:8000/v1
       api_key: "local-no-auth"
       timeout: 420
@@ -57,7 +57,7 @@ model_list:
 
   - model_name: nyra-coding
     litellm_params:
-      model: openai/nyra-primary
+      model: openai/hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
       api_base: http://100.64.0.11:8000/v1
       api_key: "local-no-auth"
       timeout: 300
@@ -101,7 +101,7 @@ model_list:
 
   - model_name: nyra-memory
     litellm_params:
-      model: openai/nyra-primary
+      model: openai/hotdogs/Qwen3.8-27B-abliterated-AWQ-INT4
       api_base: http://100.64.0.11:8000/v1
       api_key: os.environ/LITELLM_MASTER_KEY
       timeout: 420
