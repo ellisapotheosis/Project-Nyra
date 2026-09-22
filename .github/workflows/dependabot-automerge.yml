@@ -39,7 +39,8 @@ jobs:
           fi
 
           for pr in $pr_numbers; do
-            read -r title mergeable merge_state <<<"$(gh pr view "$pr" --repo "$REPOSITORY" --json title,mergeable,mergeStateStatus --jq '[.title,.mergeable,.mergeStateStatus]|@tsv')"
+            title=$(gh pr view "$pr" --repo "$REPOSITORY" --json title --jq '.title')
+            read -r mergeable merge_state <<<"$(gh pr view "$pr" --repo "$REPOSITORY" --json mergeable,mergeStateStatus --jq '[.mergeable,.mergeStateStatus]|@tsv')"
             labels=$(gh pr view "$pr" --repo "$REPOSITORY" --json labels --jq '[.labels[].name]')
 
             if jq -e 'any(.[]; . == "semver-major")' <<<"$labels" >/dev/null; then
