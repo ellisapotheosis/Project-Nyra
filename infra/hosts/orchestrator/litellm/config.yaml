@@ -159,6 +159,6 @@ litellm_settings:
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
-  # Uncomment to enable virtual keys / usage tracking:
-  # database_url: os.environ/LITELLM_DATABASE_URL
+  # Required for authenticated MCP virtual-key validation and usage tracking.
+  database_url: os.environ/LITELLM_DATABASE_URL
   store_model_in_db: false
