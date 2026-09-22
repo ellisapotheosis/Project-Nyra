@@ -136,7 +136,9 @@ services:
       retries: 10
       start_period: 20s
     networks:
-      - nyra-network
+      nyra-network:
+        aliases:
+          - postgres
     labels:
       com.projectnyra.service: "litellm-postgres"
       com.projectnyra.host: "oracle-vps"

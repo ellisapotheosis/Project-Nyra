@@ -18,7 +18,7 @@ permissions:
   deployments: write
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "24"
   PNPM_VERSION: "10.27.0"
   PROJECT_NAME: projectnyra-landing
 
@@ -29,6 +29,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v5
         with:
