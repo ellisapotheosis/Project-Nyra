@@ -44,7 +44,8 @@ jobs:
         run: pnpm run build:cf
 
       - name: Deploy Pages artifact with Wrangler
+        working-directory: apps/projectnyra-landing
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm exec wrangler pages deploy apps/projectnyra-landing/.open-next --project-name "$PROJECT_NAME" --branch main
+        run: pnpm exec wrangler pages deploy .open-next --project-name "$PROJECT_NAME" --branch main
