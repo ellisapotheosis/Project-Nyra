@@ -16,7 +16,10 @@ services:
       CLAWTEAM_HOST: worker-rtx5090
       WORKER_NAME: rtx5090
       NERVE_UI_ENABLED: "false"
-      LITELLM_API_URL: ${CLAWTEAM_LITELLM_API_URL:-http://100.64.0.3:4000}
+      # LiteLLM is published by the worker's primary stack, not attached to
+      # this overlay network. Keep an explicit override for alternate
+      # deployments and use Docker Desktop's host gateway by default.
+      LITELLM_API_URL: ${CLAWTEAM_LITELLM_API_URL:-http://host.docker.internal:4000}
       NEXUS_ROUTER_URL: ${CLAWTEAM_NEXUS_ROUTER_URL:-http://100.64.0.3:7000}
     ports:
       - "${CLAWTEAM_PORT:-9001}:8080"
@@ -24,9 +27,8 @@ services:
       - clawteam_state:/root/.clawteam
     networks:
       - worker-network
-    depends_on:
-      litellm:
-        condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
