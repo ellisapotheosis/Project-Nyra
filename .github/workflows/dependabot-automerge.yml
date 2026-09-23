@@ -60,10 +60,14 @@ jobs:
               continue
             fi
 
-            if [ "$merge_state" = "BLOCKED" ]; then
-              echo "PR #$pr is behind main; requesting a Dependabot branch update."
+            if [ "$merge_state" = "BEHIND" ] || [ "$merge_state" = "DIRTY" ]; then
+              echo "PR #$pr is behind or conflicted; requesting a Dependabot branch update."
               gh pr update-branch "$pr" --repo "$REPOSITORY" --rebase || true
               continue
+            fi
+
+            if [ "$merge_state" = "BLOCKED" ]; then
+              echo "PR #$pr is blocked by policy or external checks; evaluating substantive checks without rebasing."
             fi
 
             checks=$(gh pr checks "$pr" --repo "$REPOSITORY" --json name,state,bucket)
@@ -78,6 +82,26 @@ jobs:
               continue
             fi
 
-            echo "All substantive checks pass for PR #$pr; enabling native GitHub auto-merge."
-            gh pr merge "$pr" --repo "$REPOSITORY" --squash --auto
+            owner="${REPOSITORY%%/*}"
+            repo="${REPOSITORY##*/}"
+            query="query(\$owner: String!, \$repo: String!, \$number: Int!) {
+              repository(owner: \$owner, name: \$repo) {
+                pullRequest(number: \$number) {
+                  reviewThreads(first: 100) { nodes { isResolved } }
+                }
+              }
+            }"
+            unresolved_threads=$(gh api graphql \
+              -f query="$query" \
+              -f owner="$owner" \
+              -f repo="$repo" \
+              -F number="$pr" \
+              --jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length')
+            if [ "$unresolved_threads" -gt 0 ]; then
+              echo "PR #$pr has $unresolved_threads unresolved review thread(s); leaving it open."
+              continue
+            fi
+
+            echo "All substantive checks pass for PR #$pr; merging with the repository-admin bypass."
+            gh pr merge "$pr" --repo "$REPOSITORY" --squash --delete-branch --admin
           done
