@@ -33,7 +33,7 @@
     "docs:check": "ls docs/*.md && ls docs/ops/*.md"
   },
   "dependencies": {
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@jest/globals": "^30.4.1",
