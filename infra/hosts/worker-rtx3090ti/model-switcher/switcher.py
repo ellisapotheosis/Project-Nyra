@@ -17,13 +17,18 @@ SPECIALIZATION = [
     if item.strip()
 ]
 VLLM_URL = os.environ.get("VLLM_URL", "")
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "")
 PORT = int(os.environ.get("SWITCHER_PORT", "8090"))
 
 state = {"current_model": DEFAULT_MODEL}
 
 
 def backend_status():
-    url = f"{VLLM_URL.rstrip('/')}/health"
+    if OLLAMA_URL:
+        url = f"{OLLAMA_URL.rstrip('/')}/api/version"
+    else:
+        url = f"{VLLM_URL.rstrip('/')}/health"
+
     try:
         with urllib.request.urlopen(url, timeout=5) as response:
             return {"healthy": 200 <= response.status < 300, "url": url}

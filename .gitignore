@@ -1,83 +1,54 @@
 ################################################################################
 # Project Nyra .gitignore
-# Organized by category for maintainability
+# Tailored for private monorepo + Infisical secret injection
 ################################################################################
 
 ################################################################################
-# Node.js and Dependencies
+# Secrets, Environment Files & Credentials (NEVER COMMIT)
 ################################################################################
-node_modules/
-**/node_modules/
-package-lock.json
-yarn.lock
-!pnpm-lock.yaml
-.pnp/
-.pnp.js
-
-################################################################################
-# Build Outputs and Artifacts
-################################################################################
-dist/
-build/
-# Exception: Docker build directory should be tracked
-!infra/docker/build/
-out/
-.next/
-.nuxt/
-.output/
-*.log
-*.tsbuildinfo
-coverage/
-.nyc_output/
-# OpenNext output is generated and must not be tracked, including in archived
-# guidance snapshots where query strings create invalid Windows filenames.
-**/.open-next/
-*:Zone.Identifier
-
-################################################################################
-# Environment Files and Secrets
-################################################################################
+# Root & nested live env files
 .env
 .env.*
-.env.local
-.env.*.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.cloudflare
-.env.gitea
-.env.infisical
-*.pem
-*.key
-*.cert
-secrets/
-.secrets/
-credentials/
-data/gitea/
-data/app-guidance/files/nyra-stack/
-infra/env/secrets/
-
-# Host/runtime env files must stay local or come from Infisical.
 **/.env
 **/.env.*
 **/*.env
-# Explicit canonical secret boundaries. Keep the live files locally for
-# review/Infisical migration, but never add them to Git.
+
+# Canonical host & shared live secret files (managed via Infisical)
 /infra/hosts/shared.env
 /infra/hosts/*/.env
 /infra/hosts/*/.env.*
+infra/env/secrets/
+secrets/
+.secrets/
+credentials/
+
+# Explicit leaked/legacy secret files
+infra/docker-compose/.env.golden-stack-populated
+infra-archived/infra-20260206-1551/docker-compose/.env.golden-stack-populated
+nyra-configs/.env
+config/env/.env.legacy
+configs/env/.env.legacy
+
+# Certificates & Private Keys
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# Re-include safe example & template files (must appear after ignore rules)
 !/infra/hosts/shared.env.example
+!/infra/hosts/hosts-shared.example.env
+!/infra/shared-example.env
+!infra/hosts/orchestrator/example.env
+!infra/hosts/oracle-vps/example.env
+!infra/hosts/worker-rtx5090/example.env
+!infra/hosts/worker-rtx3090ti/example.env
 !**/.env.example
 !**/.env.*.example
 !**/*.env.example
 !**/*.example.env
-!infra/hosts/orchestrator/example.env
-!infra/hosts/oracle-vps/example.env
-!infra/hosts/worker-rtx3090ti/example.env
-!infra/hosts/worker-rtx3060/example.env
-!infra/hosts/worker-rtx5090/example.env
-!infra/hosts/hosts-shared.example.env
-!infra/shared-example.env
 !**/.env.template
 !**/.env.*.template
 !**/*.env.template
@@ -85,134 +56,101 @@ infra/env/secrets/
 !**/env.template
 !**/*.tmpl
 
-# Historical env backups and ingest archives can contain copied secrets.
+# Historical env backups & raw exports that may contain copied secrets
 docs/**/env-backups/
 docs/**/archived-root/
 infra/cleanup_archive/
 data/**/ratehunter-export/
-
-# Explicitly blocked leaked secret files (do not commit)
-infra/docker-compose/.env.golden-stack-populated
-infra-archived/infra-20260206-1551/docker-compose/.env.golden-stack-populated
-nyra-configs/.env
-config/env/.env.legacy
-configs/env/.env.legacy
+data/gitea/
+data/app-guidance/files/nyra-stack/
 
 ################################################################################
-# IDE and Editor Files
+# Node.js, pnpm & Monorepo Build Artifacts
 ################################################################################
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.classpath
-*.sublime-project
-*.sublime-workspace
+node_modules/
+**/node_modules/
+package-lock.json
+yarn.lock
+bun.lockb
+bun.lock
+!pnpm-lock.yaml
+.pnp/
+.pnp.js
+.pnpm-store/
+.pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.yarn-integrity
+.npm
+npm-debug.log*
 
-################################################################################
-# OS Files
-################################################################################
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-Desktop.ini
-
-# Local Codex/CLI root config copy; canonical repo config lives under .codex/.
-/config.toml
-
-################################################################################
-# Windows Reserved Filenames (Security)
-################################################################################
-**/nul
-**/NUL
-**/CON
-**/PRN
-**/AUX
-**/COM[1-9]
-**/LPT[1-9]
-
-################################################################################
-# Temporary and Cache Files
-################################################################################
-*.tmp
-*.temp
-.cache/
-.temp/
-tmp/
-temp/
-*.swp
-*.bak
-
-################################################################################
-# Archive and Backup Directories
-# Note: The _archive/ directory itself is tracked, but certain files within
-# are excluded to prevent committing sensitive data from archived projects
-################################################################################
-# Exclude common build artifacts and dependencies in archives
-_archive/**/node_modules/
-_archive/**/dist/
-_archive/**/build/
-_archive/**/.next/
-_archive/**/.nuxt/
-
-# Exclude logs and temporary files in archives
-_archive/**/*.log
-_archive/**/*.tmp
-_archive/**/*.temp
-
-# Exclude environment and secret files in archives
-_archive/**/.env
-_archive/**/.env.*
-_archive/**/*.pem
-_archive/**/*.key
-
-# Exclude database files in archives
-_archive/**/*.db
-_archive/**/*.sqlite
-_archive/**/*.db-journal
-
-# BUT: Keep the _archive directory structure and documentation
-!_archive/
-!_archive/**/README.md
-!_archive/**/ARCHIVE-INFO.md
-!_archive/**/.gitkeep
-
-# Backup directories (completely excluded)
-_backup/
-*.backup
-backup/
-backups/
-
-# Temporary consolidation files
-**/consolidation-temp/
-**/consolidation-tmp/
-consolidation-work/
-
-# Consolidation planning artifacts
-**/migration-temp/
-**/migration-staging/
-**/.migration-cache/
-
-# Workflow exports that may include credential metadata
-**/*n8n-export*.json
-**/*activepieces-export*.json
-
-
-################################################################################
-# Turborepo
-################################################################################
+# Build outputs (anchored/scoped so !infra/docker/build/ works properly)
+/build/
+/dist/
+**/dist/
+**/out/
+**/.next/
+**/.nuxt/
+**/.output/
+**/.open-next/
+*.tsbuildinfo
 .turbo/
-.turbo
 *.turbo.json
 
+# Explicitly keep Docker build contexts
+!infra/docker/build/
+!infra/docker/build/**
 
 ################################################################################
-# Database Files
+# Python & Virtual Environments
+################################################################################
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+.installed.cfg
+pip-wheel-metadata/
+share/python-wheels/
+PIPFILE.lock
+
+# Root-anchored packaging dirs (prevents breaking apps/*/src/lib or packages/*/lib)
+/develop-eggs/
+/eggs/
+/.eggs/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+/wheels/
+
+# Virtual environments
+.venv/
+**/.venv/
+venv/
+**/venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Jupyter checkpoints (notebooks themselves are tracked)
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+################################################################################
+# Rust
+################################################################################
+target/
+**/target/
+**/*.rs.bk
+
+################################################################################
+# Databases & Local State
 ################################################################################
 *.db
 *.db-journal
@@ -223,380 +161,103 @@ consolidation-work/
 *.sql.gz
 
 ################################################################################
-# Testing and Coverage
+# Docker & Local Runtime Overrides
 ################################################################################
+.docker/
+.dockerignore.local
+# Keep host-specific compose files tracked; only ignore untracked scratch overrides
+docker-compose.local.yml
+
+################################################################################
+# Testing, Coverage & Logs
+################################################################################
+coverage/
+**/coverage/
+.nyc_output/
 .coverage
 htmlcov/
 .pytest_cache/
+**/.pytest_cache/
 .jest/
 junit.xml
 test-results/
+*.log
 *.test.log
-
-################################################################################
-# Docker and Container Files
-################################################################################
-.docker/
-docker-compose.override.yml
-.dockerignore.local
-
-################################################################################
-# Miscellaneous
-################################################################################
-*.orig
-*.rej
 .eslintcache
 .stylelintcache
 
-# Infisical documentation with example credentials
-INFISICAL-ENV-VARIABLES.md
-INFISICAL-QUICK-SETUP.txt
+################################################################################
+# Archives, Backups & Migration Scratchpads
+################################################################################
+_backup/
+*.backup
+backup/
+backups/
+**/consolidation-temp/
+**/consolidation-tmp/
+consolidation-work/
+**/migration-temp/
+**/migration-staging/
+**/.migration-cache/
+
+# Keep _archive/ docs & structure tracked, ignore heavy artifacts & secrets inside
+_archive/**/node_modules/
+_archive/**/dist/
+_archive/**/build/
+_archive/**/.next/
+_archive/**/.nuxt/
+_archive/**/*.log
+_archive/**/*.tmp
+_archive/**/*.temp
+_archive/**/.env
+_archive/**/.env.*
+_archive/**/*.pem
+_archive/**/*.key
+_archive/**/*.db
+_archive/**/*.sqlite
+_archive/**/*.db-journal
 
 ################################################################################
-# Python
+# IDE, Agent Configs & OS Files
 ################################################################################
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-PIPFILE.lock
-
-# Keep tracked frontend source libraries inside app trees.
-!apps/*/src/lib/
-!apps/*/src/lib/**
-!apps/*/app/lib/
-!apps/*/app/lib/**
-!apps/landing/ratehunter-landing/src/lib/
-!apps/landing/ratehunter-landing/src/lib/**
-
-################################################################################
-# Virtual Environments
-################################################################################
-.venv/
-venv/
-ENV/
-env/
-env.bak/
-venv.bak/
-
-################################################################################
-# Jupyter Notebook
-################################################################################
-.ipynb_checkpoints/
-*.ipynb
-
-################################################################################
-
-################################################################################
-# Package Managers
-################################################################################
-.pnpm-store/
-.pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.yarn-integrity
-.npm
-npm-debug.log*
-bun.lockb
-bun.lock
-
-################################################################################
-# Rust
-################################################################################
-Cargo.lock
-target/
-
-################################################################################
-# Go
-################################################################################
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-go.work
-go.work.sum
-
-################################################################################
-# Mac
-################################################################################
-.AppleDouble
-.LSOverride
-Icon
-
-################################################################################
-# Linux
-################################################################################
+# Track .vscode/ and .codex/ in private repo; ignore personal workspace/swap files
+.idea/
+*.swp
+*.swo
 *~
-.fuse_hidden*
-.directory
-.Trash-*
+.classpath
+*.sublime-project
+*.sublime-workspace
+/config.toml
 
-################################################################################
-# Windows
-################################################################################
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-*.lnk
-
-################################################################################
-# Logs and Debugging
-################################################################################
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-pnpm-debug.log*
-
-# Keep Next.js app route folders named "logs" trackable.
-!apps/*/src/app/**/logs/
-!apps/*/src/app/**/logs/**
-
-################################################################################
-# Runtime Data
-################################################################################
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-################################################################################
-# Directory for instrumented libs
-################################################################################
-lib-cov/
-
-################################################################################
-# Coverage Reports
-################################################################################
-coverage/
-*.lcov
-.nyc_output/
-
-################################################################################
-# Grunt intermediate storage
-################################################################################
-.grunt/
-
-################################################################################
-# Bower dependency directory
-################################################################################
-bower_components/
-
-################################################################################
-# Optional npm/yarn cache
-################################################################################
-.npm/
-.yarn-cache/
-.pnp/
-.pnp.js
-
-################################################################################
-# Optional eslint cache
-################################################################################
-.eslintcache
-
-################################################################################
-# Microbundle cache
-################################################################################
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-################################################################################
-# Optional REPL history
-################################################################################
-.node_repl_history
-
-################################################################################
-# Output of 'npm pack'
-################################################################################
-*.tgz
-
-################################################################################
-# dotenv environment variables file
-################################################################################
-.env.backup
-.env.backup.*
-
-################################################################################
-# parcel-bundler cache
-################################################################################
-.parcel-cache/
-
-################################################################################
-# Next.js build output
-################################################################################
-.next/
-out/
-
-################################################################################
-# Nuxt.js build / generate output
-################################################################################
-.nuxt/
-dist/
-
-
-################################################################################
-# Serverless directories
-################################################################################
-.serverless/
-
-################################################################################
-# FuseBox cache
-################################################################################
-.fusebox/
-
-################################################################################
-# DynamoDB Local files
-################################################################################
-.dynamodb/
-
-################################################################################
-# TernJS port file
-################################################################################
-.tern-port
-
-################################################################################
-# Stores VSCode versions used for testing
-################################################################################
-.vscode-test/
-
-################################################################################
-# yarn v2
-################################################################################
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-
-# Runtime state for the local ClawTeam board/CLI bridge; never commit events,
-# sessions, agent metadata, or cost records.
-/infra/hosts/worker-rtx5090/clawteam-state/
-.pnp.*
-
-################################################################################
-# Documentation Archive (docs/archive/)
-# Purpose: Store obsolete but potentially recoverable files
-################################################################################
-# Track archive documentation and structure
-!docs/archive/
-!docs/archive/**/*.md
-!docs/archive/**/.gitkeep
-
-# Exclude build artifacts from archives
-docs/archive/**/node_modules/
-docs/archive/**/.next/
-docs/archive/**/dist/
-docs/archive/**/build/
-docs/archive/**/*.log
-docs/archive/**/*.tmp
-docs/archive/**/*.old
-
-# Exclude sensitive files that may have been archived
-docs/archive/**/.env
-docs/archive/**/.env.*
-docs/archive/**/*.pem
-docs/archive/**/*.key
-docs/archive/**/*.db
-
-
-# Codanna local index/cache
-.codanna/
-.env.gitea
-.env.infisical
-.env.orchestrator
-.env.oracle
-.env.worker-*
-.env.portainer.orchestrator
-.env.portainer.edge
-.env.homeassistant-dashboard
-# Portainer per-node host configs (may contain PORTAINER_AGENT_SECRET)
-# Commit only TEMPLATE.env.host; fill secrets locally after pull.
-**/.env.host
-# Per-host env files — secrets live here during Infisical migration
-# Secrets
-.env
-.env.infisical
-.env.*
-!.env.example
-!infra/env/TEMPLATE.env.host
-# Oracle VPS live env (moved from infra/oracle/ to infra/env/)
-infra/hosts/oracle-vps/.env*
-# Generated Docker Compose output with expanded secrets.
-infra/hosts/oracle-vps/resolved_config.yml
-# Infisical agent tokens — never commit
-infra/hosts/**/.infisical-token
-infra/hosts/**/infisical-agent.token
-# Backup files in configs
-infra/configs/**/*.backup-*
-.secrets/
-gitea-setup-summary-*.md
-
-# Local external dependencies (git repos)
-# external/ is NOT ignored — all subdirs are tracked by default.
-# Explicit negations below protect against any future broad exclude rules:
-!external/pocket-tts/
-!external/pocket-tts-openai/
-data/pockettts/
-data/gitea/
-data/gitea-db/
-
-
-# Windows metadata copied through WSL/SMB
-*:Zone.Identifier
-Thumbs.db*
+# OS metadata & Windows artifacts
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 Desktop.ini
+*:Zone.Identifier
+*.tmp
+*.temp
+.cache/
+.temp/
+tmp/
+temp/
+*.bak
+*.orig
+*.rej
 
-################################################################################
-# Security and Secrets — NEVER COMMIT
-################################################################################
-# Infisical secret management (dev/staging/prod env files contain API keys)
-security/infisical/**/*.env
-security/infisical/**/.env.*
-# But keep templates/examples
-!security/infisical/**/*.env.example
-!security/infisical/**/*.env.template
+# Windows Reserved Filenames (Security)
+**/nul
+**/NUL
+**/CON
+**/PRN
+**/AUX
+**/COM[1-9]
+**/LPT[1-9]
 
-# Local .env files for any service secrets
-**/*-agent.env
-**/*-gateway.env
-**/*-proxy.env
-**/*-relay.env
-
-.vercel
-# Cloudflare OpenNext build output is generated in each Pages app.
-**/.open-next/
-.codex/*
-!.codex/agents/
-!.codex/agents/**
-!.codex/skills/
-!.codex/skills/**
-.codex/skills/.system/**
-!.codex/prompts/
-!.codex/prompts/**
-/.openharness/settings.json
+# ClawTeam runtime state
+**/clawteam-state/
