@@ -42,4 +42,4 @@ jobs:
             exit 0
           fi
 
-          gh pr merge "$PR_NUMBER" --repo "$REPOSITORY" --squash --delete-branch --admin
+          gh pr merge "$PR_NUMBER" --repo "$REPOSITORY" --auto --squash --delete-branch

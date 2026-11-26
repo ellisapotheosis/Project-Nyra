@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "24"
   CACHE_VERSION: v1
 
 jobs:
@@ -51,7 +51,7 @@ jobs:
         run: |
           VERIFICATION_ID="verify-$(date +%Y%m%d-%H%M%S)-${{ github.sha }}"
           echo "verification-id=$VERIFICATION_ID" >> $GITHUB_OUTPUT
-          echo "test-matrix={\"include\":[{\"os\":\"ubuntu-latest\",\"node\":\"20\"},{\"os\":\"macos-latest\",\"node\":\"20\"},{\"os\":\"windows-latest\",\"node\":\"20\"}]}" >> $GITHUB_OUTPUT
+          echo "test-matrix={\"include\":[{\"os\":\"ubuntu-latest\",\"node\":\"24\"},{\"os\":\"macos-latest\",\"node\":\"24\"},{\"os\":\"windows-latest\",\"node\":\"24\"}]}" >> $GITHUB_OUTPUT
           echo "cache-key=${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
 
       - name: Install dependencies

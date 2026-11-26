@@ -3,13 +3,13 @@ name: 🔗 Cross-Agent Integration Tests
 on:
   schedule:
     # Run integration tests daily at 3 AM UTC
-    - cron: '0 3 * * *'
+    - cron: "0 3 * * *"
   workflow_dispatch:
     inputs:
       integration_scope:
-        description: 'Integration test scope'
+        description: "Integration test scope"
         required: false
-        default: 'full'
+        default: "full"
         type: choice
         options:
           - smoke
@@ -17,23 +17,23 @@ on:
           - full
           - stress
       agent_count:
-        description: 'Maximum agent count for testing'
+        description: "Maximum agent count for testing"
         required: false
-        default: '8'
+        default: "8"
       test_duration:
-        description: 'Test duration in minutes'
+        description: "Test duration in minutes"
         required: false
-        default: '10'
+        default: "10"
 
 concurrency:
   group: integration-tests-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "24"
   MAX_PARALLEL_AGENTS: 8
   DEFAULT_TIMEOUT: 300000
-  INTEGRATION_DB_PATH: './integration-test.db'
+  INTEGRATION_DB_PATH: "./integration-test.db"
 
 jobs:
   # Setup integration test environment
@@ -668,13 +668,14 @@ jobs:
   integration-test-report:
     name: 📊 Integration Test Report
     runs-on: ubuntu-latest
-    needs: [
-      integration-setup,
-      test-agent-coordination,
-      test-memory-integration,
-      test-fault-tolerance,
-      test-performance-integration
-    ]
+    needs:
+      [
+        integration-setup,
+        test-agent-coordination,
+        test-memory-integration,
+        test-fault-tolerance,
+        test-performance-integration,
+      ]
     if: always()
     steps:
       - name: Checkout repository

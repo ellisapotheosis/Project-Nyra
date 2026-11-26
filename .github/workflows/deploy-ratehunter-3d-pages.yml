@@ -31,4 +31,4 @@ jobs:
           directory: apps/ratehunter-3d
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
-          wranglerVersion: "3"
+          wranglerVersion: "4"

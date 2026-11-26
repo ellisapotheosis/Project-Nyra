@@ -1,7 +1,7 @@
 # ============================================================================
 # Cloudflared Tunnel Configuration for Worker-3090
 # ============================================================================
-# Provides secure external access to Ollama API without exposing ports
+# Provides secure external access to the vLLM OpenAI-compatible API without exposing ports
 # Documentation: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/
 
 tunnel: worker-3090-tunnel
@@ -11,9 +11,9 @@ credentials-file: /etc/cloudflared/credentials.json
 # Ingress Rules
 # ============================================================================
 ingress:
-  # Ollama API endpoint
+  # vLLM OpenAI-compatible API endpoint
   - hostname: worker-3090.your-domain.com
-    service: http://localhost:11434
+    service: http://localhost:8000
     originRequest:
       noTLSVerify: false
       connectTimeout: 30s
@@ -36,7 +36,7 @@ ingress:
   # Health check endpoint
   - hostname: worker-3090-health.your-domain.com
     path: /health
-    service: http://localhost:11434/api/tags
+    service: http://localhost:8000
     originRequest:
       noTLSVerify: false
 

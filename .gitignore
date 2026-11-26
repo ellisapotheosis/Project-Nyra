@@ -29,6 +29,10 @@ out/
 *.tsbuildinfo
 coverage/
 .nyc_output/
+# OpenNext output is generated and must not be tracked, including in archived
+# guidance snapshots where query strings create invalid Windows filenames.
+**/.open-next/
+*:Zone.Identifier
 
 ################################################################################
 # Environment Files and Secrets
@@ -62,6 +66,7 @@ infra/env/secrets/
 /infra/hosts/shared.env
 /infra/hosts/*/.env
 /infra/hosts/*/.env.*
+!/infra/hosts/shared.env.example
 !**/.env.example
 !**/.env.*.example
 !**/*.env.example
@@ -488,6 +493,10 @@ dist/
 .yarn/unplugged
 .yarn/build-state.yml
 .yarn/install-state.gz
+
+# Runtime state for the local ClawTeam board/CLI bridge; never commit events,
+# sessions, agent metadata, or cost records.
+/infra/hosts/worker-rtx5090/clawteam-state/
 .pnp.*
 
 ################################################################################
@@ -582,3 +591,12 @@ security/infisical/**/.env.*
 .vercel
 # Cloudflare OpenNext build output is generated in each Pages app.
 **/.open-next/
+.codex/*
+!.codex/agents/
+!.codex/agents/**
+!.codex/skills/
+!.codex/skills/**
+.codex/skills/.system/**
+!.codex/prompts/
+!.codex/prompts/**
+/.openharness/settings.json

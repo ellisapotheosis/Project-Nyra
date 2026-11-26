@@ -45,7 +45,7 @@ concurrency:
 
 # Configure environment variables for the workflow
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "24"
   PNPM_VERSION: "10.27.0"
   APP_DIR: "apps/ratehunter"
   CLOUDFLARE_PROJECT_NAME: "ratehunter-landing"
@@ -412,7 +412,7 @@ jobs:
             mv apps/twenty-crm/package.json apps/twenty-crm/package.json.ci-skip
           fi
           trap 'if [ -f "apps/twenty-crm/package.json.ci-skip" ]; then mv apps/twenty-crm/package.json.ci-skip apps/twenty-crm/package.json; fi' EXIT
-          pnpm install --no-frozen-lockfile
+          pnpm install --frozen-lockfile
 
       - name: Run linting
         if: github.event.inputs.skip_tests != 'true'
@@ -450,28 +450,11 @@ jobs:
           echo "🔨 Building Next.js application for Cloudflare Pages..."
 
           # Try to use opennextjs-cloudflare build first (preferred for CF Pages)
-          if pnpm run build:cf 2>/dev/null; then
-            BUILD_DIR=".open-next"
-            echo "✅ OpenNext build completed (using .open-next directory)"
-          elif pnpm run build 2>/dev/null; then
-            # Fallback to standard Next.js build
-            if [ -d "out" ]; then
-              BUILD_DIR="out"
-              echo "✅ Static export build completed (using out directory)"
-            elif [ -d ".next" ]; then
-              BUILD_DIR=".next"
-              echo "✅ Next.js build completed (using .next directory)"
-            elif [ -d ".open-next" ]; then
-              BUILD_DIR=".open-next"
-              echo "✅ OpenNext output detected (using .open-next directory)"
-            else
-              BUILD_DIR="."
-              echo "⚠️ No build output detected, using source directory"
-            fi
-          else
-            echo "❌ Build failed"
-            exit 1
-          fi
+          pnpm run build:cf
+          test -f .open-next/worker.js
+          test -f .open-next/_worker.js
+          BUILD_DIR=".open-next"
+          echo "✅ OpenNext Pages artifact verified"
 
           echo "build_dir=$BUILD_DIR" >> $GITHUB_OUTPUT
 
@@ -731,7 +714,7 @@ jobs:
           directory: ${{ env.APP_DIR }}/${{ needs.build.outputs.build_dir }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref || github.ref_name }}
-          wranglerVersion: "3"
+          wranglerVersion: "4"
 
       - name: Verify deployment
         run: |
